@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -54,7 +55,7 @@ public class User extends BaseEntity {
 
     // 학적
     @Enumerated(EnumType.STRING)
-    private SchoolStatus  schoolStatus;
+    private SchoolStatus schoolStatus;
 
     // 거주지
     private String address;
@@ -64,6 +65,20 @@ public class User extends BaseEntity {
     
     // 학년 : 아마 1~6학년 예상
     private Integer grade;
+
+    // 유저 권한 설정 메소드
+    public void authorizeUser() {
+        this.userType = UserType.USER;
+    }
+
+    // 비밀번호 암호화 메소드
+    public void passwordEncode(PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(this.password);
+    }
+
+//    public void updateRefreshToken(String updateRefreshToken) {
+//        this.refreshToken = updateRefreshToken;
+//    }
 
     @Builder
     public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String schoolNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer grade) {
