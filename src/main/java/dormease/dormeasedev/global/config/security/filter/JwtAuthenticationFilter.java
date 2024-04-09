@@ -1,6 +1,7 @@
 package dormease.dormeasedev.global.config.security.filter;
 
 import dormease.dormeasedev.global.config.security.token.TokenProvider;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,26 +32,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = parseBearerToken(request);
+        String accessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION); // Access Token 추출
+        String refreshToken = parseBearerToken(request, "Refresh-Token"); // Refresh Token 추출
 
-        // 토큰 없이 모든 api 호출 가능한 문제 - if문 덕분에 해결
-//        if (token != null && tokenProvider.validateTokenAndGetSubject(token) != null) {
-        if (token != null) {
-            User user = parseUserSpecification(token); // UserDetail.User임
-            AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, token, user.getAuthorities());
-            authenticated.setDetails(new WebAuthenticationDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authenticated);
+        try {
+            if (accessToken != null && tokenProvider.validateTokenAndGetSubject(accessToken) != null) {
+                // Access Token이 유효한 경우
+                User user = parseUserSpecification(accessToken);
+                AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, accessToken, user.getAuthorities());
+                authenticated.setDetails(new WebAuthenticationDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticated);
+            } else if (refreshToken != null) {
+                // Refresh Token이 있는 경우
+                reissueAccessToken(request, response, refreshToken);
+                return; // 요청을 처리하고 종료
+            }
+
+        } catch (ExpiredJwtException e) {	// 변경
+            reissueAccessToken(request, response, refreshToken);
+        } catch (Exception e) {
+            request.setAttribute("exception", e);
         }
-//        User user = parseUserSpecification(token); // UserDetail.User임
-//        AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, token, user.getAuthorities());
-//        authenticated.setDetails(new WebAuthenticationDetails(request));
-//        SecurityContextHolder.getContext().setAuthentication(authenticated);
 
         filterChain.doFilter(request, response);
     }
 
-    private String parseBearerToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
+    // 매개변수에 헤더이름 추가
+    private String parseBearerToken(HttpServletRequest request, String headerName) {
+        return Optional.ofNullable(request.getHeader(headerName))
                 .filter(token -> token.substring(0, 7).equalsIgnoreCase("Bearer "))
                 .map(token -> token.substring(7))
                 .orElse(null);
@@ -64,5 +73,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .split(":");
 
         return new User(split[0], "", List.of(new SimpleGrantedAuthority(split[1])));
+    }
+
+    private void reissueAccessToken(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
+        try {
+            String oldAccessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION);
+
+            tokenProvider.validateRefreshToken(refreshToken, oldAccessToken);
+
+            String newAccessToken = tokenProvider.recreateAccessToken(oldAccessToken);
+
+            User user = parseUserSpecification(newAccessToken);
+            AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, newAccessToken, user.getAuthorities());
+            authenticated.setDetails(new WebAuthenticationDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticated);
+
+            response.setHeader("New-Access-Token", newAccessToken); // 응답 헤더에 새로운 Access Token 추가
+        } catch (Exception e) {
+            request.setAttribute("exception", e);
+        }
     }
 }

@@ -13,4 +13,5 @@ public class SignInResponse {
     private String loginId;
     private UserType userType;
     private String accessToken;
+    private String refreshToken;
 }

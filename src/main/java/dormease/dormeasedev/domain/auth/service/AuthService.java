@@ -1,5 +1,7 @@
 package dormease.dormeasedev.domain.auth.service;
 
+import dormease.dormeasedev.domain.auth.domain.RefreshToken;
+import dormease.dormeasedev.domain.auth.domain.repository.RefreshTokenRepository;
 import dormease.dormeasedev.domain.auth.dto.SignInRequest;
 import dormease.dormeasedev.domain.auth.dto.SignInResponse;
 import dormease.dormeasedev.domain.auth.dto.SignUpRequest;
@@ -18,17 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+
     private final PasswordEncoder passwordEncoder;
-    private final TokenProvider tokenProvider;	// 추가
+    private final TokenProvider tokenProvider;
 
     public void signUp(SignUpRequest userSignUpDto) throws Exception {
 
         if (userRepository.findByLoginId(userSignUpDto.getLoginId()).isPresent()) {
             throw new Exception("이미 존재하는 이메일입니다.");
-        }
-
-        if (userRepository.findByName(userSignUpDto.getName()).isPresent()) {
-            throw new Exception("이미 존재하는 닉네임입니다.");
         }
 
         User user = User.builder()
@@ -48,8 +48,15 @@ public class AuthService {
                 .filter(it -> passwordEncoder.matches(request.getPassword(), it.getPassword()))
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
-        String token = tokenProvider.createToken(String.format("%s:%s", user.getId(), user.getUserType()));	// 토큰 생성
+        String accessToken = tokenProvider.createAccessToken(String.format("%s:%s", user.getLoginId(), user.getUserType())); // Access Token 생성
+        String refreshToken = tokenProvider.createRefreshToken(); // Refresh Token 생성
 
-        return new SignInResponse(user.getName(), user.getUserType(), token);	// 생성자에 토큰 추가
+        // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가
+        refreshTokenRepository.findById(user.getLoginId()) // loginId가 PK(@Id)이므로 : findById() 사용 !
+                .ifPresentOrElse(
+                        it -> it.updateRefreshToken(refreshToken),
+                        () -> refreshTokenRepository.save(new RefreshToken(user.getLoginId(), user, refreshToken))
+                );
+        return new SignInResponse(user.getName(), user.getUserType(), accessToken, refreshToken);
     }
 }

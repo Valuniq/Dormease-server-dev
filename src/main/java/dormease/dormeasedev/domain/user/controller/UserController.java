@@ -23,7 +23,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = String.class))}),
     })
     @GetMapping
-    public String  findUserByToken() {
+    public String helloWorldTest() {
         return "Hello World";
     }
 }
