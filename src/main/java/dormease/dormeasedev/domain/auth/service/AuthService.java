@@ -25,16 +25,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
 
-    public void signUp(SignUpRequest userSignUpDto) throws Exception {
+    public void signUp(SignUpRequest signUpRequest) throws Exception {
 
-        if (userRepository.findByLoginId(userSignUpDto.getLoginId()).isPresent()) {
-            throw new Exception("이미 존재하는 이메일입니다.");
+        if (userRepository.findByLoginId(signUpRequest.getLoginId()).isPresent()) {
+            throw new Exception("이미 존재하는 아이디입니다.");
         }
 
         User user = User.builder()
-                .loginId(userSignUpDto.getLoginId())
-                .password(userSignUpDto.getPassword())
-                .name(userSignUpDto.getName())
+                .loginId(signUpRequest.getLoginId())
+                .password(signUpRequest.getPassword())
+                .name(signUpRequest.getName())
                 .userType(UserType.USER) // 관리자는 직접 만들어 줄 것이기 떄문
                 .build();
 
@@ -42,21 +42,21 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public SignInResponse signIn(SignInRequest request) {
+    public SignInResponse signIn(SignInRequest signInRequest) {
 
-        User user = userRepository.findByLoginId(request.getLoginId())
-                .filter(it -> passwordEncoder.matches(request.getPassword(), it.getPassword()))
+        User user = userRepository.findByLoginId(signInRequest.getLoginId())
+                .filter(it -> passwordEncoder.matches(signInRequest.getPassword(), it.getPassword()))
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
         String accessToken = tokenProvider.createAccessToken(String.format("%s:%s", user.getLoginId(), user.getUserType())); // Access Token 생성
         String refreshToken = tokenProvider.createRefreshToken(); // Refresh Token 생성
 
         // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가
-        refreshTokenRepository.findById(user.getLoginId()) // loginId가 PK(@Id)이므로 : findById() 사용 !
+        refreshTokenRepository.findById(user.getLoginId()) // loginId가 PK(@Id)이므로 : findById() 사용
                 .ifPresentOrElse(
                         it -> it.updateRefreshToken(refreshToken),
                         () -> refreshTokenRepository.save(new RefreshToken(user.getLoginId(), user, refreshToken))
                 );
-        return new SignInResponse(user.getName(), user.getUserType(), accessToken, refreshToken);
+        return new SignInResponse(accessToken, refreshToken, user.getUserType());
     }
 }
