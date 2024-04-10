@@ -1,5 +1,7 @@
 package dormease.dormeasedev.global.config.security.filter;
 
+import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
+import dormease.dormeasedev.global.config.security.token.CustomUserDetailService;
 import dormease.dormeasedev.global.config.security.token.TokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -15,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -32,6 +35,7 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
+    private final CustomUserDetailService customUserDetailService;
 
     // 요청 마다 필터링
     @Override
@@ -43,8 +47,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             if (accessToken != null && tokenProvider.validateTokenAndGetSubject(accessToken) != null) {
                 // Access Token이 유효한 경우
-                User user = parseUserSpecification(accessToken);
-                AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, accessToken, user.getAuthorities());
+//                User user = parseUserSpecification(accessToken);
+                UserDetails userDetails = parseUserSpecification(accessToken);
+//                AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, accessToken, user.getAuthorities());
+                AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(userDetails, accessToken, userDetails.getAuthorities());
                 authenticated.setDetails(new WebAuthenticationDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticated);
             } else if (refreshToken != null) {
@@ -70,14 +76,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .orElse(null);
     }
 
-    private User parseUserSpecification(String token) {
+//    private User parseUserSpecification(String token) {
+    private UserDetails parseUserSpecification(String token) {
         String[] split = Optional.ofNullable(token)
                 .filter(subject -> subject.length() >= 10)
                 .map(tokenProvider::validateTokenAndGetSubject)
                 .orElse("anonymous:anonymous")
                 .split(":");
 
-        return new User(split[0], "", List.of(new SimpleGrantedAuthority(split[1])));
+        // split[0] ==> loginId
+        UserDetails userDetails = customUserDetailService.loadUserByUsername(split[0]);
+
+        //
+
+//        return new User(split[0], "", List.of(new SimpleGrantedAuthority(split[1])));
+        return userDetails;
     }
 
     private void reissueAccessToken(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
@@ -88,8 +101,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String newAccessToken = tokenProvider.recreateAccessToken(oldAccessToken);
 
-            User user = parseUserSpecification(newAccessToken);
-            AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, newAccessToken, user.getAuthorities());
+//            User user = parseUserSpecification(newAccessToken);
+            UserDetails userDetails = parseUserSpecification(newAccessToken);
+//            AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, newAccessToken, user.getAuthorities());
+            AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(userDetails, newAccessToken, userDetails.getAuthorities());
             authenticated.setDetails(new WebAuthenticationDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticated);
 

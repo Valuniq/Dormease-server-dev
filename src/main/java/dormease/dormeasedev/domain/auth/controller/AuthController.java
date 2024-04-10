@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.auth.dto.response.CheckLoginIdRes;
 import dormease.dormeasedev.domain.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.auth.dto.request.SignUpReq;
 import dormease.dormeasedev.domain.auth.service.AuthService;
+import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Auth API", description = "Auth 관련 API입니다.")
@@ -35,7 +35,7 @@ public class AuthController {
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(
             @Parameter(description = "Schemas의 SignUpRequest를 참고해주세요.", required = true) @Valid @RequestBody SignUpReq signUpReq
-    ) throws Exception {
+    ) {
         return authService.signUp(signUpReq);
     }
 
@@ -47,7 +47,7 @@ public class AuthController {
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(
             @Parameter(description = "Schemas의 SignInRequest를 참고해주세요.", required = true) @RequestBody SignInReq signInReq
-    ) throws Exception {
+    ) {
         return authService.signIn(signInReq);
     }
 
@@ -59,7 +59,7 @@ public class AuthController {
     @GetMapping("/loginId/{loginId}")
     public ResponseEntity<?> checkLoginId(
             @Parameter(description = "검사할 아이디를 입력해주세요.", required = true) @PathVariable(value = "loginId") String loginId
-    ) throws Exception {
+    ) {
         return authService.checkLoginId(loginId);
     }
 

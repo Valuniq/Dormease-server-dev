@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.user.controller;
 
 import dormease.dormeasedev.domain.user.dto.request.FindLoginIdReq;
 import dormease.dormeasedev.domain.user.service.UserService;
+import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,9 +45,9 @@ public class UserController {
     @GetMapping("/loginId")
     public ResponseEntity<?> findLoginId(
             // UserDetails 인터페이스의 getUsername() 메서드: loginId 반환 - 이유 : 인증하는데 사용된 것을 반환하기 때문
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetails userDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "Schemas의 FindLoginIdRequest를 참고해주세요.", required = true) @RequestBody FindLoginIdReq findLoginIdReq
     ) throws Exception {
-        return userService.findLoginId(userDetails, findLoginIdReq);
+        return userService.findLoginId(customUserDetails, findLoginIdReq);
     }
 }

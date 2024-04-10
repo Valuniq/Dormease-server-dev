@@ -6,12 +6,17 @@ import dormease.dormeasedev.domain.auth.dto.request.SignInReq;
 import dormease.dormeasedev.domain.auth.dto.response.CheckLoginIdRes;
 import dormease.dormeasedev.domain.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.auth.dto.request.SignUpReq;
+import dormease.dormeasedev.domain.school.SchoolService;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.school.domain.repository.SchoolRepository;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.UserType;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
+import dormease.dormeasedev.domain.user.service.UserService;
+import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.TokenProvider;
+import dormease.dormeasedev.global.payload.ApiResponse;
+import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,30 +25,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Service
 public class AuthService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
-    private final SchoolRepository schoolRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
 
+    private final UserService userService;
+    private final SchoolService schoolService;
+
     @Transactional
-    public ResponseEntity<?> signUp(SignUpReq signUpReq) throws Exception {
+    public ResponseEntity<?> signUp(SignUpReq signUpReq) {
 
-        Optional<School> findSchool = schoolRepository.findById(signUpReq.getSchoolId());
-
-        if (findSchool.isEmpty())
-            throw new Exception("존재하지 않는 학교입니다.");
-
-        School school = findSchool.get();
-
-        if (userRepository.findByLoginId(signUpReq.getLoginId()).isPresent())
-            throw new Exception("이미 존재하는 아이디입니다.");
+        School school = schoolService.validateSchoolById(signUpReq.getSchoolId());
+        // 이미 존재하는 로그인 아이디가 있으면
+        DefaultAssert.isTrue(userRepository.findByLoginId(signUpReq.getLoginId()).isEmpty(), "중복된 아이디입니다.");
 
         User user = User.builder()
                 .school(school)
@@ -58,7 +59,13 @@ public class AuthService {
 
         user.passwordEncode(passwordEncoder);
         userRepository.save(user);
-        return ResponseEntity.ok("회원가입 완료");
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("회원가입이 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 
     @Transactional
@@ -78,10 +85,22 @@ public class AuthService {
                         () -> refreshTokenRepository.save(new RefreshToken(user.getLoginId(), user, refreshToken))
                 );
 
-        return ResponseEntity.ok(new SignInRes(accessToken, refreshToken, user.getUserType()));
+        SignInRes signInRes = SignInRes.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .userType(user.getUserType())
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(signInRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 
-    public ResponseEntity<?> checkLoginId(String loginId) throws Exception {
+    public ResponseEntity<?> checkLoginId(String loginId) {
+
         Optional<User> finduser = userRepository.findByLoginId(loginId);
         boolean isDuplicate = false;
         if (finduser.isPresent())
@@ -91,6 +110,11 @@ public class AuthService {
                 .isDuplicate(isDuplicate)
                 .build();
 
-        return ResponseEntity.ok(checkLoginIdRes);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(checkLoginIdRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 }
