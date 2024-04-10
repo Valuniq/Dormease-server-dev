@@ -1,8 +1,11 @@
 package dormease.dormeasedev.domain.user.controller;
 
 import dormease.dormeasedev.domain.user.dto.request.FindLoginIdReq;
+import dormease.dormeasedev.domain.user.dto.request.FindPasswordReq;
+import dormease.dormeasedev.domain.user.dto.response.FindLoginIdRes;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.payload.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,11 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User API", description = "User 관련 API입니다.")
 @RequiredArgsConstructor
@@ -27,27 +26,29 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "Hello World", description = "Hello World를 조회합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = String.class))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = String.class))}),
-    })
-    @GetMapping
-    public String helloWorldTest() {
-        return "Hello World";
-    }
-
     @Operation(summary = "로그인 아이디 찾기", description = "로그인 아이디를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = FindLoginIdRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/loginId")
     public ResponseEntity<?> findLoginId(
-            // UserDetails 인터페이스의 getUsername() 메서드: loginId 반환 - 이유 : 인증하는데 사용된 것을 반환하기 때문
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "Schemas의 FindLoginIdRequest를 참고해주세요.", required = true) @RequestBody FindLoginIdReq findLoginIdReq
-    ) throws Exception {
+    ) {
         return userService.findLoginId(customUserDetails, findLoginIdReq);
+    }
+
+    @Operation(summary = "비밀번호 ", description = "비밀번호를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = String.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PatchMapping("/password")
+    public ResponseEntity<?> findPassword(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Schemas의 FindPasswordReq 참고해주세요.", required = true) @RequestBody FindPasswordReq findPasswordReq
+    ) {
+        return userService.findPassword(customUserDetails, findPasswordReq);
     }
 }

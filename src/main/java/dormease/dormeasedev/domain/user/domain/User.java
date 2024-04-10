@@ -76,6 +76,11 @@ public class User extends BaseEntity {
         this.password = passwordEncoder.encode(this.password);
     }
 
+    // Description : update 함수
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
 //    public void updateRefreshToken(String updateRefreshToken) {
 //        this.refreshToken = updateRefreshToken;
 //    }

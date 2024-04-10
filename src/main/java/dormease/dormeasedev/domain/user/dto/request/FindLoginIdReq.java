@@ -14,4 +14,7 @@ public class FindLoginIdReq {
     @Schema(type = "String", example = "01012345678", description= "전화번호입니다.")
     private String phoneNumber;
 
+    @Schema(type = "boolean", example = "true", description= "인증번호 인증 여부입니다.")
+    private boolean certification;
+
 }
