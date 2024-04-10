@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -16,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 // 토큰에 담긴 정보로 사용자를 필터링해줄 필터
+@Slf4j
 @Order(0)
 @RequiredArgsConstructor
 @Component
@@ -30,8 +33,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
 
+    // 요청 마다 필터링
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         String accessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION); // Access Token 추출
         String refreshToken = parseBearerToken(request, "Refresh-Token"); // Refresh Token 추출
 
@@ -92,5 +97,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             request.setAttribute("exception", e);
         }
+    }
+
+    // for Userprincipal
+    private String getJwtFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+            log.info("bearerToken = {}", bearerToken.substring(7, bearerToken.length()));
+            return bearerToken.substring(7, bearerToken.length());
+        }
+        return null;
     }
 }

@@ -89,11 +89,11 @@ public class User extends BaseEntity {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.schoolNumber = schoolNumber;
-        this.alarmSetting = alarmSetting;
+        this.alarmSetting = true;
         this.gender = gender;
         this.userType = userType;
-        this.bonusPoint = bonusPoint;
-        this.minusPoint = minusPoint;
+        this.bonusPoint = 0;
+        this.minusPoint = 0;
         this.schoolStatus = schoolStatus;
         this.address = address;
         this.major = major;

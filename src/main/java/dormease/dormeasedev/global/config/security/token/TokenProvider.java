@@ -32,6 +32,7 @@ public class TokenProvider {
     private final RefreshTokenRepository refreshTokenRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+
     public TokenProvider(
             @Value("${secret-key}") String secretKey,
             @Value("${expiration-minutes}") long expirationMinutes,

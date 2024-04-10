@@ -27,7 +27,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;	// JwtAuthenticationFilter 주입
 
-    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/v3/**", "/api/v1/auth/sign-up", "/api/v1/auth/sign-in"};	// sign-up, sign-in 추가
+    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/v3/**", "/api/v1/auth/**"};	// sign-up, sign-in 추가
 
     @Bean
     public PasswordEncoder passwordEncoder() {
