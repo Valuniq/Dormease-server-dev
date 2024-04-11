@@ -14,6 +14,7 @@ import dormease.dormeasedev.domain.user.domain.UserType;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
+import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.config.security.token.TokenProvider;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
@@ -51,7 +52,7 @@ public class AuthService {
                 .name(signUpReq.getName())
                 .gender(signUpReq.getGender())
                 .phoneNumber(signUpReq.getPhoneNumber())
-                .schoolNumber(signUpReq.getSchoolNumber())
+                .studentNumber(signUpReq.getSchoolNumber())
                 .loginId(signUpReq.getLoginId())
                 .password(signUpReq.getPassword())
                 .userType(UserType.USER) // 관리자는 직접 만들어 줄 것이기 떄문
@@ -94,6 +95,22 @@ public class AuthService {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(signInRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @Transactional
+    public ResponseEntity<?> signout(CustomUserDetails customUserDetails) {
+
+        Optional<RefreshToken> findRefreshToken = refreshTokenRepository.findByLoginId(customUserDetails.getLoginId());
+        DefaultAssert.isTrue(findRefreshToken.isPresent(), "이미 로그아웃 되었습니다");
+
+        refreshTokenRepository.delete(findRefreshToken.get());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("로그아웃 되었습니다.").build())
                 .build();
 
         return ResponseEntity.ok(apiResponse);

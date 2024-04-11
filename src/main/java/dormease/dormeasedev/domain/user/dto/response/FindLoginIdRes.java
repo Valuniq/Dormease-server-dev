@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.user.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 @NoArgsConstructor
@@ -9,5 +10,6 @@ import lombok.*;
 @Builder
 public class FindLoginIdRes {
 
+    @Schema(type = "String", example = "phonil", description= "로그인 시 사용될 아이디입니다.")
     private String loginId;
 }

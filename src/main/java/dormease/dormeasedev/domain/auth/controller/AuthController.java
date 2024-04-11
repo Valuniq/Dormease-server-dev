@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.auth.dto.response.CheckLoginIdRes;
 import dormease.dormeasedev.domain.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.auth.dto.request.SignUpReq;
 import dormease.dormeasedev.domain.auth.service.AuthService;
+import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Auth API", description = "Auth 관련 API입니다.")
@@ -49,6 +51,18 @@ public class AuthController {
             @Parameter(description = "Schemas의 SignInRequest를 참고해주세요.", required = true) @RequestBody SignInReq signInReq
     ) {
         return authService.signIn(signInReq);
+    }
+
+    @Operation(summary = "유저 로그아웃", description = "유저 로그아웃을 수행합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "로그아웃 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PostMapping(value = "/sign-out")
+    public ResponseEntity<?> signout(
+            @Parameter(description = "Accesstoken을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return authService.signout(customUserDetails);
     }
 
     @Operation(summary = "로그인 아이디 중복 체크", description = "로그인 아이디가 중복인지 검사합니다.")

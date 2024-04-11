@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.user.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.user.dto.request.ModifyStudentNumberReq;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -37,7 +38,7 @@ public class User extends BaseEntity {
 
     private String phoneNumber;
 
-    private String schoolNumber;
+    private String studentNumber;
 
     private Boolean alarmSetting;
 
@@ -81,19 +82,27 @@ public class User extends BaseEntity {
         this.password = password;
     }
 
-//    public void updateRefreshToken(String updateRefreshToken) {
+    public void updateStudentNumber(String studentNumber) {
+        this.studentNumber = studentNumber;
+    }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    //    public void updateRefreshToken(String updateRefreshToken) {
 //        this.refreshToken = updateRefreshToken;
 //    }
 
     @Builder
-    public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String schoolNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer grade) {
+    public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String studentNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer grade) {
         this.id = id;
         this.school = school;
         this.loginId = loginId;
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.schoolNumber = schoolNumber;
+        this.studentNumber = studentNumber;
         this.alarmSetting = true;
         this.gender = gender;
         this.userType = userType;
@@ -104,4 +113,5 @@ public class User extends BaseEntity {
         this.major = major;
         this.grade = grade;
     }
+
 }
