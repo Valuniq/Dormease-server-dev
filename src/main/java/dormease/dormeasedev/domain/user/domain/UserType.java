@@ -6,9 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum UserType {
-    ADMIN("ADMIN"),
-    USER("USER"),
-    BLACKLIST("BLACKLIST");
+    ADMIN("ROLE_ADMIN"),
+    USER("ROLE_USER"),
+    BLACKLIST("ROLE_BLACKLIST");
 
     private String value;
 }

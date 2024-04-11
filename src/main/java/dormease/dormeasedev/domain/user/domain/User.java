@@ -2,11 +2,13 @@ package dormease.dormeasedev.domain.user.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.user.dto.request.ModifyStudentNumberReq;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -36,7 +38,7 @@ public class User extends BaseEntity {
 
     private String phoneNumber;
 
-    private String schoolNumber;
+    private String studentNumber;
 
     private Boolean alarmSetting;
 
@@ -54,7 +56,7 @@ public class User extends BaseEntity {
 
     // 학적
     @Enumerated(EnumType.STRING)
-    private SchoolStatus  schoolStatus;
+    private SchoolStatus schoolStatus;
 
     // 거주지
     private String address;
@@ -65,23 +67,51 @@ public class User extends BaseEntity {
     // 학년 : 아마 1~6학년 예상
     private Integer grade;
 
+    // 유저 권한 설정 메소드
+    public void authorizeUser() {
+        this.userType = UserType.USER;
+    }
+
+    // 비밀번호 암호화 메소드
+    public void passwordEncode(PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(this.password);
+    }
+
+    // Description : update 함수
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateStudentNumber(String studentNumber) {
+        this.studentNumber = studentNumber;
+    }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    //    public void updateRefreshToken(String updateRefreshToken) {
+//        this.refreshToken = updateRefreshToken;
+//    }
+
     @Builder
-    public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String schoolNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer grade) {
+    public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String studentNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer grade) {
         this.id = id;
         this.school = school;
         this.loginId = loginId;
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.schoolNumber = schoolNumber;
-        this.alarmSetting = alarmSetting;
+        this.studentNumber = studentNumber;
+        this.alarmSetting = true;
         this.gender = gender;
         this.userType = userType;
-        this.bonusPoint = bonusPoint;
-        this.minusPoint = minusPoint;
+        this.bonusPoint = 0;
+        this.minusPoint = 0;
         this.schoolStatus = schoolStatus;
         this.address = address;
         this.major = major;
         this.grade = grade;
     }
+
 }
