@@ -8,7 +8,6 @@ import dormease.dormeasedev.domain.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.auth.dto.request.SignUpReq;
 import dormease.dormeasedev.domain.school.SchoolService;
 import dormease.dormeasedev.domain.school.domain.School;
-import dormease.dormeasedev.domain.school.domain.repository.SchoolRepository;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.UserType;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
@@ -52,7 +51,7 @@ public class AuthService {
                 .name(signUpReq.getName())
                 .gender(signUpReq.getGender())
                 .phoneNumber(signUpReq.getPhoneNumber())
-                .studentNumber(signUpReq.getSchoolNumber())
+                .studentNumber(signUpReq.getStudentNumber())
                 .loginId(signUpReq.getLoginId())
                 .password(signUpReq.getPassword())
                 .userType(UserType.USER) // 관리자는 직접 만들어 줄 것이기 떄문

@@ -24,7 +24,7 @@ public class SignUpReq {
     private String phoneNumber;
 
     @Schema(type = "String", example = "60190927", description= "사용자의 학번입니다.")
-    private String schoolNumber;
+    private String studentNumber;
 
     @Schema(type = "String", example = "phonil", description= "로그인 시 사용될 아이디입니다. 중복 x.")
     private String loginId;
