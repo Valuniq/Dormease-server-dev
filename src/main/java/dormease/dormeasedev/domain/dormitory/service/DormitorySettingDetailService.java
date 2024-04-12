@@ -34,7 +34,7 @@ public class DormitorySettingDetailService {
 
     // 호실 개수 추가
     @Transactional
-    public ResponseEntity<?> addFloorAndRoomNumber(CustomUserDetails customUserDetails, Long dormitoryId, AddRoomNumberReq addRoomNumberReq) {   // UserPrincipal
+    public ResponseEntity<?> addFloorAndRoomNumber(CustomUserDetails customUserDetails, Long dormitoryId, AddRoomNumberReq addRoomNumberReq) {
         User user = userRepository.findById(customUserDetails.getId())
                 .orElseThrow(() -> new DefaultException(ErrorCode.INVALID_PARAMETER, "사용자가 존재하지 않습니다."));
 
@@ -50,20 +50,22 @@ public class DormitorySettingDetailService {
         verifyRoomNumber(floor, start, end);
 
         try {
-            generateRoomNumbers(dormitory, floor, start, end);
+            List<Room> rooms = generateRoomNumbers(dormitory, floor, start, end);
+            // RoomCount 업데이트
+            dormitory.updateRoomCount(dormitory.getRoomCount() + rooms.size());
         } catch (Exception e) {
             throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR, "호실 생성 중 오류가 발생했습니다.");
         }
 
-        // dormitory RoomCount 업데이트
-        dormitory.updateRoomCount(dormitory.getRoomCount() + ( end - start + 1));
-
         // 층으로 호실 조회메소드 호출
-        ApiResponse apiResponse = ApiResponse.builder().build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information("호실이 추가되었습니다.")
+                .build();
         return ResponseEntity.ok(apiResponse);
     }
 
-    private void generateRoomNumbers(Dormitory dormitory, int floor, int startRoomNumber, int endRoomNumber) {
+    private List<Room> generateRoomNumbers(Dormitory dormitory, int floor, int startRoomNumber, int endRoomNumber) {
         List<Room> rooms = new ArrayList<>();
         try {
             for (int roomNumber = startRoomNumber; roomNumber <= endRoomNumber; roomNumber++) {
@@ -85,7 +87,7 @@ public class DormitorySettingDetailService {
             throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR, "호실 저장 중 오류가 발생했습니다.");
         }
         // 생성한 호실 한번에 저장
-        roomRepository.saveAll(rooms);
+        return roomRepository.saveAll(rooms);
 
     }
 
