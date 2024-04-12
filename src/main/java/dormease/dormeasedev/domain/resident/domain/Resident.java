@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.resident.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
-import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.roommate_application.domain.RoommateApplication;
@@ -24,8 +24,8 @@ public class Resident extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dormitory_id")
-    private Dormitory dormitory;
+    @JoinColumn(name = "dormitory_setting_term_id")
+    private DormitorySettingTerm dormitorySettingTerm;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
@@ -81,9 +81,9 @@ public class Resident extends BaseEntity {
     private Boolean hasKey;
 
     @Builder
-    public Resident(Long id, Dormitory dormitory, Room room, User user, RoommateApplication roommateApplication, RoommateTempApplication roommateTempApplication, MealTicket mealTicket, Integer bedNumber, Boolean isRoommateApplied, String copy, String prioritySelectionCopy, Boolean isSmoking, Boolean dormitoryPayment, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean hasKey) {
+    public Resident(Long id, DormitorySettingTerm dormitorySettingTerm, Room room, User user, RoommateApplication roommateApplication, RoommateTempApplication roommateTempApplication, MealTicket mealTicket, Integer bedNumber, Boolean isRoommateApplied, String copy, String prioritySelectionCopy, Boolean isSmoking, Boolean dormitoryPayment, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean hasKey) {
         this.id = id;
-        this.dormitory = dormitory;
+        this.dormitorySettingTerm = dormitorySettingTerm;
         this.room = room;
         this.user = user;
         this.roommateApplication = roommateApplication;
