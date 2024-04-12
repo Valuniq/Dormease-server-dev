@@ -53,8 +53,8 @@ public class Room extends BaseEntity {
         this.floor = floor;
         this.gender = gender;
         this.roomSize = roomSize;
-        this.hasKey = hasKey;
+        this.hasKey = false;
         this.currentPeople = currentPeople;
-        this.isActivated = isActivated;
+        this.isActivated = true;
     }
 }
