@@ -14,11 +14,10 @@ import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
+import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.error.DefaultException;
-import dormease.dormeasedev.global.error.DefaultNullPointerException;
 import dormease.dormeasedev.global.payload.ApiResponse;
-import dormease.dormeasedev.global.payload.ErrorCode;
+import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -45,8 +44,9 @@ public class DormitorySettingService {
     @Transactional
     public ResponseEntity<?> registerDormitory(CustomUserDetails customUserDetails, RegisterDormitoryReq registerDormitoryReq,
                                                MultipartFile image) {
-        User user = userRepository.findById(customUserDetails.getId())
-                .orElseThrow(() -> new DefaultException(ErrorCode.INVALID_PARAMETER, "사용자가 존재하지 않습니다."));
+
+        Optional<User> findUser = userRepository.findById(customUserDetails.getId());
+        User user = findUser.get();
 
         Dormitory dormitory = Dormitory.builder()
                 .school(user.getSchool())
@@ -60,7 +60,7 @@ public class DormitorySettingService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information("건물이 추가되었습니다").build();
+                .information(Message.builder().message("건물이 추가되었습니다.").build()).build();
 
         return ResponseEntity.ok(apiResponse);
     }
@@ -76,42 +76,37 @@ public class DormitorySettingService {
 
     // [건물 설정] 건물 목록 조회
     public ResponseEntity<?> getDormitoriesExceptGenderBySchool(CustomUserDetails customUserDetails) {
-        try {
-            User user = userRepository.findById(customUserDetails.getId())
-                    .orElseThrow(() -> new DefaultException(ErrorCode.INVALID_PARAMETER, "사용자가 존재하지 않습니다."));
 
-            // 학교별 건물 조회
-            List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
+        Optional<User> findUser = userRepository.findById(customUserDetails.getId());
+        User user = findUser.get();
 
-            // 기존에 등록된 기숙사 이름 저장
-            Set<String> existingDormitoryNames = ConcurrentHashMap.newKeySet();
+        // 학교별 건물 조회
+        List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
 
-            List<DormitoryRes> dormitoryResList;
+        // 기존에 등록된 기숙사 이름 저장
+        Set<String> existingDormitoryNames = ConcurrentHashMap.newKeySet();
 
-            // 기존에 등록된 기숙사 이름 추가
-            synchronized (existingDormitoryNames) {
-                dormitoryResList = dormitories.stream()
-                        .filter(dormitory -> existingDormitoryNames.add(dormitory.getName()))
-                        .map(dormitory -> DormitoryRes.builder()
-                                .id(dormitory.getId())
-                                .name(dormitory.getName())
-                                .imageUrl(dormitory.getImageUrl())
-                                .build())
-                        .collect(Collectors.toList());
-            }
+        List<DormitoryRes> dormitoryResList;
 
-            ApiResponse apiResponse = ApiResponse.builder()
-                    .check(true)
-                    .information(dormitoryResList)
-                    .build();
-
-            return ResponseEntity.ok(apiResponse);
-
-        } catch (DefaultNullPointerException e) {
-            throw new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER);
-        } catch (Exception e) {
-            throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR);
+        // 기존에 등록된 기숙사 이름 추가
+        synchronized (existingDormitoryNames) {
+            dormitoryResList = dormitories.stream()
+                    .filter(dormitory -> existingDormitoryNames.add(dormitory.getName()))
+                    .map(dormitory -> DormitoryRes.builder()
+                            .id(dormitory.getId())
+                            .name(dormitory.getName())
+                            .imageUrl(dormitory.getImageUrl())
+                            .build())
+                    .collect(Collectors.toList());
         }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryResList)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+
     }
 
     // 건물 상세 조회
@@ -120,79 +115,59 @@ public class DormitorySettingService {
     // [건물 설정] 건물 사진 추가 및 변경
     @Transactional
     public ResponseEntity<?> updateDormitoryImage(CustomUserDetails customUserDetails, Long dormitoryId, MultipartFile image) {
-        try {
-            User user = userRepository.findById(customUserDetails.getId())
-                    .orElseThrow(() -> new DefaultException(ErrorCode.INVALID_PARAMETER, "사용자가 존재하지 않습니다."));
+        Optional<User> findUser = userRepository.findById(customUserDetails.getId());
+        User user = findUser.get();
 
-            Dormitory dormitory = dormitoryRepository.findById(dormitoryId)
-                    .orElseThrow(() -> new DefaultException(ErrorCode.INVALID_PARAMETER, "건물이 존재하지 않습니다."));
+        Dormitory dormitory = validDormitoryById(dormitoryId);
 
-            // 학교가 동일한지 확인
-            isSameSchoolAsDormitory(user.getSchool(), dormitory.getSchool());
+        // s3 이미지 업로드
+        String imagePath = s3Uploader.uploadImage(image);
 
-            // s3 이미지 업로드
-            String imagePath = s3Uploader.uploadImage(image);
+        dormitory.updateImageUrl(imagePath);
+        dormitoryRepository.save(dormitory);
 
-            dormitory.updateImageUrl(imagePath);
-            dormitoryRepository.save(dormitory);
+        // 동일 학교와 동일 건물 이름을 가진 모든 건물의 이미지 경로 업데이트
+        dormitoryRepository.updateImageUrlForSchoolAndDorm(user.getSchool(), dormitory.getName(), imagePath);
 
-            // 동일 학교와 동일 건물 이름을 가진 모든 건물의 이미지 경로 업데이트
-            dormitoryRepository.updateImageUrlForSchoolAndDorm(user.getSchool(), dormitory.getName(), imagePath);
-
-            // 기존 이미지 삭제
-            String originalFilePath = dormitory.getImageUrl();
-            if (originalFilePath != null && originalFilePath.contains("amazonaws.com/")) {
-                String originalFileName = originalFilePath.split("amazonaws.com/")[1];
-                s3Uploader.deleteFile(originalFileName);
-            }
-
-            ApiResponse apiResponse = ApiResponse.builder()
-                    .check(true)
-                    .information("사진이 변경되었습니다.")
-                    .build();
-            return ResponseEntity.ok(apiResponse);
-
-        } catch (Exception e) {
-            throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR, "사진 추가 중 오류가 발생하였습니다.");
+        // 기존 이미지 삭제
+        String originalFilePath = dormitory.getImageUrl();
+        if (originalFilePath != null && originalFilePath.contains("amazonaws.com/")) {
+            String originalFileName = originalFilePath.split("amazonaws.com/")[1];
+            s3Uploader.deleteFile(originalFileName);
         }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("사진이 변경되었습니다.").build())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+
     }
 
     // 건물 삭제(해당 건물에 배정된 사생이 있을 시 삭제 불가)
     @Transactional
     public ResponseEntity<?> deleteDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
-        try {
-            User user = userRepository.findById(customUserDetails.getId())
-                    .orElseThrow(() -> new DefaultException(ErrorCode.INVALID_PARAMETER, "사용자가 존재하지 않습니다."));
+        Dormitory dormitory = validDormitoryById(dormitoryId);
 
-            Dormitory dormitory = dormitoryRepository.findById(dormitoryId)
-                    .orElseThrow(() -> new DefaultException(ErrorCode.INVALID_PARAMETER, "건물이 존재하지 않습니다."));
+        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
 
-            isSameSchoolAsDormitory(user.getSchool(), dormitory.getSchool());
+        // 관련된 사생 데이터 확인
+        DefaultAssert.isTrue(!hasRelatedResidents(sameNameDormitories), "해당 건물에 배정된 사생이 있어 삭제할 수 없습니다.");
 
-            List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-
-            // 관련된 사생 데이터 확인
-            if (hasRelatedResidents(sameNameDormitories)) {
-                throw new DefaultException(ErrorCode.INVALID_CHECK, "해당 건물에 배정된 사생이 있어 삭제할 수 없습니다.");
-            }
-
-            // 건물 이미지 삭제
-            if (dormitory.getImageUrl() != null) {
-                s3Uploader.deleteFile(dormitory.getImageUrl());
-            }
-
-            // 건물 삭제
-            dormitoryRepository.deleteAll(sameNameDormitories);
-
-            ApiResponse apiResponse = ApiResponse.builder()
-                    .check(true)
-                    .information("건물이 삭제되었습니다.")
-                    .build();
-            return ResponseEntity.ok(apiResponse);
-
-        } catch (DefaultException e) {
-            throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR, "건물 삭제 중 오류가 발생하였습니다.");
+        // 건물 이미지 삭제
+        if (dormitory.getImageUrl() != null) {
+            s3Uploader.deleteFile(dormitory.getImageUrl());
         }
+
+        // 건물 삭제
+        dormitoryRepository.deleteAll(sameNameDormitories);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("건물이 삭제되었습니다.").build())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+
     }
 
     private boolean hasRelatedResidents(List<Dormitory> sameNameDormitories) {
@@ -209,47 +184,34 @@ public class DormitorySettingService {
         return false; // 관련된 Resident 데이터가 없는 경우
     }
 
-    private void isSameSchoolAsDormitory(School userSchool, School dormitorySchool) {
-        if (!Objects.equals(userSchool, dormitorySchool)) {
-            throw new DefaultException(ErrorCode.INVALID_CHECK, "학교가 일치하지 않습니다");
-        }
-    }
-
     // 건물명 변경
     @Transactional
     public ResponseEntity<?> updateDormitoryName(CustomUserDetails customUserDetails, Long dormitoryId, UpdateDormitoryNameReq updateDormitoryNameReq) {
-        try {
-            User user = userRepository.findById(customUserDetails.getId())
-                    .orElseThrow(() -> new DefaultException(ErrorCode.INVALID_PARAMETER, "사용자가 존재하지 않습니다."));
+        Dormitory dormitory = validDormitoryById(dormitoryId);
 
-            Dormitory dormitory = dormitoryRepository.findById(dormitoryId)
-                    .orElseThrow(() -> new DefaultException(ErrorCode.INVALID_PARAMETER, "건물이 존재하지 않습니다."));
+        // 이미 존재하는 이름이면 변경 불가
+        DefaultAssert.isTrue(dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), updateDormitoryNameReq.getName()).isEmpty(), "해당 이름의 건물이 이미 존재합니다.");
 
-            isSameSchoolAsDormitory(user.getSchool(), dormitory.getSchool());
+        // 기숙사 이름 일괄 변경
+        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
 
-            // 이미 존재하는 이름이면 변경 불가
-            if (dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), updateDormitoryNameReq.getName()).isEmpty()) {
-                throw new DefaultException(ErrorCode.INVALID_PARAMETER, "해당 이름의 건물이 이미 존재합니다.");
-            }
+        DefaultAssert.isTrue(sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
+        dormitoryRepository.updateNamesBySchoolAndName(dormitory.getSchool(), dormitory.getName(), updateDormitoryNameReq.getName());
 
-            // 기숙사 이름 일괄 변경
-            List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("건물명이 변경되었습니다.").build())  // 조회 메소드 호출
+                .build();
 
-            if (!sameNameDormitories.isEmpty()) {
-                dormitoryRepository.updateNamesBySchoolAndName(dormitory.getSchool(), dormitory.getName(), updateDormitoryNameReq.getName());
+        return ResponseEntity.ok(apiResponse);
 
-                ApiResponse apiResponse = ApiResponse.builder()
-                        .check(true)
-                        .information("건물명이 변경되었습니다.")  // 조회 메소드 호출
-                        .build();
-
-                return ResponseEntity.ok(apiResponse);
-            } else
-                throw new DefaultException(ErrorCode.INVALID_OPTIONAL_ISPRESENT, "해당 건물명의 건물이 존재하지 않습니다.");
-
-        } catch (DefaultException e) {
-            throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR, "건물명 변경 중 오류가 발생하였습니다.");
-        }
     }
+
+    private Dormitory validDormitoryById(Long dormitoryId) {
+        Optional<Dormitory> findDormitory = dormitoryRepository.findById(dormitoryId);
+        DefaultAssert.isTrue(findDormitory.isPresent(), "건물 정보가 올바르지 않습니다.");
+        return findDormitory.get();
+    }
+
 
 }
