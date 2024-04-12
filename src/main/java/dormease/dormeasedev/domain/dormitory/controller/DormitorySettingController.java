@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Dormitory Setting API", description = "건물 설정 관련 API입니다.")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/dormitory/setting")
+@RequestMapping("/api/v1/web/dormitory/setting")
 public class DormitorySettingController {
 
     private final DormitorySettingService dormitorySettingService;
