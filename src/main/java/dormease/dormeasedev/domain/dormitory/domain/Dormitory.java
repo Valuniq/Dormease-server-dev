@@ -69,4 +69,9 @@ public class Dormitory extends BaseEntity {
     public void updateRoomCount(int count) {
         this.roomCount = count;
     }
+
+    public void updateGenderAndRoomSize(Gender gender, Integer roomSize) {
+        this.gender = gender;
+        this.roomSize = roomSize;
+    }
 }

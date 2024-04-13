@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.dormitory.controller;
 
 import dormease.dormeasedev.domain.dormitory.dto.request.AddRoomNumberReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.RegisterDormitoryReq;
+import dormease.dormeasedev.domain.dormitory.dto.request.RoomSettingReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryRes;
 import dormease.dormeasedev.domain.dormitory.service.DormitorySettingDetailService;
@@ -21,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Tag(name = "Dormitory Setting API", description = "건물 설정 관련 API입니다.")
 @RequiredArgsConstructor
@@ -104,5 +107,18 @@ public class DormitorySettingController {
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "Schemas의 AddRoomNumberReq을 참고해주세요.", required = true) @RequestBody AddRoomNumberReq addRoomNumberReq) {
         return dormitorySettingDetailService.addFloorAndRoomNumber(customUserDetails, dormitoryId, addRoomNumberReq);
+    }
+
+    @Operation(summary = "호실 정보 등록", description = "건물 세부 설정 프로세스 중 필터를 이용하여 호실 정보를 등록합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "등록 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "등록 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PostMapping("/{dormitoryId}/room/setting")
+    public ResponseEntity<?> updateRoomSetting(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
+            @Parameter(description = "Schemas의 RoomSettingReq을 참고해주세요.", required = true) @RequestBody List<RoomSettingReq> roomSettingReqs) {
+        return dormitorySettingDetailService.updateRoomSetting(customUserDetails, roomSettingReqs);
     }
 }
