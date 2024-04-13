@@ -109,9 +109,6 @@ public class DormitorySettingService {
 
     }
 
-    // 건물 상세 조회
-
-
     // [건물 설정] 건물 사진 추가 및 변경
     @Transactional
     public ResponseEntity<?> updateDormitoryImage(CustomUserDetails customUserDetails, Long dormitoryId, MultipartFile image) {
@@ -192,10 +189,10 @@ public class DormitorySettingService {
         // 이미 존재하는 이름이면 변경 불가
         DefaultAssert.isTrue(dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), updateDormitoryNameReq.getName()).isEmpty(), "해당 이름의 건물이 이미 존재합니다.");
 
-        // 기숙사 이름 일괄 변경
+        // 동일 기숙사 조회
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-
         DefaultAssert.isTrue(sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
+        // 기숙사 이름 일괄 변경
         dormitoryRepository.updateNamesBySchoolAndName(dormitory.getSchool(), dormitory.getName(), updateDormitoryNameReq.getName());
 
         ApiResponse apiResponse = ApiResponse.builder()

@@ -3,6 +3,8 @@ package dormease.dormeasedev.domain.dormitory.service;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.RoomSettingReq;
+import dormease.dormeasedev.domain.dormitory.dto.response.FloorAndRoomNumberRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.GetDormitoryDetailRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
@@ -36,9 +38,7 @@ public class DormitorySettingDetailService {
     @Transactional
     public ResponseEntity<?> addFloorAndRoomNumber(CustomUserDetails customUserDetails, Long dormitoryId, AddRoomNumberReq addRoomNumberReq) {
 
-        Optional<Dormitory> findDormitory = dormitoryRepository.findById(dormitoryId);
-        DefaultAssert.isTrue(findDormitory.isPresent(), "건물 정보가 올바르지 않습니다.");
-        Dormitory dormitory =findDormitory.get();
+        Dormitory dormitory = validDormitoryById(dormitoryId);
 
         Integer floor = addRoomNumberReq.getFloor();
         Integer start = addRoomNumberReq.getStartRoomNumber();
@@ -53,7 +53,6 @@ public class DormitorySettingDetailService {
         List<Room> rooms = generateRoomNumbers(dormitory, floor, start, end);
         DefaultAssert.isTrue(!rooms.isEmpty(), "호실 생성 중 오류가 발생했습니다.");
 
-        // 층으로 호실 조회메소드 호출
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(Message.builder().message("호실이 추가되었습니다.").build())
@@ -87,12 +86,65 @@ public class DormitorySettingDetailService {
         DefaultAssert.isTrue(start > end, "시작 호실 번호는 끝 호실 번호보다 작거나 같아야 합니다.");
     }
 
+    // 건물 상세 조회
+    public ResponseEntity<?> getDormitoryDetails(CustomUserDetails customUserDetails, Long dormitoryId) {
+        Dormitory dormitory = validDormitoryById(dormitoryId);
+        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
+
+        List<Room> rooms = new ArrayList<>();
+        for (Dormitory findDormitory : sameNameDormitories) {
+            List<Room> dormitoryRooms = roomRepository.findByDormitory(findDormitory);
+            rooms.addAll(dormitoryRooms);
+        }
+        // 각 층별 호실 정보 저장
+        Map<Integer, List<Room>> floorToRoomsMap = rooms.stream()
+                .collect(Collectors.groupingBy(room -> extractFloorFromRoomNumber(room.getRoomNumber())));
+
+        // 각 층별 최소/최대 호실 번호를 계산하여 FloorAndRoomNumberRes 객체 생성
+        List<FloorAndRoomNumberRes> floorAndRoomNumberResList = floorToRoomsMap.entrySet().stream()
+                .map(entry -> {
+                    List<Room> roomList = entry.getValue();
+                    int minRoomNumber = extractLastTwoDigits(Collections.min(roomList, Comparator.comparing(Room::getRoomNumber)).getRoomNumber());
+                    int maxRoomNumber = extractLastTwoDigits(Collections.max(roomList, Comparator.comparing(Room::getRoomNumber)).getRoomNumber());
+
+                    return FloorAndRoomNumberRes.builder()
+                            .floor(entry.getKey())
+                            .startRoomNumber(minRoomNumber)
+                            .endRoomNumber(maxRoomNumber)
+                            .build();
+                })
+                .sorted(Comparator.comparing(FloorAndRoomNumberRes::getFloor))
+                .collect(Collectors.toList());
+
+        GetDormitoryDetailRes getDormitoryDetailRes = GetDormitoryDetailRes.builder()
+                .id(dormitoryId)
+                .name(dormitory.getName())
+                .imageUrl(dormitory.getImageUrl())
+                .floorAndRoomNumberRes(floorAndRoomNumberResList)
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(getDormitoryDetailRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // 호실 번호에서 층 수 추출
+    private int extractFloorFromRoomNumber(int roomNumber) {
+        return roomNumber / 100; // 예시: 101 -> 1층, 201 -> 2층, 305 -> 3층
+    }
+
+    // 호실 번호에서 뒤의 두 자리 숫자만 추출하는 메서드
+    private int extractLastTwoDigits(int roomNumber) {
+        return roomNumber % 100;
+    }
+
     // 건물, 층으로 호실 조회
     public ResponseEntity<?> getRoomsByDormitoryAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
 
-        Optional<Dormitory> findDormitory = dormitoryRepository.findById(dormitoryId);
-        DefaultAssert.isTrue(findDormitory.isPresent(), "건물 정보가 올바르지 않습니다.");
-        Dormitory dormitory = findDormitory.get();
+        Dormitory dormitory = validDormitoryById(dormitoryId);
 
         // 이름 같은 기숙사 가져오기
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
@@ -125,9 +177,7 @@ public class DormitorySettingDetailService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // 호실 삭제
-
-    // 층 수, 방 개수 수정
+    // 호실 삭제?
 
 
     // 호실 정보 수정
@@ -209,5 +259,11 @@ public class DormitorySettingDetailService {
 
         Gender gender = Gender.valueOf(roomSettingReq.getGender());
         DefaultAssert.isTrue(gender == Gender.MALE || gender == Gender.FEMALE, "호실의 성별이 지정되어있지 않습니다.");
+    }
+
+    private Dormitory validDormitoryById(Long dormitoryId) {
+        Optional<Dormitory> findDormitory = dormitoryRepository.findById(dormitoryId);
+        DefaultAssert.isTrue(findDormitory.isPresent(), "건물 정보가 올바르지 않습니다.");
+        return findDormitory.get();
     }
 }
