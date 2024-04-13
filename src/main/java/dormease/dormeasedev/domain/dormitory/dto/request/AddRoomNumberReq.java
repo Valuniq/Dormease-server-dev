@@ -13,10 +13,10 @@ public class AddRoomNumberReq {
     private Integer floor;
 
     @NotNull
-    @Schema(type = "Integer", example = "1~99", description= "건물의 이름입니다. 1이상 99이하이며, endRoomNumber보다 작아야합니다.")
+    @Schema(type = "Integer", example = "1~99", description= "호실의 시작 번호입니다. 1이상 99이하이며, endRoomNumber보다 작아야합니다.")
     private Integer startRoomNumber;
 
     @NotNull
-    @Schema(type = "Integer", example = "1~99", description= "건물의 이름입니다. 1이상 99이하이며, startRoomNumber보다 커야합니다.")
+    @Schema(type = "Integer", example = "1~99", description= "호실의 끝 번호입니다. 1이상 99이하이며, startRoomNumber보다 커야합니다.")
     private Integer endRoomNumber;
 }
