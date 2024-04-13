@@ -48,6 +48,7 @@ public class SecurityConfig {
                                 .permitAll()	// requestMatchers의 인자로 전달된 url은 모두에게 허용
                                 .requestMatchers(PathRequest.toH2Console())
                                 .permitAll()	// H2 콘솔 접속은 모두에게 허용
+                                .requestMatchers("/api/v1/web/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()	// 그 외의 모든 요청은 인증 필요
                 )
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))	// 세션을 사용하지 않으므로 STATELESS 설정

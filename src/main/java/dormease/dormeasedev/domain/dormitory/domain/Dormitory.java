@@ -24,17 +24,13 @@ public class Dormitory extends BaseEntity {
     private School school;
 
     // 기숙사 건물 이름
+    @Column(nullable = false)
     private String name;
 
     private String memo;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
-
-    // 거주 기간
-    private String term;
-
-    private Integer price;
 
     // 인실
     private Integer roomSize;
@@ -48,22 +44,29 @@ public class Dormitory extends BaseEntity {
     // 방 개수
     private Integer roomCount;
 
-    // 층수
-    private Integer floor;
 
     @Builder
-    public Dormitory(Long id, School school, String name, String memo, Gender gender, String term, Integer price, Integer roomSize, String imageUrl, Integer dormitorySize, Integer roomCount, Integer floor) {
+    public Dormitory(Long id, School school, String name, String memo, Gender gender, Integer roomSize, String imageUrl, Integer dormitorySize, Integer roomCount) {
         this.id = id;
         this.school = school;
         this.name = name;
         this.memo = memo;
         this.gender = gender;
-        this.term = term;
-        this.price = price;
         this.roomSize = roomSize;
         this.imageUrl = imageUrl;
         this.dormitorySize = dormitorySize;
         this.roomCount = roomCount;
-        this.floor = floor;
+    }
+
+    public void updateImageUrl(String imagePath) {
+        this.imageUrl = imagePath;
+    }
+
+    public void updateDormitoryName(String name) {
+        this.name = name;
+    }
+
+    public void updateRoomCount(int count) {
+        this.roomCount = count;
     }
 }

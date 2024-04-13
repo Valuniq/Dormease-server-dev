@@ -26,7 +26,11 @@ public class Room extends BaseEntity {
     
     // 호수
     private Integer roomNumber;
-    
+
+    // 층수
+    private Integer floor;
+
+    @Enumerated(EnumType.STRING)
     private Gender gender;
     
     // 인실
@@ -39,17 +43,20 @@ public class Room extends BaseEntity {
     private Integer currentPeople;
     
     // 활성화 여부
-    private Boolean isActivated = true;
+    private Boolean isActivated;
 
     @Builder
-    public Room(Long id, Dormitory dormitory, Integer roomNumber, Gender gender, Integer roomSize, Boolean hasKey, Integer currentPeople, Boolean isActivated) {
+    public Room(Long id, Dormitory dormitory, Integer roomNumber, Integer floor, Gender gender, Integer roomSize, Boolean hasKey, Integer currentPeople, Boolean isActivated) {
         this.id = id;
         this.dormitory = dormitory;
         this.roomNumber = roomNumber;
+        this.floor = floor;
         this.gender = gender;
         this.roomSize = roomSize;
         this.hasKey = hasKey;
         this.currentPeople = currentPeople;
-        this.isActivated = isActivated;
+        this.isActivated = true;
     }
+
+    public void updateDormitory(Dormitory dormitory) { this.dormitory = dormitory; }
 }
