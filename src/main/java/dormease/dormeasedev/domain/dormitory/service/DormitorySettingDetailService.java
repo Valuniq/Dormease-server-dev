@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.dormitory.service;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.RoomSettingReq;
+import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.AddRoomNumberReq;
@@ -12,7 +13,6 @@ import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.error.DefaultException;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.ErrorCode;
 import dormease.dormeasedev.global.payload.Message;
@@ -21,10 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,13 +92,37 @@ public class DormitorySettingDetailService {
 
         Optional<Dormitory> findDormitory = dormitoryRepository.findById(dormitoryId);
         DefaultAssert.isTrue(findDormitory.isPresent(), "건물 정보가 올바르지 않습니다.");
-        Dormitory dormitory =findDormitory.get();
+        Dormitory dormitory = findDormitory.get();
 
+        // 이름 같은 기숙사 가져오기
+        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
+        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
-        // dormitory랑 floor로 조회
-        // 이름이 같은 dormitory의 floor 다 가져와서
-        // 호실 번호 순으로 정렬
-        return ResponseEntity.ok("2");
+        // 해당 기숙사의 층별 호실 가져오기
+        List<Room> rooms = new ArrayList<>();
+        for (Dormitory sameNameDormitory : sameNameDormitories) {
+            List<Room> dormitoryRooms = roomRepository.findByDormitoryAndFloor(sameNameDormitory, floor);
+            rooms.addAll(dormitoryRooms);
+        }
+
+        List<RoomSettingRes> roomSettingResList = rooms.stream()
+                .map(room -> RoomSettingRes.builder()
+                        .id(room.getId())
+                        .floor(room.getFloor())
+                        .gender(room.getGender().toString())
+                        .roomNumber(room.getRoomNumber())
+                        .roomSize(room.getRoomSize())
+                        .hasKey(room.getHasKey())
+                        .isActivated(room.getIsActivated())
+                        .build())
+                .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
+                .toList();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(roomSettingResList).build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 호실 삭제
@@ -135,8 +157,11 @@ public class DormitorySettingDetailService {
             assignRoomToDormitory(room, roomSettingReq);
 
         }
-        // 조회 호출
-        return null;
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("호실 정보가 등록되었습니다.").build())
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     private void createOrUpdateDormitory(Room room, RoomSettingReq roomSettingReq){
