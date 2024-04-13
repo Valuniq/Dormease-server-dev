@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.dormitory.service;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.RoomSettingReq;
+import dormease.dormeasedev.domain.dormitory.dto.request.UpdateRoomFloorReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.FloorAndRoomNumberRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.GetDormitoryDetailRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
@@ -135,7 +136,7 @@ public class DormitorySettingDetailService {
     }
 
     // 호실 번호에서 뒤의 두 자리 숫자만 추출하는 메서드
-    private int extractLastTwoDigits(int roomNumber) {
+    private Integer extractLastTwoDigits(int roomNumber) {
         return roomNumber % 100;
     }
 
@@ -199,7 +200,37 @@ public class DormitorySettingDetailService {
 
     // 호실 개수 수정(삭제거나 추가거나)
 
-    // 층 수 수정(이 경우 업데이트)
+    // 층 수 수정(호실 번호 업데이트)
+    @Transactional
+    public ResponseEntity<?> updateRoomFloor(CustomUserDetails customUserDetails, Long dormitoryId, UpdateRoomFloorReq updateRoomFloorReq) {
+        Dormitory dormitory = validDormitoryById(dormitoryId);
+
+        // 이미 해당 층이 존재하면 예외처리
+        DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, updateRoomFloorReq.getNewFloor()).isEmpty(), "중복된 층이 존재합니다.");
+
+        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
+        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
+
+        // 동일 기숙사 리스트에서 각 기숙사의 방 정보 업데이트
+        for (Dormitory findDormitory : sameNameDormitories) {
+            List<Room> rooms = roomRepository.findByDormitoryAndFloor(findDormitory, updateRoomFloorReq.getFloor());
+            DefaultAssert.isTrue(!rooms.isEmpty(), "해당 호실이 존재하지 않습니다.");
+
+            for (Room room : rooms) {
+                Integer roomNumberTwoDigits = extractLastTwoDigits(room.getRoomNumber());
+                Integer updatedRoomNumber = updateRoomFloorReq.getNewFloor() * 100 + roomNumberTwoDigits; // 새로운 floor로 roomNumber 수정
+
+                // 층 수, 호실 번호 업데이트
+                room.updateRoomNumber(updatedRoomNumber);
+                room.updateFloor(updateRoomFloorReq.getNewFloor());
+            }
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("층 수가 변경되었습니다.").build()).build();
+        return ResponseEntity.ok(apiResponse);
+    }
 
 
     // 호실 정보 수정

@@ -1,9 +1,6 @@
 package dormease.dormeasedev.domain.dormitory.controller;
 
-import dormease.dormeasedev.domain.dormitory.dto.request.AddRoomNumberReq;
-import dormease.dormeasedev.domain.dormitory.dto.request.RegisterDormitoryReq;
-import dormease.dormeasedev.domain.dormitory.dto.request.RoomSettingReq;
-import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
+import dormease.dormeasedev.domain.dormitory.dto.request.*;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.GetDormitoryDetailRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
@@ -98,10 +95,10 @@ public class DormitorySettingController {
         return dormitorySettingService.deleteDormitory(customUserDetails, dormitoryId);
     }
 
-    @Operation(summary = "건물명 변경", description = "건물명을 변경합니다.")
+    @Operation(summary = "건물명 수정", description = "건물명을 수정합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "변경 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "변경 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @PostMapping("/{dormitoryId}/name")
     public ResponseEntity<?> updateDormitoryName(
@@ -109,6 +106,19 @@ public class DormitorySettingController {
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "Schemas의 UpdateDormitoryNameReq을 참고해주세요.", required = true) @Valid @RequestBody UpdateDormitoryNameReq updateDormitoryNameReq) {
         return dormitorySettingService.updateDormitoryName(customUserDetails, dormitoryId, updateDormitoryNameReq);
+    }
+
+    @Operation(summary = "층 수 수정", description = "건물 세부 설정 프로세스 중 특정 기숙사의 층 수를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PostMapping("/{dormitoryId}/floor")
+    public ResponseEntity<?> updateFloor(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
+            @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @Valid @RequestBody UpdateRoomFloorReq updateRoomFloorReq) {
+        return dormitorySettingDetailService.updateRoomFloor(customUserDetails, dormitoryId, updateRoomFloorReq);
     }
 
     @Operation(summary = "호실 추가", description = "건물 설정 프로세스 중 호실을 추가합니다.")
@@ -124,10 +134,10 @@ public class DormitorySettingController {
         return dormitorySettingDetailService.addFloorAndRoomNumber(customUserDetails, dormitoryId, addRoomNumberReq);
     }
 
-    @Operation(summary = "호실 정보 등록", description = "건물 세부 설정 프로세스 중 필터를 이용하여 호실 정보를 등록합니다.")
+    @Operation(summary = "호실 정보 추가", description = "건물 세부 설정 프로세스 중 필터를 이용하여 호실 정보를 추가합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "등록 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "등록 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @PostMapping("/{dormitoryId}/room/setting")
     public ResponseEntity<?> updateRoomSetting(
@@ -163,5 +173,4 @@ public class DormitorySettingController {
             @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @PathVariable Integer floor) {
         return dormitorySettingDetailService.deleteRoomsByFloor(customUserDetails, dormitoryId, floor);
     }
-
 }
