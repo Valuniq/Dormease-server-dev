@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,7 +45,7 @@ public class DormitorySettingController {
     @PostMapping("")
     public ResponseEntity<?> registerDormitory(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "Schemas의 RegisterDormitoryReq을 참고해주세요.", required = true) @RequestPart RegisterDormitoryReq registerDormitoryReq,
+            @Parameter(description = "Schemas의 RegisterDormitoryReq을 참고해주세요.", required = true) @Valid @RequestPart RegisterDormitoryReq registerDormitoryReq,
             @Parameter(description = "업로드할 이미지 파일 (Multipart form-data 형식)") @RequestPart MultipartFile image) {
         return dormitorySettingService.registerDormitory(customUserDetails, registerDormitoryReq, image);
     }
@@ -106,7 +107,7 @@ public class DormitorySettingController {
     public ResponseEntity<?> updateDormitoryName(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
-            @Parameter(description = "Schemas의 UpdateDormitoryNameReq을 참고해주세요.", required = true) @RequestBody UpdateDormitoryNameReq updateDormitoryNameReq) {
+            @Parameter(description = "Schemas의 UpdateDormitoryNameReq을 참고해주세요.", required = true) @Valid @RequestBody UpdateDormitoryNameReq updateDormitoryNameReq) {
         return dormitorySettingService.updateDormitoryName(customUserDetails, dormitoryId, updateDormitoryNameReq);
     }
 
@@ -119,7 +120,7 @@ public class DormitorySettingController {
     public ResponseEntity<?> registerDormitory(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
-            @Parameter(description = "Schemas의 AddRoomNumberReq을 참고해주세요.", required = true) @RequestBody AddRoomNumberReq addRoomNumberReq) {
+            @Parameter(description = "Schemas의 AddRoomNumberReq을 참고해주세요.", required = true) @Valid @RequestBody AddRoomNumberReq addRoomNumberReq) {
         return dormitorySettingDetailService.addFloorAndRoomNumber(customUserDetails, dormitoryId, addRoomNumberReq);
     }
 
@@ -133,6 +134,7 @@ public class DormitorySettingController {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "Schemas의 RoomSettingReq을 참고해주세요.", required = true) @RequestBody List<RoomSettingReq> roomSettingReqs) {
+        // 입사신청기간에는 수정 불가 - 추후 구현
         return dormitorySettingDetailService.updateRoomSetting(customUserDetails, roomSettingReqs);
     }
 
@@ -147,6 +149,19 @@ public class DormitorySettingController {
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @PathVariable Integer floor) {
         return dormitorySettingDetailService.getRoomsByDormitoryAndFloor(customUserDetails, dormitoryId, floor);
+    }
+
+    @Operation(summary = "호실 삭제", description = "건물 세부 설정 프로세스 중 특정 층의 호실을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "삭제 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @DeleteMapping("/{dormitoryId}/{floor}/room")
+    public ResponseEntity<?> deleteRoomsByFloor(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
+            @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @PathVariable Integer floor) {
+        return dormitorySettingDetailService.deleteRoomsByFloor(customUserDetails, dormitoryId, floor);
     }
 
 }
