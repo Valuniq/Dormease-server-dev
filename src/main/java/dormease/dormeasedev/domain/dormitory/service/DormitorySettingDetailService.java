@@ -48,7 +48,7 @@ public class DormitorySettingDetailService {
         DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, floor).isEmpty(), "중복된 층이 존재합니다.");
 
         // 유효성 검사
-        verifyRoomNumber(floor, start, end);
+        verifyRoomNumber(start, end);
 
         List<Room> rooms = generateRoomNumbers(dormitory, floor, start, end);
         DefaultAssert.isTrue(!rooms.isEmpty(), "호실 생성 중 오류가 발생했습니다.");
@@ -79,10 +79,8 @@ public class DormitorySettingDetailService {
 
     }
 
-    private static void verifyRoomNumber(Integer floor, Integer start, Integer end) {
+    private static void verifyRoomNumber(Integer start, Integer end) {
         // 입력 값 유효성 검사
-        DefaultAssert.isTrue(floor < 1, "층수는 양수여야 합니다.");
-        DefaultAssert.isTrue(start > 99 || end > 99 || start <= 0 || end <= 0, "호실 번호는 1부터 99까지의 값이어야 합니다.");
         DefaultAssert.isTrue(start > end, "시작 호실 번호는 끝 호실 번호보다 작거나 같아야 합니다.");
     }
 
@@ -177,7 +175,31 @@ public class DormitorySettingDetailService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // 호실 삭제?
+    // 호실 삭제
+    // 해당 층 가져와서 deleteAll
+    @Transactional
+    public ResponseEntity<?> deleteRoomsByFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
+        Dormitory dormitory = validDormitoryById(dormitoryId);
+
+        // 이름 같은 기숙사 가져오기
+        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
+        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
+
+        for (Dormitory sameNameDormitory : sameNameDormitories) {
+            List<Room> dormitoryRooms = roomRepository.findByDormitoryAndFloor(sameNameDormitory, floor);
+            roomRepository.deleteAll(dormitoryRooms); // 해당 층의 방 모두 삭제
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("호실이 삭제되었습니다.").build()).build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // 호실 개수 수정(삭제거나 추가거나)
+
+    // 층 수 수정(이 경우 업데이트)
 
 
     // 호실 정보 수정
