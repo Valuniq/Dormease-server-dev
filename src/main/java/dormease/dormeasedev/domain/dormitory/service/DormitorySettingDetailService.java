@@ -387,7 +387,7 @@ public class DormitorySettingDetailService {
 
         for (Dormitory dormitory : dormitoriesToUpdate) {
             Integer roomSize = dormitory.getRoomSize();
-            Integer dormitorySize = roomRepository.findByDormitory(dormitory).size();
+            Integer dormitorySize = roomRepository.findByDormitoryAndIsActivated(dormitory, true).size();
             dormitory.updateDormitorySize(dormitorySize * roomSize);
         }
     }
@@ -401,7 +401,7 @@ public class DormitorySettingDetailService {
         }
 
         for (Dormitory dormitory : dormitoriesToUpdate) {
-            Integer dormitorySize = roomRepository.findByDormitory(dormitory).size();
+            Integer dormitorySize = roomRepository.findByDormitoryAndIsActivated(dormitory, true).size();
             dormitory.updateRoomCount(dormitorySize);
         }
     }
