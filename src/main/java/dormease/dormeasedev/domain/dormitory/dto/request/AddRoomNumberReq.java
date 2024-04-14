@@ -17,13 +17,13 @@ public class AddRoomNumberReq {
 
     @NotNull
     @Schema(type = "Integer", example = "1~99", description= "호실의 시작 번호입니다. 1이상 99이하이며, endRoomNumber보다 작아야합니다.")
-    @Min(value = 1, message = "호실은 최소 1이상이어야 생성이 가능합니다.")
-    @Max(value = 99, message = "호실은 최대 2자리 수까지 생성이 가능합니다.")
+    @Min(value = 1, message = "호실은 최소 1이상이어야 합니다.")
+    @Max(value = 99, message = "호실은 최대 2자리 수까지 가능합니다.")
     private Integer startRoomNumber;
 
     @NotNull
     @Schema(type = "Integer", example = "1~99", description= "호실의 끝 번호입니다. 1이상 99이하이며, startRoomNumber보다 커야합니다.")
-    @Min(value = 1, message = "호실은 최소 1이상이어야 생성이 가능합니다.")
-    @Max(value = 99, message = "호실은 최대 2자리 수까지 생성이 가능합니다.")
+    @Min(value = 1, message = "호실은 최소 1이상이어야 합니다.")
+    @Max(value = 99, message = "호실은 최대 2자리 수까지 가능합니다.")
     private Integer endRoomNumber;
 }
