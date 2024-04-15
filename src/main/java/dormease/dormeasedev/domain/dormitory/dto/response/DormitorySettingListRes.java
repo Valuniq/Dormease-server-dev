@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class DormitoryRes {
+public class DormitorySettingListRes {
 
     @Schema(type = "Long", example = "1", description= "건물의 고유 id입니다.")
     private Long id;
@@ -19,7 +19,7 @@ public class DormitoryRes {
     private String imageUrl;
 
     @Builder
-    public DormitoryRes (Long id, String name, String imageUrl) {
+    public DormitorySettingListRes(Long id, String name, String imageUrl) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;

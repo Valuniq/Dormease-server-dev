@@ -4,13 +4,12 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.RegisterDormitoryReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
-import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.s3.service.S3Uploader;
-import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
@@ -86,13 +85,13 @@ public class DormitorySettingService {
         // 기존에 등록된 기숙사 이름 저장
         Set<String> existingDormitoryNames = ConcurrentHashMap.newKeySet();
 
-        List<DormitoryRes> dormitoryResList;
+        List<DormitorySettingListRes> dormitorySettingListRes;
 
         // 기존에 등록된 기숙사 이름 추가
         synchronized (existingDormitoryNames) {
-            dormitoryResList = dormitories.stream()
+            dormitorySettingListRes = dormitories.stream()
                     .filter(dormitory -> existingDormitoryNames.add(dormitory.getName()))
-                    .map(dormitory -> DormitoryRes.builder()
+                    .map(dormitory -> DormitorySettingListRes.builder()
                             .id(dormitory.getId())
                             .name(dormitory.getName())
                             .imageUrl(dormitory.getImageUrl())
@@ -102,7 +101,7 @@ public class DormitorySettingService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(dormitoryResList)
+                .information(dormitorySettingListRes)
                 .build();
 
         return ResponseEntity.ok(apiResponse);

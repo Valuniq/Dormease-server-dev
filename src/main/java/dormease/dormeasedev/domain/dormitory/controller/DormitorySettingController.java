@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.dormitory.controller;
 
 import dormease.dormeasedev.domain.dormitory.dto.request.*;
-import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.GetDormitoryDetailRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
 import dormease.dormeasedev.domain.dormitory.service.DormitorySettingDetailService;
@@ -49,7 +49,7 @@ public class DormitorySettingController {
 
     @Operation(summary = "건물 목록 조회", description = "건물 설정 프로세스 중 건물 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryRes.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitorySettingListRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("")
