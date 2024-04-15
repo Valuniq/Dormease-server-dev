@@ -5,7 +5,6 @@ import dormease.dormeasedev.domain.room.domain.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -14,7 +13,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     List<Room> findByDormitory(Dormitory dormitory);
 
-    Collection<Object> findByDormitoryAndIsActivated(Dormitory dormitory, boolean b);
+    List<Room> findByDormitoryAndIsActivated(Dormitory dormitory, boolean b);
 
     List<Room> findByDormitoryAndFloorAndIsActivated(Dormitory findDormitory, Integer floor, boolean b);
 }

@@ -105,7 +105,7 @@ public class DormitoryManagementService {
 
         for (Dormitory findDormitory : sameNameDormitories) {
             // 해당 건물의 모든 방을 조회
-            List<Room> rooms = roomRepository.findByDormitory(findDormitory);
+            List<Room> rooms = roomRepository.findByDormitoryAndIsActivated(findDormitory, true);
             DefaultAssert.isTrue(!rooms.isEmpty(), "해당 호실이 존재하지 않습니다.");   // 층을 생성하지 않은 경우? 고려
 
             Set<Integer> floorNumbers = rooms.stream()
