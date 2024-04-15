@@ -53,4 +53,18 @@ public class DormitoryManagementController {
         return dormitoryManagementService.getDormitoriesByRoomSize(customUserDetails);
     }
 
+    @Operation(summary = "층 수 목록 조회", description = "건물 관리 프로세스 중 건물별 층 수를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/{dormitoryId}/floor")
+    public ResponseEntity<?> getFloorsByDormitory(
+        @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+        @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
+        ) {
+        return dormitoryManagementService.getFloorsByDormitory(customUserDetails, dormitoryId);
 }
+}
+
+
