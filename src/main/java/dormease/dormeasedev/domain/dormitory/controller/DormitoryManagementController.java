@@ -1,9 +1,8 @@
 package dormease.dormeasedev.domain.dormitory.controller;
 
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
-import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
-import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementListRes;
-import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.GetRoomByDormitoryAndFloorRes;
 import dormease.dormeasedev.domain.dormitory.service.DormitoryManagementService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
@@ -44,7 +43,7 @@ public class DormitoryManagementController {
 
     @Operation(summary = "건물명(인실) 목록 조회", description = "건물 관리 프로세스 중 건물 목록을 인실과 함께 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryManagementListRes.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryManagementRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("")
@@ -64,7 +63,22 @@ public class DormitoryManagementController {
         @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
         ) {
         return dormitoryManagementService.getFloorsByDormitory(customUserDetails, dormitoryId);
-}
+    }
+
+    @Operation(summary = "호실 목록 조회", description = "건물 관리 프로세스 중 건물, 층별 호실 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = GetRoomByDormitoryAndFloorRes.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/{dormitoryId}/{floor}")
+    public ResponseEntity<?> getFloorsByDormitory(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
+            @Parameter(description = "floor를 입력해주세요.", required = true) @PathVariable Integer floor
+
+    ) {
+        return dormitoryManagementService.getRoomsByDormitory(customUserDetails, dormitoryId, floor);
+    }
 }
 
 

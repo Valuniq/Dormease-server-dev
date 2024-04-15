@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class DormitoryManagementListRes {
+public class DormitoryManagementRes {
 
     @Schema(type = "Long", example = "1", description= "건물의 고유 id입니다.")
     private Long id;
@@ -16,7 +16,7 @@ public class DormitoryManagementListRes {
     private String name;
 
     @Builder
-    public DormitoryManagementListRes(Long id, String name) {
+    public DormitoryManagementRes(Long id, String name) {
         this.id = id;
         this.name = name;
     }
