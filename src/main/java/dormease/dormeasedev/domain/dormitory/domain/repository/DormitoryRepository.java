@@ -25,4 +25,6 @@ public interface DormitoryRepository extends JpaRepository<Dormitory, Long> {
     void updateNamesBySchoolAndName(School school, String oldName, String newName);
 
     Dormitory findBySchoolAndNameAndGenderAndRoomSize(School school, String name, Gender gender, Integer roomSize);
+
+    List<Dormitory> findBySchoolAndNameAndRoomSize(School school, String name, Integer roomSize);
 }
