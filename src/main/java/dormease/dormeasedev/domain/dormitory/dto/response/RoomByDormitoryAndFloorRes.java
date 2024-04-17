@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class GetRoomByDormitoryAndFloorRes {
+public class RoomByDormitoryAndFloorRes {
 
     @Schema(type = "Long", example = "1", description= "호실의 고유 id입니다.")
     private Long id;
@@ -26,7 +26,7 @@ public class GetRoomByDormitoryAndFloorRes {
     private String currentPeople;
 
     @Builder
-    public GetRoomByDormitoryAndFloorRes(Long id, Integer roomNumber, Integer roomSize, String gender, String currentPeople) {
+    public RoomByDormitoryAndFloorRes(Long id, Integer roomNumber, Integer roomSize, String gender, String currentPeople) {
         this.id= id;
         this.roomNumber = roomNumber;
         this.roomSize = roomSize;

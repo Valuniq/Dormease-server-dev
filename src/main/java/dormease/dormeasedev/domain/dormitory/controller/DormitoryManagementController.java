@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.dormitory.controller;
 
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementRes;
-import dormease.dormeasedev.domain.dormitory.dto.response.GetRoomByDormitoryAndFloorRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.RoomByDormitoryAndFloorRes;
 import dormease.dormeasedev.domain.dormitory.service.DormitoryManagementService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
@@ -67,7 +67,7 @@ public class DormitoryManagementController {
 
     @Operation(summary = "호실 목록 조회", description = "건물 관리 프로세스 중 건물, 층별 호실 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = GetRoomByDormitoryAndFloorRes.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RoomByDormitoryAndFloorRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/{dormitoryId}/{floor}")

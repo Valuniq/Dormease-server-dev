@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class GetDormitoryDetailRes {
+public class DormitoryDetailRes {
 
     @Schema(type = "Long", example = "1", description= "건물의 고유 id입니다.")
     private Long id;
@@ -24,7 +24,7 @@ public class GetDormitoryDetailRes {
     private List<FloorAndRoomNumberRes> floorAndRoomNumberRes;
 
     @Builder
-    public GetDormitoryDetailRes(Long id, String name, String imageUrl, List<FloorAndRoomNumberRes> floorAndRoomNumberRes) {
+    public DormitoryDetailRes(Long id, String name, String imageUrl, List<FloorAndRoomNumberRes> floorAndRoomNumberRes) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;

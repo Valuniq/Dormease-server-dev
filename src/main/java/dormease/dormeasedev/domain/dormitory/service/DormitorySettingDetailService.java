@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryReposito
 import dormease.dormeasedev.domain.dormitory.dto.request.RoomSettingReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.UpdateRoomNumberAndFloorReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.FloorAndRoomNumberRes;
-import dormease.dormeasedev.domain.dormitory.dto.response.GetDormitoryDetailRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryDetailRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
@@ -106,7 +106,7 @@ public class DormitorySettingDetailService {
                 .sorted(Comparator.comparing(FloorAndRoomNumberRes::getFloor))
                 .collect(Collectors.toList());
 
-        GetDormitoryDetailRes getDormitoryDetailRes = GetDormitoryDetailRes.builder()
+        DormitoryDetailRes dormitoryDetailRes = DormitoryDetailRes.builder()
                 .id(dormitoryId)
                 .name(dormitory.getName())
                 .imageUrl(dormitory.getImageUrl())
@@ -115,7 +115,7 @@ public class DormitorySettingDetailService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(getDormitoryDetailRes)
+                .information(dormitoryDetailRes)
                 .build();
 
         return ResponseEntity.ok(apiResponse);

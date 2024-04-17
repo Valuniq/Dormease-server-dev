@@ -4,7 +4,8 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementRes;
-import dormease.dormeasedev.domain.dormitory.dto.response.GetRoomByDormitoryAndFloorRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.FloorByDormitoryRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.RoomByDormitoryAndFloorRes;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.user.domain.User;
@@ -37,20 +38,20 @@ public class DormitoryManagementService {
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolAndNameAndRoomSize(dormitory.getSchool(), dormitory.getName(), dormitory.getRoomSize());
         DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
-        List<GetRoomByDormitoryAndFloorRes> roomByDormitoryAndFloorRes = new ArrayList<>();
+        List<RoomByDormitoryAndFloorRes> roomByDormitoryAndFloorRes = new ArrayList<>();
         for (Dormitory findDormitory : dormitories) {
             List<Room> rooms = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true);
             DefaultAssert.isTrue(!rooms.isEmpty(), "해당 호실이 존재하지 않습니다.");   // 층을 생성하지 않은 경우? 고려
 
             roomByDormitoryAndFloorRes = rooms.stream()
-                    .map(room -> GetRoomByDormitoryAndFloorRes.builder()
+                    .map(room -> RoomByDormitoryAndFloorRes.builder()
                             .id(room.getId())
                             .roomNumber(room.getRoomNumber())
                             .roomSize(room.getRoomSize())
                             .gender(room.getGender().toString())
                             .currentPeople(room.getCurrentPeople() + "/" + room.getRoomSize())
                             .build())
-                    .sorted(Comparator.comparingInt(GetRoomByDormitoryAndFloorRes::getRoomNumber)) // 호실 번호로 오름차순 정렬
+                    .sorted(Comparator.comparingInt(RoomByDormitoryAndFloorRes::getRoomNumber)) // 호실 번호로 오름차순 정렬
                     .toList();
         }
         ApiResponse apiResponse = ApiResponse.builder()
@@ -73,7 +74,7 @@ public class DormitoryManagementService {
         List<DormitoryManagementRes> dormitoryManagementRes = new ArrayList<>();
 
         for (Dormitory dormitory : dormitories) {
-            String key = dormitory.getName() + "(" + dormitory.getRoomSize() + ")";
+            String key = dormitory.getName() + "(" + dormitory.getRoomSize() + "인실)";
             if (existingDormitoryNames.add(key)) {
                 dormitoryManagementRes.add(
                         DormitoryManagementRes.builder()
@@ -82,7 +83,7 @@ public class DormitoryManagementService {
             }
         }
 
-        // DormitoryManagementListRes 건물명 오름차순으로 정렬하는 Comparator 생성
+        // 건물명 오름차순 정렬
         Comparator<DormitoryManagementRes> comparator = Comparator.comparing(DormitoryManagementRes::getName);
         dormitoryManagementRes.sort(comparator);
 
@@ -101,26 +102,27 @@ public class DormitoryManagementService {
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndNameAndRoomSize(dormitory.getSchool(), dormitory.getName(), dormitory.getRoomSize());
         DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
-        List<Integer> sortedFloors = null;
+        Set<Integer> uniqueFloorNumbers = new HashSet<>();
 
         for (Dormitory findDormitory : sameNameDormitories) {
-            // 해당 건물의 모든 방을 조회
-            List<Room> rooms = roomRepository.findByDormitoryAndIsActivated(findDormitory, true);
-            DefaultAssert.isTrue(!rooms.isEmpty(), "해당 호실이 존재하지 않습니다.");   // 층을 생성하지 않은 경우? 고려
-
-            Set<Integer> floorNumbers = rooms.stream()
+            List<Integer> floorNumbers = roomRepository.findByDormitoryAndIsActivated(findDormitory, true).stream()
                     .map(Room::getFloor)
-                    .collect(Collectors.toSet());
-
-            // floor 오름차순으로 정렬
-            sortedFloors = floorNumbers.stream()
+                    .distinct()
                     .sorted()
                     .toList();
+
+            uniqueFloorNumbers.addAll(floorNumbers); // 중복 제거를 위해 Set에 층 수 추가
         }
+
+        List<FloorByDormitoryRes> floorByDormitoryResList = uniqueFloorNumbers.stream()
+                .map(floor -> FloorByDormitoryRes.builder()
+                        .floor(floor)
+                        .build())
+                .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(sortedFloors)
+                .information(floorByDormitoryResList)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
