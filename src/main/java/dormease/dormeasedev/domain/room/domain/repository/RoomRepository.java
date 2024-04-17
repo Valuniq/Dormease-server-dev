@@ -15,5 +15,5 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     List<Room> findByDormitoryAndIsActivated(Dormitory dormitory, boolean b);
 
-    List<Room> findByDormitoryAndFloorAndIsActivated(Dormitory findDormitory, Integer floor, boolean b);
+    List<Room> findByDormitoryAndFloorAndIsActivated(Dormitory dormitory, Integer floor, boolean b);
 }

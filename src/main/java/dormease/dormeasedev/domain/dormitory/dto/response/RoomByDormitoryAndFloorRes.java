@@ -22,11 +22,11 @@ public class RoomByDormitoryAndFloorRes {
     @Schema(type = "Integer", example = "1/2/3/4/5/6", description= "인실입니다.")
     private Integer roomSize;
 
-    @Schema(type = "Integer", example = "0", description= "호실의 현재 인원 수/인실을 보여줍니다.")
-    private String currentPeople;
+    @Schema(type = "Integer", example = "0", description= "호실의 현재 인원 수를 보여줍니다.")
+    private Integer currentPeople;
 
     @Builder
-    public RoomByDormitoryAndFloorRes(Long id, Integer roomNumber, Integer roomSize, String gender, String currentPeople) {
+    public RoomByDormitoryAndFloorRes(Long id, Integer roomNumber, Integer roomSize, String gender, Integer currentPeople) {
         this.id= id;
         this.roomNumber = roomNumber;
         this.roomSize = roomSize;

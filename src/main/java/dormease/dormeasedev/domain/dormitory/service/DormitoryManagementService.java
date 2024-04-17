@@ -41,22 +41,26 @@ public class DormitoryManagementService {
         List<RoomByDormitoryAndFloorRes> roomByDormitoryAndFloorRes = new ArrayList<>();
         for (Dormitory findDormitory : dormitories) {
             List<Room> rooms = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true);
-            DefaultAssert.isTrue(!rooms.isEmpty(), "해당 호실이 존재하지 않습니다.");   // 층을 생성하지 않은 경우? 고려
 
-            roomByDormitoryAndFloorRes = rooms.stream()
-                    .map(room -> RoomByDormitoryAndFloorRes.builder()
-                            .id(room.getId())
-                            .roomNumber(room.getRoomNumber())
-                            .roomSize(room.getRoomSize())
-                            .gender(room.getGender().toString())
-                            .currentPeople(room.getCurrentPeople() + "/" + room.getRoomSize())
-                            .build())
-                    .sorted(Comparator.comparingInt(RoomByDormitoryAndFloorRes::getRoomNumber)) // 호실 번호로 오름차순 정렬
-                    .toList();
+            roomByDormitoryAndFloorRes.addAll(
+                    rooms.stream()
+                            .map(room -> RoomByDormitoryAndFloorRes.builder()
+                                    .id(room.getId())
+                                    .roomNumber(room.getRoomNumber())
+                                    .roomSize(room.getRoomSize())
+                                    .gender(room.getGender().toString())
+                                    .currentPeople(room.getCurrentPeople())
+                                    .build())
+                            .toList());
         }
+
+        // 호실 번호로 오름차순 정렬
+        roomByDormitoryAndFloorRes.sort(Comparator.comparingInt(RoomByDormitoryAndFloorRes::getRoomNumber));
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(roomByDormitoryAndFloorRes).build();
+                .information(roomByDormitoryAndFloorRes)
+                .build();
 
         return ResponseEntity.ok(apiResponse);
     }
