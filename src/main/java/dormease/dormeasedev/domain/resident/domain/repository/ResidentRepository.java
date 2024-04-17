@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.resident.domain.repository;
 
+import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,5 @@ import java.util.List;
 @Repository
 public interface ResidentRepository extends JpaRepository<Resident, Long> {
     List<Resident> findByDormitorySettingTerm(DormitorySettingTerm settingTerm);
+
 }

@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.dormitory.controller;
 
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
+import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementDetailRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomByDormitoryAndFloorRes;
 import dormease.dormeasedev.domain.dormitory.service.DormitoryManagementService;
@@ -78,6 +79,19 @@ public class DormitoryManagementController {
 
     ) {
         return dormitoryManagementService.getRoomsByDormitory(customUserDetails, dormitoryId, floor);
+    }
+
+    @Operation(summary = "건물 정보 조회", description = "건물 관리 프로세스 중 건물의 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryManagementDetailRes.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/{dormitoryId}")
+    public ResponseEntity<?> getDormitoryInfo(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
+            ) {
+        return dormitoryManagementService.getDormitoryInfo(customUserDetails, dormitoryId);
     }
 }
 
