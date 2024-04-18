@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.dormitory.domain.repository;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.user.domain.Gender;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,5 @@ public interface DormitoryRepository extends JpaRepository<Dormitory, Long> {
     @Query("UPDATE Dormitory d SET d.name = :newName WHERE d.school = :school AND d.name = :oldName")
     void updateNamesBySchoolAndName(School school, String oldName, String newName);
 
+    Dormitory findBySchoolAndNameAndGenderAndRoomSize(School school, String name, Gender gender, Integer roomSize);
 }

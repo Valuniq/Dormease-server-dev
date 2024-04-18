@@ -62,11 +62,16 @@ public class Dormitory extends BaseEntity {
         this.imageUrl = imagePath;
     }
 
-    public void updateDormitoryName(String name) {
-        this.name = name;
+    public void updateDormitorySize(Integer dormitorySize) {
+        this.dormitorySize = dormitorySize;
     }
 
-    public void updateRoomCount(int count) {
+    public void updateRoomCount(Integer count) {
         this.roomCount = count;
+    }
+
+    public void updateGenderAndRoomSize(Gender gender, Integer roomSize) {
+        this.gender = gender;
+        this.roomSize = roomSize;
     }
 }
