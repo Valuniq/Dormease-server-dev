@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.dormitory.controller;
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementDetailRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementListRes;
+import dormease.dormeasedev.domain.dormitory.dto.response.FloorByDormitoryRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomByDormitoryAndFloorRes;
 import dormease.dormeasedev.domain.dormitory.service.DormitoryManagementService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
@@ -10,6 +11,7 @@ import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,7 +46,7 @@ public class DormitoryManagementController {
 
     @Operation(summary = "건물명(인실) 목록 조회", description = "건물 관리 프로세스 중 건물 목록을 인실과 함께 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryManagementListRes.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryManagementListRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("")
@@ -55,7 +57,7 @@ public class DormitoryManagementController {
 
     @Operation(summary = "층 수 목록 조회", description = "건물 관리 프로세스 중 건물별 층 수를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json")}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FloorByDormitoryRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/{dormitoryId}/floor")
@@ -68,7 +70,7 @@ public class DormitoryManagementController {
 
     @Operation(summary = "호실 목록 조회", description = "건물 관리 프로세스 중 건물, 층별 호실 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RoomByDormitoryAndFloorRes.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoomByDormitoryAndFloorRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/{dormitoryId}/{floor}")

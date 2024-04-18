@@ -11,6 +11,7 @@ import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -49,7 +50,7 @@ public class DormitorySettingController {
 
     @Operation(summary = "건물 목록 조회", description = "건물 설정 프로세스 중 건물 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitorySettingListRes.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitorySettingListRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("")
@@ -121,7 +122,7 @@ public class DormitorySettingController {
         return dormitorySettingDetailService.updateRoomNumberAndFloor(customUserDetails, dormitoryId, updateRoomNumberAndFloorReq);
     }
 
-    @Operation(summary = "층 수, 호실 추가", description = "건물 설정 프로세스 중 특정 기숙사의 층 수와 각 층별 호실을 추가합니다.")
+    @Operation(summary = "호실 생성", description = "건물 설정 프로세스 중 특정 기숙사의 층 수를 추가해 호실을 생성합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -150,7 +151,7 @@ public class DormitorySettingController {
 
     @Operation(summary = "호실 조회", description = "건물 세부 설정 프로세스 중 건물별, 층별로 호실을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RoomSettingRes.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoomSettingRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/{dormitoryId}/{floor}/room")
