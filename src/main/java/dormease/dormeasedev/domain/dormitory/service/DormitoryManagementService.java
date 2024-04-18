@@ -239,7 +239,33 @@ public class DormitoryManagementService {
     }
 
     // 수기 방배정
+    @Transactional
+    public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails, Long roomId, List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
+        Room room = validateRoomById(roomId);
+        Integer bedNumberCount = 0;
+        if (room.getCurrentPeople() != null) { bedNumberCount = room.getCurrentPeople(); }
 
+        for (AssignedResidentToRoomReq req : assignedResidentToRoomReqList) {
+            bedNumberCount += 1;
+            DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원이 초과되었습니다.");
+
+            Optional<Resident> residentOpt = residentRepository.findById(req.getId());
+            DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
+            Resident resident = residentOpt.get();
+
+            resident.updateRoom(room);
+            resident.updateBedNumber(bedNumberCount);
+        }
+
+        // currentPeople update
+        updateCurrentPeople(room);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("호실이 배정되었습니다.").build())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
 
     // 건물별 메모 저장
     @Transactional
@@ -277,6 +303,12 @@ public class DormitoryManagementService {
         Optional<User> findUser = userRepository.findById(userId);
         DefaultAssert.isTrue(findUser.isPresent(), "유저 정보가 올바르지 않습니다.");
         return findUser.get();
+    }
+
+    private void updateCurrentPeople(Room room) {
+        Integer currentPeopleCount = residentRepository.findByRoom(room).size();
+        DefaultAssert.isTrue(currentPeopleCount < room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
+        room.updateCurrentUser(currentPeopleCount);
     }
 
 
