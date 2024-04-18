@@ -73,7 +73,7 @@ public class DormitoryManagementService {
     // 건물 정보 조회
     public ResponseEntity<?> getDormitoryInfo(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
-        // 이름하고 이미지는 여기서 가져오기
+        // 건물명, 메모, 이미지는 dormitory에서 가져오기
 
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
         DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
@@ -105,6 +105,7 @@ public class DormitoryManagementService {
                 .roomCount(roomCount)
                 .currentPeopleCount(currentPeopleCount)
                 .dormitorySize(dormitorySize)
+                .memo(dormitory.getMemo())
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -256,7 +257,6 @@ public class DormitoryManagementService {
             resident.updateRoom(room);
             resident.updateBedNumber(bedNumberCount);
         }
-
         // currentPeople update
         updateCurrentPeople(room);
 
