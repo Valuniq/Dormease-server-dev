@@ -69,4 +69,8 @@ public class Dormitory extends BaseEntity {
     public void updateRoomCount(int count) {
         this.roomCount = count;
     }
+
+    public void updateDormitorySize(Integer dormitorySize) {
+        this.dormitorySize = dormitorySize;
+    }
 }
