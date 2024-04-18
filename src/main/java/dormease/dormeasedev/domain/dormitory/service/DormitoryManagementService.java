@@ -3,10 +3,11 @@ package dormease.dormeasedev.domain.dormitory.service;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
-import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementDetailRes;
-import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementRes;
-import dormease.dormeasedev.domain.dormitory.dto.response.FloorByDormitoryRes;
-import dormease.dormeasedev.domain.dormitory.dto.response.RoomByDormitoryAndFloorRes;
+import dormease.dormeasedev.domain.dormitory.dto.request.AssignedResidentToRoomReq;
+import dormease.dormeasedev.domain.dormitory.dto.response.*;
+import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
+import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
+import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
@@ -32,6 +33,7 @@ public class DormitoryManagementService {
     private final DormitoryRepository dormitoryRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
+    private final DormitorySettingTermRepository dormitorySettingTermRepository;
     private final ResidentRepository residentRepository;
 
     // 건물, 층별 호실 목록 조회
@@ -121,25 +123,25 @@ public class DormitoryManagementService {
         DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
         Set<String> existingDormitoryNames = new HashSet<>();
-        List<DormitoryManagementRes> dormitoryManagementRes = new ArrayList<>();
+        List<DormitoryManagementListRes> dormitoryManagementListRes = new ArrayList<>();
 
         for (Dormitory dormitory : dormitories) {
             String key = dormitory.getName() + "(" + dormitory.getRoomSize() + "인실)";
             if (existingDormitoryNames.add(key)) {
-                dormitoryManagementRes.add(
-                        DormitoryManagementRes.builder()
+                dormitoryManagementListRes.add(
+                        DormitoryManagementListRes.builder()
                         .id(dormitory.getId())
                         .name(key).build());
             }
         }
 
         // 건물명 오름차순 정렬
-        Comparator<DormitoryManagementRes> comparator = Comparator.comparing(DormitoryManagementRes::getName);
-        dormitoryManagementRes.sort(comparator);
+        Comparator<DormitoryManagementListRes> comparator = Comparator.comparing(DormitoryManagementListRes::getName);
+        dormitoryManagementListRes.sort(comparator);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(dormitoryManagementRes)
+                .information(dormitoryManagementListRes)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
@@ -179,24 +181,72 @@ public class DormitoryManagementService {
     }
 
 
-    // 호실 배정이 안된 사생 목록 조회
-    // public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
-    //    Room room = validateRoomById(roomId);
-        // 성별, 인실, 학교? dormitory가 일치하는 사생만
-        // resident를 어떻게 찾지?
-        // dormitorySettingTerm에서 dormitory찾아서 roomID로 찾은 room이랑 같은 dormitory일떄만 보여주기
-    // }
+    // 배정된 호실이 없는 사생 목록 조회
+    public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
+        Room room = validateRoomById(roomId);
+
+        List<Resident> notAssignedResidents = new ArrayList<>();
+
+        List<DormitorySettingTerm> dormitorySettingTerms = dormitorySettingTermRepository.findByDormitory(room.getDormitory());
+        DefaultAssert.isTrue(!dormitorySettingTerms.isEmpty()); // 오류 메세지 고민 필요
+
+        for (DormitorySettingTerm dormitorySettingTerm : dormitorySettingTerms) {
+            // 미배정된 사생만
+            List<Resident> residents = residentRepository.findByDormitorySettingTermAndRoom(dormitorySettingTerm, null);
+            for (Resident resident : residents) {
+                if (resident.getUser().getGender() == room.getGender()) {
+                    notAssignedResidents.add(resident);
+                }
+            }
+        }
+
+        List<NotOrAssignedResidentsRes> notOrAssignedResidentsResList = notAssignedResidents.stream()
+                .map(resident -> NotOrAssignedResidentsRes.builder()
+                        .id(resident.getId())
+                        .studentNumber(resident.getUser().getStudentNumber())
+                        .name(resident.getUser().getName())
+                        .phoneNumber(resident.getUser().getPhoneNumber())
+                        .build())
+                .collect(Collectors.toList());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(notOrAssignedResidentsResList).build();
+
+        return  ResponseEntity.ok(apiResponse);
+
+    }
 
     // 해당 호실에 거주하는 사생 조회
+    public ResponseEntity<?> getAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
+        Room room = validateRoomById(roomId);
+
+        List<Resident> assignedResidents = residentRepository.findByRoom(room);
+        List<NotOrAssignedResidentsRes> assignedResidentsResList = assignedResidents.stream()
+                .map(resident -> NotOrAssignedResidentsRes.builder()
+                        .id(resident.getId())
+                        .name(resident.getUser().getName())
+                        .studentNumber(resident.getUser().getStudentNumber())
+                        .phoneNumber(resident.getUser().getPhoneNumber())
+                        .build())
+                .collect(Collectors.toList());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(assignedResidentsResList).build();
+
+        return  ResponseEntity.ok(apiResponse);
+    }
 
     // 수기 방배정
+
 
     // 건물별 메모 저장
     @Transactional
     public ResponseEntity<?> registerDormitoryMemo(CustomUserDetails customUserDetails, Long dormitoryId, DormitoryMemoReq dormitoryMemoReq) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         // 같은 이름의 같은 인실인 기숙사만 가져오기
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndNameAndRoomSize(dormitory.getSchool(), dormitory.getName(), dormitory.getRoomSize());
+        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
         DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
         for (Dormitory updateDormitory : sameNameDormitories) {
@@ -228,13 +278,6 @@ public class DormitoryManagementService {
         DefaultAssert.isTrue(findUser.isPresent(), "유저 정보가 올바르지 않습니다.");
         return findUser.get();
     }
-
-    // 수용인원 currentPeople 더한거 / dormitorySize 더한거
-    // 방개수: 꽉찬방/방 개수
-    // 둘 다 활성화된 방 기준
-    // 수기 배정 시 리스트로 받고,  currentPeople 업데이트하고 인원초과 시 예외처리
-    // 목록에 추가한 순서대로 침대번호 배정
-    // 이미 존재하는지, 존재하는 사생의 마지막 침대번호 +1인데 roomSize보단 작게
 
 
 }

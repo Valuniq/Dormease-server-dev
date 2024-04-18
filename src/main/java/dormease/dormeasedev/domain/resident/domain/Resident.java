@@ -101,4 +101,7 @@ public class Resident extends BaseEntity {
         this.accountNumber = accountNumber;
         this.hasKey = hasKey;
     }
+
+    public void updateRoom(Room room) { this.room = room; }
+    public void updateBedNumber(Integer bedNumber) { this.bedNumber = bedNumber; }
 }
