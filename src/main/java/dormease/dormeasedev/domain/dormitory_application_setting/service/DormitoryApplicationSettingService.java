@@ -241,7 +241,7 @@ public class DormitoryApplicationSettingService {
         User user = userService.validateUserById(customUserDetails.getId());
         School school = user.getSchool();
 
-        PageRequest pageRequest = PageRequest.of(page, 17, Sort.by(Sort.Direction.DESC, "createdDate"));
+        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<DormitoryApplicationSetting> dormitoryApplicationSettingPage = dormitoryApplicationSettingRepository.findBySchool(pageRequest, school);
 
         // 비어 있을 시, 빈 리스트 or 예외 던질지 고민
@@ -251,11 +251,11 @@ public class DormitoryApplicationSettingService {
         List<FindDormitoryApplicationSettingHistoryRes> findDormitoryApplicationSettingHistoryResList = new ArrayList<>();
 
         for (DormitoryApplicationSetting dormitoryApplicationSetting : dormitoryApplicationSettingList) {
-            LocalDate createdDate = dormitoryApplicationSetting.getCreatedDate().toLocalDate();
             FindDormitoryApplicationSettingHistoryRes findDormitoryApplicationSettingHistoryRes = FindDormitoryApplicationSettingHistoryRes.builder()
                     .dormitoryApplicationSettingId(dormitoryApplicationSetting.getId())
                     .title(dormitoryApplicationSetting.getTitle())
-                    .createdDate(createdDate)
+                    .startDate(dormitoryApplicationSetting.getStartDate())
+                    .endDate(dormitoryApplicationSetting.getEndDate())
                     .build();
             findDormitoryApplicationSettingHistoryResList.add(findDormitoryApplicationSettingHistoryRes);
         }
