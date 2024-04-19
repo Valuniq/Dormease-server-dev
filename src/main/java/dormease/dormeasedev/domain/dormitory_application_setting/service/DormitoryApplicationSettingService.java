@@ -235,7 +235,7 @@ public class DormitoryApplicationSettingService {
 //
 //    }
 
-    // Description : 이전 작성 내용 목록 조회
+    // Description : 이전 작성 목록 조회
     public ResponseEntity<?> findDormitoryApplicationSettingHistory(CustomUserDetails customUserDetails, Integer page) {
 
         User user = userService.validateUserById(customUserDetails.getId());

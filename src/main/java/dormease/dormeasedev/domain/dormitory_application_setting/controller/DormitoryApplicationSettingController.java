@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,7 +37,7 @@ public class DormitoryApplicationSettingController {
     @PostMapping
     public ResponseEntity<?> createDormitoryApplicationSetting(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails, // 관리자 id를 통해 학교를 알아내기 위함
-            @Parameter(description = "Schemas의 CreateDormitoryApplicationSettingReq를 참고해주세요.", required = true) @RequestBody CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq
+            @Parameter(description = "Schemas의 CreateDormitoryApplicationSettingReq를 참고해주세요.", required = true) @Valid @RequestBody CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq
             ) {
         return dormitoryApplicationSettingService.createDormitoryApplicationSetting(customUserDetails, createDormitoryApplicationSettingReq);
     }
