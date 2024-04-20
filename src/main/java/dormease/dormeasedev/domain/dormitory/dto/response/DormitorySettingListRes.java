@@ -5,11 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor
-public class GetDormitoryDetailRes {
+public class DormitorySettingListRes {
 
     @Schema(type = "Long", example = "1", description= "건물의 고유 id입니다.")
     private Long id;
@@ -20,14 +18,10 @@ public class GetDormitoryDetailRes {
     @Schema(type = "String", example = "https://dormease-s3-bucket.s3.amazonaws.com/014edc6a-48d0-4f11-8379-a4e48ba61402.jpg", description= "건물 이미지 URL입니다.")
     private String imageUrl;
 
-    @Schema(type = "List<FloorAndRoomNumberRes>", example = "FloorAndRoomNumberRes를 확인해주세요.", description= "층 수, 호실의 시작, 끝 번호입니다.")
-    private List<FloorAndRoomNumberRes> floorAndRoomNumberRes;
-
     @Builder
-    public GetDormitoryDetailRes(Long id, String name, String imageUrl, List<FloorAndRoomNumberRes> floorAndRoomNumberRes) {
+    public DormitorySettingListRes(Long id, String name, String imageUrl) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
-        this.floorAndRoomNumberRes =floorAndRoomNumberRes;
     }
 }

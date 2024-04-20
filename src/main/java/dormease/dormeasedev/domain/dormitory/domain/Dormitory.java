@@ -70,6 +70,10 @@ public class Dormitory extends BaseEntity {
         this.roomCount = count;
     }
 
+    public void updateMemo(String memo) {
+        this.memo = memo;
+    }
+
     public void updateGenderAndRoomSize(Gender gender, Integer roomSize) {
         this.gender = gender;
         this.roomSize = roomSize;
