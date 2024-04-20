@@ -24,6 +24,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findBySchoolAndStatus(School school, Status status);
 
+     List<User> findBySchoolAndNameContainingIgnoreCaseAndStatusOrSchoolAndStudentNumberAndStatus(School school, String keyword, Status status, School school1, String keyword1, Status status1);
+
 //    Optional<User> findByRefreshToken(String refreshToken);
 
     /**

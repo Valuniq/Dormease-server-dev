@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.user.controller;
 
 import dormease.dormeasedev.domain.user.dto.response.ActiveUserInfoBySchoolRes;
+import dormease.dormeasedev.domain.user.dto.response.DeleteUserInfoBySchoolRes;
 import dormease.dormeasedev.domain.user.service.UserManagementService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
@@ -54,9 +55,22 @@ public class UserManagementController {
         return userManagementService.sortedUsers(customUserDetails, sortBy, isAscending);
     }
 
-    @Operation(summary = "탈퇴 회원 목록 조회", description = "탈퇴 회원 관리 프로세스 중 탈퇴 회원 목록을 조회합니다.")
+    @Operation(summary = "회원 검색", description = "회원 관리 프로세스 중 회원을 학번 또는 이름으로 검색합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ActiveUserInfoBySchoolRes.class)))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("")
+    public ResponseEntity<?> searchActiveUserByKeyword(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam String keyword
+    ) {
+        return userManagementService.searchActiveUsers(customUserDetails, keyword);
+    }
+
+    @Operation(summary = "탈퇴 회원 목록 조회", description = "탈퇴 회원 관리 프로세스 중 탈퇴 회원 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DeleteUserInfoBySchoolRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/delete")
@@ -64,4 +78,18 @@ public class UserManagementController {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         return userManagementService.getDeleteUserBySchool(customUserDetails);
     }
+
+    @Operation(summary = "탈퇴 회원 검색", description = "탈퇴 회원 관리 프로세스 중 탈퇴 회원을 학번 또는 이름으로 검색합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DeleteUserInfoBySchoolRes.class)))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/delete")
+    public ResponseEntity<?> searchDeleteUserByKeyword(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam String keyword
+    ) {
+        return userManagementService.searchDeleteUsers(customUserDetails, keyword);
+    }
+
 }

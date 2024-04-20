@@ -124,7 +124,34 @@ public class UserManagementService {
 
 
     // 검색
+    public ResponseEntity<?> searchActiveUsers(CustomUserDetails customUserDetails, String keyword) {
+        User admin = validateUserById(customUserDetails.getId());
+        // 공백 제거
+        String cleanedKeyword = keyword.trim();
+        // 이름 또는 학번에 검색어가 포함된 사용자를 검색
+        List<User> searchResult = userRepository.findBySchoolAndNameContainingIgnoreCaseAndStatusOrSchoolAndStudentNumberAndStatus(
+                admin.getSchool(), cleanedKeyword, Status.ACTIVE,
+                admin.getSchool(), cleanedKeyword, Status.ACTIVE);
 
+        List<ActiveUserInfoBySchoolRes> searchUsers = searchResult.stream()
+                .map(user -> ActiveUserInfoBySchoolRes.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .studentNumber(user.getStudentNumber())
+                        .phoneNumber(user.getPhoneNumber())
+                        .bonusPoint(user.getBonusPoint())
+                        .minusPoint(user.getMinusPoint())
+                        .createdAt(user.getCreatedDate().toLocalDate())
+                        .build())
+                .sorted(Comparator.comparing(ActiveUserInfoBySchoolRes::getCreatedAt).reversed())
+                .collect(Collectors.toList());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(searchUsers)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
 
     // 탈퇴 회원 목록 조회
     // 회원 탈퇴 시 이름, 학번, 전화번호, 상점, 벌점, 탈퇴날짜만 남길 것
@@ -138,6 +165,7 @@ public class UserManagementService {
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
+                        // .phoneNumber(user.getPhoneNumber())
                         .bonusPoint(user.getBonusPoint())
                         .minusPoint(user.getMinusPoint())
                         .deletedAt(user.getModifiedDate().toLocalDate())
@@ -151,6 +179,35 @@ public class UserManagementService {
     }
 
     // 검색
+    public ResponseEntity<?> searchDeleteUsers(CustomUserDetails customUserDetails, String keyword) {
+        User admin = validateUserById(customUserDetails.getId());
+        // 공백 제거
+        String cleanedKeyword = keyword.trim();
+        // 이름 또는 학번에 검색어가 포함된 사용자를 검색
+        List<User> searchResult = userRepository.findBySchoolAndNameContainingIgnoreCaseAndStatusOrSchoolAndStudentNumberAndStatus(
+                admin.getSchool(), cleanedKeyword, Status.DELETE,
+                admin.getSchool(), cleanedKeyword, Status.DELETE);
+
+        List<DeleteUserInfoBySchoolRes> searchUsers = searchResult.stream()
+                .map(user -> DeleteUserInfoBySchoolRes.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .studentNumber(user.getStudentNumber())
+                        // .phoneNumber(user.getPhoneNumber())
+                        .bonusPoint(user.getBonusPoint())
+                        .minusPoint(user.getMinusPoint())
+                        .deletedAt(user.getModifiedDate().toLocalDate())
+                        .build())
+                .sorted(Comparator.comparing(DeleteUserInfoBySchoolRes::getDeletedAt).reversed())
+                .collect(Collectors.toList());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(searchUsers)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
 
     // 블랙리스트 사유 작성
     // 블랙리스트 목록 조회
