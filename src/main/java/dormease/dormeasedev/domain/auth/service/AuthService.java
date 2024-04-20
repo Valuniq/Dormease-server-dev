@@ -6,7 +6,7 @@ import dormease.dormeasedev.domain.auth.dto.request.SignInReq;
 import dormease.dormeasedev.domain.auth.dto.response.CheckLoginIdRes;
 import dormease.dormeasedev.domain.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.auth.dto.request.SignUpReq;
-import dormease.dormeasedev.domain.school.SchoolService;
+import dormease.dormeasedev.domain.school.service.SchoolService;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.UserType;
