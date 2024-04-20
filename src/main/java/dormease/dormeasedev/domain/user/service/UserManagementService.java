@@ -127,6 +127,8 @@ public class UserManagementService {
 
 
     // 탈퇴 회원 목록 조회
+    // 회원 탈퇴 시 이름, 학번, 전화번호, 상점, 벌점, 탈퇴날짜만 남길 것
+    // 추후 재가입 시 학번 같으면 상/벌점 연결?
     public ResponseEntity<?> getDeleteUserBySchool(CustomUserDetails customUserDetails) {
         User admin = validateUserById(customUserDetails.getId());
         List<User> users = userRepository.findBySchoolAndStatus(admin.getSchool(), Status.DELETE);
