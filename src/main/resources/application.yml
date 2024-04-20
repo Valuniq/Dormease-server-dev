@@ -2,7 +2,6 @@ spring:
   profiles:
     # 로컬 : "h2"  ||  RDS : "rds"로 사용
     active: ["h2", "jwt", "s3", "swagger"]
-#    active: ["h2", "swagger"]
 
 # 스프링 시큐리티에서 기본적으로 생성해주는 임시 비밀번호는 더 이상 필요 없다. application.yml에 다음 내용을 추가하면 콘솔에 임시 비밀번호가 생성되지 않는다.
   security:

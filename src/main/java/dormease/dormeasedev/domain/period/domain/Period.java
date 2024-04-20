@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,15 +27,16 @@ public class Period extends BaseEntity {
     @JoinColumn(name = "school_id")
     private School school;
 
-    private LocalDateTime startDate;
+    private LocalDate startDate;
     
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
+    // 입사, 퇴사, 환불, 룸메이트, 입금
     @Enumerated(EnumType.STRING)
     private PeriodType periodType;
 
     @Builder
-    public Period(Long id, School school, LocalDateTime startDate, LocalDateTime endDate, PeriodType periodType) {
+    public Period(Long id, School school, LocalDate startDate, LocalDate endDate, PeriodType periodType) {
         this.id = id;
         this.school = school;
         this.startDate = startDate;

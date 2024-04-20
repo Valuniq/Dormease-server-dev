@@ -1,4 +1,4 @@
-package dormease.dormeasedev.domain.school;
+package dormease.dormeasedev.domain.school.service;
 
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.school.domain.repository.SchoolRepository;
