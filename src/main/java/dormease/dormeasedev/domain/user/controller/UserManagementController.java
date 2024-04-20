@@ -44,13 +44,13 @@ public class UserManagementController {
         return userManagementService.getActiveUsers(customUserDetails);
     }
 
-    @Operation(summary = "회원 목록 조회(상점)", description = "회원 관리 프로세스 중 회원 목록을 상점 기준으로 조회합니다.")
+    @Operation(summary = "회원 정렬", description = "회원 관리 프로세스 중 회원 목록을 입력받은 기준으로 정렬하여 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ActiveUserInfoRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("")
-    public ResponseEntity<?> sortedUsersByBonusPoint(
+    public ResponseEntity<?> sortedUsers(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "BONUS, MINUS, CREATED_AT 중 정렬 기준을 입력해주세요.", required = true) @RequestParam String sortBy,
             @Parameter(description = "오름차순/내림차순 기준을 입력해주세요.", required = true) @RequestParam Boolean isAscending
