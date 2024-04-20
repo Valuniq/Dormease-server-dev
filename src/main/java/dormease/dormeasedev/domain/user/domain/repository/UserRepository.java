@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.user.domain.repository;
 
+import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,6 +21,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByNameAndPhoneNumber(String name, String phoneNumber);
 
     List<User> findBySchool(School school);
+
+    List<User> findBySchoolAndStatus(School school, Status status);
 
 //    Optional<User> findByRefreshToken(String refreshToken);
 
