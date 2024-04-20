@@ -60,6 +60,7 @@ public class Room extends BaseEntity {
 
     public void updateRoomNumber(Integer roomNumber) { this.roomNumber = roomNumber; }
     public void updateFloor(Integer floor) { this.floor = floor; }
+    public void updateCurrentUser(Integer currentPeople) { this.currentPeople = currentPeople; }
 
     public void updateRoomSetting(Dormitory dormitory, Integer roomSize, Gender gender, Boolean hasKey) {
         this.dormitory = dormitory;
