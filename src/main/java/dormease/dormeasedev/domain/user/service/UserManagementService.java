@@ -3,8 +3,8 @@ package dormease.dormeasedev.domain.user.service;
 import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
-import dormease.dormeasedev.domain.user.dto.response.ActiveUserInfoBySchoolRes;
-import dormease.dormeasedev.domain.user.dto.response.DeleteUserInfoBySchoolRes;
+import dormease.dormeasedev.domain.user.dto.response.ActiveUserInfoRes;
+import dormease.dormeasedev.domain.user.dto.response.DeleteUserInfoRes;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.error.DefaultException;
@@ -29,11 +29,11 @@ public class UserManagementService {
 
     // 회원 목록 조회
     public ResponseEntity<?> getActiveUsers(CustomUserDetails customUserDetails) {
-        User admin = validateUserById(customUserDetails.getId());
+        User admin = validUserById(customUserDetails.getId());
         List<User> users = userRepository.findBySchoolAndStatus(admin.getSchool(), Status.ACTIVE);
 
-        List<ActiveUserInfoBySchoolRes> activeUserInfoBySchoolRes = users.stream()
-                .map(user -> ActiveUserInfoBySchoolRes.builder()
+        List<ActiveUserInfoRes> activeUserInfoRes = users.stream()
+                .map(user -> ActiveUserInfoRes.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
@@ -43,20 +43,20 @@ public class UserManagementService {
                         .createdAt(user.getCreatedDate().toLocalDate())
                         .build())
                 // 최근 회원가입 한 순서로 정렬
-                .sorted(Comparator.comparing(ActiveUserInfoBySchoolRes::getCreatedAt).reversed())
+                .sorted(Comparator.comparing(ActiveUserInfoRes::getCreatedAt).reversed())
                 .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(activeUserInfoBySchoolRes).build();
+                .information(activeUserInfoRes).build();
         return  ResponseEntity.ok(apiResponse);
     }
 
     public ResponseEntity<?> sortedUsers(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending) {
-        User admin = validateUserById(customUserDetails.getId());
+        User admin = validUserById(customUserDetails.getId());
         List<User> users = userRepository.findBySchoolAndStatus(admin.getSchool(), Status.ACTIVE);
 
-        List<ActiveUserInfoBySchoolRes> sortedUsers = switch (sortBy) {
+        List<ActiveUserInfoRes> sortedUsers = switch (sortBy) {
             case "BONUS" -> sortByBonusPoint(users, isAscending);
             case "MINUS" -> sortByMinusPoint(users, isAscending);
             case "CREATED_AT" -> sortByCreatedAt(users, isAscending);
@@ -71,9 +71,9 @@ public class UserManagementService {
 
     }
 
-    private List<ActiveUserInfoBySchoolRes> sortByBonusPoint(List<User> users, boolean isAscending) {
+    private List<ActiveUserInfoRes> sortByBonusPoint(List<User> users, boolean isAscending) {
         return users.stream()
-                .map(user -> ActiveUserInfoBySchoolRes.builder()
+                .map(user -> ActiveUserInfoRes.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
@@ -83,14 +83,14 @@ public class UserManagementService {
                         .createdAt(user.getCreatedDate().toLocalDate())
                         .build())
                 .sorted(isAscending ?
-                        Comparator.comparing(ActiveUserInfoBySchoolRes::getBonusPoint) :
-                        Comparator.comparing(ActiveUserInfoBySchoolRes::getBonusPoint).reversed())
+                        Comparator.comparing(ActiveUserInfoRes::getBonusPoint) :
+                        Comparator.comparing(ActiveUserInfoRes::getBonusPoint).reversed())
                 .collect(Collectors.toList());
     }
 
-    private List<ActiveUserInfoBySchoolRes> sortByMinusPoint(List<User> users, boolean isAscending) {
+    private List<ActiveUserInfoRes> sortByMinusPoint(List<User> users, boolean isAscending) {
         return users.stream()
-                .map(user -> ActiveUserInfoBySchoolRes.builder()
+                .map(user -> ActiveUserInfoRes.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
@@ -100,14 +100,14 @@ public class UserManagementService {
                         .createdAt(user.getCreatedDate().toLocalDate())
                         .build())
                 .sorted(isAscending ?
-                        Comparator.comparing(ActiveUserInfoBySchoolRes::getMinusPoint) :
-                        Comparator.comparing(ActiveUserInfoBySchoolRes::getMinusPoint).reversed())
+                        Comparator.comparing(ActiveUserInfoRes::getMinusPoint) :
+                        Comparator.comparing(ActiveUserInfoRes::getMinusPoint).reversed())
                 .collect(Collectors.toList());
     }
 
-    private List<ActiveUserInfoBySchoolRes> sortByCreatedAt(List<User> users, boolean isAscending) {
+    private List<ActiveUserInfoRes> sortByCreatedAt(List<User> users, boolean isAscending) {
         return users.stream()
-                .map(user -> ActiveUserInfoBySchoolRes.builder()
+                .map(user -> ActiveUserInfoRes.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
@@ -117,15 +117,15 @@ public class UserManagementService {
                         .createdAt(user.getCreatedDate().toLocalDate())
                         .build())
                 .sorted(isAscending ?
-                        Comparator.comparing(ActiveUserInfoBySchoolRes::getCreatedAt) :
-                        Comparator.comparing(ActiveUserInfoBySchoolRes::getCreatedAt).reversed())
+                        Comparator.comparing(ActiveUserInfoRes::getCreatedAt) :
+                        Comparator.comparing(ActiveUserInfoRes::getCreatedAt).reversed())
                 .collect(Collectors.toList());
     }
 
 
     // 검색
     public ResponseEntity<?> searchActiveUsers(CustomUserDetails customUserDetails, String keyword) {
-        User admin = validateUserById(customUserDetails.getId());
+        User admin = validUserById(customUserDetails.getId());
         // 공백 제거
         String cleanedKeyword = keyword.trim();
         // 이름 또는 학번에 검색어가 포함된 사용자를 검색
@@ -133,8 +133,8 @@ public class UserManagementService {
                 admin.getSchool(), cleanedKeyword, Status.ACTIVE,
                 admin.getSchool(), cleanedKeyword, Status.ACTIVE);
 
-        List<ActiveUserInfoBySchoolRes> searchUsers = searchResult.stream()
-                .map(user -> ActiveUserInfoBySchoolRes.builder()
+        List<ActiveUserInfoRes> searchUsers = searchResult.stream()
+                .map(user -> ActiveUserInfoRes.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
@@ -143,7 +143,7 @@ public class UserManagementService {
                         .minusPoint(user.getMinusPoint())
                         .createdAt(user.getCreatedDate().toLocalDate())
                         .build())
-                .sorted(Comparator.comparing(ActiveUserInfoBySchoolRes::getCreatedAt).reversed())
+                .sorted(Comparator.comparing(ActiveUserInfoRes::getCreatedAt).reversed())
                 .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -157,11 +157,11 @@ public class UserManagementService {
     // 회원 탈퇴 시 이름, 학번, 전화번호, 상점, 벌점, 탈퇴날짜만 남길 것
     // 추후 재가입 시 학번 같으면 상/벌점 연결?
     public ResponseEntity<?> getDeleteUserBySchool(CustomUserDetails customUserDetails) {
-        User admin = validateUserById(customUserDetails.getId());
+        User admin = validUserById(customUserDetails.getId());
         List<User> users = userRepository.findBySchoolAndStatus(admin.getSchool(), Status.DELETE);
 
-        List<DeleteUserInfoBySchoolRes> deleteUserInfoBySchoolRes = users.stream()
-                .map(user -> DeleteUserInfoBySchoolRes.builder()
+        List<DeleteUserInfoRes> deleteUserInfoRes = users.stream()
+                .map(user -> DeleteUserInfoRes.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
@@ -174,13 +174,13 @@ public class UserManagementService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(deleteUserInfoBySchoolRes).build();
+                .information(deleteUserInfoRes).build();
         return  ResponseEntity.ok(apiResponse);
     }
 
     // 검색
     public ResponseEntity<?> searchDeleteUsers(CustomUserDetails customUserDetails, String keyword) {
-        User admin = validateUserById(customUserDetails.getId());
+        User admin = validUserById(customUserDetails.getId());
         // 공백 제거
         String cleanedKeyword = keyword.trim();
         // 이름 또는 학번에 검색어가 포함된 사용자를 검색
@@ -188,8 +188,8 @@ public class UserManagementService {
                 admin.getSchool(), cleanedKeyword, Status.DELETE,
                 admin.getSchool(), cleanedKeyword, Status.DELETE);
 
-        List<DeleteUserInfoBySchoolRes> searchUsers = searchResult.stream()
-                .map(user -> DeleteUserInfoBySchoolRes.builder()
+        List<DeleteUserInfoRes> searchUsers = searchResult.stream()
+                .map(user -> DeleteUserInfoRes.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
@@ -198,7 +198,7 @@ public class UserManagementService {
                         .minusPoint(user.getMinusPoint())
                         .deletedAt(user.getModifiedDate().toLocalDate())
                         .build())
-                .sorted(Comparator.comparing(DeleteUserInfoBySchoolRes::getDeletedAt).reversed())
+                .sorted(Comparator.comparing(DeleteUserInfoRes::getDeletedAt).reversed())
                 .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -208,12 +208,7 @@ public class UserManagementService {
         return ResponseEntity.ok(apiResponse);
     }
 
-
-    // 블랙리스트 사유 작성
-    // 블랙리스트 목록 조회
-    // 블랙리스트 삭제
-
-    public User validateUserById(Long userId) {
+    private User validUserById(Long userId) {
         Optional<User> findUser = userRepository.findById(userId);
         DefaultAssert.isTrue(findUser.isPresent(), "유저 정보가 올바르지 않습니다.");
         return findUser.get();

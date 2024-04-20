@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
-public class ActiveUserInfoBySchoolRes {
+public class ActiveUserInfoRes {
 
     private Long id;
 
@@ -29,7 +29,7 @@ public class ActiveUserInfoBySchoolRes {
     private LocalDate createdAt;
 
     @Builder
-    public ActiveUserInfoBySchoolRes(Long id, String name, String studentNumber, String phoneNumber, Integer bonusPoint, Integer minusPoint, LocalDate createdAt) {
+    public ActiveUserInfoRes(Long id, String name, String studentNumber, String phoneNumber, Integer bonusPoint, Integer minusPoint, LocalDate createdAt) {
         this.id = id;
         this.name = name;
         this.studentNumber = studentNumber;

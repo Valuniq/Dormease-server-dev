@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
-public class DeleteUserInfoBySchoolRes {
+public class DeleteUserInfoRes {
 
     private Long id;
 
@@ -26,7 +26,7 @@ public class DeleteUserInfoBySchoolRes {
     private LocalDate deletedAt;
 
     @Builder
-    public DeleteUserInfoBySchoolRes(Long id, String name, String studentNumber, Integer bonusPoint, Integer minusPoint, LocalDate deletedAt) {
+    public DeleteUserInfoRes(Long id, String name, String studentNumber, Integer bonusPoint, Integer minusPoint, LocalDate deletedAt) {
         this.id = id;
         this.name = name;
         this.studentNumber = studentNumber;

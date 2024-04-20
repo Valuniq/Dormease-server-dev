@@ -90,6 +90,10 @@ public class User extends BaseEntity {
         this.phoneNumber = phoneNumber;
     }
 
+    public void updateUserType(UserType userType) {
+        this.userType = userType;
+    }
+
     //    public void updateRefreshToken(String updateRefreshToken) {
 //        this.refreshToken = updateRefreshToken;
 //    }
