@@ -118,7 +118,7 @@ public class DormitoryManagementService {
 
     // 학교별 건물 목록 조회(건물명(n인실))
     public ResponseEntity<?> getDormitoriesByRoomSize(CustomUserDetails customUserDetails) {
-        User user = validateUserById(customUserDetails.getId());
+        User user = validUserById(customUserDetails.getId());
 
         List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
         DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
@@ -164,7 +164,7 @@ public class DormitoryManagementService {
                     .sorted()
                     .toList();
 
-            uniqueFloorNumbers.addAll(floorNumbers); // 중복 제거를 위해 Set에 층 수 추가
+            uniqueFloorNumbers.addAll(floorNumbers);
         }
 
         List<FloorByDormitoryRes> floorByDormitoryResList = uniqueFloorNumbers.stream()
@@ -184,17 +184,18 @@ public class DormitoryManagementService {
 
     // 배정된 호실이 없는 사생 목록 조회
     public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
-        Room room = validateRoomById(roomId);
+        Room room = validRoomById(roomId);
 
         List<Resident> notAssignedResidents = new ArrayList<>();
 
         List<DormitorySettingTerm> dormitorySettingTerms = dormitorySettingTermRepository.findByDormitory(room.getDormitory());
-        DefaultAssert.isTrue(!dormitorySettingTerms.isEmpty()); // 오류 메세지 고민 필요
+        DefaultAssert.isTrue(!dormitorySettingTerms.isEmpty(), "설정된 입사신청내역이 없습니다."); // 오류 메세지
 
         for (DormitorySettingTerm dormitorySettingTerm : dormitorySettingTerms) {
-            // 미배정된 사생만
+            // 미배정된 사생만 저장
             List<Resident> residents = residentRepository.findByDormitorySettingTermAndRoom(dormitorySettingTerm, null);
             for (Resident resident : residents) {
+                // findByDormtory할 때 성별에 따라 따로 불러와지는 것으로 보이나, 예외사항에 대비해 추가
                 if (resident.getUser().getGender() == room.getGender()) {
                     notAssignedResidents.add(resident);
                 }
@@ -220,7 +221,7 @@ public class DormitoryManagementService {
 
     // 해당 호실에 거주하는 사생 조회
     public ResponseEntity<?> getAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
-        Room room = validateRoomById(roomId);
+        Room room = validRoomById(roomId);
 
         List<Resident> assignedResidents = residentRepository.findByRoom(room);
         List<NotOrAssignedResidentsRes> assignedResidentsResList = assignedResidents.stream()
@@ -242,13 +243,12 @@ public class DormitoryManagementService {
     // 수기 방배정
     @Transactional
     public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails, Long roomId, List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
-        Room room = validateRoomById(roomId);
-        Integer bedNumberCount = 0;
-        if (room.getCurrentPeople() != null) { bedNumberCount = room.getCurrentPeople(); }
+        Room room = validRoomById(roomId);
+        Integer bedNumberCount = room.getCurrentPeople();
 
         for (AssignedResidentToRoomReq req : assignedResidentToRoomReqList) {
             bedNumberCount += 1;
-            DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원이 초과되었습니다.");
+            DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
 
             Optional<Resident> residentOpt = residentRepository.findById(req.getId());
             DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
@@ -271,7 +271,7 @@ public class DormitoryManagementService {
     @Transactional
     public ResponseEntity<?> registerDormitoryMemo(CustomUserDetails customUserDetails, Long dormitoryId, DormitoryMemoReq dormitoryMemoReq) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
-        // 같은 이름의 같은 인실인 기숙사만 가져오기
+
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
         DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
@@ -293,13 +293,13 @@ public class DormitoryManagementService {
         return findDormitory.get();
     }
 
-    public Room validateRoomById(Long roomId) {
+    public Room validRoomById(Long roomId) {
         Optional<Room> findRoom = roomRepository.findById(roomId);
         DefaultAssert.isTrue(findRoom.isPresent(), "유저 정보가 올바르지 않습니다.");
         return findRoom.get();
     }
 
-    public User validateUserById(Long userId) {
+    public User validUserById(Long userId) {
         Optional<User> findUser = userRepository.findById(userId);
         DefaultAssert.isTrue(findUser.isPresent(), "유저 정보가 올바르지 않습니다.");
         return findUser.get();
@@ -307,7 +307,7 @@ public class DormitoryManagementService {
 
     private void updateCurrentPeople(Room room) {
         Integer currentPeopleCount = residentRepository.findByRoom(room).size();
-        DefaultAssert.isTrue(currentPeopleCount < room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
+        DefaultAssert.isTrue(currentPeopleCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
         room.updateCurrentUser(currentPeopleCount);
     }
 
