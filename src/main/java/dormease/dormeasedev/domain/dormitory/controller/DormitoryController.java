@@ -1,12 +1,8 @@
 package dormease.dormeasedev.domain.dormitory.controller;
 
-import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.app_dormitory_application.FindDormitoryReq;
-import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.app_dormitory_application.FindDormitoryRes;
 import dormease.dormeasedev.domain.dormitory.service.DormitoryService;
-import dormease.dormeasedev.domain.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingHistoryRes;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,10 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
