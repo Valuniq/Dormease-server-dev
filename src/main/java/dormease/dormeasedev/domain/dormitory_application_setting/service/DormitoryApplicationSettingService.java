@@ -16,6 +16,8 @@ import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.dto.request.DormitoryTermReq;
 import dormease.dormeasedev.domain.dormitory_term.dto.response.DormitoryTermRes;
+import dormease.dormeasedev.domain.dormitory_term_relation.domain.DormitoryTermRelation;
+import dormease.dormeasedev.domain.dormitory_term_relation.domain.repository.DormitoryTermRelationRepository;
 import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.meal_ticket.domain.repository.MealTicketRepository;
 import dormease.dormeasedev.domain.meal_ticket.dto.request.MealTicketReq;
@@ -57,6 +59,7 @@ public class DormitoryApplicationSettingService {
     private final DormitoryTermRepository dormitoryTermRepository;
     private final DormitorySettingTermRepository dormitorySettingTermRepository;
     private final MealTicketRepository mealTicketRepository;
+    private final DormitoryTermRelationRepository dormitoryTermRelationRepository;
 
     private final UserService userService;
     private final SchoolService schoolService;
@@ -112,10 +115,16 @@ public class DormitoryApplicationSettingService {
 
                 dormitoryTermRepository.save(dormitoryTerm);
 
+                DormitoryTermRelation dormitoryTermRelation = DormitoryTermRelation.builder()
+                        .dormitory(dormitory)
+                        .dormitoryTerm(dormitoryTerm)
+                        .build();
+
+                dormitoryTermRelationRepository.save(dormitoryTermRelation);
+
                 // DormitorySettingTerm save - M:N 관계 중간 테이블
                 DormitorySettingTerm dormitorySettingTerm = DormitorySettingTerm.builder()
                         .dormitory(dormitory)
-                        .dormitoryTerm(dormitoryTerm)
                         .dormitoryApplicationSetting(dormitoryApplicationSetting)
                         .build();
 
@@ -159,11 +168,12 @@ public class DormitoryApplicationSettingService {
         for (DormitorySettingTerm dormitorySettingTerm : findDormitorySettingTermListByDormSettingTerm) {
             Dormitory dormitory = dormitorySettingTerm.getDormitory();
 
-            List<DormitorySettingTerm> findDormitorySettingTermListByDormAndDormSettingTerm = dormitorySettingTermRepository.findByDormitoryApplicationSettingAndDormitory(dormitoryApplicationSetting, dormitory);
+//            List<DormitorySettingTerm> findDormitorySettingTermListByDormAndDormSettingTerm = dormitorySettingTermRepository.findByDormitoryApplicationSettingAndDormitory(dormitoryApplicationSetting, dormitory);
+            List<DormitoryTermRelation> findDormitoryTermRelationList = dormitoryTermRelationRepository.findByDormitory(dormitory);
             List<DormitoryTermRes> dormitoryTermResList = new ArrayList<>();
 
-            for (DormitorySettingTerm settingTerm : findDormitorySettingTermListByDormAndDormSettingTerm) {
-                DormitoryTerm dormitoryTerm = settingTerm.getDormitoryTerm();
+            for (DormitoryTermRelation dormitoryTermRelation : findDormitoryTermRelationList) {
+                DormitoryTerm dormitoryTerm = dormitoryTermRelation.getDormitoryTerm();
                 DormitoryTermRes dormitoryTermRes = DormitoryTermRes.builder()
                         .dormitoryTermId(dormitoryTerm.getId())
                         .term(dormitoryTerm.getTerm())
