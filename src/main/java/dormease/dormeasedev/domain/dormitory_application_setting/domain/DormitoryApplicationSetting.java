@@ -44,6 +44,7 @@ public class DormitoryApplicationSetting extends BaseEntity {
     private Integer securityDeposit;
 
     // 이전/현재 어떤 상태인지 - 입사 신청 설정 내역과 구분을 위함
+    @Enumerated(EnumType.STRING)
     private ApplicationStatus applicationStatus;
 
     @Builder

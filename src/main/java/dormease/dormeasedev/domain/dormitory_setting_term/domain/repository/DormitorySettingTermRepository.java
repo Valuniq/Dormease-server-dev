@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.dormitory_setting_term.domain.repository;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
+import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +15,4 @@ public interface DormitorySettingTermRepository extends JpaRepository<DormitoryS
 
     List<DormitorySettingTerm> findByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting);
 
-    List<DormitorySettingTerm> findByDormitoryApplicationSettingAndDormitory(DormitoryApplicationSetting dormitoryApplicationSetting, Dormitory dormitory);
 }
