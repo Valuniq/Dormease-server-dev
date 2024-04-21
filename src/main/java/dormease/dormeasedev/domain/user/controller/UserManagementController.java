@@ -49,7 +49,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ActiveUserInfoRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("")
+    @GetMapping("/sort")
     public ResponseEntity<?> sortedUsers(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "BONUS, MINUS, CREATED_AT 중 정렬 기준을 입력해주세요.", required = true) @RequestParam String sortBy,
@@ -63,7 +63,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ActiveUserInfoRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("")
+    @GetMapping("/search")
     public ResponseEntity<?> searchActiveUserByKeyword(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam String keyword
@@ -89,7 +89,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DeleteUserInfoRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("/delete")
+    @GetMapping("/delete/search")
     public ResponseEntity<?> searchDeleteUserByKeyword(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam String keyword
