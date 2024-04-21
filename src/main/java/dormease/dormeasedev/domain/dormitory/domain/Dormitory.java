@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.dormitory.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
+import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryReq;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import jakarta.persistence.*;
@@ -8,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -44,9 +47,19 @@ public class Dormitory extends BaseEntity {
     // 방 개수
     private Integer roomCount;
 
+    // 거주 기간
+    private String term;
+
+    private Integer price;
+
+    // 시작 -> 마감일 中 시작일
+    private LocalDate startDate;
+
+//     시작 -> 마감일 中 마감일
+    private LocalDate endDate;
 
     @Builder
-    public Dormitory(Long id, School school, String name, String memo, Gender gender, Integer roomSize, String imageUrl, Integer dormitorySize, Integer roomCount) {
+    public Dormitory(Long id, School school, String name, String memo, Gender gender, Integer roomSize, String imageUrl, Integer dormitorySize, Integer roomCount, String term, Integer price, LocalDate startDate, LocalDate endDate) {
         this.id = id;
         this.school = school;
         this.name = name;
@@ -56,6 +69,10 @@ public class Dormitory extends BaseEntity {
         this.imageUrl = imageUrl;
         this.dormitorySize = dormitorySize;
         this.roomCount = roomCount;
+        this.term = term;
+        this.price = price;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public void updateImageUrl(String imagePath) {
