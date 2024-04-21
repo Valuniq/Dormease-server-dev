@@ -4,6 +4,7 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.AssignedResidentToRoomReq;
+import dormease.dormeasedev.domain.dormitory.dto.request.ResidentIdReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.*;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
@@ -242,23 +243,26 @@ public class DormitoryManagementService {
 
     // 수기 방배정
     @Transactional
-    public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails, Long roomId, List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
-        Room room = validRoomById(roomId);
-        Integer bedNumberCount = room.getCurrentPeople();
+    public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails,List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
+        // 리스트 사이즈만큼 반복
+        for (AssignedResidentToRoomReq assignedResidentToRoomReq : assignedResidentToRoomReqList) {
+            Room room = validRoomById(assignedResidentToRoomReq.getRoomId());
+            Integer bedNumberCount = room.getCurrentPeople();
 
-        for (AssignedResidentToRoomReq req : assignedResidentToRoomReqList) {
-            bedNumberCount += 1;
-            DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
+            for (ResidentIdReq residentIdReq : assignedResidentToRoomReq.getResidentIdReqList()) {
+                bedNumberCount += 1;
+                DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
 
-            Optional<Resident> residentOpt = residentRepository.findById(req.getId());
-            DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
-            Resident resident = residentOpt.get();
+                Optional<Resident> residentOpt = residentRepository.findById(residentIdReq.getId());
+                DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
+                Resident resident = residentOpt.get();
 
-            resident.updateRoom(room);
-            resident.updateBedNumber(bedNumberCount);
+                resident.updateRoom(room);
+                resident.updateBedNumber(bedNumberCount);
+            }
+            // currentPeople update
+            updateCurrentPeople(room);
         }
-        // currentPeople update
-        updateCurrentPeople(room);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

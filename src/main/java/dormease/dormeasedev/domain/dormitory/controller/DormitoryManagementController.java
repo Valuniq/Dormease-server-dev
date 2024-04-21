@@ -101,7 +101,7 @@ public class DormitoryManagementController {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentsRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("/{roomId}/not-assigned")
+    @GetMapping("/rooms/{roomId}/not-assigned")
     public ResponseEntity<?> getNotAssignedResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId
@@ -114,7 +114,7 @@ public class DormitoryManagementController {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentsRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("/{roomId}/assigned")
+    @GetMapping("/rooms/{roomId}/assigned")
     public ResponseEntity<?> getAssignedResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId
@@ -127,13 +127,12 @@ public class DormitoryManagementController {
             @ApiResponse(responseCode = "200", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PutMapping("/{roomId}/manual")
+    @PutMapping("/rooms/manual")
     public ResponseEntity<?> assignedResidentsToRooms(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId,
             @Parameter(description = "Schemas의 AssignedResidentToRoomReq을 참고해주세요.", required = true) @Valid @RequestBody List<AssignedResidentToRoomReq> assignedResidentToRoomReq
             ) {
-        return dormitoryManagementService.assignedResidentsToRoom(customUserDetails, roomId, assignedResidentToRoomReq);
+        return dormitoryManagementService.assignedResidentsToRoom(customUserDetails, assignedResidentToRoomReq);
     }
 }
 
