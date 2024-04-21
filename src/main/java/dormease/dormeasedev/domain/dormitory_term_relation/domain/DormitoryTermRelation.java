@@ -16,7 +16,7 @@ public class DormitoryTermRelation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "dormitory_setting_term_id")
+    @Column(name = "dormitory_term_relation_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
