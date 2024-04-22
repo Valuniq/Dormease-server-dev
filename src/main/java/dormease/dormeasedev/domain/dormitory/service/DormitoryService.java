@@ -7,6 +7,7 @@ import dormease.dormeasedev.domain.dormitory.dto.response.app_dormitory_applicat
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
+import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_term_relation.domain.DormitoryTermRelation;
 import dormease.dormeasedev.domain.dormitory_term_relation.domain.repository.DormitoryTermRelationRepository;
@@ -38,42 +39,51 @@ public class DormitoryService {
     // Description : APP - 입사 신청 중 기숙사 목록 조회 (본인 학교, 성별, 거주 기간에 따른 조회)
     public ResponseEntity<?> findDormitories(FindDormitoryReq findDormitoryReq) {
 
-//        School school = schoolService.validateSchoolById(findDormitoryReq.getSchoolId());
-//
-////        List<Dormitory> findDormitoryList = dormitoryRepository.findDormitoriesBySchoolIdAndGenderAndTerm(school.getId(), findDormitoryReq.getGender(), findDormitoryReq.getTerm());
-//        List<Dormitory> findDormitoryList = dormitoryRepository.findDormitoriesBySchoolIdAndGender(school.getId(), findDormitoryReq.getGender());
-//        List<FindDormitoryRes> findDormitoryResList = new ArrayList<>();
-//
-////        List<DormitoryTerm> dormitoryTermList = dormitoryTermRepository.findByTerm(findDormitoryReq.getTerm());
-//
-//        for (Dormitory dormitory : findDormitoryList) {
-//            Integer price = null;
-//            List<DormitoryTermRelation> dormitoryTermRelationList = dormitoryTermRelationRepository.findByDormitory(dormitory);
-//
-//            for (DormitoryTermRelation dormitoryTermRelation : dormitoryTermRelationList) {
-//                if (dormitorySettingTerm.getDormitoryApplicationSetting().getApplicationStatus().equals(ApplicationStatus.NOW)) {
-//                    if (dormitorySettingTerm.getDormitoryTerm().getTerm().equals(findDormitoryReq.getTerm())) {
-//                        price = dormitorySettingTerm.getDormitoryTerm().getPrice();
-//                        break;
-//                    }
-//                }
-//
-//            }
-//            if (price == null)
-//                break;
-//            FindDormitoryRes findDormitoryRes = FindDormitoryRes.builder()
-//                    .dormitoryId(dormitory.getId())
-//                    .dormitoryName(dormitory.getName())
-//                    .roomSize(dormitory.getRoomSize())
-//                    .imageUrl(dormitory.getImageUrl())
-//                    .price(price)
-//                    .build();
-//            findDormitoryResList.add(findDormitoryRes);
-//        }
+        School school = schoolService.validateSchoolById(findDormitoryReq.getSchoolId());
+
+        List<Dormitory> findDormitoryList = dormitoryRepository.findDormitoriesBySchoolIdAndGender(school.getId(), findDormitoryReq.getGender());
+
+        List<FindDormitoryRes> findDormitoryResList = new ArrayList<>();
+
+        for (Dormitory dormitory : findDormitoryList) {
+
+            // 이전 입사 신청 설정에서의 기숙사는 조회 x
+            List<DormitorySettingTerm> dormitorySettingTermList = dormitorySettingTermRepository.findByDormitory(dormitory);
+            boolean flag = false;
+            for (DormitorySettingTerm dormitorySettingTerm : dormitorySettingTermList) {
+                if (!dormitorySettingTerm.getDormitoryApplicationSetting().getApplicationStatus().equals(ApplicationStatus.NOW)) {
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (flag) {
+                flag = false;
+                continue;
+            }
+
+            List<DormitoryTermRelation> findDormitoryTermRelation = dormitoryTermRelationRepository.findByDormitory(dormitory);
+
+            for (DormitoryTermRelation dormitoryTermRelation : findDormitoryTermRelation) {
+                DormitoryTerm dormitoryTerm = dormitoryTermRelation.getDormitoryTerm();
+
+                if (dormitoryTerm.getTerm().equals(findDormitoryReq.getTerm())) {
+                    FindDormitoryRes findDormitoryRes = FindDormitoryRes.builder()
+                            .dormitoryId(dormitory.getId())
+                            .dormitoryTermRelationId(dormitoryTermRelation.getId())
+                            .dormitoryName(dormitory.getName())
+                            .roomSize(dormitory.getRoomSize())
+                            .imageUrl(dormitory.getImageUrl())
+                            .price(dormitoryTerm.getPrice())
+                            .build();
+                    findDormitoryResList.add(findDormitoryRes);
+                }
+            }
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information("findDormitoryResList")
+                .information(findDormitoryResList)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
