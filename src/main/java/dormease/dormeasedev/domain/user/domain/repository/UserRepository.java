@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.UserType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,11 +24,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findBySchool(School school);
 
-    List<User> findBySchoolAndStatus(School school, Status status);
-
-     List<User> findBySchoolAndNameContainingIgnoreCaseAndStatusOrSchoolAndStudentNumberAndStatus(School school, String keyword, Status status, School school1, String keyword1, Status status1);
-
     List<User> findBySchoolAndUserType(School school, UserType userType);
+
+    List<User> findBySchoolAndStatusAndUserTypeNot(School school, Status status, UserType userType);
+
+    @Query("SELECT u FROM User u " +
+            "WHERE (u.school = :school AND u.name LIKE %:keyword% AND u.status = :status AND u.userType != :userType) " +
+            "   OR (u.school = :school AND u.studentNumber LIKE %:keyword% AND u.status = :status AND u.userType != :userType) " +
+            "ORDER BY u.createdDate DESC")
+    List<User> searchUsersByKeyword(School school, String keyword, Status status, UserType userType);
+    List<User> findBySchoolAndStatusAndUserTypeNotOrderByCreatedDateDesc(School school, Status status, UserType userType);
+
+    List<User> findBySchoolAndStatusAndUserTypeNotOrderByCreatedDateAsc(School school, Status status, UserType userType);
 
 //    Optional<User> findByRefreshToken(String refreshToken);
 

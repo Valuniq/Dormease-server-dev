@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.user.service;
 
 import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.user.domain.User;
+import dormease.dormeasedev.domain.user.domain.UserType;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.user.dto.response.ActiveUserInfoRes;
 import dormease.dormeasedev.domain.user.dto.response.DeleteUserInfoRes;
@@ -30,7 +31,7 @@ public class UserManagementService {
     // 회원 목록 조회
     public ResponseEntity<?> getActiveUsers(CustomUserDetails customUserDetails) {
         User admin = validUserById(customUserDetails.getId());
-        List<User> users = userRepository.findBySchoolAndStatus(admin.getSchool(), Status.ACTIVE);
+        List<User> users = userRepository.findBySchoolAndStatusAndUserTypeNotOrderByCreatedDateDesc(admin.getSchool(), Status.ACTIVE, UserType.ADMIN);
 
         List<ActiveUserInfoRes> activeUserInfoRes = users.stream()
                 .map(user -> ActiveUserInfoRes.builder()
@@ -40,9 +41,9 @@ public class UserManagementService {
                         .phoneNumber(user.getPhoneNumber())
                         .bonusPoint(user.getBonusPoint())
                         .minusPoint(user.getMinusPoint())
-                        .createdAt(user.getCreatedDate().toLocalDate())
+                        .createdAt(user.getCreatedDate().toLocalDate()) // User 객체의 createdDate 필드 사용
                         .build())
-                // 최근 회원가입 한 순서로 정렬
+                // 최근 회원가입 한 순서로 정렬 (createdDate 기준 내림차순)
                 .sorted(Comparator.comparing(ActiveUserInfoRes::getCreatedAt).reversed())
                 .collect(Collectors.toList());
 
@@ -54,12 +55,12 @@ public class UserManagementService {
 
     public ResponseEntity<?> sortedUsers(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending) {
         User admin = validUserById(customUserDetails.getId());
-        List<User> users = userRepository.findBySchoolAndStatus(admin.getSchool(), Status.ACTIVE);
+        List<User> users = userRepository.findBySchoolAndStatusAndUserTypeNot(admin.getSchool(), Status.ACTIVE, UserType.ADMIN);
 
         List<ActiveUserInfoRes> sortedUsers = switch (sortBy) {
             case "BONUS" -> sortByBonusPoint(users, isAscending);
             case "MINUS" -> sortByMinusPoint(users, isAscending);
-            case "CREATED_AT" -> sortByCreatedAt(users, isAscending);
+            case "CREATED_AT" -> sortByCreatedAt(admin, isAscending);
             default -> throw new DefaultException(ErrorCode.INVALID_CHECK, "유효하지 않은 정렬 기준입니다.");
         };
 
@@ -105,21 +106,34 @@ public class UserManagementService {
                 .collect(Collectors.toList());
     }
 
-    private List<ActiveUserInfoRes> sortByCreatedAt(List<User> users, boolean isAscending) {
-        return users.stream()
-                .map(user -> ActiveUserInfoRes.builder()
-                        .id(user.getId())
-                        .name(user.getName())
-                        .studentNumber(user.getStudentNumber())
-                        .phoneNumber(user.getPhoneNumber())
-                        .bonusPoint(user.getBonusPoint())
-                        .minusPoint(user.getMinusPoint())
-                        .createdAt(user.getCreatedDate().toLocalDate())
-                        .build())
-                .sorted(isAscending ?
-                        Comparator.comparing(ActiveUserInfoRes::getCreatedAt) :
-                        Comparator.comparing(ActiveUserInfoRes::getCreatedAt).reversed())
-                .collect(Collectors.toList());
+    private List<ActiveUserInfoRes> sortByCreatedAt(User admin, boolean isAscending) {
+        if (!isAscending) {
+            List<User> users = userRepository.findBySchoolAndStatusAndUserTypeNotOrderByCreatedDateDesc(admin.getSchool(), Status.ACTIVE, UserType.ADMIN);
+            return users.stream()
+                    .map(user -> ActiveUserInfoRes.builder()
+                            .id(user.getId())
+                            .name(user.getName())
+                            .studentNumber(user.getStudentNumber())
+                            .phoneNumber(user.getPhoneNumber())
+                            .bonusPoint(user.getBonusPoint())
+                            .minusPoint(user.getMinusPoint())
+                            .createdAt(user.getCreatedDate().toLocalDate())
+                            .build())
+                    .collect(Collectors.toList());
+        } else {
+            List<User> users = userRepository.findBySchoolAndStatusAndUserTypeNotOrderByCreatedDateAsc(admin.getSchool(), Status.ACTIVE, UserType.ADMIN);
+            return users.stream()
+                    .map(user -> ActiveUserInfoRes.builder()
+                            .id(user.getId())
+                            .name(user.getName())
+                            .studentNumber(user.getStudentNumber())
+                            .phoneNumber(user.getPhoneNumber())
+                            .bonusPoint(user.getBonusPoint())
+                            .minusPoint(user.getMinusPoint())
+                            .createdAt(user.getCreatedDate().toLocalDate())
+                            .build())
+                    .collect(Collectors.toList());
+        }
     }
 
 
@@ -127,11 +141,10 @@ public class UserManagementService {
     public ResponseEntity<?> searchActiveUsers(CustomUserDetails customUserDetails, String keyword) {
         User admin = validUserById(customUserDetails.getId());
         // 공백 제거
-        String cleanedKeyword = keyword.trim();
-        // 이름 또는 학번에 검색어가 포함된 사용자를 검색
-        List<User> searchResult = userRepository.findBySchoolAndNameContainingIgnoreCaseAndStatusOrSchoolAndStudentNumberAndStatus(
-                admin.getSchool(), cleanedKeyword, Status.ACTIVE,
-                admin.getSchool(), cleanedKeyword, Status.ACTIVE);
+        String cleanedKeyword = keyword.trim().toLowerCase();;
+        // 이름 또는 학번에 검색어가 포함된 사용자를 검색, 생성일자 내림차순으로 정렬
+        List<User> searchResult = userRepository.searchUsersByKeyword(
+                admin.getSchool(), cleanedKeyword, Status.ACTIVE, UserType.ADMIN);
 
         List<ActiveUserInfoRes> searchUsers = searchResult.stream()
                 .map(user -> ActiveUserInfoRes.builder()
@@ -143,7 +156,6 @@ public class UserManagementService {
                         .minusPoint(user.getMinusPoint())
                         .createdAt(user.getCreatedDate().toLocalDate())
                         .build())
-                .sorted(Comparator.comparing(ActiveUserInfoRes::getCreatedAt).reversed())
                 .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -158,14 +170,13 @@ public class UserManagementService {
     // 추후 재가입 시 학번 같으면 상/벌점 연결?
     public ResponseEntity<?> getDeleteUserBySchool(CustomUserDetails customUserDetails) {
         User admin = validUserById(customUserDetails.getId());
-        List<User> users = userRepository.findBySchoolAndStatus(admin.getSchool(), Status.DELETE);
+        List<User> users = userRepository.findBySchoolAndStatusAndUserTypeNotOrderByCreatedDateDesc(admin.getSchool(), Status.DELETE, UserType.ADMIN);
 
         List<DeleteUserInfoRes> deleteUserInfoRes = users.stream()
                 .map(user -> DeleteUserInfoRes.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
-                        // .phoneNumber(user.getPhoneNumber())
                         .bonusPoint(user.getBonusPoint())
                         .minusPoint(user.getMinusPoint())
                         .deletedAt(user.getModifiedDate().toLocalDate())
@@ -184,21 +195,18 @@ public class UserManagementService {
         // 공백 제거
         String cleanedKeyword = keyword.trim();
         // 이름 또는 학번에 검색어가 포함된 사용자를 검색
-        List<User> searchResult = userRepository.findBySchoolAndNameContainingIgnoreCaseAndStatusOrSchoolAndStudentNumberAndStatus(
-                admin.getSchool(), cleanedKeyword, Status.DELETE,
-                admin.getSchool(), cleanedKeyword, Status.DELETE);
+        List<User> searchResult = userRepository.searchUsersByKeyword(
+                admin.getSchool(), cleanedKeyword, Status.DELETE, UserType.ADMIN);
 
         List<DeleteUserInfoRes> searchUsers = searchResult.stream()
                 .map(user -> DeleteUserInfoRes.builder()
                         .id(user.getId())
                         .name(user.getName())
                         .studentNumber(user.getStudentNumber())
-                        // .phoneNumber(user.getPhoneNumber())
                         .bonusPoint(user.getBonusPoint())
                         .minusPoint(user.getMinusPoint())
                         .deletedAt(user.getModifiedDate().toLocalDate())
                         .build())
-                .sorted(Comparator.comparing(DeleteUserInfoRes::getDeletedAt).reversed())
                 .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
