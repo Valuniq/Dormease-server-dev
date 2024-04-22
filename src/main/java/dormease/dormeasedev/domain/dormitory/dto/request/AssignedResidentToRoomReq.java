@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.dormitory.dto.request;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public class AssignedResidentToRoomReq {
 
-    @NotBlank
+    @NotNull
     @Schema(type = "Long", example = "1", description= "호실의 고유 id입니다.")
     private Long roomId;
 

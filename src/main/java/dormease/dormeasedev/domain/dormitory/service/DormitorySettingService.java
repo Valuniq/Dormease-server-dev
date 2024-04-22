@@ -190,7 +190,7 @@ public class DormitorySettingService {
 
         // 동일 기숙사 조회
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        DefaultAssert.isTrue(sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
+        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
         // 기숙사 이름 일괄 변경
         dormitoryRepository.updateNamesBySchoolAndName(dormitory.getSchool(), dormitory.getName(), updateDormitoryNameReq.getName());
 

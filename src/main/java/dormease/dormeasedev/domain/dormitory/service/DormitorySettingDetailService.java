@@ -242,6 +242,7 @@ public class DormitorySettingDetailService {
 
         // 호실 개수 업데이트
         updateRoomCount(updatedRooms);
+        updateDormitorySize(updatedRooms);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

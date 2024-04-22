@@ -101,7 +101,7 @@ public class DormitorySettingController {
             @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PostMapping("/{dormitoryId}/name")
+    @PutMapping("/{dormitoryId}/name")
     public ResponseEntity<?> updateDormitoryName(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
@@ -114,7 +114,7 @@ public class DormitorySettingController {
             @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PatchMapping("/{dormitoryId}/floor-room")
+    @PatchMapping("/{dormitoryId}/room")
     public ResponseEntity<?> updateFloor(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
@@ -127,7 +127,7 @@ public class DormitorySettingController {
             @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PostMapping("/{dormitoryId}/floor-room")
+    @PostMapping("/{dormitoryId}/room")
     public ResponseEntity<?> registerDormitory(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
@@ -140,10 +140,9 @@ public class DormitorySettingController {
             @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PostMapping("/{dormitoryId}/room/setting")
+    @PostMapping("/room/setting")
     public ResponseEntity<?> updateRoomSetting(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "Schemas의 RoomSettingReq을 참고해주세요.", required = true) @RequestBody List<RoomSettingReq> roomSettingReqs) {
         // 입사신청기간에는 수정 불가 - 추후 구현
         return dormitorySettingDetailService.updateRoomSetting(customUserDetails, roomSettingReqs);
