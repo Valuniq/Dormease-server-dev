@@ -19,6 +19,9 @@ import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,30 +41,32 @@ public class DormitoryManagementService {
     private final ResidentRepository residentRepository;
 
     // 건물, 층별 호실 목록 조회
-    public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
+    public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor, Integer page) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
+        // 이름과 크기가 같은 기숙사 검색
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolAndNameAndRoomSize(dormitory.getSchool(), dormitory.getName(), dormitory.getRoomSize());
         DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
+        // 페이징 정보 설정
+        Pageable pageable = PageRequest.of(page, 25); // 페이지 번호와 페이지 크기 설정
+
+        // 각 기숙사의 호실을 조회하고 결과를 모은다
         List<RoomByDormitoryAndFloorRes> roomByDormitoryAndFloorRes = new ArrayList<>();
         for (Dormitory findDormitory : dormitories) {
-            List<Room> rooms = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true);
-
-            roomByDormitoryAndFloorRes.addAll(
-                    rooms.stream()
-                            .map(room -> RoomByDormitoryAndFloorRes.builder()
-                                    .id(room.getId())
-                                    .roomNumber(room.getRoomNumber())
-                                    .roomSize(room.getRoomSize())
-                                    .gender(room.getGender().toString())
-                                    .currentPeople(room.getCurrentPeople())
-                                    .build())
-                            .toList());
+            Page<Room> roomPage = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true, pageable);
+            List<RoomByDormitoryAndFloorRes> rooms = roomPage.getContent().stream()
+                    .map(room -> RoomByDormitoryAndFloorRes.builder()
+                            .id(room.getId())
+                            .roomNumber(room.getRoomNumber())
+                            .roomSize(room.getRoomSize())
+                            .gender(room.getGender().toString())
+                            .currentPeople(room.getCurrentPeople())
+                            .build())
+                    .sorted(Comparator.comparing(RoomByDormitoryAndFloorRes::getRoomNumber)) // roomNumber 오름차순 정렬
+                    .toList();
+            roomByDormitoryAndFloorRes.addAll(rooms);
         }
-
-        // 호실 번호로 오름차순 정렬
-        roomByDormitoryAndFloorRes.sort(Comparator.comparingInt(RoomByDormitoryAndFloorRes::getRoomNumber));
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

@@ -16,6 +16,9 @@ import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,7 +135,7 @@ public class DormitorySettingDetailService {
     }
 
     // 건물, 층으로 호실 조회
-    public ResponseEntity<?> getRoomsByDormitoryAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
+    public ResponseEntity<?> getRoomsByDormitoryAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor, Integer page) {
 
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
@@ -141,13 +144,10 @@ public class DormitorySettingDetailService {
         DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
         // 해당 기숙사의 층별 호실 가져오기
-        List<Room> rooms = new ArrayList<>();
-        for (Dormitory sameNameDormitory : sameNameDormitories) {
-            List<Room> dormitoryRooms = roomRepository.findByDormitoryAndFloor(sameNameDormitory, floor);
-            rooms.addAll(dormitoryRooms);
-        }
+        Pageable pageable = PageRequest.of(page, 25); // 페이지 번호와 페이지 크기 설정
+        Page<Room> roomPage = roomRepository.findByDormitoryInAndFloor(sameNameDormitories, floor, pageable);
 
-        List<RoomSettingRes> roomSettingResList = rooms.stream()
+        List<RoomSettingRes> roomSettingResList = roomPage.getContent().stream()
                 .map(room -> RoomSettingRes.builder()
                         .id(room.getId())
                         .floor(room.getFloor())
@@ -158,11 +158,12 @@ public class DormitorySettingDetailService {
                         .isActivated(room.getIsActivated())
                         .build())
                 .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
-                .toList();
+                .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(roomSettingResList).build();
+                .information(roomSettingResList)
+                .build();
 
         return ResponseEntity.ok(apiResponse);
     }

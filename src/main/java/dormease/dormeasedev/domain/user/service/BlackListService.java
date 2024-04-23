@@ -13,6 +13,10 @@ import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,32 +36,33 @@ public class BlackListService {
     private final BlackListRepository blackListRepository;
 
     // 블랙리스트 목록 조회
-    public ResponseEntity<?> getBlackListUsers(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> getBlackListUsers(CustomUserDetails customUserDetails, Integer page) {
         User admin = validUserById(customUserDetails.getId());
+        // 목록 조회 및 페이징
+        Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Page<User> blackListedUsersPage = userRepository.findBySchoolAndUserType(admin.getSchool(), UserType.BLACKLIST, pageable);
 
-        List<User> blackListUsers = userRepository.findBySchoolAndUserType(admin.getSchool(), UserType.BLACKLIST);
-        List<BlackList> blackLists = new ArrayList<>();
-        for (User user : blackListUsers) {
-            BlackList blackList = blackListRepository.findByUser(user);
-            blackLists.add(blackList);
-        }
-
-        List<BlackListUserInfoRes> blackListUserInfoRes = blackLists.stream()
-                .map(blackList -> BlackListUserInfoRes.builder()
-                        .id(blackList.getId())
-                        .name(blackList.getUser().getName())
-                        .studentNumber(blackList.getUser().getStudentNumber())
-                        .phoneNumber(blackList.getUser().getPhoneNumber())
-                        .minusPoint(blackList.getUser().getMinusPoint())
-                        .content(blackList.getContent())
-                        .createdAt(blackList.getCreatedDate().toLocalDate())
-                        .build())
-                .sorted(Comparator.comparing(BlackListUserInfoRes::getCreatedAt).reversed())
+        List<BlackListUserInfoRes> blackListUserInfoRes = blackListedUsersPage.getContent().stream()
+                .map(user -> {
+                    BlackList blackList = blackListRepository.findByUser(user);
+                    return BlackListUserInfoRes.builder()
+                            .id(blackList.getId())
+                            .name(user.getName())
+                            .studentNumber(user.getStudentNumber())
+                            .phoneNumber(user.getPhoneNumber())
+                            .minusPoint(user.getMinusPoint())
+                            .content(blackList.getContent())
+                            .createdAt(blackList.getCreatedDate().toLocalDate())
+                            .build();
+                })
                 .collect(Collectors.toList());
 
+        // ApiResponse 객체 생성 및 반환
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(blackListUserInfoRes).build();
+                .information(blackListUserInfoRes)
+                .build();
+
         return ResponseEntity.ok(apiResponse);
     }
 
