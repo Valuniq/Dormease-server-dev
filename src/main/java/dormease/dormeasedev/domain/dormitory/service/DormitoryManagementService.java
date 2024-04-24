@@ -4,6 +4,7 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.AssignedResidentToRoomReq;
+import dormease.dormeasedev.domain.dormitory.dto.request.ResidentIdReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.*;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
@@ -18,6 +19,9 @@ import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,30 +41,32 @@ public class DormitoryManagementService {
     private final ResidentRepository residentRepository;
 
     // 건물, 층별 호실 목록 조회
-    public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
+    public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor, Integer page) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
+        // 이름과 크기가 같은 기숙사 검색
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolAndNameAndRoomSize(dormitory.getSchool(), dormitory.getName(), dormitory.getRoomSize());
         DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
+        // 페이징 정보 설정
+        Pageable pageable = PageRequest.of(page, 25); // 페이지 번호와 페이지 크기 설정
+
+        // 각 기숙사의 호실을 조회하고 결과를 모은다
         List<RoomByDormitoryAndFloorRes> roomByDormitoryAndFloorRes = new ArrayList<>();
         for (Dormitory findDormitory : dormitories) {
-            List<Room> rooms = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true);
-
-            roomByDormitoryAndFloorRes.addAll(
-                    rooms.stream()
-                            .map(room -> RoomByDormitoryAndFloorRes.builder()
-                                    .id(room.getId())
-                                    .roomNumber(room.getRoomNumber())
-                                    .roomSize(room.getRoomSize())
-                                    .gender(room.getGender().toString())
-                                    .currentPeople(room.getCurrentPeople())
-                                    .build())
-                            .toList());
+            Page<Room> roomPage = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true, pageable);
+            List<RoomByDormitoryAndFloorRes> rooms = roomPage.getContent().stream()
+                    .map(room -> RoomByDormitoryAndFloorRes.builder()
+                            .id(room.getId())
+                            .roomNumber(room.getRoomNumber())
+                            .roomSize(room.getRoomSize())
+                            .gender(room.getGender().toString())
+                            .currentPeople(room.getCurrentPeople())
+                            .build())
+                    .sorted(Comparator.comparing(RoomByDormitoryAndFloorRes::getRoomNumber)) // roomNumber 오름차순 정렬
+                    .toList();
+            roomByDormitoryAndFloorRes.addAll(rooms);
         }
-
-        // 호실 번호로 오름차순 정렬
-        roomByDormitoryAndFloorRes.sort(Comparator.comparingInt(RoomByDormitoryAndFloorRes::getRoomNumber));
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -242,23 +248,26 @@ public class DormitoryManagementService {
 
     // 수기 방배정
     @Transactional
-    public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails, Long roomId, List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
-        Room room = validRoomById(roomId);
-        Integer bedNumberCount = room.getCurrentPeople();
+    public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails,List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
+        // 리스트 사이즈만큼 반복
+        for (AssignedResidentToRoomReq assignedResidentToRoomReq : assignedResidentToRoomReqList) {
+            Room room = validRoomById(assignedResidentToRoomReq.getRoomId());
+            Integer bedNumberCount = room.getCurrentPeople();
 
-        for (AssignedResidentToRoomReq req : assignedResidentToRoomReqList) {
-            bedNumberCount += 1;
-            DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
+            for (ResidentIdReq residentIdReq : assignedResidentToRoomReq.getResidentIdReqList()) {
+                bedNumberCount += 1;
+                DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
 
-            Optional<Resident> residentOpt = residentRepository.findById(req.getId());
-            DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
-            Resident resident = residentOpt.get();
+                Optional<Resident> residentOpt = residentRepository.findById(residentIdReq.getId());
+                DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
+                Resident resident = residentOpt.get();
 
-            resident.updateRoom(room);
-            resident.updateBedNumber(bedNumberCount);
+                resident.updateRoom(room);
+                resident.updateBedNumber(bedNumberCount);
+            }
+            // currentPeople update
+            updateCurrentPeople(room);
         }
-        // currentPeople update
-        updateCurrentPeople(room);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

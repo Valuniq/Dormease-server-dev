@@ -1,8 +1,13 @@
 package dormease.dormeasedev.domain.user.domain.repository;
 
+import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
+import dormease.dormeasedev.domain.user.domain.UserType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,6 +25,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByNameAndPhoneNumber(String name, String phoneNumber);
 
     List<User> findBySchool(School school);
+
+    Page<User> findBySchoolAndUserType(School school, UserType userType, Pageable pageable);
+
+    Page<User> findBySchoolAndStatusAndUserTypeNot(School school, Status status, UserType userType, Pageable pageable);
+
+    List<User> findBySchoolAndStatusAndUserTypeNot(School school, Status status, UserType userType);
+
+    @Query("SELECT u FROM User u " +
+            "WHERE (u.school = :school AND u.name LIKE %:keyword% AND u.status = :status AND u.userType != :userType) " +
+            "   OR (u.school = :school AND u.studentNumber LIKE %:keyword% AND u.status = :status AND u.userType != :userType)")
+    Page<User> searchUsersByKeyword(School school, String keyword, Status status, UserType userType, Pageable pageable);
 
 //    Optional<User> findByRefreshToken(String refreshToken);
 

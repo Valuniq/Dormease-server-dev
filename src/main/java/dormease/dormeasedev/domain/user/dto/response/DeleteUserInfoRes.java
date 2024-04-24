@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
-public class AllUserInfoBySchoolRes {
+public class DeleteUserInfoRes {
 
     private Long id;
 
@@ -16,26 +16,22 @@ public class AllUserInfoBySchoolRes {
 
     private String studentNumber;
 
-    // 휴대전화
-    private String phoneNumber;
-
     // 상점
     private Integer bonusPoint;
 
     // 벌점
     private Integer minusPoint;
 
-    // 생성 일자
-    private LocalDate createdAt;
+    // 탈퇴 일자
+    private LocalDate deletedAt;
 
     @Builder
-    public AllUserInfoBySchoolRes(Long id, String name, String studentNumber, String phoneNumber, Integer bonusPoint, Integer minusPoint, LocalDate createdAt) {
+    public DeleteUserInfoRes(Long id, String name, String studentNumber, Integer bonusPoint, Integer minusPoint, LocalDate deletedAt) {
         this.id = id;
         this.name = name;
         this.studentNumber = studentNumber;
-        this.phoneNumber = phoneNumber;
         this.bonusPoint = bonusPoint;
         this.minusPoint = minusPoint;
-        this.createdAt = createdAt;
+        this.deletedAt = deletedAt;
     }
 }
