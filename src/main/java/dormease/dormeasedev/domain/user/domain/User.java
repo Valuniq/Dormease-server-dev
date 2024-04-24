@@ -65,7 +65,10 @@ public class User extends BaseEntity {
     private String major;
     
     // 학년 : 아마 1~6학년 예상
-    private Integer grade;
+    private Integer year;
+
+    // 성적
+    private Double grade;
 
     // 유저 권한 설정 메소드
     public void authorizeUser() {
@@ -90,12 +93,16 @@ public class User extends BaseEntity {
         this.phoneNumber = phoneNumber;
     }
 
+    public void updateUserType(UserType userType) {
+        this.userType = userType;
+    }
+
     //    public void updateRefreshToken(String updateRefreshToken) {
 //        this.refreshToken = updateRefreshToken;
 //    }
 
     @Builder
-    public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String studentNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer grade) {
+    public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String studentNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer year, Double grade) {
         this.id = id;
         this.school = school;
         this.loginId = loginId;
@@ -111,6 +118,7 @@ public class User extends BaseEntity {
         this.schoolStatus = schoolStatus;
         this.address = address;
         this.major = major;
+        this.year = year;
         this.grade = grade;
     }
 
