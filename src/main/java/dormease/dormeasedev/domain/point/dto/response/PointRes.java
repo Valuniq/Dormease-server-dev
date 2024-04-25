@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.point.dto.response;
 
+import dormease.dormeasedev.domain.point.domain.PointType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,33 +9,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PointRes {
 
-    // user id
     private Long id;
 
-    private String name;
+    private String content;
 
-    private String studentNumber;
+    private Integer score;
 
-    private String phoneNumber;
-
-    private Integer bonusPoint;
-
-    private Integer minusPoint;
-
-    private String dormitory;
-
-    private Integer room;
+    private PointType pointType;
 
     @Builder
-    public PointRes(Long id, String name, String studentNumber, String phoneNumber, Integer bonusPoint, Integer minusPoint, String dormitory, Integer room) {
+    public PointRes(Long id, String content, Integer score, PointType pointType) {
         this.id = id;
-        this.name = name;
-        this.studentNumber = studentNumber;
-        this.phoneNumber = phoneNumber;
-        this.bonusPoint = bonusPoint;
-        this.minusPoint = minusPoint;
-        this.dormitory = dormitory;
-        this.room = room;
+        this.content = content;
+        this.score = score;
+        this.pointType = pointType;
     }
-
 }
