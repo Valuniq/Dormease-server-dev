@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PointRes {
 
+    // user id
     private Long id;
 
     private String name;

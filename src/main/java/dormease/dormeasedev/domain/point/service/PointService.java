@@ -47,7 +47,7 @@ public class PointService {
 
         List<PointRes> userPointResList = residents.getContent().stream()
                 .map(resident -> PointRes.builder()
-                        .id(resident.getId())
+                        .id(resident.getUser().getId())
                         .name(resident.getUser().getName())
                         .studentNumber(resident.getUser().getStudentNumber())
                         .phoneNumber(resident.getUser().getPhoneNumber())
@@ -74,7 +74,7 @@ public class PointService {
 
         List<PointRes> userPointResList = residents.getContent().stream()
                 .map(resident -> PointRes.builder()
-                        .id(resident.getId())
+                        .id(resident.getUser().getId())
                         .name(resident.getUser().getName())
                         .studentNumber(resident.getUser().getStudentNumber())
                         .phoneNumber(resident.getUser().getPhoneNumber())
@@ -101,7 +101,7 @@ public class PointService {
 
         List<PointRes> userPointResList = residents.getContent().stream()
                 .map(resident -> PointRes.builder()
-                        .id(resident.getId())
+                        .id(resident.getUser().getId())
                         .name(resident.getUser().getName())
                         .studentNumber(resident.getUser().getStudentNumber())
                         .phoneNumber(resident.getUser().getPhoneNumber())
