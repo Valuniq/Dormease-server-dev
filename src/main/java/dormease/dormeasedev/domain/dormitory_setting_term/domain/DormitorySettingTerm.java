@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// 기숙사 - dormitoryTerm(입사 신청 설정  페이지에서 저장하는 학기)의 중간테이블
+// 기숙사 - dormitoryApplicationSetting(입사 신청 설정)의 중간테이블
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter

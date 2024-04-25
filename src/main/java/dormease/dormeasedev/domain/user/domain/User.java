@@ -65,7 +65,7 @@ public class User extends BaseEntity {
     private String major;
     
     // 학년 : 아마 1~6학년 예상
-    private Integer year;
+    private Integer schoolYear;
 
     // 성적
     private Double grade;
@@ -102,7 +102,7 @@ public class User extends BaseEntity {
 //    }
 
     @Builder
-    public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String studentNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer year, Double grade) {
+    public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String studentNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer schoolYear, Double grade) {
         this.id = id;
         this.school = school;
         this.loginId = loginId;
@@ -118,7 +118,7 @@ public class User extends BaseEntity {
         this.schoolStatus = schoolStatus;
         this.address = address;
         this.major = major;
-        this.year = year;
+        this.schoolYear = schoolYear;
         this.grade = grade;
     }
 
