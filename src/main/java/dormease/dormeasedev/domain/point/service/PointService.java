@@ -107,8 +107,12 @@ public class PointService {
         User admin = validUserById(customUserDetails.getId());
         Point point = validPointById(pointId);
 
-        // 리스트 삭제해도 사용자의 상벌점 내역 조회 가능, 따라서 soft delete로 구현
-        point.updateStatus(Status.DELETE);
+        // 리스트 삭제해도 사용자의 상벌점 내역 조회 가능, 따라서 회원 상벌점 내역에 해당 내역이 있다면 soft delete
+        // 아니라면 hard delete
+        List<UserPoint> userPoints = userPointRepository.findByPoint(point);
+        if (userPoints.isEmpty()) {
+            pointRepository.delete(point);
+        } else { point.updateStatus(Status.DELETE); }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
