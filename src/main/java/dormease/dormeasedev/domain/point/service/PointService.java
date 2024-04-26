@@ -4,10 +4,7 @@ import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.point.domain.Point;
 import dormease.dormeasedev.domain.point.domain.PointType;
 import dormease.dormeasedev.domain.point.domain.repository.PointRepository;
-import dormease.dormeasedev.domain.point.dto.request.BonusPointManagementReq;
-import dormease.dormeasedev.domain.point.dto.request.AddPointToRegisterReq;
-import dormease.dormeasedev.domain.point.dto.request.MinusPointManagementReq;
-import dormease.dormeasedev.domain.point.dto.request.PointListReq;
+import dormease.dormeasedev.domain.point.dto.request.*;
 import dormease.dormeasedev.domain.point.dto.response.PointRes;
 import dormease.dormeasedev.domain.point.dto.response.TotalUserPointRes;
 import dormease.dormeasedev.domain.point.dto.response.UserInPointPageRes;
@@ -23,7 +20,6 @@ import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -126,12 +122,12 @@ public class PointService {
 
     // 상벌점 부여
     @Transactional
-    public ResponseEntity<?> addPoints(CustomUserDetails customUserDetails, Long userId, List<AddPointToRegisterReq> addPointToRegisterReqList, String pointType) {
+    public ResponseEntity<?> addPoints(CustomUserDetails customUserDetails, Long userId, List<AddPointToUserReq> addPointToUserReqs, String pointType) {
         User admin = validUserById(customUserDetails.getId());
         User user = validUserById(userId);
         PointType type = PointType.valueOf(pointType.toUpperCase());
 
-        List<UserPoint> userPoints = addPointToRegisterReqList.stream()
+        List<UserPoint> userPoints = addPointToUserReqs.stream()
                 .map(req -> UserPoint.builder()
                         .user(user)
                         .point(validPointById(req.getId()))
@@ -161,7 +157,27 @@ public class PointService {
     }
 
     // 상벌점 내역 삭제
+    @Transactional
+    public  ResponseEntity<?> deletePointsByUser(CustomUserDetails customUserDetails, Long userId, List<DeletePointByUserReq> deletePointByUserReqs) {
+        User admin = validUserById(customUserDetails.getId());
+        User user = validUserById(userId);
 
+        List<UserPoint> userPoints = deletePointByUserReqs.stream()
+                .map(DeletePointByUserReq::getId)
+                .map(this::validUserPointById)
+                .collect(Collectors.toList());
+
+        userPointRepository.deleteAll(userPoints);
+
+        updatePoint(user, PointType.BONUS);
+        updatePoint(user, PointType.MINUS);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("내역이 삭제되었습니다.").build())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
 
     // 상벌점 내역 조회
     public ResponseEntity<?> getPointsByUser(CustomUserDetails customUserDetails, Long userId, Integer page) {

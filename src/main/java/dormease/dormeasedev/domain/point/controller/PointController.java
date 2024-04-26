@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.point.controller;
 
-import dormease.dormeasedev.domain.point.dto.request.AddPointToRegisterReq;
+import dormease.dormeasedev.domain.point.dto.request.AddPointToUserReq;
+import dormease.dormeasedev.domain.point.dto.request.DeletePointByUserReq;
 import dormease.dormeasedev.domain.point.dto.request.PointListReq;
 import dormease.dormeasedev.domain.point.dto.response.PointRes;
 import dormease.dormeasedev.domain.point.dto.response.TotalUserPointRes;
@@ -81,12 +82,11 @@ public class PointController {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "회원의 id를 입력해주세요.", required = true) @PathVariable Long userId,
             @Parameter(description = "상점, 벌점 중 부여하고자 하는 유형을 bonus 또는 minus로 입력해주세요.", required = true) @RequestParam String pointType,
-            @Parameter(description = "Schemas의 GivePointToRegisterRe을 참고해주세요.", required = true) @RequestBody List<AddPointToRegisterReq> addPointToRegisterReqList
+            @Parameter(description = "Schemas의 AddPointToUserReq을 참고해주세요.", required = true) @RequestBody List<AddPointToUserReq> addPointToUserReqList
     ) {
-        return pointService.addPoints(customUserDetails, userId, addPointToRegisterReqList, pointType);
+        return pointService.addPoints(customUserDetails, userId, addPointToUserReqList, pointType);
     }
 
-    // userId 내역 조회
     @Operation(summary = "상벌점 내역 조회", description = "상벌점 관리 프로세스 중 회원의 상벌점 내역을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TotalUserPointRes.class))}),
@@ -102,7 +102,21 @@ public class PointController {
         return pointService.getPointsByUser(customUserDetails, userId, page);
     }
 
-    // userId 내역 삭제
+    @Operation(summary = "상벌점 내역 삭제", description = "상벌점 관리 프로세스 중 회원의 상벌점 내역을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "삭제 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> getPointsByUser(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "회원의 id를 입력해주세요.", required = true) @PathVariable Long userId,
+            @Parameter(description = "Schemas의 DeletePointByUserReq을 참고해주세요.", required = true) @RequestBody List<DeletePointByUserReq> deletePointByUserReqs
+
+
+    ) {
+        return pointService.deletePointsByUser(customUserDetails, userId, deletePointByUserReqs);
+    }
 
     @Operation(summary = "사생 목록 조회", description = "상벌점 관리 프로세스 중 회원의 상벌점 목록을 조회합니다.")
     @ApiResponses(value = {
