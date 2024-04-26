@@ -84,7 +84,7 @@ public class PointController {
             @Parameter(description = "상점, 벌점 중 부여하고자 하는 유형을 bonus 또는 minus로 입력해주세요.", required = true) @RequestParam String pointType,
             @Parameter(description = "Schemas의 AddPointToUserReq을 참고해주세요.", required = true) @RequestBody List<AddPointToUserReq> addPointToUserReqList
     ) {
-        return pointService.addPoints(customUserDetails, userId, addPointToUserReqList, pointType);
+        return pointService.addUserPoints(customUserDetails, userId, addPointToUserReqList, pointType);
     }
 
     @Operation(summary = "상벌점 내역 조회", description = "상벌점 관리 프로세스 중 회원의 상벌점 내역을 조회합니다.")
@@ -99,7 +99,7 @@ public class PointController {
             @Parameter(description = "상벌점 내역을 페이지별로 조회합니다. **Page는 0부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "0") Integer page
 
     ) {
-        return pointService.getPointsByUser(customUserDetails, userId, page);
+        return pointService.getUserPoints(customUserDetails, userId, page);
     }
 
     @Operation(summary = "상벌점 내역 삭제", description = "상벌점 관리 프로세스 중 회원의 상벌점 내역을 삭제합니다.")
@@ -115,7 +115,7 @@ public class PointController {
 
 
     ) {
-        return pointService.deletePointsByUser(customUserDetails, userId, deletePointByUserReqs);
+        return pointService.deleteUserPoints(customUserDetails, userId, deletePointByUserReqs);
     }
 
     @Operation(summary = "사생 목록 조회", description = "상벌점 관리 프로세스 중 회원의 상벌점 목록을 조회합니다.")

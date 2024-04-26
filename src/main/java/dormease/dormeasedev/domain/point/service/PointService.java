@@ -122,7 +122,7 @@ public class PointService {
 
     // 상벌점 부여
     @Transactional
-    public ResponseEntity<?> addPoints(CustomUserDetails customUserDetails, Long userId, List<AddPointToUserReq> addPointToUserReqs, String pointType) {
+    public ResponseEntity<?> addUserPoints(CustomUserDetails customUserDetails, Long userId, List<AddPointToUserReq> addPointToUserReqs, String pointType) {
         User admin = validUserById(customUserDetails.getId());
         User user = validUserById(userId);
         PointType type = PointType.valueOf(pointType.toUpperCase());
@@ -158,7 +158,7 @@ public class PointService {
 
     // 상벌점 내역 삭제
     @Transactional
-    public  ResponseEntity<?> deletePointsByUser(CustomUserDetails customUserDetails, Long userId, List<DeletePointByUserReq> deletePointByUserReqs) {
+    public  ResponseEntity<?> deleteUserPoints(CustomUserDetails customUserDetails, Long userId, List<DeletePointByUserReq> deletePointByUserReqs) {
         User admin = validUserById(customUserDetails.getId());
         User user = validUserById(userId);
 
@@ -180,7 +180,8 @@ public class PointService {
     }
 
     // 상벌점 내역 조회
-    public ResponseEntity<?> getPointsByUser(CustomUserDetails customUserDetails, Long userId, Integer page) {
+    // user말고 resident 받을지? resident -> user -> userPoint
+    public ResponseEntity<?> getUserPoints(CustomUserDetails customUserDetails, Long userId, Integer page) {
         User admin = validUserById(customUserDetails.getId());
         User user = validUserById(userId);
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdDate"));
@@ -217,6 +218,7 @@ public class PointService {
 
         List<UserInPointPageRes> userUserInPointPageResList = residents.getContent().stream()
                 .map(resident -> UserInPointPageRes.builder()
+                        // 상벌점 내역 조회를 위해 user id 반환
                         .id(resident.getUser().getId())
                         .name(resident.getUser().getName())
                         .studentNumber(resident.getUser().getStudentNumber())
