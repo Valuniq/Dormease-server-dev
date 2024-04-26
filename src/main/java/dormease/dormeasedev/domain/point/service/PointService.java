@@ -28,7 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -73,26 +72,28 @@ public class PointService {
         List<BonusPointManagementReq> bonusPointList = pointListReqs.getBonusPointList();
         List<MinusPointManagementReq> minusPointList = pointListReqs.getMinusPointList();
 
-        List<Point> bonusPoint = bonusPointList.stream()
-                .map(bonusPointManagementReq -> Point.builder()
-                        .school(admin.getSchool())
-                        .pointType(PointType.BONUS)
-                        .content(bonusPointManagementReq.getContent())
-                        .score(bonusPointManagementReq.getScore())
-                        .build())
-                .collect(Collectors.toList());
-
-        List<Point> minusPoint = minusPointList.stream()
-                .map(minusPointManagementReq -> Point.builder()
-                        .school(admin.getSchool())
-                        .pointType(PointType.MINUS)
-                        .content(minusPointManagementReq.getContent())
-                        .score(minusPointManagementReq.getScore())
-                        .build())
-                .collect(Collectors.toList());
-
-        pointRepository.saveAll(bonusPoint);
-        pointRepository.saveAll(minusPoint);
+        if(!bonusPointList.isEmpty()) {
+            List<Point> bonusPoint = bonusPointList.stream()
+                    .map(bonusPointManagementReq -> Point.builder()
+                            .school(admin.getSchool())
+                            .pointType(PointType.BONUS)
+                            .content(bonusPointManagementReq.getContent())
+                            .score(bonusPointManagementReq.getScore())
+                            .build())
+                    .collect(Collectors.toList());
+            pointRepository.saveAll(bonusPoint);
+        }
+        if(!minusPointList.isEmpty()) {
+            List<Point> minusPoint = minusPointList.stream()
+                    .map(minusPointManagementReq -> Point.builder()
+                            .school(admin.getSchool())
+                            .pointType(PointType.MINUS)
+                            .content(minusPointManagementReq.getContent())
+                            .score(minusPointManagementReq.getScore())
+                            .build())
+                    .collect(Collectors.toList());
+            pointRepository.saveAll(minusPoint);
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -132,11 +133,17 @@ public class PointService {
         PointType type = PointType.valueOf(pointType.toUpperCase());
 
         List<UserPoint> userPoints = addPointToUserReqs.stream()
-                .map(req -> UserPoint.builder()
-                        .user(user)
-                        .point(validPointById(req.getId()))
-                        .build())
+                .map(req -> {
+                    Point point = validPointById(req.getId());
+                    DefaultAssert.isTrue(point.getPointType() == type, "내역과 상벌점 타입이 일치하지 않습니다.");
+                    DefaultAssert.isTrue(point.getStatus() == Status.ACTIVE, "삭제된 상벌점 내역은 부여할 수 없습니다.");
+                    return UserPoint.builder()
+                            .user(user)
+                            .point(validPointById(req.getId()))
+                            .build();
+                })
                 .collect(Collectors.toList());
+
         userPointRepository.saveAll(userPoints);
         updatePoint(user, type);
 
@@ -149,11 +156,14 @@ public class PointService {
     }
 
     private void updatePoint(User user, PointType pointType) {
+        String message = pointType == PointType.BONUS ? "상점" : "벌점";
+
         List<UserPoint> userPoints = userPointRepository.findByUser(user);
-        DefaultAssert.isTrue(!userPoints.isEmpty(), "");
+        DefaultAssert.isTrue(!userPoints.isEmpty(), message + "이 부여되지 않았습니다.");
 
         Integer totalPoint = userPoints.stream()
-                .mapToInt(up -> up.getPoint().getScore())
+                .filter(userPoint -> userPoint.getPoint().getPointType().equals(pointType))
+                .mapToInt(userPoint -> userPoint.getPoint().getScore())
                 .sum();
 
         if (pointType == PointType.BONUS) { user.updateBonusPoint(totalPoint);
@@ -229,7 +239,7 @@ public class PointService {
                         .phoneNumber(resident.getUser().getPhoneNumber())
                         .bonusPoint(resident.getUser().getBonusPoint())
                         .minusPoint(resident.getUser().getMinusPoint())
-                        .dormitory(resident.getDormitorySettingTerm().getDormitory().getName() + "(" + resident.getDormitorySettingTerm().getDormitory().getRoomSize() + ")").build())
+                        .dormitory(resident.getDormitorySettingTerm().getDormitory().getName() + "(" + resident.getDormitorySettingTerm().getDormitory().getRoomSize() + "인실)").build())
                 .sorted(Comparator.comparing(UserInPointPageRes::getName))
                 .collect(Collectors.toList());
 
