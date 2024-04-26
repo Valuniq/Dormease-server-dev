@@ -7,7 +7,7 @@ import dormease.dormeasedev.domain.point.domain.repository.PointRepository;
 import dormease.dormeasedev.domain.point.dto.request.*;
 import dormease.dormeasedev.domain.point.dto.response.PointRes;
 import dormease.dormeasedev.domain.point.dto.response.TotalUserPointRes;
-import dormease.dormeasedev.domain.point.dto.response.UserInPointPageRes;
+import dormease.dormeasedev.domain.point.dto.response.ResidentInfoRes;
 import dormease.dormeasedev.domain.point.dto.response.UserPointDetailRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
@@ -108,7 +108,7 @@ public class PointService {
         User admin = validUserById(customUserDetails.getId());
         Point point = validPointById(pointId);
 
-        // 리스트 삭제해도 사용자의 상벌점 내역 조회 가능, 따라서 회원 상벌점 내역에 해당 내역이 있다면 soft delete
+        // 삭제해도 사용자의 상벌점 내역 조회 가능, 따라서 회원 상벌점 내역에 해당 내역이 있다면 soft delete
         // 아니라면 hard delete
         List<UserPoint> userPoints = userPointRepository.findByPoint(point);
         if (userPoints.isEmpty()) {
@@ -127,12 +127,14 @@ public class PointService {
 
     // 상벌점 부여
     @Transactional
-    public ResponseEntity<?> addUserPoints(CustomUserDetails customUserDetails, Long userId, List<AddPointToUserReq> addPointToUserReqs, String pointType) {
+    public ResponseEntity<?> addUserPoints(CustomUserDetails customUserDetails, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs, String pointType) {
         User admin = validUserById(customUserDetails.getId());
-        User user = validUserById(userId);
+        Resident resident = validResidentById(residentId);
+
+        User user = resident.getUser();
         PointType type = PointType.valueOf(pointType.toUpperCase());
 
-        List<UserPoint> userPoints = addPointToUserReqs.stream()
+        List<UserPoint> userPoints = addPointToResidentReqs.stream()
                 .map(req -> {
                     Point point = validPointById(req.getId());
                     DefaultAssert.isTrue(point.getPointType() == type, "내역과 상벌점 타입이 일치하지 않습니다.");
@@ -172,12 +174,13 @@ public class PointService {
 
     // 상벌점 내역 삭제
     @Transactional
-    public  ResponseEntity<?> deleteUserPoints(CustomUserDetails customUserDetails, Long userId, List<DeletePointByUserReq> deletePointByUserReqs) {
+    public  ResponseEntity<?> deleteUserPoints(CustomUserDetails customUserDetails, Long residentId, List<DeleteUserPointReq> deleteUserPointReqs) {
         User admin = validUserById(customUserDetails.getId());
-        User user = validUserById(userId);
+        Resident resident = validResidentById(residentId);
 
-        List<UserPoint> userPoints = deletePointByUserReqs.stream()
-                .map(DeletePointByUserReq::getId)
+        User user = resident.getUser();
+        List<UserPoint> userPoints = deleteUserPointReqs.stream()
+                .map(DeleteUserPointReq::getId)
                 .map(this::validUserPointById)
                 .collect(Collectors.toList());
 
@@ -194,10 +197,11 @@ public class PointService {
     }
 
     // 상벌점 내역 조회
-    // user말고 resident 받을지? resident -> user -> userPoint
-    public ResponseEntity<?> getUserPoints(CustomUserDetails customUserDetails, Long userId, Integer page) {
+    public ResponseEntity<?> getUserPoints(CustomUserDetails customUserDetails, Long residentId, Integer page) {
         User admin = validUserById(customUserDetails.getId());
-        User user = validUserById(userId);
+        Resident resident = validResidentById(residentId);
+
+        User user = resident.getUser();
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdDate"));
         // 사생 목록 조회 (페이징 적용)
         Page<UserPoint> userPoints = userPointRepository.findUserPointsByUser(user, pageable);
@@ -230,22 +234,23 @@ public class PointService {
         // 사생 목록 조회 (페이징 적용)
         Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
 
-        List<UserInPointPageRes> userUserInPointPageResList = residents.getContent().stream()
-                .map(resident -> UserInPointPageRes.builder()
-                        // 상벌점 내역 조회를 위해 user id 반환
-                        .id(resident.getUser().getId())
+        List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
+                .map(resident -> ResidentInfoRes.builder()
+                        .id(resident.getId())
                         .name(resident.getUser().getName())
                         .studentNumber(resident.getUser().getStudentNumber())
                         .phoneNumber(resident.getUser().getPhoneNumber())
                         .bonusPoint(resident.getUser().getBonusPoint())
                         .minusPoint(resident.getUser().getMinusPoint())
-                        .dormitory(resident.getDormitorySettingTerm().getDormitory().getName() + "(" + resident.getDormitorySettingTerm().getDormitory().getRoomSize() + "인실)").build())
-                .sorted(Comparator.comparing(UserInPointPageRes::getName))
+                        .dormitory(resident.getDormitorySettingTerm().getDormitory().getName() + "(" + resident.getDormitorySettingTerm().getDormitory().getRoomSize() + "인실)")
+                        .room(resident.getRoom().getRoomNumber())
+                        .build())
+                .sorted(Comparator.comparing(ResidentInfoRes::getName))
                 .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(userUserInPointPageResList).build();
+                .information(userResidentInfoResList).build();
 
         return ResponseEntity.ok(apiResponse);
     }
@@ -257,20 +262,22 @@ public class PointService {
         // 사생 목록 조회 (페이징 적용)
         Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
 
-        List<UserInPointPageRes> userUserInPointPageResList = residents.getContent().stream()
-                .map(resident -> UserInPointPageRes.builder()
-                        .id(resident.getUser().getId())
+        List<ResidentInfoRes> residentInfoResList = residents.getContent().stream()
+                .map(resident -> ResidentInfoRes.builder()
+                        .id(resident.getId())
                         .name(resident.getUser().getName())
                         .studentNumber(resident.getUser().getStudentNumber())
                         .phoneNumber(resident.getUser().getPhoneNumber())
                         .bonusPoint(resident.getUser().getBonusPoint())
                         .minusPoint(resident.getUser().getMinusPoint())
-                        .dormitory(resident.getDormitorySettingTerm().getDormitory().getName() + "(" + resident.getDormitorySettingTerm().getDormitory().getRoomSize() + ")").build())
+                        .dormitory(resident.getDormitorySettingTerm().getDormitory().getName() + "(" + resident.getDormitorySettingTerm().getDormitory().getRoomSize() + ")")
+                        .room(resident.getRoom().getRoomNumber())
+                        .build())
                 .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(userUserInPointPageResList).build();
+                .information(residentInfoResList).build();
 
         return ResponseEntity.ok(apiResponse);
     }
@@ -283,29 +290,37 @@ public class PointService {
         // 사생 목록 조회 (페이징 적용)
         Page<Resident> residents = residentRepository.searchResidentsByKeyword(admin.getSchool(), cleanedKeyword, pageable);
 
-        List<UserInPointPageRes> userUserInPointPageResList = residents.getContent().stream()
-                .map(resident -> UserInPointPageRes.builder()
-                        .id(resident.getUser().getId())
+        List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
+                .map(resident -> ResidentInfoRes.builder()
+                        .id(resident.getId())
                         .name(resident.getUser().getName())
                         .studentNumber(resident.getUser().getStudentNumber())
                         .phoneNumber(resident.getUser().getPhoneNumber())
                         .bonusPoint(resident.getUser().getBonusPoint())
                         .minusPoint(resident.getUser().getMinusPoint())
-                        .dormitory(resident.getDormitorySettingTerm().getDormitory().getName() + "(" + resident.getDormitorySettingTerm().getDormitory().getRoomSize() + ")").build())
-                .sorted(Comparator.comparing(UserInPointPageRes::getName))
+                        .dormitory(resident.getDormitorySettingTerm().getDormitory().getName() + "(" + resident.getDormitorySettingTerm().getDormitory().getRoomSize() + ")")
+                        .room(resident.getRoom().getRoomNumber())
+                        .build())
+                .sorted(Comparator.comparing(ResidentInfoRes::getName))
                 .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(userUserInPointPageResList).build();
+                .information(userResidentInfoResList).build();
 
         return ResponseEntity.ok(apiResponse);
     }
 
     private User validUserById(Long userId) {
-        Optional<User> findUser = userRepository.findById(userId);
-        DefaultAssert.isTrue(findUser.isPresent(), "유저 정보가 올바르지 않습니다.");
-        return findUser.get();
+        Optional<User> user = userRepository.findById(userId);
+        DefaultAssert.isTrue(user.isPresent(), "유저 정보가 올바르지 않습니다.");
+        return user.get();
+    }
+
+    private Resident validResidentById(Long residentId) {
+        Optional<Resident> resident = residentRepository.findById(residentId);
+        DefaultAssert.isTrue(resident.isPresent(), "사생 정보가 올바르지 않습니다.");
+        return resident.get();
     }
 
     private Point validPointById(Long pointId) {
