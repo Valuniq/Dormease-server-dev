@@ -12,7 +12,7 @@ public class DormitoryManagementListRes {
     @Schema(type = "Long", example = "1", description= "건물의 고유 id입니다.")
     private Long id;
 
-    @Schema(type = "String", example = "명덕관(2인실)", description= "건물의 이름(인실)입니다.")
+    @Schema(type = "String", example = "명덕관", description= "건물의 이름입니다.")
     private String name;
 
     @Builder
