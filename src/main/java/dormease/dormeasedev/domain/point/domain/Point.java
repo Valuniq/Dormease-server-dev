@@ -1,5 +1,7 @@
 package dormease.dormeasedev.domain.point.domain;
 
+import dormease.dormeasedev.domain.common.BaseEntity;
+import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.school.domain.School;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-public class Point {
+public class Point extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

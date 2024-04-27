@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.user.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,19 +11,23 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class DeleteUserInfoRes {
 
+    @Schema(type = "Long", example = "1", description= "탈퇴한 회원의 id입니다.")
     private Long id;
 
+    @Schema(type = "String", example = "사용자", description= "탈퇴한 회원의 이름입니다.")
     private String name;
 
+    @Schema(type = "String", example = "60xxxxxx", description= "탈퇴한 회원의 학번(또는 수험번호)입니다.")
     private String studentNumber;
 
-    // 상점
+    @Schema(type = "Integer", example = "1", description= "탈퇴한 회원의 상점 총점입니다.")
     private Integer bonusPoint;
 
-    // 벌점
+    @Schema(type = "Integer", example = "1", description= "탈퇴한 회원의 벌점 총점입니다.")
     private Integer minusPoint;
 
     // 탈퇴 일자
+    @Schema(type = "LocalDate", example = "2024-04-26", description = "탈퇴 일자입니다.")
     private LocalDate deletedAt;
 
     @Builder

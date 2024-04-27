@@ -97,6 +97,9 @@ public class User extends BaseEntity {
         this.userType = userType;
     }
 
+    public void updateBonusPoint(Integer bonusPoint) { this.bonusPoint = bonusPoint; }
+    public void updateMinusPoint(Integer minusPoint) { this.minusPoint = minusPoint; }
+
     //    public void updateRefreshToken(String updateRefreshToken) {
 //        this.refreshToken = updateRefreshToken;
 //    }
