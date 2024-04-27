@@ -51,7 +51,7 @@ public class PointService {
         List<Point> points = pointRepository.findBySchoolAndStatus(admin.getSchool(), Status.ACTIVE);
         List<PointRes> pointResList = points.stream()
                 .map(point -> PointRes.builder()
-                        .id(point.getId())
+                        .pointId(point.getId())
                         .content(point.getContent())
                         .score(point.getScore())
                         .pointType(point.getPointType())
@@ -136,12 +136,12 @@ public class PointService {
 
         List<UserPoint> userPoints = addPointToResidentReqs.stream()
                 .map(req -> {
-                    Point point = validPointById(req.getId());
+                    Point point = validPointById(req.getPointId());
                     DefaultAssert.isTrue(point.getPointType() == type, "내역과 상벌점 타입이 일치하지 않습니다.");
                     DefaultAssert.isTrue(point.getStatus() == Status.ACTIVE, "삭제된 상벌점 내역은 부여할 수 없습니다.");
                     return UserPoint.builder()
                             .user(user)
-                            .point(validPointById(req.getId()))
+                            .point(validPointById(req.getPointId()))
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -180,7 +180,7 @@ public class PointService {
 
         User user = resident.getUser();
         List<UserPoint> userPoints = deleteUserPointReqs.stream()
-                .map(DeleteUserPointReq::getId)
+                .map(DeleteUserPointReq::getUserPointId)
                 .map(this::validUserPointById)
                 .collect(Collectors.toList());
 
@@ -207,7 +207,7 @@ public class PointService {
         Page<UserPoint> userPoints = userPointRepository.findUserPointsByUser(user, pageable);
         List<UserPointDetailRes> userPointDetailRes = userPoints.stream()
                 .map(userPoint -> UserPointDetailRes.builder()
-                        .id(userPoint.getId())
+                        .userPointId(userPoint.getId())
                         .content(userPoint.getPoint().getContent())
                         .score(userPoint.getPoint().getScore())
                         .pointType(userPoint.getPoint().getPointType())

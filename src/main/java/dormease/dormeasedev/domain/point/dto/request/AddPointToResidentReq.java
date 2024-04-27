@@ -7,5 +7,5 @@ import lombok.Getter;
 public class AddPointToResidentReq {
 
     @Schema(type = "Long", example = "1", description= "상점 또는 벌점의 id입니다.")
-    private Long id;
+    private Long pointId;
 }

@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class UserPointDetailRes {
 
     @Schema(type = "Long", example = "1", description= "userPoint 테이블의 id입니다,")
-    private Long id;
+    private Long userPointId;
 
     @Schema(type = "String", example = "화재대피훈련 참여", description= "상벌점 내역의 내용입니다.")
     private String content;
@@ -28,8 +28,8 @@ public class UserPointDetailRes {
     private PointType pointType;
 
     @Builder
-    public UserPointDetailRes(Long id, String content, LocalDate createdAt, PointType pointType, Integer score) {
-        this.id = id;
+    public UserPointDetailRes(Long userPointId, String content, LocalDate createdAt, PointType pointType, Integer score) {
+        this.userPointId = userPointId;
         this.content = content;
         this.createdAt = createdAt;
         this.pointType = pointType;

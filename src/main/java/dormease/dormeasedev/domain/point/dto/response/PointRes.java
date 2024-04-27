@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class PointRes {
 
     @Schema(type = "Long", example = "1", description= "상점 또는 벌점의 id입니다.")
-    private Long id;
+    private Long pointId;
 
     @Schema(type = "String", example = "화재대피훈련 참여", description= "상벌점 내역의 내용입니다.")
     private String content;
@@ -23,8 +23,8 @@ public class PointRes {
     private PointType pointType;
 
     @Builder
-    public PointRes(Long id, String content, Integer score, PointType pointType) {
-        this.id = id;
+    public PointRes(Long pointId, String content, Integer score, PointType pointType) {
+        this.pointId = pointId;
         this.content = content;
         this.score = score;
         this.pointType = pointType;

@@ -7,5 +7,5 @@ import lombok.Getter;
 public class DeleteUserPointReq {
 
     @Schema(type = "Long", example = "1", description= "userPoint 테이블의 id입니다.")
-    private Long id;
+    private Long userPointId;
 }
