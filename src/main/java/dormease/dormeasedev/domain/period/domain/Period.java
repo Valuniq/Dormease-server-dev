@@ -23,10 +23,6 @@ public class Period extends BaseEntity {
     @Column(name = "period_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id")
-    private School school;
-
     private LocalDate startDate;
     
     private LocalDate endDate;
@@ -36,9 +32,8 @@ public class Period extends BaseEntity {
     private PeriodType periodType;
 
     @Builder
-    public Period(Long id, School school, LocalDate startDate, LocalDate endDate, PeriodType periodType) {
+    public Period(Long id, LocalDate startDate, LocalDate endDate, PeriodType periodType) {
         this.id = id;
-        this.school = school;
         this.startDate = startDate;
         this.endDate = endDate;
         this.periodType = periodType;

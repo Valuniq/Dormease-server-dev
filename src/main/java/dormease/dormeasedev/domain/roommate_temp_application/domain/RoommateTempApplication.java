@@ -18,20 +18,18 @@ public class RoommateTempApplication extends BaseEntity {
     @Column(name = "roommate_temp_application_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resident_id")
-    private Resident resident;
-
     private String code;
 
     // 룸메이트 신청 여부 - 방장이 버튼 클릭 시 true
     private Boolean isApplied;
 
+    private Long roommateMasterId;
+
     @Builder
-    public RoommateTempApplication(Long id, Resident resident, String code, Boolean isApplied) {
+    public RoommateTempApplication(Long id, String code, Boolean isApplied, Long roommateMasterId) {
         this.id = id;
-        this.resident = resident;
         this.code = code;
         this.isApplied = isApplied;
+        this.roommateMasterId = roommateMasterId;
     }
 }

@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum UserType {
     ADMIN("ROLE_ADMIN"),
     USER("ROLE_USER"),
-    BLACKLIST("ROLE_BLACKLIST");
+    BLACKLIST("ROLE_BLACKLIST"),
+    RESIDENT("RESIDENT");
 
     private String value;
 }

@@ -23,29 +23,21 @@ public class Resident extends BaseEntity {
     @Column(name = "resident_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dormitory_setting_term_id")
-    private DormitorySettingTerm dormitorySettingTerm;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private Room room;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "roommate_application_id")
-    private RoommateApplication roommateApplication;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "roommate_temp_application_id")
     private RoommateTempApplication roommateTempApplication;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meal_ticket_id")
-    private MealTicket mealTicket;
+    @JoinColumn(name = "roommate_application_id")
+    private RoommateApplication roommateApplication;
 
     // 침대 번호
     private Integer bedNumber;
@@ -81,14 +73,12 @@ public class Resident extends BaseEntity {
     private Boolean hasKey;
 
     @Builder
-    public Resident(Long id, DormitorySettingTerm dormitorySettingTerm, Room room, User user, RoommateApplication roommateApplication, RoommateTempApplication roommateTempApplication, MealTicket mealTicket, Integer bedNumber, Boolean isRoommateApplied, String copy, String prioritySelectionCopy, Boolean isSmoking, Boolean dormitoryPayment, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean hasKey) {
+    public Resident(Long id, User user, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, Integer bedNumber, Boolean isRoommateApplied, String copy, String prioritySelectionCopy, Boolean isSmoking, Boolean dormitoryPayment, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean hasKey) {
         this.id = id;
-        this.dormitorySettingTerm = dormitorySettingTerm;
-        this.room = room;
         this.user = user;
-        this.roommateApplication = roommateApplication;
+        this.room = room;
         this.roommateTempApplication = roommateTempApplication;
-        this.mealTicket = mealTicket;
+        this.roommateApplication = roommateApplication;
         this.bedNumber = bedNumber;
         this.isRoommateApplied = isRoommateApplied;
         this.copy = copy;

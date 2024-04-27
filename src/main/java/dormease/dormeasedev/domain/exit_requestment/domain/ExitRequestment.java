@@ -31,7 +31,7 @@ public class ExitRequestment extends BaseEntity {
     private Boolean hasKey;
 
     // 열쇠 번호
-    private String ketNumber;
+    private String keyNumber;
 
     // 은행명
     private String bankName;
@@ -43,12 +43,12 @@ public class ExitRequestment extends BaseEntity {
     private Boolean isReturnSecurityDeposit;
 
     @Builder
-    public ExitRequestment(Long id, Resident resident, LocalDate exitDate, Boolean hasKey, String ketNumber, String bankName, String accountNumber, Boolean isReturnSecurityDeposit) {
+    public ExitRequestment(Long id, Resident resident, LocalDate exitDate, Boolean hasKey, String keyNumber, String bankName, String accountNumber, Boolean isReturnSecurityDeposit) {
         this.id = id;
         this.resident = resident;
         this.exitDate = exitDate;
         this.hasKey = hasKey;
-        this.ketNumber = ketNumber;
+        this.keyNumber = keyNumber;
         this.bankName = bankName;
         this.accountNumber = accountNumber;
         this.isReturnSecurityDeposit = isReturnSecurityDeposit;

@@ -2,6 +2,8 @@ package dormease.dormeasedev.domain.dormitory_application.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.user.domain.User;
 import jakarta.persistence.*;
@@ -24,13 +26,9 @@ public class DormitoryApplication extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dormitory_id")
-    private Dormitory dormitory;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meal_ticket_id")
-    private MealTicket mealTicket;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dormiroty_term_id")
+    private DormitoryTerm dormitoryTerm;
 
     // 등본
     private String copy;
@@ -60,12 +58,14 @@ public class DormitoryApplication extends BaseEntity {
     // 총액
     private Integer totalPrice;
 
+    // 이전 or 현재 입사 신청 상태
+    private ApplicationStatus applicationStatus;
+
     @Builder
-    public DormitoryApplication(Long id, User user, Dormitory dormitory, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice) {
+    public DormitoryApplication(Long id, User user, DormitoryTerm dormitoryTerm, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
         this.id = id;
         this.user = user;
-        this.dormitory = dormitory;
-        this.mealTicket = mealTicket;
+        this.dormitoryTerm = dormitoryTerm;
         this.copy = copy;
         this.prioritySelectionCopy = prioritySelectionCopy;
         this.isSmoking = isSmoking;
@@ -75,5 +75,6 @@ public class DormitoryApplication extends BaseEntity {
         this.accountNumber = accountNumber;
         this.dormitoryApplicationResult = dormitoryApplicationResult;
         this.totalPrice = totalPrice;
+        this.applicationStatus = applicationStatus;
     }
 }
