@@ -91,4 +91,16 @@ public class DormitoryApplicationService {
 
 
     }
+
+    // Description : 입사 신청 내역 조회
+//    public ResponseEntity<?> findMyDormitoryApplication(CustomUserDetails customUserDetails) {
+//
+//        User user = userService.validateUserById(customUserDetails.getId());
+//
+//        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUser(user);
+//        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "유저의 현재 입사 신청 내역이 존재하지 않습니다.");
+//        DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
+//
+//
+//    }
 }

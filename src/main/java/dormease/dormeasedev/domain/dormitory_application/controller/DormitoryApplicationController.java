@@ -45,5 +45,15 @@ public class DormitoryApplicationController {
 
 
     // Description : 입사 신청 내역 조회 (여기서 내역은 history보단 이번에 신청한 내역을 말하는 것)
-
+//    @Operation(summary = "입사 신청 내역 조회", description = "입사 신청 내역을 조회합니다.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "입사 신청 내역 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = .class))}),
+//            @ApiResponse(responseCode = "400", description = "입사 신청 내역 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+//    })
+//    @GetMapping
+//    public ResponseEntity<?> findMyDormitoryApplication(
+//            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+//    ) {
+//        return dormitoryApplicationService.findMyDormitoryApplication(customUserDetails);
+//    }
 }
