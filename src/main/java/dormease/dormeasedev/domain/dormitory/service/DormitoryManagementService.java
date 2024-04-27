@@ -44,14 +44,14 @@ public class DormitoryManagementService {
     public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor, Integer page) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
-        // 이름과 크기가 같은 기숙사 검색
-        List<Dormitory> dormitories = dormitoryRepository.findBySchoolAndNameAndRoomSize(dormitory.getSchool(), dormitory.getName(), dormitory.getRoomSize());
+        // 이름이 같은 기숙사 검색
+        List<Dormitory> dormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
         DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
         // 페이징 정보 설정
         Pageable pageable = PageRequest.of(page, 25); // 페이지 번호와 페이지 크기 설정
 
-        // 각 기숙사의 호실을 조회하고 결과를 모은다
+        // 인실 구분없이 호실 정보 조회
         List<RoomByDormitoryAndFloorRes> roomByDormitoryAndFloorRes = new ArrayList<>();
         for (Dormitory findDormitory : dormitories) {
             Page<Room> roomPage = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true, pageable);
@@ -122,7 +122,7 @@ public class DormitoryManagementService {
 
     }
 
-    // 학교별 건물 목록 조회(건물명(n인실))
+    // 학교별 건물 목록 조회(건물명)
     public ResponseEntity<?> getDormitoriesByRoomSize(CustomUserDetails customUserDetails) {
         User user = validUserById(customUserDetails.getId());
 
@@ -133,7 +133,7 @@ public class DormitoryManagementService {
         List<DormitoryManagementListRes> dormitoryManagementListRes = new ArrayList<>();
 
         for (Dormitory dormitory : dormitories) {
-            String key = dormitory.getName() + "(" + dormitory.getRoomSize() + "인실)";
+            String key = dormitory.getName();
             if (existingDormitoryNames.add(key)) {
                 dormitoryManagementListRes.add(
                         DormitoryManagementListRes.builder()

@@ -141,6 +141,7 @@ public class DormitorySettingService {
     }
 
     // 건물 삭제(해당 건물에 배정된 사생이 있을 시 삭제 불가)
+    // 연결된 room도 다 삭제하기
     @Transactional
     public ResponseEntity<?> deleteDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
