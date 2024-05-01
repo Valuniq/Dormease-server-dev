@@ -109,7 +109,6 @@ public class DormitoryApplicationSettingService {
                     .dormitory(dormitory)
                     .dormitoryApplicationSetting(dormitoryApplicationSetting)
                     .build();
-
             dormitorySettingTermRepository.save(dormitorySettingTerm);
 
             // Dormitory 수용 인원 save(update)
@@ -133,9 +132,7 @@ public class DormitoryApplicationSettingService {
                 .check(true)
                 .information(Message.builder().message("입사 신청 설정이 완료되었습니다.").build())
                 .build();
-
         return ResponseEntity.ok(apiResponse);
-
     }
 
     // Description : 입사 신청 설정 조회
@@ -145,20 +142,39 @@ public class DormitoryApplicationSettingService {
         User user = userService.validateUserById(customUserDetails.getId());
         School school = user.getSchool();
 
-//        List<DormitorySettingRelation> dormitorySettingRelationList = dormitorySettingRelationRepository.findBySchoolAndDormitoryApplicationSetting(school, dormitoryApplicationSetting);
+        // 기간 조회
+        Period period = dormitoryApplicationSetting.getPeriod();
+        PeriodRes periodRes = PeriodRes.builder()
+                .periodId(period.getId())
+                .startDate(period.getStartDate())
+                .endDate(period.getEndDate())
+                .periodType(period.getPeriodType())
+                .build();
 
+        // 식권 조회
+        List<MealTicketRes> mealTicketResList = new ArrayList<>();
+        List<MealTicket> mealTicketList = mealTicketRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
+        for (MealTicket mealTicket : mealTicketList) {
+            MealTicketRes mealTicketRes = MealTicketRes.builder()
+                    .id(mealTicket.getId())
+                    .count(mealTicket.getCount())
+                    .price(mealTicket.getPrice())
+                    .build();
+            mealTicketResList.add(mealTicketRes);
+        }
+
+        // Dormitory(기숙사) + Dormitory Term(거주 기간) 조회
         List<DormitorySettingTerm> findDormitorySettingTermListByDormSettingTerm = dormitorySettingTermRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
-
         List<DormitoryForFindDormitoryApplicationSettingRes> dormitoryForFindDormitoryApplicationSettingResList = new ArrayList<>();
+
         for (DormitorySettingTerm dormitorySettingTerm : findDormitorySettingTermListByDormSettingTerm) {
             Dormitory dormitory = dormitorySettingTerm.getDormitory();
 
-//            List<DormitorySettingTerm> findDormitorySettingTermListByDormAndDormSettingTerm = dormitorySettingTermRepository.findByDormitoryApplicationSettingAndDormitory(dormitoryApplicationSetting, dormitory);
-            List<DormitoryTermRelation> findDormitoryTermRelationList = dormitoryTermRelationRepository.findByDormitory(dormitory);
+            // 거주 기간 조회
+            List<DormitoryTerm> findDormitoryTerm = dormitoryTermRepository.findByDormitory(dormitory);
             List<DormitoryTermRes> dormitoryTermResList = new ArrayList<>();
 
-            for (DormitoryTermRelation dormitoryTermRelation : findDormitoryTermRelationList) {
-                DormitoryTerm dormitoryTerm = dormitoryTermRelation.getDormitoryTerm();
+            for (DormitoryTerm dormitoryTerm : findDormitoryTerm) {
                 DormitoryTermRes dormitoryTermRes = DormitoryTermRes.builder()
                         .dormitoryTermId(dormitoryTerm.getId())
                         .term(dormitoryTerm.getTerm())
@@ -171,31 +187,14 @@ public class DormitoryApplicationSettingService {
 
             DormitoryForFindDormitoryApplicationSettingRes dormitoryForFindDormitoryApplicationSettingRes = DormitoryForFindDormitoryApplicationSettingRes.builder()
                     .dormitoryId(dormitory.getId())
+                    // TODO : 수용 인원 맞는지 확인 필요
                     .dormitorySize(dormitory.getDormitorySize())
                     .dormitoryTermResList(dormitoryTermResList)
                     .build();
             dormitoryForFindDormitoryApplicationSettingResList.add(dormitoryForFindDormitoryApplicationSettingRes);
         }
 
-        List<MealTicketRes> mealTicketResList = new ArrayList<>();
-        List<MealTicket> mealTicketList = mealTicketRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
-        for (MealTicket mealTicket : mealTicketList) {
-            MealTicketRes mealTicketRes = MealTicketRes.builder()
-                    .id(mealTicket.getId())
-                    .count(mealTicket.getCount())
-                    .price(mealTicket.getPrice())
-                    .build();
-            mealTicketResList.add(mealTicketRes);
-        }
-
-        Period period = dormitoryApplicationSetting.getPeriod();
-        PeriodRes periodRes = PeriodRes.builder()
-                .periodId(period.getId())
-                .startDate(period.getStartDate())
-                .endDate(period.getEndDate())
-                .periodType(period.getPeriodType())
-                .build();
-
+        // 입사 신청 설정 조회
         FindDormitoryApplicationSettingRes findDormitoryApplicationSettingRes = FindDormitoryApplicationSettingRes.builder()
                 .dormitoryApplicationSettingId(dormitoryApplicationSetting.getId())
                 .title(dormitoryApplicationSetting.getTitle())
