@@ -16,8 +16,6 @@ import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.dto.request.DormitoryTermReq;
 import dormease.dormeasedev.domain.dormitory_term.dto.response.DormitoryTermRes;
-import dormease.dormeasedev.domain.dormitory_term_relation.domain.DormitoryTermRelation;
-import dormease.dormeasedev.domain.dormitory_term_relation.domain.repository.DormitoryTermRelationRepository;
 import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.meal_ticket.domain.repository.MealTicketRepository;
 import dormease.dormeasedev.domain.meal_ticket.dto.request.MealTicketReq;
@@ -38,13 +36,11 @@ import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +55,6 @@ public class DormitoryApplicationSettingService {
     private final DormitoryTermRepository dormitoryTermRepository;
     private final DormitorySettingTermRepository dormitorySettingTermRepository;
     private final MealTicketRepository mealTicketRepository;
-    private final DormitoryTermRelationRepository dormitoryTermRelationRepository;
 
     private final UserService userService;
     private final SchoolService schoolService;
@@ -72,17 +67,15 @@ public class DormitoryApplicationSettingService {
     @Transactional
     public ResponseEntity<?> createDormitoryApplicationSetting(CustomUserDetails customUserDetails, CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq) {
 
-        // schoolId req로 받는 대신, customUserDetails로 school 구해서 할 수도 있을듯..?
-        School school = schoolService.validateSchoolById(createDormitoryApplicationSettingReq.getSchoolId());
+        User user = userService.validateUserById(customUserDetails.getId());
+        School school = user.getSchool();
 
-        // Period save - (입사 신청 설정의) 입금 가능 기간
+        // Period(기간) save - (입사 신청 설정의) 입금 가능 기간
         Period period = Period.builder()
-                .school(school)
                 .startDate(createDormitoryApplicationSettingReq.getStartDate())
                 .endDate(createDormitoryApplicationSettingReq.getEndDate())
                 .periodType(PeriodType.DEPOSIT)
                 .build();
-
         periodRepository.save(period);
 
         // 입사 신청 설정 save
@@ -95,53 +88,45 @@ public class DormitoryApplicationSettingService {
                 .securityDeposit(createDormitoryApplicationSettingReq.getSecurityDeposit())
                 .applicationStatus(ApplicationStatus.NOW) // 앞으로 사용할 것이기에 NOW
                 .build();
-
         dormitoryApplicationSettingRepository.save(dormitoryApplicationSetting);
 
-        // DormitoryReq - 기숙사 자체 설정 관련
-        for (DormitoryReq dormitoryReq : createDormitoryApplicationSettingReq.getDormitoryReqList()) {
-            Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryReq.getDormitoryId());
-            // Dormitory 수용 인원 save(update)
-            dormitory.updateDormitorySize(dormitoryReq.getDormitorySize());
-
-            // DormitoryTerm save - 기숙사 하나하나 기간 및 가격 설정 관련
-            for (DormitoryTermReq dormitoryTermReq : dormitoryReq.getDormitoryTermReqList()) {
-                DormitoryTerm dormitoryTerm = DormitoryTerm.builder()
-                        .term(dormitoryTermReq.getTerm())
-                        .price(dormitoryTermReq.getPrice())
-                        .startDate(dormitoryTermReq.getStartDate())
-                        .endDate(dormitoryTermReq.getEndDate())
-                        .build();
-
-                dormitoryTermRepository.save(dormitoryTerm);
-
-                DormitoryTermRelation dormitoryTermRelation = DormitoryTermRelation.builder()
-                        .dormitory(dormitory)
-                        .dormitoryTerm(dormitoryTerm)
-                        .build();
-
-                dormitoryTermRelationRepository.save(dormitoryTermRelation);
-
-                // DormitorySettingTerm save - M:N 관계 중간 테이블
-                DormitorySettingTerm dormitorySettingTerm = DormitorySettingTerm.builder()
-                        .dormitory(dormitory)
-                        .dormitoryApplicationSetting(dormitoryApplicationSetting)
-                        .build();
-
-                dormitorySettingTermRepository.save(dormitorySettingTerm);
-            }
-        }
-
-        // MealTicketReq - 삭권 관련 설정
+        // 식권 save : MealTicketReq - 삭권 관련 설정
         for (MealTicketReq mealTicketReq : createDormitoryApplicationSettingReq.getMealTicketReqList()) {
             MealTicket mealTicket = MealTicket.builder()
                     .dormitoryApplicationSetting(dormitoryApplicationSetting)
                     .count(mealTicketReq.getCount())
                     .price(mealTicketReq.getPrice())
                     .build();
-
             mealTicketRepository.save(mealTicket);
+        }
 
+        // DormitoryReq - 기숙사 자체 설정 관련
+        for (DormitoryReq dormitoryReq : createDormitoryApplicationSettingReq.getDormitoryReqList()) {
+            Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryReq.getDormitoryId());
+
+            // DormitorySettingTerm save - 기숙사 : 입사 신청 설정 M:N 관계 중간 테이블
+            DormitorySettingTerm dormitorySettingTerm = DormitorySettingTerm.builder()
+                    .dormitory(dormitory)
+                    .dormitoryApplicationSetting(dormitoryApplicationSetting)
+                    .build();
+
+            dormitorySettingTermRepository.save(dormitorySettingTerm);
+
+            // Dormitory 수용 인원 save(update)
+            // TODO : 수용 인원인지, 지금 뽑을 인원인지 파악 필요
+            dormitory.updateDormitorySize(dormitoryReq.getDormitorySize());
+
+            // DormitoryTerm(거주 기간) save
+            for (DormitoryTermReq dormitoryTermReq : dormitoryReq.getDormitoryTermReqList()) {
+                DormitoryTerm dormitoryTerm = DormitoryTerm.builder()
+                        .dormitory(dormitory)
+                        .term(dormitoryTermReq.getTerm())
+                        .price(dormitoryTermReq.getPrice())
+                        .startDate(dormitoryTermReq.getStartDate())
+                        .endDate(dormitoryTermReq.getEndDate())
+                        .build();
+                dormitoryTermRepository.save(dormitoryTerm);
+            }
         }
 
         ApiResponse apiResponse = ApiResponse.builder()
