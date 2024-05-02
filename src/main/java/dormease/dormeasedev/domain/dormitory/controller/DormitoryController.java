@@ -1,8 +1,8 @@
 package dormease.dormeasedev.domain.dormitory.controller;
 
-import dormease.dormeasedev.domain.dormitory.dto.request.app_dormitory_application.FindDormitoryReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.app_dormitory_application.FindDormitoryRes;
 import dormease.dormeasedev.domain.dormitory.service.DormitoryService;
+import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,10 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Dormitory API", description = "기숙사 건물 관련 API입니다.")
 @RequiredArgsConstructor
@@ -33,8 +31,11 @@ public class DormitoryController {
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping
-    public ResponseEntity<?> findDormitories(@Parameter(description = "Schemas의 FindDormitoryReq 참고해주세요.", required = true) @RequestBody FindDormitoryReq findDormitoryReq) {
-        return dormitoryService.findDormitories(findDormitoryReq);
+    public ResponseEntity<?> findDormitories(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "거주 기간을 입력해주세요.", required = true) @RequestParam String term
+        ) {
+        return dormitoryService.findDormitories(customUserDetails, term);
     }
 
 }

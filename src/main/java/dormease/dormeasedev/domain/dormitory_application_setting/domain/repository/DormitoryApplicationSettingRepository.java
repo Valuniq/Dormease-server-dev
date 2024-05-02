@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.dormitory_application_setting.domain.repository;
 
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.school.domain.School;
 import org.springframework.data.domain.Page;
@@ -13,4 +14,6 @@ import java.util.Optional;
 public interface DormitoryApplicationSettingRepository extends JpaRepository<DormitoryApplicationSetting, Long> {
 
     Page<DormitoryApplicationSetting> findBySchool(Pageable pageable, School school);
+
+    DormitoryApplicationSetting findBySchoolAndApplicationStatus(School school, ApplicationStatus applicationStatus);
 }
