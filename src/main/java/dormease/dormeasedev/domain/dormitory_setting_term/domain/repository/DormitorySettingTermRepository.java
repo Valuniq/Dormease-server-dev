@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DormitorySettingTermRepository extends JpaRepository<DormitorySettingTerm, Long> {
@@ -16,5 +17,6 @@ public interface DormitorySettingTermRepository extends JpaRepository<DormitoryS
 
     List<DormitorySettingTerm> findByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting);
 
-    List<DormitorySettingTerm> findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(Dormitory dormitory, ApplicationStatus applicationStatus);
+//    List<DormitorySettingTerm> findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(Dormitory dormitory, ApplicationStatus applicationStatus);
+    Optional<DormitorySettingTerm> findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(Dormitory dormitory, ApplicationStatus applicationStatus);
 }

@@ -1,10 +1,6 @@
 package dormease.dormeasedev.domain.dormitory_term.service;
 
-import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
-import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
-import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
-import dormease.dormeasedev.domain.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
 import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.dto.response.DormitoryTermNameRes;
@@ -66,7 +62,7 @@ public class DormitoryTermService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    public DormitoryTerm validateDormitoryId(Long dormitoryTermId) {
+    public DormitoryTerm validateDormitoryTermId(Long dormitoryTermId) {
         Optional<DormitoryTerm> findDormitoryTerm = dormitoryTermRepository.findById(dormitoryTermId);
         DefaultAssert.isTrue(findDormitoryTerm.isPresent(), "거주 기간 정보가 올바르지 않습니다.");
         return findDormitoryTerm.get();
