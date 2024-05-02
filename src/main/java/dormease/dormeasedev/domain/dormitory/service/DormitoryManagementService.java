@@ -199,13 +199,13 @@ public class DormitoryManagementService {
 
         for (DormitorySettingTerm dormitorySettingTerm : dormitorySettingTerms) {
             // 미배정된 사생만 저장
-            List<Resident> residents = residentRepository.findByDormitorySettingTermAndRoom(dormitorySettingTerm, null);
-            for (Resident resident : residents) {
+//            List<Resident> residents = residentRepository.findByDormitorySettingTermAndRoom(dormitorySettingTerm, null);
+//            for (Resident resident : residents) {
                 // findByDormtory할 때 성별에 따라 따로 불러와지는 것으로 보이나, 예외사항에 대비해 추가
-                if (resident.getUser().getGender() == room.getGender()) {
-                    notAssignedResidents.add(resident);
-                }
-            }
+//                if (resident.getUser().getGender() == room.getGender()) {
+//                    notAssignedResidents.add(resident);
+//                }
+//            }
         }
 
         List<NotOrAssignedResidentsRes> notOrAssignedResidentsResList = notAssignedResidents.stream()

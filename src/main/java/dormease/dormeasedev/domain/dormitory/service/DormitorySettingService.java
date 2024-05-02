@@ -171,12 +171,12 @@ public class DormitorySettingService {
         for (Dormitory dormitory : sameNameDormitories) {
                 // DormitorySettingTerm을 통해 Resident 조회
                 List<DormitorySettingTerm> settingTerms = dormitorySettingTermRepository.findByDormitory(dormitory);
-                for (DormitorySettingTerm settingTerm : settingTerms) {
-                    List<Resident> residents = residentRepository.findByDormitorySettingTerm(settingTerm);
-                    if (!residents.isEmpty()) {
-                        return true; // 관련된 Resident 데이터가 존재하는 경우
-                    }
-                }
+//                for (DormitorySettingTerm settingTerm : settingTerms) {
+//                    List<Resident> residents = residentRepository.findByDormitorySettingTerm(settingTerm);
+//                    if (!residents.isEmpty()) {
+//                        return true; // 관련된 Resident 데이터가 존재하는 경우
+//                    }
+//                }
         }
         return false; // 관련된 Resident 데이터가 없는 경우
     }
