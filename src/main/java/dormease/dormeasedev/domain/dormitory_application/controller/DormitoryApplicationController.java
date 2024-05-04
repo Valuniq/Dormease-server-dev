@@ -43,9 +43,6 @@ public class DormitoryApplicationController {
         return dormitoryApplicationService.dormitoryApplication(customUserDetails, dormitoryApplicationReq);
     }
 
-    // Description : 이동 합격 수락 / or 수락 + 거절
-
-
     // Description : 입사 신청 내역 조회 (여기서 내역은 history보단 이번에 신청한 내역을 말하는 것)
     @Operation(summary = "입사 신청 내역 조회", description = "입사 신청 내역을 조회합니다.")
     @ApiResponses(value = {
@@ -71,5 +68,33 @@ public class DormitoryApplicationController {
     ) {
         return dormitoryApplicationService.findMyDormitoryApplicationHistory(customUserDetails);
     }
+
+
+    // Description : 이동 합격 수락
+    @Operation(summary = "이동 합격 수락", description = "이동 합격을 수락합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이동 합격 수락 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "이동 합격 수락 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PostMapping
+    public ResponseEntity<?> acceptMovePass(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return dormitoryApplicationService.acceptMovePass(customUserDetails, dormitoryApplicationReq);
+    }
+
+    // Description : 이동 합격 거절
+    @Operation(summary = "이동 합격 거절", description = "이동 합격을 거절합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이동 합격 거절 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "이동 합격 거절 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PostMapping
+    public ResponseEntity<?> rejectMovePass(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return dormitoryApplicationService.rejectMovePass(customUserDetails);
+    }
+
 
 }

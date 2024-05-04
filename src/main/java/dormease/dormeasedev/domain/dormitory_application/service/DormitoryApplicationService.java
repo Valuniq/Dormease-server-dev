@@ -122,15 +122,8 @@ public class DormitoryApplicationService {
         // 기숙사
         Dormitory dormitory = dormitoryTerm.getDormitory();
 
-        // 기숙사 - 입사 신청 설정 중간 테이블 (Dormitory Setting Term)
-//        Optional<DormitorySettingTerm> findDormitorySettingTerm = dormitorySettingTermRepository.findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.NOW);
-//        DefaultAssert.isTrue(findDormitorySettingTerm.isPresent(), "현재 기숙사에 입사 신청 설정이 존재하지 않습니다.");
-//        DormitorySettingTerm dormitorySettingTerm = findDormitorySettingTerm.get();
-
         // 입사 신청 설정
-//        DormitoryApplicationSetting dormitoryApplicationSetting = dormitorySettingTerm.getDormitoryApplicationSetting();
         DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
-
 
         // 총액 = 보증금 + 기숙사비 + 식권
         Integer totalPrice = dormitoryApplication.getTotalPrice();
@@ -195,26 +188,29 @@ public class DormitoryApplicationService {
                     .build();
             dormitoryApplicationSimpleResList.add(dormitoryApplicationSimpleRes);
 
-            // 기숙사 - 입사 신청 설정 중간 테이블 (Dormitory Setting Term)
-//            List<DormitorySettingTerm> findDormitorySettingTerm = dormitorySettingTermRepository.findAllByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.BEFORE);
-//
-//            for (DormitorySettingTerm dormitorySettingTerm : findDormitorySettingTerm) {
-//                 입사 신청 설정
-//                DormitoryApplicationSetting dormitoryApplicationSetting = dormitorySettingTerm.getDormitoryApplicationSetting();
-//                DormitoryApplicationSimpleRes dormitoryApplicationSimpleRes = DormitoryApplicationSimpleRes.builder()
-//                        .dormitoryApplicationId(dormitoryApplication.getId())
-//                        .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
-//                        .createdDate(dormitoryApplicationSetting.getCreatedDate().toLocalDate())
-//                        .build();
-//                dormitoryApplicationSimpleResList.add(dormitoryApplicationSimpleRes);
-//            }
         }
-
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(dormitoryApplicationSimpleResList)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 이동 합격 수락
+
+
+    // Description : 이동 합격 거절
+    @Transactional
+    public ResponseEntity<?> rejectMovePass(CustomUserDetails customUserDetails) {
+
+        User user = userService.validateUserById(customUserDetails.getId());
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "현재 입사 신청 내역이 존재하지 않습니다.");
+        DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
+
+        // '거절 시 불합격 처리'라고 피그마에 존재
+        dormitoryApplication.updateDormitoryApplicationResult(DormitoryApplicationResult.NON_PASS);
+
     }
 }

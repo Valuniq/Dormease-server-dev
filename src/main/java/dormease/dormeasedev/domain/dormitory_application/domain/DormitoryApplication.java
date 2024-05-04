@@ -68,6 +68,10 @@ public class DormitoryApplication extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ApplicationStatus applicationStatus;
 
+    public void updateDormitoryApplicationResult(DormitoryApplicationResult dormitoryApplicationResult) {
+        this.dormitoryApplicationResult = dormitoryApplicationResult;
+    }
+
     @Builder
     public DormitoryApplication(Long id, User user, DormitoryTerm dormitoryTerm, DormitoryApplicationSetting dormitoryApplicationSetting, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
         this.id = id;
