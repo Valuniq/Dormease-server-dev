@@ -40,10 +40,6 @@ public class CreateDormitoryApplicationSettingReq {
     @Schema(type = "Integer", example = "500000", description= "보증금입니다.")
     private Integer securityDeposit;
 
-    // 이전/현재 어떤 상태인지 - 입사 신청 설정 내역과 구분을 위함 - NOW or BEFORE
-//    @Schema(type = "ApplicationStatus", example = "NOW", description= "내역으로 들어갈지 / 앞으로 사용할 것인지 결정합니다.")
-//    private ApplicationStatus applicationStatus;
-
     // 입금 가능 기간
     @Schema(type = "PeriodReq", example = "PeriodReq 객체", description= "입사 신청 설정의 입금 가능 기간입니다.")
     private PeriodReq periodReq;

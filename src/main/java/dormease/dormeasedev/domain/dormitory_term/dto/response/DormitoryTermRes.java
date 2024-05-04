@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 public class DormitoryTermRes {
 
-    @Schema(type = "String", example = "학기", description= "거주 기간입니다.")
+    @Schema(type = "String", example = "1", description= "거주 기간 ID입니다.")
     private Long dormitoryTermId;
 
     // 거주 기간 - 학기, 6개월 등 ..

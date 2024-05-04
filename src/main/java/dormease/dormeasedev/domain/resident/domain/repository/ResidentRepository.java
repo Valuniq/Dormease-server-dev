@@ -17,11 +17,11 @@ import java.util.List;
 
 @Repository
 public interface ResidentRepository extends JpaRepository<Resident, Long> {
-    List<Resident> findByDormitorySettingTerm(DormitorySettingTerm settingTerm);
+//    List<Resident> findByDormitorySettingTerm(DormitorySettingTerm settingTerm);
 
     List<Resident> findByRoom(Room room);
 
-    List<Resident> findByDormitorySettingTermAndRoom(DormitorySettingTerm dormitorySettingTerm, Room room);
+//    List<Resident> findByDormitorySettingTermAndRoom(DormitorySettingTerm dormitorySettingTerm, Room room);
 
     Page<Resident> findByUserSchool(School school, Pageable pageable);
 
