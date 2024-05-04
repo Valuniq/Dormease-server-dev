@@ -59,6 +59,7 @@ public class DormitoryApplication extends BaseEntity {
     private Integer totalPrice;
 
     // 이전 or 현재 입사 신청 상태
+    @Enumerated(EnumType.STRING)
     private ApplicationStatus applicationStatus;
 
     @Builder

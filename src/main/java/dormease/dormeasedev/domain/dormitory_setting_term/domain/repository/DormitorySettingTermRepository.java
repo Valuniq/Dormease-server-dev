@@ -18,5 +18,6 @@ public interface DormitorySettingTermRepository extends JpaRepository<DormitoryS
     List<DormitorySettingTerm> findByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting);
 
 //    List<DormitorySettingTerm> findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(Dormitory dormitory, ApplicationStatus applicationStatus);
+
     Optional<DormitorySettingTerm> findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(Dormitory dormitory, ApplicationStatus applicationStatus);
 }

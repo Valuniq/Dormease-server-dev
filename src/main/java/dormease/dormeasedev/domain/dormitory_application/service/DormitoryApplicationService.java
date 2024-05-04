@@ -7,6 +7,7 @@ import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplica
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_application.dto.request.DormitoryApplicationReq;
+import dormease.dormeasedev.domain.dormitory_application.dto.response.DormitoryApplicationRes;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
@@ -16,7 +17,9 @@ import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.service.DormitoryTermService;
 import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
+import dormease.dormeasedev.domain.meal_ticket.domain.repository.MealTicketRepository;
 import dormease.dormeasedev.domain.meal_ticket.service.MealTicketService;
+import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
@@ -38,6 +41,7 @@ public class DormitoryApplicationService {
 
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final DormitorySettingTermRepository dormitorySettingTermRepository;
+    private final MealTicketRepository mealTicketRepository;
 
     private final UserService userService;
     private final DormitoryService dormitoryService;
@@ -91,15 +95,74 @@ public class DormitoryApplicationService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // Description : 입사 신청 내역 조회
-//    public ResponseEntity<?> findMyDormitoryApplication(CustomUserDetails customUserDetails) {
-//
-//        User user = userService.validateUserById(customUserDetails.getId());
-//
-//        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUser(user);
-//        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "유저의 현재 입사 신청 내역이 존재하지 않습니다.");
-//        DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
-//
-//
-//    }
+    // Description : 입사 신청 내역 조회 ( 현재 )
+    public ResponseEntity<?> findMyDormitoryApplication(CustomUserDetails customUserDetails) {
+
+        // TODO : 필요한 컬럼
+        // 입사 신청 설정 제목 (d a s), 학교명(school), 기숙사명(dormitory), 성별, 인실, (거주) 기간(d t), 식권(m t), 우선 선발 증빙 서류 여부(d a), 등본 여부, 흡연 여부
+        // 보증금(d a s), 기숙사비 + 식권(d t, m t), 총액(보증금 + 기숙사비 + 식권)(a s t, d t, m t), 비상 연락처(d a), 비상 연락처와의 관계, 은행명, 계좌 번호, 신청 결과
+
+        // TODO : 필요한 엔티티
+        //  - ( 회원 ) / 입사 신청 설정 , 학교, 기숙사 , 거주 기간 , 식권, 입사 신청
+
+        // 회원, 학교
+        User user = userService.validateUserById(customUserDetails.getId());
+        School school = user.getSchool();
+
+        // 입사 신청
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "유저의 현재 입사 신청 내역이 존재하지 않습니다.");
+        DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
+
+//        // 거주 기간
+        DormitoryTerm dormitoryTerm = dormitoryApplication.getDormitoryTerm();
+
+//        // 기숙사
+        Dormitory dormitory = dormitoryTerm.getDormitory();
+
+//        // 기숙사 - 입사 신청 설정 중간 테이블 (Dormitory Setting Term)
+        Optional<DormitorySettingTerm> findDormitorySettingTerm = dormitorySettingTermRepository.findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.NOW);
+        DefaultAssert.isTrue(findDormitorySettingTerm.isPresent(), "현재 기숙사에 입사 신청 설정이 존재하지 않습니다.");
+        DormitorySettingTerm dormitorySettingTerm = findDormitorySettingTerm.get();
+
+//        // 입사 신청 설정
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitorySettingTerm.getDormitoryApplicationSetting();
+
+//        // 총액 = 보증금 + 기숙사비 + 식권
+        Integer totalPrice = dormitoryApplication.getTotalPrice();
+        Integer mealTicketPrice = totalPrice - dormitoryTerm.getPrice() -dormitoryApplicationSetting.getSecurityDeposit();
+        Optional<MealTicket> findMealTicket = mealTicketRepository.findByDormitoryApplicationSettingAndPrice(dormitoryApplicationSetting, mealTicketPrice);
+        DefaultAssert.isTrue(findMealTicket.isPresent(), "식권 정보가 올바르지 않습니다.");
+        MealTicket mealTicket = findMealTicket.get();
+
+        DormitoryApplicationRes dormitoryApplicationRes = DormitoryApplicationRes.builder()
+                .dormitoryApplicationId(dormitoryApplication.getId())
+                .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
+                .schoolName(user.getName())
+                .dormitoryName(dormitory.getName())
+                .gender(dormitory.getGender())
+                .roomSize(dormitory.getRoomSize())
+                .term(dormitoryTerm.getTerm())
+                .mealTicketCount(mealTicket.getCount())
+//                 null이면 제출 x
+                .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy() != null)
+                .copy(dormitoryApplication.getCopy() != null)
+                .smoking(dormitoryApplication.getIsSmoking())
+                .securityDeposit(dormitoryApplicationSetting.getSecurityDeposit())
+                .dormitoryPlusMealTicketPrice(dormitoryTerm.getPrice() + mealTicketPrice)
+                .totalPrice(totalPrice)
+                .emergencyContact(dormitoryApplication.getEmergencyContact())
+                .emergencyRelation(dormitoryApplication.getEmergencyRelation())
+                .bankName(dormitoryApplication.getBankName())
+                .accountNumber(dormitoryApplication.getAccountNumber())
+                .dormitoryApplicationResult(dormitoryApplication.getDormitoryApplicationResult())
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryApplicationRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
 }
