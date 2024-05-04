@@ -212,5 +212,11 @@ public class DormitoryApplicationService {
         // '거절 시 불합격 처리'라고 피그마에 존재
         dormitoryApplication.updateDormitoryApplicationResult(DormitoryApplicationResult.NON_PASS);
 
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("이동 합격 거절이 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 }
