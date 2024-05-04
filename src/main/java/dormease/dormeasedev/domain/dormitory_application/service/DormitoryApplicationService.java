@@ -198,7 +198,23 @@ public class DormitoryApplicationService {
     }
 
     // Description : 이동 합격 수락
+    @Transactional
+    public ResponseEntity<?> acceptMovePass(CustomUserDetails customUserDetails) {
 
+        User user = userService.validateUserById(customUserDetails.getId());
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "현재 입사 신청 내역이 존재하지 않습니다.");
+        DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
+
+        dormitoryApplication.updateDormitoryApplicationResult(DormitoryApplicationResult.PASS);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("이동 합격 수락이 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
 
     // Description : 이동 합격 거절
     @Transactional

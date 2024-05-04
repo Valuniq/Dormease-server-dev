@@ -80,7 +80,7 @@ public class DormitoryApplicationController {
     public ResponseEntity<?> acceptMovePass(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        return dormitoryApplicationService.acceptMovePass(customUserDetails, dormitoryApplicationReq);
+        return dormitoryApplicationService.acceptMovePass(customUserDetails);
     }
 
     // Description : 이동 합격 거절
