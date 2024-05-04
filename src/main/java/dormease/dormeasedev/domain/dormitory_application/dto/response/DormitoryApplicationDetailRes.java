@@ -10,7 +10,7 @@ import lombok.*;
 @Setter
 @Getter
 @Builder
-public class DormitoryApplicationRes {
+public class DormitoryApplicationDetailRes {
 
     @Schema(type = "Long", example = "1", description = "입사 신청 ID")
     private Long dormitoryApplicationId;

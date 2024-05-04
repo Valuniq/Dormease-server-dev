@@ -1,20 +1,18 @@
 package dormease.dormeasedev.domain.dormitory_application.service;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.service.DormitoryService;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_application.dto.request.DormitoryApplicationReq;
-import dormease.dormeasedev.domain.dormitory_application.dto.response.DormitoryApplicationRes;
+import dormease.dormeasedev.domain.dormitory_application.dto.response.DormitoryApplicationDetailRes;
+import dormease.dormeasedev.domain.dormitory_application.dto.response.DormitoryApplicationSimpleRes;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
-import dormease.dormeasedev.domain.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
-import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.service.DormitoryTermService;
 import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.meal_ticket.domain.repository.MealTicketRepository;
@@ -31,6 +29,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,6 +74,7 @@ public class DormitoryApplicationService {
         DormitoryApplication dormitoryApplication = DormitoryApplication.builder()
                 .user(user)
                 .dormitoryTerm(dormitoryTerm)
+                .dormitoryApplicationSetting(dormitoryApplicationSetting)
                 .copy(dormitoryApplicationReq.getCopy())
                 .prioritySelectionCopy(dormitoryApplicationReq.getPrioritySelectionCopy())
                 .isSmoking(dormitoryApplicationReq.getIsSmoking())
@@ -114,28 +116,30 @@ public class DormitoryApplicationService {
         DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "유저의 현재 입사 신청 내역이 존재하지 않습니다.");
         DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
 
-//        // 거주 기간
+        // 거주 기간
         DormitoryTerm dormitoryTerm = dormitoryApplication.getDormitoryTerm();
 
-//        // 기숙사
+        // 기숙사
         Dormitory dormitory = dormitoryTerm.getDormitory();
 
-//        // 기숙사 - 입사 신청 설정 중간 테이블 (Dormitory Setting Term)
-        Optional<DormitorySettingTerm> findDormitorySettingTerm = dormitorySettingTermRepository.findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.NOW);
-        DefaultAssert.isTrue(findDormitorySettingTerm.isPresent(), "현재 기숙사에 입사 신청 설정이 존재하지 않습니다.");
-        DormitorySettingTerm dormitorySettingTerm = findDormitorySettingTerm.get();
+        // 기숙사 - 입사 신청 설정 중간 테이블 (Dormitory Setting Term)
+//        Optional<DormitorySettingTerm> findDormitorySettingTerm = dormitorySettingTermRepository.findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.NOW);
+//        DefaultAssert.isTrue(findDormitorySettingTerm.isPresent(), "현재 기숙사에 입사 신청 설정이 존재하지 않습니다.");
+//        DormitorySettingTerm dormitorySettingTerm = findDormitorySettingTerm.get();
 
-//        // 입사 신청 설정
-        DormitoryApplicationSetting dormitoryApplicationSetting = dormitorySettingTerm.getDormitoryApplicationSetting();
+        // 입사 신청 설정
+//        DormitoryApplicationSetting dormitoryApplicationSetting = dormitorySettingTerm.getDormitoryApplicationSetting();
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
 
-//        // 총액 = 보증금 + 기숙사비 + 식권
+
+        // 총액 = 보증금 + 기숙사비 + 식권
         Integer totalPrice = dormitoryApplication.getTotalPrice();
         Integer mealTicketPrice = totalPrice - dormitoryTerm.getPrice() -dormitoryApplicationSetting.getSecurityDeposit();
         Optional<MealTicket> findMealTicket = mealTicketRepository.findByDormitoryApplicationSettingAndPrice(dormitoryApplicationSetting, mealTicketPrice);
         DefaultAssert.isTrue(findMealTicket.isPresent(), "식권 정보가 올바르지 않습니다.");
         MealTicket mealTicket = findMealTicket.get();
 
-        DormitoryApplicationRes dormitoryApplicationRes = DormitoryApplicationRes.builder()
+        DormitoryApplicationDetailRes dormitoryApplicationDetailRes = DormitoryApplicationDetailRes.builder()
                 .dormitoryApplicationId(dormitoryApplication.getId())
                 .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
                 .schoolName(user.getName())
@@ -160,7 +164,55 @@ public class DormitoryApplicationService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(dormitoryApplicationRes)
+                .information(dormitoryApplicationDetailRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 이전 입사 신청 내역 목록 조회 (이번 입사 신청 내역 제외)
+    public ResponseEntity<?> findMyDormitoryApplicationHistory(CustomUserDetails customUserDetails) {
+
+        User user = userService.validateUserById(customUserDetails.getId());
+        School school = user.getSchool();
+
+        List<DormitoryApplicationSimpleRes> dormitoryApplicationSimpleResList = new ArrayList<>();
+        // 이전 입사 신청 목록
+        List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllByApplicationStatus(ApplicationStatus.BEFORE);
+
+        for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
+            // 거주 기간
+            DormitoryTerm dormitoryTerm = dormitoryApplication.getDormitoryTerm();
+            // 기숙사
+            Dormitory dormitory = dormitoryTerm.getDormitory();
+            // 입사 신청 설정
+            DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
+
+            DormitoryApplicationSimpleRes dormitoryApplicationSimpleRes = DormitoryApplicationSimpleRes.builder()
+                    .dormitoryApplicationId(dormitoryApplication.getId())
+                    .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
+                    .createdDate(dormitoryApplicationSetting.getCreatedDate().toLocalDate())
+                    .build();
+            dormitoryApplicationSimpleResList.add(dormitoryApplicationSimpleRes);
+
+            // 기숙사 - 입사 신청 설정 중간 테이블 (Dormitory Setting Term)
+//            List<DormitorySettingTerm> findDormitorySettingTerm = dormitorySettingTermRepository.findAllByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.BEFORE);
+//
+//            for (DormitorySettingTerm dormitorySettingTerm : findDormitorySettingTerm) {
+//                 입사 신청 설정
+//                DormitoryApplicationSetting dormitoryApplicationSetting = dormitorySettingTerm.getDormitoryApplicationSetting();
+//                DormitoryApplicationSimpleRes dormitoryApplicationSimpleRes = DormitoryApplicationSimpleRes.builder()
+//                        .dormitoryApplicationId(dormitoryApplication.getId())
+//                        .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
+//                        .createdDate(dormitoryApplicationSetting.getCreatedDate().toLocalDate())
+//                        .build();
+//                dormitoryApplicationSimpleResList.add(dormitoryApplicationSimpleRes);
+//            }
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryApplicationSimpleResList)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
