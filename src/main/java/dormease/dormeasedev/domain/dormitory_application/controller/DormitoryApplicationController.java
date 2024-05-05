@@ -76,7 +76,7 @@ public class DormitoryApplicationController {
             @ApiResponse(responseCode = "200", description = "이동 합격 수락 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "이동 합격 수락 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PostMapping
+    @PatchMapping("/accept")
     public ResponseEntity<?> acceptMovePass(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
@@ -89,7 +89,7 @@ public class DormitoryApplicationController {
             @ApiResponse(responseCode = "200", description = "이동 합격 거절 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "이동 합격 거절 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PostMapping
+    @PatchMapping("/reject")
     public ResponseEntity<?> rejectMovePass(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
