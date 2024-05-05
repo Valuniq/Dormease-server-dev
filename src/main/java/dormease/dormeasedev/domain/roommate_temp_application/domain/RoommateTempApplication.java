@@ -8,6 +8,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
@@ -26,11 +30,20 @@ public class RoommateTempApplication extends BaseEntity {
     // 방장 id (방장의 resident id)
     private Long roommateMasterId;
 
+    @OneToMany(mappedBy = "roommateTempApplication")
+    private List<Resident> residents = new ArrayList<>();
+
+    // update 함수
+    public void updateIsApplied() {
+        this.isApplied = true;
+    }
+
     @Builder
-    public RoommateTempApplication(Long id, String code, Boolean isApplied, Long roommateMasterId) {
+    public RoommateTempApplication(Long id, String code, Boolean isApplied, Long roommateMasterId, List<Resident> residents) {
         this.id = id;
         this.code = code;
         this.isApplied = isApplied;
         this.roommateMasterId = roommateMasterId;
+        this.residents = residents;
     }
 }
