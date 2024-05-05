@@ -10,4 +10,8 @@ import java.util.Optional;
 public interface RoommateTempApplicationRepository extends JpaRepository<RoommateTempApplication, Long> {
 
     Optional<RoommateTempApplication> findByCode(String code);
+
+    Optional<RoommateTempApplication> findByRoommateMasterId(Long roommateMasterId);
+
+    boolean existsByRoommateMasterId(Long roommateMasterId);
 }

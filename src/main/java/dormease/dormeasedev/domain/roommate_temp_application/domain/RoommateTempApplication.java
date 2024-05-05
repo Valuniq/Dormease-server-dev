@@ -23,6 +23,7 @@ public class RoommateTempApplication extends BaseEntity {
     // 룸메이트 신청 여부 - 방장이 버튼 클릭 시 true
     private Boolean isApplied;
 
+    // 방장 id (방장의 resident id)
     private Long roommateMasterId;
 
     @Builder

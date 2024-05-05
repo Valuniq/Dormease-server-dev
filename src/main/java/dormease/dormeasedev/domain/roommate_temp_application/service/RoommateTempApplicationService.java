@@ -6,6 +6,7 @@ import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTemp
 import dormease.dormeasedev.domain.roommate_temp_application.domain.repository.RoommateTempApplicationRepository;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
+import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
@@ -32,6 +33,8 @@ public class RoommateTempApplicationService {
 
         User user = userService.validateUserById(customUserDetails.getId());
         Resident resident = residentService.validateResidentByUser(user);
+
+        DefaultAssert.isTrue(!roommateTempApplicationRepository.existsByRoommateMasterId(resident.getId()), "해당 사생의 그룹이 이미 존재합니다.");
 
         String code;
         Optional<RoommateTempApplication> findRoommateTempApplication;
@@ -60,6 +63,20 @@ public class RoommateTempApplicationService {
     public ResponseEntity<?> deleteRoommateTempApplication(CustomUserDetails customUserDetails) {
 
         User user = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentByUser(user);
+
+        Optional<RoommateTempApplication> findRoommateTempApplication = roommateTempApplicationRepository.findByRoommateMasterId(resident.getId());
+        DefaultAssert.isTrue(findRoommateTempApplication.isPresent(), "그룹이 존재하지 않습니다.");
+        RoommateTempApplication roommateTempApplication = findRoommateTempApplication.get();
+        
+        roommateTempApplicationRepository.delete(roommateTempApplication);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("그룹 삭제가 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 
 
