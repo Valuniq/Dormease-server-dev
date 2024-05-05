@@ -72,6 +72,11 @@ public class Resident extends BaseEntity {
     // 열쇠 수령 여부
     private Boolean hasKey;
 
+    // Description : update 함수
+    public void updateRoommateTempApplication(RoommateTempApplication roommateTempApplication) {
+        this.roommateTempApplication = roommateTempApplication;
+    }
+
     @Builder
     public Resident(Long id, User user, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, Integer bedNumber, Boolean isRoommateApplied, String copy, String prioritySelectionCopy, Boolean isSmoking, Boolean dormitoryPayment, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean hasKey) {
         this.id = id;

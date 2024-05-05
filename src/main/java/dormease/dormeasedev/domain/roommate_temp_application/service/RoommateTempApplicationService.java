@@ -28,6 +28,7 @@ public class RoommateTempApplicationService {
     private final UserService userService;
     private final ResidentService residentService;
 
+    // Description : 룸메이트 임시 신청 생성
     @Transactional
     public ResponseEntity<?> createRoommateTempApplication(CustomUserDetails customUserDetails) {
 
@@ -51,6 +52,8 @@ public class RoommateTempApplicationService {
 
         roommateTempApplicationRepository.save(roommateTempApplication);
 
+        resident.updateRoommateTempApplication(roommateTempApplication);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(Message.builder().message("그룹 생성이 완료되었습니다.").build())
@@ -59,6 +62,7 @@ public class RoommateTempApplicationService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // Description : 룸메이트 임시 신청 삭제
     @Transactional
     public ResponseEntity<?> deleteRoommateTempApplication(CustomUserDetails customUserDetails) {
 
@@ -71,6 +75,8 @@ public class RoommateTempApplicationService {
         
         roommateTempApplicationRepository.delete(roommateTempApplication);
 
+        resident.updateRoommateTempApplication(null);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(Message.builder().message("그룹 삭제가 완료되었습니다.").build())
@@ -78,6 +84,15 @@ public class RoommateTempApplicationService {
 
         return ResponseEntity.ok(apiResponse);
     }
+
+    // Description : 룸메이트 신청
+//    public ResponseEntity<?> applyRoommateTempApplication(CustomUserDetails customUserDetails) {
+//
+//        User user = userService.validateUserById(customUserDetails.getId());
+//        Resident resident = residentService.validateResidentByUser(user);
+//
+//
+//    }
 
 
     // Description : 코드 생성 함수 (00000000 ~ 99999999) (8자리)
@@ -93,4 +108,6 @@ public class RoommateTempApplicationService {
 
         return code;
     }
+
+
 }
