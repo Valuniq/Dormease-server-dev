@@ -18,7 +18,7 @@ public class BlackList extends BaseEntity {
     @Column(name = "black_list_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

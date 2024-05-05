@@ -15,5 +15,6 @@ public interface DormitoryApplicationSettingRepository extends JpaRepository<Dor
 
     Page<DormitoryApplicationSetting> findBySchool(Pageable pageable, School school);
 
-    DormitoryApplicationSetting findBySchoolAndApplicationStatus(School school, ApplicationStatus applicationStatus);
+    // ApplicationStatus.NOW 전용!! / BEFORE 하면 여러 개 나오기에 안됨
+    Optional<DormitoryApplicationSetting> findBySchoolAndApplicationStatus(School school, ApplicationStatus applicationStatus);
 }

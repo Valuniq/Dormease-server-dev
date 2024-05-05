@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.dormitory_application.domain;
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.user.domain.User;
@@ -29,6 +30,11 @@ public class DormitoryApplication extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dormiroty_term_id")
     private DormitoryTerm dormitoryTerm;
+
+    // 입사 신청 설정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dormitory_application_setting_id")
+    private DormitoryApplicationSetting dormitoryApplicationSetting;
 
     // 등본
     private String copy;
@@ -59,13 +65,19 @@ public class DormitoryApplication extends BaseEntity {
     private Integer totalPrice;
 
     // 이전 or 현재 입사 신청 상태
+    @Enumerated(EnumType.STRING)
     private ApplicationStatus applicationStatus;
 
+    public void updateDormitoryApplicationResult(DormitoryApplicationResult dormitoryApplicationResult) {
+        this.dormitoryApplicationResult = dormitoryApplicationResult;
+    }
+
     @Builder
-    public DormitoryApplication(Long id, User user, DormitoryTerm dormitoryTerm, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
+    public DormitoryApplication(Long id, User user, DormitoryTerm dormitoryTerm, DormitoryApplicationSetting dormitoryApplicationSetting, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
         this.id = id;
         this.user = user;
         this.dormitoryTerm = dormitoryTerm;
+        this.dormitoryApplicationSetting = dormitoryApplicationSetting;
         this.copy = copy;
         this.prioritySelectionCopy = prioritySelectionCopy;
         this.isSmoking = isSmoking;

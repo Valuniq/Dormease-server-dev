@@ -1,13 +1,15 @@
 package dormease.dormeasedev.domain.dormitory_application.controller;
 
 import dormease.dormeasedev.domain.dormitory_application.dto.request.DormitoryApplicationReq;
+import dormease.dormeasedev.domain.dormitory_application.dto.response.DormitoryApplicationDetailRes;
+import dormease.dormeasedev.domain.dormitory_application.dto.response.DormitoryApplicationSimpleRes;
 import dormease.dormeasedev.domain.dormitory_application.service.DormitoryApplicationService;
-import dormease.dormeasedev.domain.dormitory_application_setting.dto.request.CreateDormitoryApplicationSettingReq;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -41,19 +43,58 @@ public class DormitoryApplicationController {
         return dormitoryApplicationService.dormitoryApplication(customUserDetails, dormitoryApplicationReq);
     }
 
-    // Description : 이동 합격 수락 / or 수락 + 거절
-
-
     // Description : 입사 신청 내역 조회 (여기서 내역은 history보단 이번에 신청한 내역을 말하는 것)
-//    @Operation(summary = "입사 신청 내역 조회", description = "입사 신청 내역을 조회합니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "입사 신청 내역 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = .class))}),
-//            @ApiResponse(responseCode = "400", description = "입사 신청 내역 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-//    })
-//    @GetMapping
-//    public ResponseEntity<?> findMyDormitoryApplication(
-//            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
-//    ) {
-//        return dormitoryApplicationService.findMyDormitoryApplication(customUserDetails);
-//    }
+    @Operation(summary = "입사 신청 내역 조회", description = "입사 신청 내역을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "입사 신청 내역 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryApplicationDetailRes.class))}),
+            @ApiResponse(responseCode = "400", description = "입사 신청 내역 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping
+    public ResponseEntity<?> findMyDormitoryApplication(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return dormitoryApplicationService.findMyDormitoryApplication(customUserDetails);
+    }
+
+    // Description : 이전 입사 신청 내역 목록 조회 (여기서 내역은 history. 이번 입사 신청 내역 제외)
+    @Operation(summary = "이전 입사 신청 내역 목록 조회", description = "이전 입사 신청 내역 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이전 입사 신청 내역 목록 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryApplicationSimpleRes.class)))}),
+            @ApiResponse(responseCode = "400", description = "이전 입사 신청 내역 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/history")
+    public ResponseEntity<?> findMyDormitoryApplicationHistory(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return dormitoryApplicationService.findMyDormitoryApplicationHistory(customUserDetails);
+    }
+
+
+    // Description : 이동 합격 수락
+    @Operation(summary = "이동 합격 수락", description = "이동 합격을 수락합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이동 합격 수락 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "이동 합격 수락 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PatchMapping("/accept")
+    public ResponseEntity<?> acceptMovePass(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return dormitoryApplicationService.acceptMovePass(customUserDetails);
+    }
+
+    // Description : 이동 합격 거절
+    @Operation(summary = "이동 합격 거절", description = "이동 합격을 거절합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이동 합격 거절 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "이동 합격 거절 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PatchMapping("/reject")
+    public ResponseEntity<?> rejectMovePass(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return dormitoryApplicationService.rejectMovePass(customUserDetails);
+    }
+
+
 }
