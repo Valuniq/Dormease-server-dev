@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ResidentRepository extends JpaRepository<Resident, Long> {
@@ -29,5 +30,7 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
             "WHERE (r.user.school = :school AND r.user.name LIKE %:keyword%) " +
             "   OR (r.user.school = :school AND r.user.studentNumber LIKE %:keyword%)")
     Page<Resident> searchResidentsByKeyword(School school, String keyword, Pageable pageable);
+
+    Optional<Resident> findByUser(User user);
 
 }

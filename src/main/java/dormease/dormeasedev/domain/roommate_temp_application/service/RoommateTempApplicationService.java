@@ -1,5 +1,7 @@
 package dormease.dormeasedev.domain.roommate_temp_application.service;
 
+import dormease.dormeasedev.domain.resident.domain.Resident;
+import dormease.dormeasedev.domain.resident.service.ResidentService;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.repository.RoommateTempApplicationRepository;
 import dormease.dormeasedev.domain.user.domain.User;
@@ -23,11 +25,13 @@ public class RoommateTempApplicationService {
     private final RoommateTempApplicationRepository roommateTempApplicationRepository;
 
     private final UserService userService;
+    private final ResidentService residentService;
 
     @Transactional
     public ResponseEntity<?> createRoommateTempApplication(CustomUserDetails customUserDetails) {
 
         User user = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentByUser(user);
 
         String code;
         Optional<RoommateTempApplication> findRoommateTempApplication;
@@ -39,7 +43,7 @@ public class RoommateTempApplicationService {
         RoommateTempApplication roommateTempApplication = RoommateTempApplication.builder()
                 .code(code)
                 .isApplied(false)
-                .roommateMasterId(user.getId())
+                .roommateMasterId(resident.getId())
                 .build();
 
         roommateTempApplicationRepository.save(roommateTempApplication);
@@ -52,6 +56,14 @@ public class RoommateTempApplicationService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @Transactional
+    public ResponseEntity<?> deleteRoommateTempApplication(CustomUserDetails customUserDetails) {
+
+        User user = userService.validateUserById(customUserDetails.getId());
+    }
+
+
+    // Description : 코드 생성 함수 (00000000 ~ 99999999) (8자리)
     public String generateCode() {
 
         SecureRandom random = new SecureRandom();
