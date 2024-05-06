@@ -2,7 +2,6 @@ package dormease.dormeasedev.domain.roommate_temp_application.service;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
-import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_application.service.DormitoryApplicationService;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
@@ -64,7 +63,7 @@ public class RoommateTempApplicationService {
 
         roommateTempApplicationRepository.save(roommateTempApplication);
 
-        resident.changeRoommateTempApplication(roommateTempApplication);
+        resident.addRoommateTempApplication(roommateTempApplication);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -96,7 +95,7 @@ public class RoommateTempApplicationService {
     }
 
 
-    // Description : 룸메이트 신청 - Roommate Application으로 가는게..?
+    // Description : 룸메이트 신청
     public ResponseEntity<?> applyRoommateTempApplication(CustomUserDetails customUserDetails) {
 
         User user = userService.validateUserById(customUserDetails.getId());
@@ -148,11 +147,29 @@ public class RoommateTempApplicationService {
         DefaultAssert.isTrue(!myDormitory.equals(dormitory), "신청한 기숙사가 해당 그룹의 방장의 신청 기숙사와 일치하지 않습니다.");
         DefaultAssert.isTrue(roommateTempApplication.getResidents().size() >= roomSize, "인원이 가득 찬 그룹입니다.");
 
-        resident.changeRoommateTempApplication(roommateTempApplication);
+        resident.addRoommateTempApplication(roommateTempApplication);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(Message.builder().message("코드 입력(그룹 참가)이 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 그룹 나가기
+    public ResponseEntity<?> outOfRoommateTempApplication(CustomUserDetails customUserDetails, String code) {
+
+        // 본인
+        User user = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentByUser(user);
+
+        RoommateTempApplication roommateTempApplication = validateRoommateTempApplicationByResident(resident);
+        resident.removeRoommateTempApplication(roommateTempApplication);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("그룹 나가기가 완료되었습니다.").build())
                 .build();
 
         return ResponseEntity.ok(apiResponse);
@@ -185,4 +202,5 @@ public class RoommateTempApplicationService {
         DefaultAssert.isTrue(findRoommateTempApplication.isPresent(), "해당 코드의 그룹이 존재하지 않습니다.");
         return  findRoommateTempApplication.get();
     }
+
 }

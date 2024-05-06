@@ -1,8 +1,6 @@
 package dormease.dormeasedev.domain.resident.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
-import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
-import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.roommate_application.domain.RoommateApplication;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
@@ -77,9 +75,14 @@ public class Resident extends BaseEntity {
         this.roommateTempApplication = roommateTempApplication;
     }
 
-    public void changeRoommateTempApplication(RoommateTempApplication roommateTempApplication) {
+    public void addRoommateTempApplication(RoommateTempApplication roommateTempApplication) {
         this.roommateTempApplication = roommateTempApplication;
         roommateTempApplication.getResidents().add(this);
+    }
+
+    public void removeRoommateTempApplication(RoommateTempApplication roommateTempApplication) {
+        this.roommateTempApplication = null;
+        roommateTempApplication.getResidents().remove(this);
     }
 
     public void updateRoommateApplication(RoommateApplication roommateApplication) {
