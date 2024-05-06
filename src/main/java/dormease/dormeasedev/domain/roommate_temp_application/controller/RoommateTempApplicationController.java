@@ -84,10 +84,9 @@ public class RoommateTempApplicationController {
             @ApiResponse(responseCode = "200", description = "그룹 나가기 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "그룹 나가기 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PatchMapping("/out/{code}")
+    @PatchMapping("/out")
     public ResponseEntity<?> outOfRoommateTempApplication(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "참가할 그룹의 코드를 입력해주세요.", required = true) @PathVariable(value = "code") String code
     ) {
         return roommateTempApplicationService.outOfRoommateTempApplication(customUserDetails, code);
     }

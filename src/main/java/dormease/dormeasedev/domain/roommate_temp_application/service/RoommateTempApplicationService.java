@@ -158,7 +158,7 @@ public class RoommateTempApplicationService {
     }
 
     // Description : 그룹 나가기
-    public ResponseEntity<?> outOfRoommateTempApplication(CustomUserDetails customUserDetails, String code) {
+    public ResponseEntity<?> outOfRoommateTempApplication(CustomUserDetails customUserDetails) {
 
         // 본인
         User user = userService.validateUserById(customUserDetails.getId());
