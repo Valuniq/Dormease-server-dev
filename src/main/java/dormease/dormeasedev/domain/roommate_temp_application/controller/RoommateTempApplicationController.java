@@ -86,9 +86,9 @@ public class RoommateTempApplicationController {
     })
     @PatchMapping("/out")
     public ResponseEntity<?> outOfRoommateTempApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        return roommateTempApplicationService.outOfRoommateTempApplication(customUserDetails, code);
+        return roommateTempApplicationService.outOfRoommateTempApplication(customUserDetails);
     }
 
 

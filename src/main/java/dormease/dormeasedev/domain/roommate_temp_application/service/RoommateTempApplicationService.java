@@ -96,6 +96,7 @@ public class RoommateTempApplicationService {
 
 
     // Description : 룸메이트 신청
+    @Transactional
     public ResponseEntity<?> applyRoommateTempApplication(CustomUserDetails customUserDetails) {
 
         User user = userService.validateUserById(customUserDetails.getId());
@@ -124,6 +125,7 @@ public class RoommateTempApplicationService {
     }
 
     // Description : 코드 입력 후 신청하기 버튼 (그룹 참가)
+    @Transactional
     public ResponseEntity<?> joinRoommateTempApplication(CustomUserDetails customUserDetails, String code) {
 
         // 본인
@@ -158,6 +160,7 @@ public class RoommateTempApplicationService {
     }
 
     // Description : 그룹 나가기
+    @Transactional
     public ResponseEntity<?> outOfRoommateTempApplication(CustomUserDetails customUserDetails) {
 
         // 본인
