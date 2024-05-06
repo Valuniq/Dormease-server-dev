@@ -12,6 +12,7 @@ import dormease.dormeasedev.domain.roommate_application.domain.RoommateApplicati
 import dormease.dormeasedev.domain.roommate_application.domain.repository.RoommateApplicationRepository;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.repository.RoommateTempApplicationRepository;
+import dormease.dormeasedev.domain.roommate_temp_application.dto.response.ExistRoommateTempApplicationRes;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
@@ -39,6 +40,32 @@ public class RoommateTempApplicationService {
     private final ResidentService residentService;
     private final DormitoryApplicationService dormitoryApplicationService;
 
+    /**
+     * TODO
+     *  룸메이트 신청 기간 확인 (신청 기간이 아닌 경우) - PeriodService
+     *  이미 신청한 경우 (대표자 / 룸메이트) - 흠..
+     */
+
+    // Description : 룸메이트 임시 신청 여부 조회
+    public ResponseEntity<?> existRoommateTempApplication(CustomUserDetails customUserDetails) {
+
+        User user = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentByUser(user);
+        
+        Boolean existRoommateTempApplication = resident.getRoommateTempApplication() != null; // null이 아니면 존재함
+
+        ExistRoommateTempApplicationRes existRoommateTempApplicationRes = ExistRoommateTempApplicationRes.builder()
+                .existRoommateTempApplication(existRoommateTempApplication)
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(existRoommateTempApplicationRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
     // Description : 룸메이트 임시 신청 생성
     @Transactional
     public ResponseEntity<?> createRoommateTempApplication(CustomUserDetails customUserDetails) {
@@ -46,7 +73,8 @@ public class RoommateTempApplicationService {
         User user = userService.validateUserById(customUserDetails.getId());
         Resident resident = residentService.validateResidentByUser(user);
 
-        DefaultAssert.isTrue(!roommateTempApplicationRepository.existsByRoommateMasterId(resident.getId()), "해당 사생의 그룹이 이미 존재합니다.");
+//        DefaultAssert.isTrue(!roommateTempApplicationRepository.existsByRoommateMasterId(resident.getId()), "이미 그룹을 생성하였습니다.");
+        DefaultAssert.isTrue(resident.getRoommateApplication() == null, "이미 소속된 그룹이 존재합니다.");
 
         String code;
         Optional<RoommateTempApplication> findRoommateTempApplication;
@@ -72,6 +100,7 @@ public class RoommateTempApplicationService {
 
         return ResponseEntity.ok(apiResponse);
     }
+
 
     // Description : 룸메이트 임시 신청 삭제
     @Transactional
@@ -131,10 +160,12 @@ public class RoommateTempApplicationService {
         // 본인
         User user = userService.validateUserById(customUserDetails.getId());
         Resident resident = residentService.validateResidentByUser(user);
+
+        DefaultAssert.isTrue(resident.getRoommateApplication() == null, "이미 소속된 그룹이 존재합니다.");
+
         DormitoryApplication myDormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
         DormitoryTerm myDormitoryTerm = myDormitoryApplication.getDormitoryTerm();
         Dormitory myDormitory = myDormitoryTerm.getDormitory();
-        Integer myRoomSize = myDormitory.getRoomSize();
 
         RoommateTempApplication roommateTempApplication = validateRoommateTempApplicationByCode(code);
         // 방장
@@ -205,5 +236,6 @@ public class RoommateTempApplicationService {
         DefaultAssert.isTrue(findRoommateTempApplication.isPresent(), "해당 코드의 그룹이 존재하지 않습니다.");
         return  findRoommateTempApplication.get();
     }
+
 
 }

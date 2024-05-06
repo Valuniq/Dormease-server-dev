@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.roommate_temp_application.controller;
 
+import dormease.dormeasedev.domain.roommate_temp_application.dto.response.ExistRoommateTempApplicationRes;
 import dormease.dormeasedev.domain.roommate_temp_application.service.RoommateTempApplicationService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
@@ -23,6 +24,19 @@ import org.springframework.web.bind.annotation.*;
 public class RoommateTempApplicationController {
 
     private final RoommateTempApplicationService roommateTempApplicationService;
+
+    // Description : 룸메이트 임시 신청 여부 조회
+    @Operation(summary = "룸메이트 임시 신청 여부 조회", description = "룸메이트 임시 신청 여부를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "룸메이트 임시 신청 여부 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExistRoommateTempApplicationRes.class))}),
+            @ApiResponse(responseCode = "400", description = "룸메이트 임시 신청 여부 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping
+    public ResponseEntity<?> existRoommateTempApplication(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return roommateTempApplicationService.existRoommateTempApplication(customUserDetails);
+    }
 
     // Description : 그룹 생성 (코드 발급) (방장 o)
     @Operation(summary = "그룹 생성 (코드 발급)", description = "룸메이트 그룹을 생성합니다. (코드 발급)")
