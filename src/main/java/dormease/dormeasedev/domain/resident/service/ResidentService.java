@@ -20,8 +20,14 @@ public class ResidentService {
 
     // Description : 유효성 검증 함수
     public Resident validateResidentByUser(User user) {
-        Optional<Resident> findUser = residentRepository.findByUser(user);
-        DefaultAssert.isTrue(findUser.isPresent(), "해당 유저는 사생이 아닙니다.");
-        return findUser.get();
+        Optional<Resident> findResident = residentRepository.findByUser(user);
+        DefaultAssert.isTrue(findResident.isPresent(), "해당 유저는 사생이 아닙니다.");
+        return findResident.get();
+    }
+
+    public Resident validateResidentById(Long residentId) {
+        Optional<Resident> findResident = residentRepository.findById(residentId);
+        DefaultAssert.isTrue(findResident.isPresent(), "해당 아이디의 사생이 존재하지 않습니다.");
+        return findResident.get();
     }
 }

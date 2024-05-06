@@ -1,5 +1,11 @@
 package dormease.dormeasedev.domain.roommate_temp_application.service;
 
+import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
+import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
+import dormease.dormeasedev.domain.dormitory_application.service.DormitoryApplicationService;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
 import dormease.dormeasedev.domain.roommate_application.domain.RoommateApplication;
@@ -32,6 +38,7 @@ public class RoommateTempApplicationService {
 
     private final UserService userService;
     private final ResidentService residentService;
+    private final DormitoryApplicationService dormitoryApplicationService;
 
     // Description : 룸메이트 임시 신청 생성
     @Transactional
@@ -57,7 +64,7 @@ public class RoommateTempApplicationService {
 
         roommateTempApplicationRepository.save(roommateTempApplication);
 
-        resident.updateRoommateTempApplication(roommateTempApplication);
+        resident.changeRoommateTempApplication(roommateTempApplication);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -117,9 +124,43 @@ public class RoommateTempApplicationService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // Description : 코드 입력 후 신청하기 버튼 (그룹 참가)
+    public ResponseEntity<?> joinRoommateTempApplication(CustomUserDetails customUserDetails, String code) {
+
+        // 본인
+        User user = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentByUser(user);
+        DormitoryApplication myDormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        DormitoryTerm myDormitoryTerm = myDormitoryApplication.getDormitoryTerm();
+        Dormitory myDormitory = myDormitoryTerm.getDormitory();
+        Integer myRoomSize = myDormitory.getRoomSize();
+
+        RoommateTempApplication roommateTempApplication = validateRoommateTempApplicationByCode(code);
+        // 방장
+        Long roommateMasterId = roommateTempApplication.getRoommateMasterId();
+        Resident roommateMasterResident = residentService.validateResidentById(roommateMasterId);
+        User roommateMasterUser = roommateMasterResident.getUser();
+        DormitoryApplication dormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(roommateMasterUser, ApplicationStatus.NOW);
+        DormitoryTerm dormitoryTerm = dormitoryApplication.getDormitoryTerm();
+        Dormitory dormitory = dormitoryTerm.getDormitory();
+        Integer roomSize = dormitory.getRoomSize();
+
+        DefaultAssert.isTrue(!myDormitory.equals(dormitory), "신청한 기숙사가 해당 그룹의 방장의 신청 기숙사와 일치하지 않습니다.");
+        DefaultAssert.isTrue(roommateTempApplication.getResidents().size() >= roomSize, "인원이 가득 찬 그룹입니다.");
+
+        resident.changeRoommateTempApplication(roommateTempApplication);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("코드 입력(그룹 참가)이 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
 
     // Description : 코드 생성 함수 (00000000 ~ 99999999) (8자리)
-    public String generateCode() {
+    private String generateCode() {
 
         SecureRandom random = new SecureRandom();
         // nextInt(int bound) : 0(포함)부터 입력된 bound(미포함) 사이의 랜덤 정수를 반환
@@ -133,9 +174,15 @@ public class RoommateTempApplicationService {
     }
     
     // Description : 유효성 검증 함수
-    private RoommateTempApplication validateRoommateTempApplicationByResident(Resident resident) {
+    public RoommateTempApplication validateRoommateTempApplicationByResident(Resident resident) {
         Optional<RoommateTempApplication> findRoommateTempApplication = roommateTempApplicationRepository.findByRoommateMasterId(resident.getId());
-        DefaultAssert.isTrue(findRoommateTempApplication.isPresent(), "그룹이 존재하지 않습니다.");
+        DefaultAssert.isTrue(findRoommateTempApplication.isPresent(), "본인이 생성한 그룹이 존재하지 않습니다.");
+        return  findRoommateTempApplication.get();
+    }
+
+    public RoommateTempApplication validateRoommateTempApplicationByCode(String code) {
+        Optional<RoommateTempApplication> findRoommateTempApplication = roommateTempApplicationRepository.findByCode(code);
+        DefaultAssert.isTrue(findRoommateTempApplication.isPresent(), "해당 코드의 그룹이 존재하지 않습니다.");
         return  findRoommateTempApplication.get();
     }
 }

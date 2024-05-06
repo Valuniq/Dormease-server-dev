@@ -63,9 +63,25 @@ public class RoommateTempApplicationController {
         return roommateTempApplicationService.applyRoommateTempApplication(customUserDetails);
     }
 
+    // ---------------- 팀원 ----------------
+    // Description : 코드 입력 (방장 x) : 코드 입력 후 신청하기 버튼 (그룹 참가)
+    @Operation(summary = "코드 입력 (그룹 참가)", description = "코드를 입력합니다. (그룹 참가)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "코드 입력 (그룹 참가) 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "코드 입력 (그룹 참가) 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PatchMapping("/{code}")
+    public ResponseEntity<?> joinRoommateTempApplication(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "참가할 그룹의 코드를 입력해주세요.", required = true) @PathVariable(value = "code") String code
+    ) {
+        return roommateTempApplicationService.joinRoommateTempApplication(customUserDetails, code);
+    }
 
-    // Description : 코드 입력 (방장 x)
 
     // Description : 그룹 나가기 (방장 x)
 
+
+    // TODO '코드 입력' 누를 시 그룹에 참여한 상태인지 확인 필요
+    //  따라서 참여한 상태이면 그룹 인원 조회도 필요
 }

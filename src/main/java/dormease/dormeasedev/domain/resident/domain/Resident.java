@@ -77,6 +77,11 @@ public class Resident extends BaseEntity {
         this.roommateTempApplication = roommateTempApplication;
     }
 
+    public void changeRoommateTempApplication(RoommateTempApplication roommateTempApplication) {
+        this.roommateTempApplication = roommateTempApplication;
+        roommateTempApplication.getResidents().add(this);
+    }
+
     public void updateRoommateApplication(RoommateApplication roommateApplication) {
         this.roommateApplication = roommateApplication;
     }
