@@ -129,36 +129,6 @@ public class RoommateTempApplicationService {
         return ResponseEntity.ok(apiResponse);
     }
 
-
-    // Description : 룸메이트 신청
-    @Transactional
-    public ResponseEntity<?> applyRoommateTempApplication(CustomUserDetails customUserDetails) {
-
-        User user = userService.validateUserById(customUserDetails.getId());
-        Resident resident = residentService.validateResidentByUser(user);
-
-        RoommateTempApplication roommateTempApplication = validateRoommateTempApplicationByResident(resident);
-        roommateTempApplication.updateIsApplied();
-
-        // 룸메이트 신청 생성
-        RoommateApplication roommateApplication = RoommateApplication.builder()
-                .roommateApplicationResult(RoommateApplicationResult.WAITING)
-                .build();
-
-        roommateApplicationRepository.save(roommateApplication);
-
-        List<Resident> residents = roommateTempApplication.getResidents();
-        for (Resident residentIn : residents)
-            residentIn.updateRoommateApplication(roommateApplication);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("룸메이트 신청이 완료되었습니다.").build())
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
-    }
-
     // Description : 코드 입력 후 신청하기 버튼 (그룹 참가)
     @Transactional
     public ResponseEntity<?> joinRoommateTempApplication(CustomUserDetails customUserDetails, String code) {

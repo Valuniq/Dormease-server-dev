@@ -67,19 +67,6 @@ public class RoommateTempApplicationController {
         return roommateTempApplicationService.deleteRoommateTempApplication(customUserDetails);
     }
 
-    // Description : 룸메이트 신청 (방장 o)
-    @Operation(summary = "룸메이트 신청", description = "룸메이트 신청을 진행합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "룸메이트 신청 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "룸메이트 신청 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-    })
-    @PatchMapping
-    public ResponseEntity<?> applyRoommateTempApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
-    ) {
-        return roommateTempApplicationService.applyRoommateTempApplication(customUserDetails);
-    }
-
     // ---------------- 팀원 ----------------
     // Description : 코드 입력 (방장 x) : 코드 입력 후 신청하기 버튼 (그룹 참가)
     @Operation(summary = "코드 입력 (그룹 참가)", description = "코드를 입력합니다. (그룹 참가)")
