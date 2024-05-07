@@ -6,8 +6,10 @@ import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.AssignedResidentToRoomReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.ResidentIdReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.*;
-import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
-import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
+import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
+import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
+import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.room.domain.Room;
@@ -37,7 +39,8 @@ public class DormitoryManagementService {
     private final DormitoryRepository dormitoryRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
-    private final DormitorySettingTermRepository dormitorySettingTermRepository;
+    private final DormitoryTermRepository dormitoryTermRepository;
+    private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final ResidentRepository residentRepository;
 
     // 건물, 층별 호실 목록 조회
@@ -191,24 +194,25 @@ public class DormitoryManagementService {
     // 배정된 호실이 없는 사생 목록 조회
     public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
         Room room = validRoomById(roomId);
-
         List<Resident> notAssignedResidents = new ArrayList<>();
+        // 기숙사 - 거주 기간 - 입사 신청 - 회원 - 사생
+        List<DormitoryTerm> dormitoryTerms = dormitoryTermRepository.findByDormitory(room.getDormitory());
 
-        List<DormitorySettingTerm> dormitorySettingTerms = dormitorySettingTermRepository.findByDormitory(room.getDormitory());
-        DefaultAssert.isTrue(!dormitorySettingTerms.isEmpty(), "설정된 입사신청내역이 없습니다."); // 오류 메세지
-
-        for (DormitorySettingTerm dormitorySettingTerm : dormitorySettingTerms) {
-            // 미배정된 사생만 저장
-//            List<Resident> residents = residentRepository.findByDormitorySettingTermAndRoom(dormitorySettingTerm, null);
-//            for (Resident resident : residents) {
-                // findByDormtory할 때 성별에 따라 따로 불러와지는 것으로 보이나, 예외사항에 대비해 추가
-//                if (resident.getUser().getGender() == room.getGender()) {
-//                    notAssignedResidents.add(resident);
-//                }
-//            }
+        Set<User> users = new HashSet<>();
+        for (DormitoryTerm term : dormitoryTerms) {
+            List<DormitoryApplication> findDormitoryApplications = dormitoryApplicationRepository.findByDormitoryTerm(term);
+            for (DormitoryApplication application : findDormitoryApplications) {
+                users.add(application.getUser());
+            }
+        }
+        for (User user : users) {
+            Resident resident = residentRepository.findByUserAndRoom(user, null);
+            if (resident != null) {
+                notAssignedResidents.add(resident);
+            }
         }
 
-        List<NotOrAssignedResidentsRes> notOrAssignedResidentsResList = notAssignedResidents.stream()
+       List<NotOrAssignedResidentsRes> notOrAssignedResidentsResList = notAssignedResidents.stream()
                 .map(resident -> NotOrAssignedResidentsRes.builder()
                         .id(resident.getId())
                         .studentNumber(resident.getUser().getStudentNumber())
