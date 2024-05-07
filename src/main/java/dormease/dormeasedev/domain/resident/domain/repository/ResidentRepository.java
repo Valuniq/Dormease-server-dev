@@ -4,6 +4,7 @@ import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.room.domain.Room;
+import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.UserType;
@@ -33,4 +34,5 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
 
     Optional<Resident> findByUser(User user);
 
+    List<Resident> findByRoommateRempApplication(RoommateTempApplication roommateTempApplication);
 }

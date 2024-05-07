@@ -1,12 +1,15 @@
 package dormease.dormeasedev.domain.roommate_temp_application.controller;
 
+import dormease.dormeasedev.domain.point.dto.response.ResidentInfoRes;
 import dormease.dormeasedev.domain.roommate_temp_application.dto.response.ExistRoommateTempApplicationRes;
+import dormease.dormeasedev.domain.roommate_temp_application.dto.response.RoommateTempApplicationMemberRes;
 import dormease.dormeasedev.domain.roommate_temp_application.service.RoommateTempApplicationService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,13 +28,13 @@ public class RoommateTempApplicationController {
 
     private final RoommateTempApplicationService roommateTempApplicationService;
 
-    // Description : 룸메이트 임시 신청 여부 조회
-    @Operation(summary = "룸메이트 임시 신청 여부 조회", description = "룸메이트 임시 신청 여부를 조회합니다.")
+    // Description : 룸메이트 임시 신청 여부 + 방장 여부 조회
+    @Operation(summary = "룸메이트 임시 신청 여부 + 방장 여부 조회", description = "룸메이트 임시 신청 여부 + 방장 여부를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "룸메이트 임시 신청 여부 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExistRoommateTempApplicationRes.class))}),
-            @ApiResponse(responseCode = "400", description = "룸메이트 임시 신청 여부 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "200", description = "룸메이트 임시 신청 여부 + 방장 여부 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExistRoommateTempApplicationRes.class))}),
+            @ApiResponse(responseCode = "400", description = "룸메이트 임시 신청 여부 + 방장 여부 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping
+    @GetMapping("/existAndMaster")
     public ResponseEntity<?> existRoommateTempApplication(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
@@ -105,7 +108,17 @@ public class RoommateTempApplicationController {
         return roommateTempApplicationService.outOfRoommateTempApplication(customUserDetails);
     }
 
+    // Description : 그룹원 조회
+    @Operation(summary = "그룹원 조회", description = "그룹원을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "그룹원 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoommateTempApplicationMemberRes.class)))}),
+            @ApiResponse(responseCode = "400", description = "그룹원 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/existAndMaster")
+    public ResponseEntity<?> findRoommateTempApplicationMembers(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return roommateTempApplicationService.findRoommateTempApplicationMembers(customUserDetails);
+    }
 
-    // TODO '코드 입력' 누를 시 그룹에 참여한 상태인지 확인 필요
-    //  따라서 참여한 상태이면 그룹 인원 조회도 필요
 }
