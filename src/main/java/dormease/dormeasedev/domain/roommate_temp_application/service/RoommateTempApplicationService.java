@@ -8,8 +8,6 @@ import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
-import dormease.dormeasedev.domain.roommate_application.domain.RoommateApplication;
-import dormease.dormeasedev.domain.roommate_application.domain.RoommateApplicationResult;
 import dormease.dormeasedev.domain.roommate_application.domain.repository.RoommateApplicationRepository;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.repository.RoommateTempApplicationRepository;
@@ -153,8 +151,8 @@ public class RoommateTempApplicationService {
         Dormitory dormitory = dormitoryTerm.getDormitory();
         Integer roomSize = dormitory.getRoomSize();
 
-        DefaultAssert.isTrue(!myDormitory.equals(dormitory), "신청한 기숙사가 해당 그룹의 방장의 신청 기숙사와 일치하지 않습니다.");
-        DefaultAssert.isTrue(roommateTempApplication.getResidents().size() >= roomSize, "인원이 가득 찬 그룹입니다.");
+        DefaultAssert.isTrue(myDormitory.equals(dormitory), "신청한 기숙사가 해당 그룹의 방장의 신청 기숙사와 일치하지 않습니다.");
+        DefaultAssert.isTrue(!(roommateTempApplication.getResidents().size() >= roomSize), "인원이 가득 찬 그룹입니다.");
 
         resident.addRoommateTempApplication(roommateTempApplication);
 
@@ -192,8 +190,9 @@ public class RoommateTempApplicationService {
         Resident resident = residentService.validateResidentByUser(user);
 
         RoommateTempApplication roommateTempApplication = resident.getRoommateTempApplication();
+        DefaultAssert.isTrue(roommateTempApplication != null, "룸메이트 그룹에 참가하지 않았습니다.");
 
-        List<Resident> residentList = residentRepository.findByRoommateRempApplication(roommateTempApplication);
+        List<Resident> residentList = residentRepository.findByRoommateTempApplication(roommateTempApplication);
         List<RoommateTempApplicationMemberRes> roommateTempApplicationMemberResList = new ArrayList<>();
         for (Resident member : residentList) {
             User memberUser = member.getUser();

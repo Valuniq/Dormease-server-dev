@@ -27,7 +27,7 @@ public class DormitoryApplication extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dormiroty_term_id")
     private DormitoryTerm dormitoryTerm;
 

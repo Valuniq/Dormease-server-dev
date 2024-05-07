@@ -38,6 +38,10 @@ public class RoommateTempApplication extends BaseEntity {
         this.isApplied = true;
     }
 
+    public void updateResidents() {
+        this.residents = new ArrayList<>();
+    }
+
     @Builder
     public RoommateTempApplication(Long id, String code, Boolean isApplied, Long roommateMasterId, List<Resident> residents) {
         this.id = id;

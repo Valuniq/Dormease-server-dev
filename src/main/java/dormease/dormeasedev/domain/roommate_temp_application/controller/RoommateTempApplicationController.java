@@ -29,7 +29,7 @@ public class RoommateTempApplicationController {
     private final RoommateTempApplicationService roommateTempApplicationService;
 
     // Description : 룸메이트 임시 신청 여부 + 방장 여부 조회
-    @Operation(summary = "룸메이트 임시 신청 여부 + 방장 여부 조회", description = "룸메이트 임시 신청 여부 + 방장 여부를 조회합니다.")
+    @Operation(summary = "룸메이트 임시 신청(그룹 생성) 여부 + 방장 여부 조회", description = "룸메이트 임시 신청 여부 + 방장 여부를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "룸메이트 임시 신청 여부 + 방장 여부 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExistRoommateTempApplicationRes.class))}),
             @ApiResponse(responseCode = "400", description = "룸메이트 임시 신청 여부 + 방장 여부 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -101,7 +101,7 @@ public class RoommateTempApplicationController {
             @ApiResponse(responseCode = "200", description = "그룹원 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoommateTempApplicationMemberRes.class)))}),
             @ApiResponse(responseCode = "400", description = "그룹원 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("/existAndMaster")
+    @GetMapping("/members")
     public ResponseEntity<?> findRoommateTempApplicationMembers(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
