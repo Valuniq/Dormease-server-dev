@@ -76,6 +76,12 @@ public class DormitoryApplicationSettingService {
                 .endDate(createDormitoryApplicationSettingReq.getEndDate())
                 .periodType(PeriodType.DEPOSIT)
                 .build();
+
+        Optional<Period> findPeriod = periodRepository.findBySchoolAndPeriodType(school, PeriodType.DEPOSIT);
+        if (findPeriod.isPresent()) {
+            Period existPeriod = findPeriod.get();
+            periodRepository.delete(existPeriod);
+        }
         periodRepository.save(period);
 
         // 입사 신청 설정 save
