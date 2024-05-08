@@ -142,6 +142,7 @@ public class RoommateTempApplicationService {
         Dormitory myDormitory = myDormitoryTerm.getDormitory();
 
         RoommateTempApplication roommateTempApplication = validateRoommateTempApplicationByCode(code);
+        DefaultAssert.isTrue(!roommateTempApplication.getIsApplied(), "이미 신청이 확정된 그룹입니다.");
         // 방장
         Long roommateMasterId = roommateTempApplication.getRoommateMasterId();
         Resident roommateMasterResident = residentService.validateResidentById(roommateMasterId);
@@ -216,7 +217,7 @@ public class RoommateTempApplicationService {
     }
 
 
-    // Description : 코드 생성 함수 (00000000 ~ 99999999) (8자리)
+    // Description : 코드 생성 함수 (00000000 ~ zzzzzzzz) (8자리)
     private String generateCode() {
 
         SecureRandom random = new SecureRandom();
