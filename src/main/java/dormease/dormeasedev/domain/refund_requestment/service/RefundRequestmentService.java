@@ -60,6 +60,7 @@ public class RefundRequestmentService {
 
             RefundRequestmentRes refundRequestmentRes = RefundRequestmentRes.builder()
                     .refundRequestmentId(refundRequestment.getId())
+                    .residentName(user.getName())
                     .studentNumber(user.getStudentNumber())
                     .phoneNumber(user.getPhoneNumber())
                     .bankName(resident.getBankName())
