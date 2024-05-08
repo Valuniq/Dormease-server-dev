@@ -1,9 +1,16 @@
 package dormease.dormeasedev.domain.refund_requestment.service;
 
+import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
+import dormease.dormeasedev.domain.dormitory_application.service.DormitoryApplicationService;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.refund_requestment.domain.RefundRequestment;
 import dormease.dormeasedev.domain.refund_requestment.domain.respository.RefundRequestmentRepository;
+import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
+import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
@@ -16,6 +23,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -27,14 +38,49 @@ public class RefundRequestmentService {
 
     private final UserService userService;
     private final ResidentService residentService;
+    private final DormitoryApplicationService dormitoryApplicationService;
 
     // Description : 환불 신청 사생 목록 조회
     public ResponseEntity<?> findResidents(CustomUserDetails customUserDetails) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
-        School school = user.getSchool();
+        User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
 
-        // TODO : 학교 - 룸메이트신청, 룸메이트임시신청, 요청사항, 환불신청, 퇴사신청 연결 필요할듯?
+        List<RefundRequestment> refundRequestmentList = refundRequestmentRepository.findAllBySchool(school);
+        List<RefundRequestmentRes> refundRequestmentResList = new ArrayList<>();
+        for (RefundRequestment refundRequestment : refundRequestmentList) {
+            // TODO : 사생 이름, 학번, 휴대전화, 은행명, 계좌번호, (거주)기간, 퇴사 예정일, 신청날짜, 건물(호실 포함), 호실, 침대번호
+            Resident resident = refundRequestment.getResident();
+            User user = resident.getUser();
+            Room room = resident.getRoom();
+
+            DormitoryApplication dormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+            DormitoryTerm dormitoryTerm = dormitoryApplication.getDormitoryTerm();
+            Dormitory dormitory = dormitoryTerm.getDormitory();
+
+            RefundRequestmentRes refundRequestmentRes = RefundRequestmentRes.builder()
+                    .refundRequestmentId(refundRequestment.getId())
+                    .studentNumber(user.getStudentNumber())
+                    .phoneNumber(user.getPhoneNumber())
+                    .bankName(resident.getBankName())
+                    .accountNumber(resident.getAccountNumber())
+                    .term(dormitoryTerm.getTerm())
+                    .exitDate(refundRequestment.getExitDate())
+                    .createDate(refundRequestment.getCreatedDate().toLocalDate())
+                    .dormitoryName(dormitory.getName())
+                    .roomSize(dormitory.getRoomSize())
+                    .roomNumber(room.getRoomNumber())
+                    .bedNumber(resident.getBedNumber())
+                    .build();
+            refundRequestmentResList.add(refundRequestmentRes);
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(refundRequestmentResList)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 
     // Description : 환불 신청한 사생 처리(삭제)

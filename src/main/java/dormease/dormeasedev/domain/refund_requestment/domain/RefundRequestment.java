@@ -23,7 +23,7 @@ public class RefundRequestment extends BaseEntity {
     @Column(name = "refund_requestment_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resident_id")
     private Resident resident;
 
