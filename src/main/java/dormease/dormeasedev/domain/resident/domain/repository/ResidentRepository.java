@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.resident.domain.repository;
 
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.room.domain.Room;
+import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ResidentRepository extends JpaRepository<Resident, Long> {
@@ -24,6 +26,10 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
             "WHERE (r.user.school = :school AND r.user.name LIKE %:keyword%) " +
             "   OR (r.user.school = :school AND r.user.studentNumber LIKE %:keyword%)")
     Page<Resident> searchResidentsByKeyword(School school, String keyword, Pageable pageable);
+
+    Optional<Resident> findByUser(User user);
+
+    List<Resident> findByRoommateTempApplication(RoommateTempApplication roommateTempApplication);
 
     Resident findByUserAndRoom(User user, Room room);
 

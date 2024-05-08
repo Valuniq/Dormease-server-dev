@@ -29,8 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -234,5 +232,13 @@ public class DormitoryApplicationService {
                 .build();
 
         return ResponseEntity.ok(apiResponse);
+    }
+
+
+    // Description : 유효성 검증 함수
+    public DormitoryApplication validateDormitoryApplicationByUserAndApplicationStatus(User user, ApplicationStatus applicationStatus) {
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, applicationStatus);
+        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "해당 회원의 현재 입사 신청이 존재하지 않습니다.");
+        return findDormitoryApplication.get();
     }
 }

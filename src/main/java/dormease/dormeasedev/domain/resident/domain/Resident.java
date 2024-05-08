@@ -1,8 +1,6 @@
 package dormease.dormeasedev.domain.resident.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
-import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
-import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.roommate_application.domain.RoommateApplication;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
@@ -71,6 +69,27 @@ public class Resident extends BaseEntity {
 
     // 열쇠 수령 여부
     private Boolean hasKey;
+
+    // update 함수
+    public void updateRoommateTempApplication(RoommateTempApplication roommateTempApplication) {
+        this.roommateTempApplication = roommateTempApplication;
+    }
+
+    public void addRoommateTempApplication(RoommateTempApplication roommateTempApplication) {
+        this.roommateTempApplication = roommateTempApplication;
+        if (roommateTempApplication.getResidents() == null)
+            roommateTempApplication.updateResidents();
+        roommateTempApplication.getResidents().add(this);
+    }
+
+    public void removeRoommateTempApplication(RoommateTempApplication roommateTempApplication) {
+        this.roommateTempApplication = null;
+        roommateTempApplication.getResidents().remove(this);
+    }
+
+    public void updateRoommateApplication(RoommateApplication roommateApplication) {
+        this.roommateApplication = roommateApplication;
+    }
 
     @Builder
     public Resident(Long id, User user, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, Integer bedNumber, Boolean isRoommateApplied, String copy, String prioritySelectionCopy, Boolean isSmoking, Boolean dormitoryPayment, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean hasKey) {
