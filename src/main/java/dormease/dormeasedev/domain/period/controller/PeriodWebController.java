@@ -31,13 +31,13 @@ public class PeriodWebController {
     // Description : 신청 기간 등록
     @Operation(summary = "신청 기간 등록", description = "신청 기간 등록. 같은 타입의 기존 신청 기간이 존재하는 경우 **삭제 후 생성합니다**.") // TODO : 아예 타입 받아서 공용으로?
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "신청 기간 검증 등록", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "신청 기간 검증 등록", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "201", description = "신청 기간 검증 등록 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "신청 기간 검증 등록 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> registerPeriod(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @RequestBody PeriodReq periodReq
+            @Parameter(description = "Schemas의 PeriodReq를 참고해주세요.", required = true) @RequestBody PeriodReq periodReq
     ) {
         return periodWebService.registerPeriod(customUserDetails, periodReq);
     }
