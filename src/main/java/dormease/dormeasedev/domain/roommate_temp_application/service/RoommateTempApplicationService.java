@@ -220,12 +220,12 @@ public class RoommateTempApplicationService {
     private String generateCode() {
 
         SecureRandom random = new SecureRandom();
-        // nextInt(int bound) : 0(포함)부터 입력된 bound(미포함) 사이의 랜덤 정수를 반환
-        int randomNumber = random.nextInt(100000000);
 
-        // 숫자를 8자리 문자열로 포맷팅
-        // %08d는 8자리의 정수 / 부족한 자리는 0으로 채워짐
-        String code = String.format("%08d", randomNumber);
+        // nextLong(long bound) : 0(포함)부터 입력된 bound(미포함) 사이의 랜덤 정수를 반환
+        long randomNumber = random.nextLong(2821109907455L + 1);
+        String code = Long.toString(randomNumber, 36);
+
+        code = String.format("%8s", code).replace(' ', '0');
 
         return code;
     }
