@@ -53,9 +53,22 @@ public class DormitorySettingDetailService {
         List<Room> rooms = generateRoomNumbers(dormitory, floor, start, end);
         DefaultAssert.isTrue(!rooms.isEmpty(), "호실 생성 중 오류가 발생했습니다.");
 
+        List<RoomSettingRes> roomSettingResList = rooms.stream()
+                .map(room -> RoomSettingRes.builder()
+                        .id(room.getId())
+                        .floor(room.getFloor())
+                        .gender(room.getGender().toString())
+                        .roomNumber(room.getRoomNumber())
+                        .roomSize(room.getRoomSize())
+                        .hasKey(room.getHasKey())
+                        .isActivated(room.getIsActivated())
+                        .build())
+                .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
+                .collect(Collectors.toList());
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("호실이 추가되었습니다.").build())
+                .information(roomSettingResList)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
