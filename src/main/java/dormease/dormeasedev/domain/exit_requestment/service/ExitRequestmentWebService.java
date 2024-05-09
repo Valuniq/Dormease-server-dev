@@ -55,7 +55,7 @@ public class ExitRequestmentWebService {
                     .exitDate(exitRequestment.getExitDate())
                     .hasKey(exitRequestment.getHasKey())
                     .createDate(exitRequestment.getCreatedDate().toLocalDate())
-                    .isReturnSecurityDeposit(exitRequestment.getIsReturnSecurityDeposit())
+                    .securityDepositReturnStatus(exitRequestment.getSecurityDepositReturnStatus())
                     .build();
             exitRequestmentResidentResList.add(exitRequestmentResidentRes);
         }
@@ -87,7 +87,7 @@ public class ExitRequestmentWebService {
                 .phoneNumber(user.getPhoneNumber())
                 .dormitoryName(dormitory.getName())
                 .roomSize(dormitory.getRoomSize())
-                .isReturnSecurityDeposit(exitRequestment.getIsReturnSecurityDeposit())
+                .securityDepositReturnStatus(exitRequestment.getSecurityDepositReturnStatus())
                 .roomNumber(room.getRoomNumber())
                 .bedNumber(resident.getBedNumber())
                 .hasKey(exitRequestment.getHasKey())

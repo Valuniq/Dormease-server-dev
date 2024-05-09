@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.exit_requestment.dto.response;
 
+import dormease.dormeasedev.domain.exit_requestment.domain.SecurityDepositReturnStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -38,8 +39,8 @@ public class ExitRequestmentRes {
     @Schema(type = "String", example = "4인실", description = "인실")
     private Integer roomSize;
 
-    @Schema(type = "Boolean", example = "true", description = "보증금 환급 여부")
-    private Boolean isReturnSecurityDeposit;
+    @Schema(type = "SecurityDepositReturnStatus", example = "UNPAID", description = "보증금 환급 여부. PAYMENT(지급), UNPAID(미지급), UNALBE(지급 불가) 中 1.")
+    private SecurityDepositReturnStatus securityDepositReturnStatus;
 
     @Schema(type = "String", example = "999호", description = "호실")
     private Integer roomNumber;
