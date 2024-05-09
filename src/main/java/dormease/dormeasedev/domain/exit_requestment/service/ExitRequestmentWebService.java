@@ -3,6 +3,8 @@ package dormease.dormeasedev.domain.exit_requestment.service;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.exit_requestment.domain.ExitRequestment;
 import dormease.dormeasedev.domain.exit_requestment.domain.repository.ExitRequestmentRepository;
+import dormease.dormeasedev.domain.exit_requestment.dto.request.ExitRequestmentIdReq;
+import dormease.dormeasedev.domain.exit_requestment.dto.request.ModifyDepositReq;
 import dormease.dormeasedev.domain.exit_requestment.dto.response.ExitRequestmentRes;
 import dormease.dormeasedev.domain.exit_requestment.dto.response.ExitRequestmentResidentRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
@@ -13,6 +15,7 @@ import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
+import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -104,6 +107,25 @@ public class ExitRequestmentWebService {
 
         return ResponseEntity.ok(apiResponse);
     }
+
+    // Description : 보증금 환급 상태 변경
+    @Transactional
+    public ResponseEntity<?> modifySecurityDeposit(ModifyDepositReq modifyDepositReq) {
+
+        List<ExitRequestmentIdReq> exitRequestmentIdReqList = modifyDepositReq.getExitRequestmentIdReqList();
+        for (ExitRequestmentIdReq exitRequestmentIdReq : exitRequestmentIdReqList) {
+            ExitRequestment exitRequestment = validateExitRequestmentById(exitRequestmentIdReq.getExitRequestmentId());
+            exitRequestment.updateSecurityDepositReturnStatus(modifyDepositReq.getSecurityDepositReturnStatus());
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("보증금 환급 상태가 변경되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
 
     // Description : 유효성 검증 함수
     public ExitRequestment validateExitRequestmentById(Long exitRequestmentId) {

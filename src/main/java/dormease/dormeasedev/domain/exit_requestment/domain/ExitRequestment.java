@@ -47,8 +47,13 @@ public class ExitRequestment extends BaseEntity {
     // 보증금 환급 여부
     private SecurityDepositReturnStatus securityDepositReturnStatus;
 
+    // update 함수
+    public void updateSecurityDepositReturnStatus(SecurityDepositReturnStatus securityDepositReturnStatus) {
+        this.securityDepositReturnStatus = securityDepositReturnStatus;
+    }
+
     @Builder
-    public ExitRequestment(Long id, Resident resident, School school, LocalDate exitDate, Boolean hasKey, String keyNumber, String bankName, String accountNumber, SecurityDepositReturnStatus securityDepositReturnStatus) {
+    public ExitRequestment(Long id, Resident resident, School school, LocalDate exitDate, Boolean hasKey, String keyNumber, String bankName, String accountNumber) {
         this.id = id;
         this.resident = resident;
         this.school = school;
@@ -57,6 +62,6 @@ public class ExitRequestment extends BaseEntity {
         this.keyNumber = keyNumber;
         this.bankName = bankName;
         this.accountNumber = accountNumber;
-        this.securityDepositReturnStatus = securityDepositReturnStatus;
+        this.securityDepositReturnStatus = SecurityDepositReturnStatus.UNPAID; // 최초 미지급
     }
 }

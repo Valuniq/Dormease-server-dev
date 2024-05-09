@@ -1,10 +1,12 @@
 package dormease.dormeasedev.domain.exit_requestment.controller;
 
+import dormease.dormeasedev.domain.exit_requestment.dto.request.ModifyDepositReq;
 import dormease.dormeasedev.domain.exit_requestment.dto.response.ExitRequestmentRes;
 import dormease.dormeasedev.domain.exit_requestment.dto.response.ExitRequestmentResidentRes;
 import dormease.dormeasedev.domain.exit_requestment.service.ExitRequestmentWebService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
+import dormease.dormeasedev.global.payload.Message;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -16,10 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "ExitRequestment API", description = "WEB - 퇴사 신청 관련 API입니다.")
 @RequiredArgsConstructor
@@ -53,6 +52,19 @@ public class ExitRequestmentWebController {
             @Parameter(description = "exitRequestmentId(퇴사 신청 id)를 입력해주세요.", required = true) @PathVariable(name = "exitRequestmentId") Long exitRequestmentId
     ) {
         return exitRequestmentWebService.findExitRequestment(exitRequestmentId);
+    }
+
+    // Description : 보증금 환급 상태 변경
+    @Operation(summary = "보증금 환급 상태 변경", description = "보증금 환급 상태를 변경합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "보증금 환급 상태 변경 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "보증금 환급 상태 변경 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PatchMapping("/securityDeposit")
+    public ResponseEntity<?> modifySecurityDeposit(
+            @Parameter(description = "Schemas의 ModifyDepositReq를 참고해주세요. 리스트로 입력해주세요.", required = true) @RequestBody ModifyDepositReq modifyDepositReq
+    ) {
+        return exitRequestmentWebService.modifySecurityDeposit(modifyDepositReq);
     }
 
 }
