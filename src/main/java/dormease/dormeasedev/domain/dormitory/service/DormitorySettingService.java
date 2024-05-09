@@ -5,10 +5,13 @@ import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryReposito
 import dormease.dormeasedev.domain.dormitory.dto.request.RegisterDormitoryReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
-import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
+import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
+import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.room.domain.Room;
+import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.domain.user.domain.User;
@@ -35,7 +38,7 @@ public class DormitorySettingService {
     private final DormitoryRepository dormitoryRepository;
     private final UserRepository userRepository;
     private final ResidentRepository residentRepository;
-    private final DormitorySettingTermRepository dormitorySettingTermRepository;
+    private final RoomRepository roomRepository;
 
     private final S3Uploader s3Uploader;
 
@@ -155,7 +158,6 @@ public class DormitorySettingService {
         if (dormitory.getImageUrl() != null) {
             s3Uploader.deleteFile(dormitory.getImageUrl());
         }
-
         // 건물 삭제
         dormitoryRepository.deleteAll(sameNameDormitories);
 
@@ -168,17 +170,15 @@ public class DormitorySettingService {
     }
 
     private boolean hasRelatedResidents(List<Dormitory> sameNameDormitories) {
+        List<Resident> residents = new ArrayList<>();
         for (Dormitory dormitory : sameNameDormitories) {
-                // DormitorySettingTerm을 통해 Resident 조회
-                List<DormitorySettingTerm> settingTerms = dormitorySettingTermRepository.findByDormitory(dormitory);
-//                for (DormitorySettingTerm settingTerm : settingTerms) {
-//                    List<Resident> residents = residentRepository.findByDormitorySettingTerm(settingTerm);
-//                    if (!residents.isEmpty()) {
-//                        return true; // 관련된 Resident 데이터가 존재하는 경우
-//                    }
-//                }
+            List<Room> rooms = roomRepository.findByDormitory(dormitory);
+            for (Room room : rooms) {
+                List<Resident> findResidents = residentRepository.findByRoom(room);
+                residents.addAll(findResidents);
+            }
         }
-        return false; // 관련된 Resident 데이터가 없는 경우
+        return !residents.isEmpty();
     }
 
     // 건물명 변경

@@ -20,8 +20,6 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
 
     List<Resident> findByRoom(Room room);
 
-//    List<Resident> findByDormitorySettingTermAndRoom(DormitorySettingTerm dormitorySettingTerm, Room room);
-
     Page<Resident> findByUserSchool(School school, Pageable pageable);
 
     @Query("SELECT r FROM Resident r " +
@@ -32,4 +30,7 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
     Optional<Resident> findByUser(User user);
 
     List<Resident> findByRoommateTempApplication(RoommateTempApplication roommateTempApplication);
+
+    Resident findByUserAndRoom(User user, Room room);
+
 }
