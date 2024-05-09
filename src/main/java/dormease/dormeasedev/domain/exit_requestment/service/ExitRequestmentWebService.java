@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.exit_requestment.service;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.exit_requestment.domain.ExitRequestment;
 import dormease.dormeasedev.domain.exit_requestment.domain.repository.ExitRequestmentRepository;
-import dormease.dormeasedev.domain.exit_requestment.dto.request.ExitRequestmentIdReq;
+import dormease.dormeasedev.domain.exit_requestment.dto.request.DeleteExitRequestmentReq;
 import dormease.dormeasedev.domain.exit_requestment.dto.request.ModifyDepositReq;
 import dormease.dormeasedev.domain.exit_requestment.dto.response.ExitRequestmentRes;
 import dormease.dormeasedev.domain.exit_requestment.dto.response.ExitRequestmentResidentRes;
@@ -112,15 +112,35 @@ public class ExitRequestmentWebService {
     @Transactional
     public ResponseEntity<?> modifySecurityDeposit(ModifyDepositReq modifyDepositReq) {
 
-        List<ExitRequestmentIdReq> exitRequestmentIdReqList = modifyDepositReq.getExitRequestmentIdReqList();
-        for (ExitRequestmentIdReq exitRequestmentIdReq : exitRequestmentIdReqList) {
-            ExitRequestment exitRequestment = validateExitRequestmentById(exitRequestmentIdReq.getExitRequestmentId());
+        List<Long> exitRequestmentIdList = modifyDepositReq.getExitRequestmentIdList();
+        for (Long exitRequestmentId : exitRequestmentIdList) {
+            ExitRequestment exitRequestment = validateExitRequestmentById(exitRequestmentId);
             exitRequestment.updateSecurityDepositReturnStatus(modifyDepositReq.getSecurityDepositReturnStatus());
         }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(Message.builder().message("보증금 환급 상태가 변경되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 퇴사 신청서 삭제
+    @Transactional
+    public ResponseEntity<?> deleteExitRequestment(DeleteExitRequestmentReq deleteExitRequestmentReq) {
+
+        List<Long> exitRequestmentIdList = deleteExitRequestmentReq.getExitRequestmentIdList();
+        List<ExitRequestment> exitRequestmentList = new ArrayList<>();
+        for (Long exitRequestmentId : exitRequestmentIdList) {
+            ExitRequestment exitRequestment = validateExitRequestmentById(exitRequestmentId);
+            exitRequestmentList.add(exitRequestment);
+        }
+        exitRequestmentRepository.deleteAll(exitRequestmentList);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("퇴사 신청서 삭제가 완료되었습니다.").build())
                 .build();
 
         return ResponseEntity.ok(apiResponse);
@@ -133,4 +153,5 @@ public class ExitRequestmentWebService {
         DefaultAssert.isTrue(findExitRequestment.isPresent(), "해당 id의 퇴사 신청이 존재하지 않습니다.");
         return findExitRequestment.get();
     }
+
 }

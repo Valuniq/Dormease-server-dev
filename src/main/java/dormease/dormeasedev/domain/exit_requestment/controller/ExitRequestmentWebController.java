@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.exit_requestment.controller;
 
+import dormease.dormeasedev.domain.exit_requestment.dto.request.DeleteExitRequestmentReq;
 import dormease.dormeasedev.domain.exit_requestment.dto.request.ModifyDepositReq;
 import dormease.dormeasedev.domain.exit_requestment.dto.response.ExitRequestmentRes;
 import dormease.dormeasedev.domain.exit_requestment.dto.response.ExitRequestmentResidentRes;
@@ -62,9 +63,22 @@ public class ExitRequestmentWebController {
     })
     @PatchMapping("/securityDeposit")
     public ResponseEntity<?> modifySecurityDeposit(
-            @Parameter(description = "Schemas의 ModifyDepositReq를 참고해주세요. 리스트로 입력해주세요.", required = true) @RequestBody ModifyDepositReq modifyDepositReq
+            @Parameter(description = "Schemas의 ModifyDepositReq를 참고해주세요.", required = true) @RequestBody ModifyDepositReq modifyDepositReq
     ) {
         return exitRequestmentWebService.modifySecurityDeposit(modifyDepositReq);
+    }
+
+    // Description : 퇴사 신청서 삭제
+    @Operation(summary = "퇴사 신청서 삭제", description = "퇴사 신청서를 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "퇴사 신청서 삭제 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "퇴사 신청서 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @DeleteMapping
+    public ResponseEntity<?> deleteExitRequestment(
+            @Parameter(description = "Schemas의 DeleteExitRequestmentReq를 참고해주세요.", required = true) @RequestBody DeleteExitRequestmentReq deleteExitRequestmentReq
+    ) {
+        return exitRequestmentWebService.deleteExitRequestment(deleteExitRequestmentReq);
     }
 
 }
