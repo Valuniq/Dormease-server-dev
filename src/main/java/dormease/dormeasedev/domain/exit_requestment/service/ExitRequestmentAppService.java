@@ -1,19 +1,26 @@
 package dormease.dormeasedev.domain.exit_requestment.service;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.exit_requestment.domain.ExitRequestment;
 import dormease.dormeasedev.domain.exit_requestment.domain.repository.ExitRequestmentRepository;
+import dormease.dormeasedev.domain.exit_requestment.dto.request.ExitRequestmentReq;
 import dormease.dormeasedev.domain.exit_requestment.dto.response.ResidentInfoForExitRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
 import dormease.dormeasedev.domain.room.domain.Room;
+import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
+import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
+import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -54,5 +61,32 @@ public class ExitRequestmentAppService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // Description : 퇴사 확인서 제출
+    @Transactional
+    public ResponseEntity<?> submitExitRequestment(CustomUserDetails customUserDetails, ExitRequestmentReq exitRequestmentReq) {
 
+        User user = userService.validateUserById(customUserDetails.getId());
+        School school = user.getSchool();
+        Resident resident = residentService.validateResidentByUser(user);
+        DefaultAssert.isTrue(!exitRequestmentRepository.existsByResident(resident), "이미 퇴사 확인서를 제출하였습니다.");
+
+        ExitRequestment exitRequestment = ExitRequestment.builder()
+                .resident(resident)
+                .school(school)
+                .exitDate(exitRequestmentReq.getExitDate())
+                .hasKey(exitRequestmentReq.getHasKey())
+                .keyNumber(exitRequestmentReq.getKeyNumber())
+                .bankName(exitRequestmentReq.getBankName())
+                .accountNumber(exitRequestmentReq.getAccountNumber())
+                .build();
+
+        exitRequestmentRepository.save(exitRequestment);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("퇴사 확인서 제출이 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
 }
