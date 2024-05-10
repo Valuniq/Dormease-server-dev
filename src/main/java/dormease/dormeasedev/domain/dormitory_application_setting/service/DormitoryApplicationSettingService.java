@@ -71,17 +71,18 @@ public class DormitoryApplicationSettingService {
         School school = user.getSchool();
 
         // Period(기간) save - (입사 신청 설정의) 입금 가능 기간
+        Optional<Period> findPeriod = periodRepository.findBySchoolAndPeriodType(school, PeriodType.DEPOSIT);
+        if (findPeriod.isPresent()) {
+            Period existPeriod = findPeriod.get();
+            periodRepository.delete(existPeriod);
+        }
+
         Period period = Period.builder()
                 .startDate(createDormitoryApplicationSettingReq.getStartDate())
                 .endDate(createDormitoryApplicationSettingReq.getEndDate())
                 .periodType(PeriodType.DEPOSIT)
                 .build();
 
-        Optional<Period> findPeriod = periodRepository.findBySchoolAndPeriodType(school, PeriodType.DEPOSIT);
-        if (findPeriod.isPresent()) {
-            Period existPeriod = findPeriod.get();
-            periodRepository.delete(existPeriod);
-        }
         periodRepository.save(period);
 
         // 입사 신청 설정 save

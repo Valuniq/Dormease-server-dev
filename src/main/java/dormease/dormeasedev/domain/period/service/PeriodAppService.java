@@ -1,8 +1,9 @@
-package dormease.dormeasedev.domain.period;
+package dormease.dormeasedev.domain.period.service;
 
 import dormease.dormeasedev.domain.period.domain.Period;
 import dormease.dormeasedev.domain.period.domain.PeriodType;
 import dormease.dormeasedev.domain.period.domain.repository.PeriodRepository;
+import dormease.dormeasedev.domain.period.dto.request.PeriodReq;
 import dormease.dormeasedev.domain.period.dto.response.PeriodDateRes;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
@@ -22,14 +23,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class PeriodService {
+public class PeriodAppService {
 
     private final PeriodRepository periodRepository;
 
     private final UserService userService;
 
-    // Description : 룸메이트 신청 기간 검증
-    public ResponseEntity<?> validateRoommateTempApplicationPeriod(CustomUserDetails customUserDetails, PeriodType periodType) {
+    // Description : 신청 기간 검증
+    public ResponseEntity<?> validatePeriod(CustomUserDetails customUserDetails, PeriodType periodType) {
 
         User user = userService.validateUserById(customUserDetails.getId());
         School school = user.getSchool();
@@ -61,4 +62,5 @@ public class PeriodService {
         DefaultAssert.isTrue(findPeriod.isPresent(), "룸메이트 신청 기간이 존재하지 않습니다.");
         return findPeriod.get();
     }
+
 }

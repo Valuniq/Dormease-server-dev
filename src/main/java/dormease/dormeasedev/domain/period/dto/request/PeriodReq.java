@@ -23,7 +23,7 @@ public class PeriodReq {
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate endDate;
 
-    @Schema(type = "PeriodType", example = "DEPOSIT", description = "입금")
+    @Schema(type = "PeriodType", example = "REFUND", description = "환불. JOIN(입사) / LEAVE(퇴사) / REFUND(환불) / ROOMMATE(룸메이트) / DEPOSIT(입금) 中 1")
     private PeriodType periodType;
 
 }
