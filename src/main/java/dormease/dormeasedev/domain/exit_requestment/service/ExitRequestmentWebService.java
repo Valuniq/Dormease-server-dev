@@ -17,6 +17,10 @@ import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,12 +39,15 @@ public class ExitRequestmentWebService {
     private final UserService userService;
 
     // Description : 퇴사 신청 사생 목록 조회
-    public ResponseEntity<?> findResidents(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> findResidents(CustomUserDetails customUserDetails, Integer page) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
 
-        List<ExitRequestment> exitRequestmentList = exitRequestmentRepository.findAllBySchool(school);
+        Pageable pageable = PageRequest.of(page, 23, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Page<ExitRequestment> exitRequestmentsBySchool = exitRequestmentRepository.findExitRequestmentsBySchool(school, pageable);
+
+        List<ExitRequestment> exitRequestmentList = exitRequestmentsBySchool.getContent();
         List<ExitRequestmentResidentRes> exitRequestmentResidentResList = new ArrayList<>();
         for (ExitRequestment exitRequestment : exitRequestmentList) {
             Resident resident = exitRequestment.getResident();

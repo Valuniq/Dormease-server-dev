@@ -37,9 +37,10 @@ public class ExitRequestmentWebController {
     })
     @GetMapping("/residents")
     public ResponseEntity<?> findResidents(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = " 퇴사 신청 사생 목록을 페이지별로 조회합니다. **Page는 0부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
-        return exitRequestmentWebService.findResidents(customUserDetails);
+        return exitRequestmentWebService.findResidents(customUserDetails, page);
     }
 
     // Description : 퇴사 신청서 조회
