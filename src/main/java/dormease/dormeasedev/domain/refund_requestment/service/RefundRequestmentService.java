@@ -8,6 +8,7 @@ import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.refund_requestment.domain.RefundRequestment;
 import dormease.dormeasedev.domain.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentRes;
+import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentResWithPage;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
 import dormease.dormeasedev.domain.room.domain.Room;
@@ -19,6 +20,10 @@ import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +46,16 @@ public class RefundRequestmentService {
     private final DormitoryApplicationService dormitoryApplicationService;
 
     // Description : 환불 신청 사생 목록 조회
-    public ResponseEntity<?> findResidents(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> findResidents(CustomUserDetails customUserDetails, Integer page) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
 
-        List<RefundRequestment> refundRequestmentList = refundRequestmentRepository.findAllBySchool(school);
+        Pageable pageable = PageRequest.of(page, 13, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Page<RefundRequestment> refundRequestmentsBySchool = refundRequestmentRepository.findRefundRequestmentsBySchool(school, pageable);
+        Integer totalPage = refundRequestmentsBySchool.getTotalPages();
+
+        List<RefundRequestment> refundRequestmentList = refundRequestmentsBySchool.getContent();
         List<RefundRequestmentRes> refundRequestmentResList = new ArrayList<>();
         for (RefundRequestment refundRequestment : refundRequestmentList) {
             // TODO : 사생 이름, 학번, 휴대전화, 은행명, 계좌번호, (거주)기간, 퇴사 예정일, 신청날짜, 건물(호실 포함), 호실, 침대번호
@@ -76,9 +85,14 @@ public class RefundRequestmentService {
             refundRequestmentResList.add(refundRequestmentRes);
         }
 
+        RefundRequestmentResWithPage refundRequestmentResWithPage = RefundRequestmentResWithPage.builder()
+                .totalPage(totalPage)
+                .refundRequestmentResList(refundRequestmentResList)
+                .build();
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(refundRequestmentResList)
+                .information(refundRequestmentResWithPage)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
