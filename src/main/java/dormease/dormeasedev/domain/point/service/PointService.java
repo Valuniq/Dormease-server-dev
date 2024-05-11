@@ -19,6 +19,8 @@ import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.payload.PageInfo;
+import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -215,7 +217,10 @@ public class PointService {
                         .build())
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, userPoints);
+
         TotalUserPointRes totalUserPointRes = TotalUserPointRes.builder()
+                .pageInfo(pageInfo)
                 .userPointDetailRes(userPointDetailRes)
                 .bonusPoint(user.getBonusPoint())
                 .minusPoint(user.getMinusPoint())
@@ -249,9 +254,13 @@ public class PointService {
                 .sorted(Comparator.comparing(ResidentInfoRes::getName))
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, residents);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, userResidentInfoResList);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(userResidentInfoResList).build();
+                .information(pageResponse)
+                .build();
 
         return ResponseEntity.ok(apiResponse);
     }
@@ -276,9 +285,13 @@ public class PointService {
                         .build())
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, residents);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, residentInfoResList);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(residentInfoResList).build();
+                .information(pageResponse)
+                .build();
 
         return ResponseEntity.ok(apiResponse);
     }
@@ -305,9 +318,13 @@ public class PointService {
                 .sorted(Comparator.comparing(ResidentInfoRes::getName))
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, residents);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, userResidentInfoResList);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(userResidentInfoResList).build();
+                .information(pageResponse)
+                .build();
 
         return ResponseEntity.ok(apiResponse);
     }

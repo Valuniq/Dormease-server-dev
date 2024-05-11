@@ -16,6 +16,8 @@ import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.payload.PageInfo;
+import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -70,9 +72,12 @@ public class ExitRequestmentWebService {
             exitRequestmentResidentResList.add(exitRequestmentResidentRes);
         }
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, exitRequestmentsBySchool);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, exitRequestmentResidentResList);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(exitRequestmentResidentResList)
+                .information(pageResponse)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
