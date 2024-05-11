@@ -42,10 +42,10 @@ public class PeriodAppService {
         LocalDate now = LocalDate.now();
 
         // 현재보다 시작 날짜가 뒤 (시작 x) || 현재보다 종료 날짜가 앞 (끝) - 신청기간 x인지 여부 / true 시 신청기간 아님
-        Boolean isOverPeriod = startDate.isAfter(now) || endDate.isBefore(now);
+        Boolean isPeriod = startDate.isAfter(now) || endDate.isBefore(now);
 
         PeriodDateRes periodDateRes = PeriodDateRes.builder()
-                .isOverPeriod(!isOverPeriod)
+                .isPeriod(!isPeriod)
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -59,7 +59,7 @@ public class PeriodAppService {
     // Description : 유효성 검증 함수
     public Period validatePeriodBySchoolAndPeriodType(School school, PeriodType periodType) {
         Optional<Period> findPeriod = periodRepository.findBySchoolAndPeriodType(school, periodType);
-        DefaultAssert.isTrue(findPeriod.isPresent(), "룸메이트 신청 기간이 존재하지 않습니다.");
+        DefaultAssert.isTrue(findPeriod.isPresent(), "신청 기간이 존재하지 않습니다.");
         return findPeriod.get();
     }
 
