@@ -28,14 +28,17 @@ public class Notification extends BaseEntity {
     private String title;
 
     // 핀 여부
-    private Boolean is_pinned;
+    private Boolean pinned;
+
+    private String writer;
 
     @Builder
-    public Notification(Long id, School school, NotificationType notificationType, String title, Boolean is_pinned) {
+    public Notification(Long id, School school, NotificationType notificationType, String title, Boolean pinned, String writer) {
         this.id = id;
         this.school = school;
         this.notificationType = notificationType;
         this.title = title;
-        this.is_pinned = is_pinned;
+        this.pinned = pinned;
+        this.writer = writer;
     }
 }
