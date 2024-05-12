@@ -215,9 +215,9 @@ public class NotificationWebService {
 
         DefaultAssert.isTrue(admin.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 삭제할 수 있습니다.");
 
+        deleteFiles(notification);
         notificationRepository.delete(notification);
         // s3에서 파일 삭제 필요
-        deleteFiles(notification);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
