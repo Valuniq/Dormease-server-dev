@@ -173,6 +173,7 @@ public class NotificationWebService {
     public ResponseEntity<?> modifyNotification(CustomUserDetails customUserDetails, ModifyNotificationReq modifyNotificationReq, List<MultipartFile> multipartFiles) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
         Notification notification = validateById(modifyNotificationReq.getNotificationId());
 
         DefaultAssert.isTrue(admin.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 수정할 수 있습니다.");
@@ -187,7 +188,7 @@ public class NotificationWebService {
             blockRepository.deleteAllById(modifyNotificationReq.getDeletedBlockIds());
 
         if (!modifyNotificationReq.getDeletedFileIds().isEmpty())
-            deleteFiles(modifyNotificationReq.getDeletedFileIds());
+            deleteFiles(modifyNotificationReq.getDeletedFileIds(), school);
 
         if (!modifyNotificationReq.getCreateBlockReqList().isEmpty())
             createBlock(notification, modifyNotificationReq.getCreateBlockReqList());
@@ -211,11 +212,12 @@ public class NotificationWebService {
     public ResponseEntity<?> deleteNotification(CustomUserDetails customUserDetails, Long notificationId) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
         Notification notification = validateById(notificationId);
 
-        DefaultAssert.isTrue(admin.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 삭제할 수 있습니다.");
+        DefaultAssert.isTrue(school.equals(notification.getSchool()), "해당 관리자의 학교만 삭제할 수 있습니다.");
 
-        deleteFiles(notification);
+        deleteFiles(notification, school);
         notificationRepository.delete(notification);
         // s3에서 파일 삭제 필요
 
@@ -287,12 +289,13 @@ public class NotificationWebService {
     }
 
     // Description : s3에서 파일 삭제 + file에서 삭제 (ids)
-    public void deleteFiles(List<Long> deleteFileIds) {
+    public void deleteFiles(List<Long> deleteFileIds, School school) {
 
         if (!deleteFileIds.isEmpty()) {
             List<File> files = fileRepository.findAllById(deleteFileIds);
             // s3에서 삭제
             for (File file : files) {
+                DefaultAssert.isTrue(file.getNotification().getSchool().equals(school), "해당 관리자가 속한 학교의 파일만 삭제할 수 있습니다.");
                 String fileName = file.getFileUrl().split("amazonaws.com/")[1];
                 s3Uploader.deleteFile(fileName);
             }
@@ -300,12 +303,12 @@ public class NotificationWebService {
         }
     }
 
-
     // Description : s3에서 파일 삭제 + file에서 삭제 (notification)
-    public void deleteFiles(Notification notification) {
+    public void deleteFiles(Notification notification, School school) {
         List<File> files = fileRepository.findByNotification(notification);
         if (!files.isEmpty()) {
             for (File file : files) {
+                DefaultAssert.isTrue(file.getNotification().getSchool().equals(school), "해당 관리자가 속한 학교의 파일만 삭제할 수 있습니다.");
                 // s3에서 삭제
                 String fileName = file.getFileUrl().split("amazonaws.com/")[1];
                 s3Uploader.deleteFile(fileName);
