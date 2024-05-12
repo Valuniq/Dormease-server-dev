@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 public class WriteNotificataionReq {
 
-    @Schema(type = "String", example = "2024-1 전자식권 사용방법 안내", description = "공지사항 or FAQ 제목")
+    @Schema(type = "String", example = "2024-1 전자식권 사용방법 안내", description = "공지사항(FAQ) 제목")
     private String title;
 
     @Schema(type = "Boolean", example = "true", description = "상단핀 고정 체크 여부")

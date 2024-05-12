@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.notification.service;
 import dormease.dormeasedev.domain.block.domain.Block;
 import dormease.dormeasedev.domain.block.domain.repository.BlockRepository;
 import dormease.dormeasedev.domain.block.dto.request.BlockReq;
+import dormease.dormeasedev.domain.block.dto.request.UpdateBlockReq;
 import dormease.dormeasedev.domain.block.dto.response.BlockRes;
 import dormease.dormeasedev.domain.file.domain.File;
 import dormease.dormeasedev.domain.file.domain.repository.FileRepository;
@@ -10,6 +11,7 @@ import dormease.dormeasedev.domain.file.dto.response.FileRes;
 import dormease.dormeasedev.domain.notification.domain.Notification;
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.domain.repository.NotificationRepository;
+import dormease.dormeasedev.domain.notification.dto.request.ModifyNotificationReq;
 import dormease.dormeasedev.domain.notification.dto.request.WriteNotificataionReq;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailRes;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationRes;
@@ -31,8 +33,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +71,7 @@ public class NotificationWebService {
                     .notificationId(notification.getId())
                     .pinned(notification.getPinned())
                     .title(notification.getTitle())
-                    .writer(notification.getWriter())
+                    .writer(notification.getUser().getName())
                     .createdDate(notification.getCreatedDate().toLocalDate())
                     .existFile(existFile)
                     .build();
@@ -94,38 +98,16 @@ public class NotificationWebService {
 
         Notification notification = Notification.builder()
                 .school(school)
+                .user(admin)
                 .notificationType(writeNotificataionReq.getNotificationType())
                 .title(writeNotificataionReq.getTitle())
                 .pinned(writeNotificataionReq.getPinned())
-                .writer(admin.getName())
                 .build();
         notificationRepository.save(notification);
 
         List<BlockReq> blockReqList = writeNotificataionReq.getBlockReqList();
-        for (BlockReq blockReq : blockReqList) {
-            Block block = Block.builder()
-                    .notification(notification)
-                    .imageUrl(blockReq.getImageUrl())
-                    .sequence(blockReq.getSequence())
-                    .content(blockReq.getContent())
-                    .build();
-            blockRepository.save(block);
-        }
-
-        for (MultipartFile multipartFile : multipartFiles) {
-            String fileUrl;
-            if (multipartFile.isEmpty())
-                fileUrl = null;
-            else
-                fileUrl = s3Uploader.uploadImage(multipartFile);
-
-            File file = File.builder()
-                    .notification(notification)
-                    .fileUrl(fileUrl)
-                    .build();
-
-            fileRepository.save(file);
-        }
+        createBlock(notification, blockReqList);
+        uploadFiles(notification, multipartFiles);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -142,6 +124,8 @@ public class NotificationWebService {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         Notification notification = validateById(notificationId);
+
+        DefaultAssert.isTrue(admin.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 조회할 수 있습니다.");
 
         List<Block> blockList = blockRepository.findByNotification(notification);
         List<BlockRes> blockResList = new ArrayList<>();
@@ -161,6 +145,7 @@ public class NotificationWebService {
             FileRes fileRes = FileRes.builder()
                     .fileId(file.getId())
                     .fileUrl(file.getFileUrl())
+                    .originalFileName(file.getOriginalFileName())
                     .build();
             fileResList.add(fileRes);
         }
@@ -168,7 +153,7 @@ public class NotificationWebService {
         NotificationDetailRes notificationDetailRes = NotificationDetailRes.builder()
                 .pinned(notification.getPinned())
                 .title(notification.getTitle())
-                .writer(notification.getWriter())
+                .writer(notification.getUser().getName())
                 .createdDate(notification.getCreatedDate().toLocalDate())
                 .modifiedDate(notification.getModifiedDate().toLocalDate())
                 .blockResList(blockResList)
@@ -183,10 +168,149 @@ public class NotificationWebService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // Description : 공지사항(FAQ) 수정
+    @Transactional
+    public ResponseEntity<?> modifyNotification(CustomUserDetails customUserDetails, ModifyNotificationReq modifyNotificationReq, List<MultipartFile> multipartFiles) {
+
+        User admin = userService.validateUserById(customUserDetails.getId());
+        Notification notification = validateById(modifyNotificationReq.getNotificationId());
+
+        DefaultAssert.isTrue(admin.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 수정할 수 있습니다.");
+
+        if (StringUtils.hasLength(modifyNotificationReq.getTitle()))
+            notification.updateTitle(modifyNotificationReq.getTitle());
+
+        if ( modifyNotificationReq.getPinned() != null && notification.getPinned() != modifyNotificationReq.getPinned())
+            notification.updatePinned();
+
+        if (!modifyNotificationReq.getDeletedBlockIds().isEmpty())
+            blockRepository.deleteAllById(modifyNotificationReq.getDeletedBlockIds());
+
+        if (!modifyNotificationReq.getDeletedFileIds().isEmpty())
+            deleteFiles(modifyNotificationReq.getDeletedFileIds());
+
+        if (!modifyNotificationReq.getCreateBlockReqList().isEmpty())
+            createBlock(notification, modifyNotificationReq.getCreateBlockReqList());
+
+        if (!modifyNotificationReq.getUpdateBlockReqList().isEmpty())
+            updateBlock(notification, modifyNotificationReq.getUpdateBlockReqList());
+
+        if (!multipartFiles.isEmpty())
+            uploadFiles(notification, multipartFiles);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("공지사항(FAQ) 수정이 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 공지사항(FAQ) 삭제
+    @Transactional
+    public ResponseEntity<?> deleteNotification(CustomUserDetails customUserDetails, Long notificationId) {
+
+        User admin = userService.validateUserById(customUserDetails.getId());
+        Notification notification = validateById(notificationId);
+
+        DefaultAssert.isTrue(admin.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 삭제할 수 있습니다.");
+
+        notificationRepository.delete(notification);
+        // s3에서 파일 삭제 필요
+        deleteFiles(notification);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("공지사항(FAQ) 삭제가 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+
     // Description : 유효성 검증 함수
     public Notification validateById(Long notificationId) {
         Optional<Notification> findNotification = notificationRepository.findById(notificationId);
         DefaultAssert.isTrue(findNotification.isPresent(), "존재하지 않는 공지사항(FAQ)입니다.");
         return findNotification.get();
+    }
+
+    // Description : 파일 업로드 함수
+    public void uploadFiles(Notification notification, List<MultipartFile> multipartFiles) {
+
+        for (MultipartFile multipartFile : multipartFiles) {
+            String fileUrl;
+            if (multipartFile.isEmpty())
+                fileUrl = null;
+            else
+                fileUrl = s3Uploader.uploadImage(multipartFile);
+
+            String originalFileName = Normalizer.normalize(multipartFile.getOriginalFilename(), Normalizer.Form.NFC);
+
+            File file = File.builder()
+                    .notification(notification)
+                    .fileUrl(fileUrl)
+                    .originalFileName(originalFileName)
+                    .build();
+            fileRepository.save(file);
+            file.addNotification(notification);
+        }
+    }
+
+    // Description : 블럭 생성 함수
+    public void createBlock(Notification notification, List<BlockReq> blockReqList) {
+
+        for (BlockReq blockReq : blockReqList) {
+            Block block = Block.builder()
+                    .notification(notification)
+                    .imageUrl(blockReq.getImageUrl())
+                    .sequence(blockReq.getSequence())
+                    .content(blockReq.getContent())
+                    .build();
+            blockRepository.save(block);
+            block.addNotification(notification);
+        }
+    }
+
+    // Description : 블럭 수정 함수
+    private void updateBlock(Notification notification, List<UpdateBlockReq> updateBlockReqList) {
+
+        for (UpdateBlockReq updateBlockReq : updateBlockReqList) {
+            Long blockId = updateBlockReq.getBlockId();
+            Optional<Block> findBlock = blockRepository.findById(blockId);
+            DefaultAssert.isTrue(findBlock.isPresent(), "존재하지 않는 블럭입니다.");
+            Block block = findBlock.get();
+
+            block.updateBlock(updateBlockReq);
+        }
+
+    }
+
+    // Description : s3에서 파일 삭제 + file에서 삭제 (ids)
+    public void deleteFiles(List<Long> deleteFileIds) {
+
+        if (!deleteFileIds.isEmpty()) {
+            List<File> files = fileRepository.findAllById(deleteFileIds);
+            // s3에서 삭제
+            for (File file : files) {
+                String fileName = file.getFileUrl().split("amazonaws.com/")[1];
+                s3Uploader.deleteFile(fileName);
+            }
+            fileRepository.deleteAll(files);
+        }
+    }
+
+
+    // Description : s3에서 파일 삭제 + file에서 삭제 (notification)
+    public void deleteFiles(Notification notification) {
+        List<File> files = fileRepository.findByNotification(notification);
+        if (!files.isEmpty()) {
+            for (File file : files) {
+                // s3에서 삭제
+                String fileName = file.getFileUrl().split("amazonaws.com/")[1];
+                s3Uploader.deleteFile(fileName);
+            }
+            fileRepository.deleteAll(files);
+        }
     }
 }

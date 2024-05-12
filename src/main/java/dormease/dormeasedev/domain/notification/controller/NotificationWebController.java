@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.notification.controller;
 
 import dormease.dormeasedev.domain.block.dto.request.BlockReq;
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
+import dormease.dormeasedev.domain.notification.dto.request.ModifyNotificationReq;
 import dormease.dormeasedev.domain.notification.dto.request.WriteNotificataionReq;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailRes;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationRes;
@@ -69,7 +70,7 @@ public class NotificationWebController {
     // Description : 공지사항(FAQ) 상세 조회
     @Operation(summary = "공지사항(FAQ) 상세 조회" , description = "공지사항(FAQ)을 상세 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "공지사항(FAQ) 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotificationDetailRes.class))}),
+            @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotificationDetailRes.class))}),
             @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/notification/{notificationId}")
@@ -78,6 +79,35 @@ public class NotificationWebController {
             @Parameter(description = "Notification ID을 입력해주세요.", required = true) @PathVariable(value = "notificationId") Long notificationId
     ) {
         return notificationWebService.findNotification(customUserDetails, notificationId);
+    }
+
+     // Description : 공지사항(FAQ) 수정
+    @Operation(summary = "공지사항(FAQ) 수정" , description = "공지사항(FAQ)을 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PatchMapping
+    public ResponseEntity<?> modifyNotification(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Schemas의 ModifyNotificationReq을 참고해주세요.", required = false) @RequestPart("modifyNotificationReq") ModifyNotificationReq modifyNotificationReq,
+            @Parameter(description = "Schemas의 BlockReq을 참고해주세요.", required = false)@RequestPart("files") List<MultipartFile> multipartFiles
+    ) {
+        return notificationWebService.modifyNotification(customUserDetails, modifyNotificationReq, multipartFiles);
+    }
+
+    // Description : 공지사항(FAQ) 삭제
+    @Operation(summary = "공지사항(FAQ) 삭제", description = "공지사항(FAQ)을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 삭제 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @DeleteMapping("/notification/{notificationId}")
+    public ResponseEntity<?> deleteNotification(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Notification ID을 입력해주세요.", required = true) @PathVariable(value = "notificationId") Long notificationId
+    ) {
+        return notificationWebService.deleteNotification(customUserDetails, notificationId);
     }
 
 }

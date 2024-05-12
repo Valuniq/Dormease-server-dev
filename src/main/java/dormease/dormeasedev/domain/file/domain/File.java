@@ -25,10 +25,20 @@ public class File extends BaseEntity {
     // 파일 경로
     private String fileUrl;
 
+    private String originalFileName;
+
     @Builder
-    public File(Long id, Notification notification, String fileUrl) {
+    public File(Long id, Notification notification, String fileUrl, String originalFileName) {
         this.id = id;
         this.notification = notification;
         this.fileUrl = fileUrl;
+        this.originalFileName = originalFileName;
+    }
+
+    public void addNotification(Notification notification) {
+        this.notification = notification;
+        if (notification.getFiles() == null)
+            notification.updateFiles();
+        notification.getFiles().add(this);
     }
 }
