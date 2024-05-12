@@ -3,17 +3,21 @@ package dormease.dormeasedev.domain.notification.service;
 import dormease.dormeasedev.domain.block.domain.Block;
 import dormease.dormeasedev.domain.block.domain.repository.BlockRepository;
 import dormease.dormeasedev.domain.block.dto.request.BlockReq;
+import dormease.dormeasedev.domain.block.dto.response.BlockRes;
 import dormease.dormeasedev.domain.file.domain.File;
 import dormease.dormeasedev.domain.file.domain.repository.FileRepository;
+import dormease.dormeasedev.domain.file.dto.response.FileRes;
 import dormease.dormeasedev.domain.notification.domain.Notification;
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.domain.repository.NotificationRepository;
 import dormease.dormeasedev.domain.notification.dto.request.WriteNotificataionReq;
+import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailRes;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationRes;
 import dormease.dormeasedev.domain.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
+import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
@@ -31,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -59,6 +64,7 @@ public class NotificationWebService {
         for (Notification notification : notificationList) {
             boolean existFile = fileRepository.existsByNotification(notification);
             NotificationRes notificationRes = NotificationRes.builder()
+                    .notificationId(notification.getId())
                     .pinned(notification.getPinned())
                     .title(notification.getTitle())
                     .writer(notification.getWriter())
@@ -84,7 +90,7 @@ public class NotificationWebService {
     public ResponseEntity<?> writeNotification(CustomUserDetails customUserDetails, WriteNotificataionReq writeNotificataionReq, List<MultipartFile> multipartFiles) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
-            School school = admin.getSchool();
+        School school = admin.getSchool();
 
         Notification notification = Notification.builder()
                 .school(school)
@@ -123,10 +129,64 @@ public class NotificationWebService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("공지사항(혹은 FAQ) 등록이 완료되었습니다.").build())
+                .information(Message.builder().message("공지사항(FAQ) 등록이 완료되었습니다.").build())
                 .build();
 
         return ResponseEntity.ok(apiResponse);
     }
 
+    // Description : 공지사항(FAQ) 상세 조회
+    public ResponseEntity<?> findNotification(CustomUserDetails customUserDetails, Long notificationId) {
+
+        // TODO : 제목, 작성자, 작성일, 수정일, 내용, 첨부파일, 최상단 고정 여부
+
+        User admin = userService.validateUserById(customUserDetails.getId());
+        Notification notification = validateById(notificationId);
+
+        List<Block> blockList = blockRepository.findByNotification(notification);
+        List<BlockRes> blockResList = new ArrayList<>();
+        for (Block block : blockList) {
+            BlockRes blockRes = BlockRes.builder()
+                    .blockId(block.getId())
+                    .imageUrl(block.getImageUrl())
+                    .sequence(block.getSequence())
+                    .content(block.getContent())
+                    .build();
+            blockResList.add(blockRes);
+        }
+
+        List<File> fileList = fileRepository.findByNotification(notification);
+        List<FileRes> fileResList = new ArrayList<>();
+        for (File file : fileList) {
+            FileRes fileRes = FileRes.builder()
+                    .fileId(file.getId())
+                    .fileUrl(file.getFileUrl())
+                    .build();
+            fileResList.add(fileRes);
+        }
+
+        NotificationDetailRes notificationDetailRes = NotificationDetailRes.builder()
+                .pinned(notification.getPinned())
+                .title(notification.getTitle())
+                .writer(notification.getWriter())
+                .createdDate(notification.getCreatedDate().toLocalDate())
+                .modifiedDate(notification.getModifiedDate().toLocalDate())
+                .blockResList(blockResList)
+                .fileList(fileResList)
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(notificationDetailRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 유효성 검증 함수
+    public Notification validateById(Long notificationId) {
+        Optional<Notification> findNotification = notificationRepository.findById(notificationId);
+        DefaultAssert.isTrue(findNotification.isPresent(), "존재하지 않는 공지사항(FAQ)입니다.");
+        return findNotification.get();
+    }
 }

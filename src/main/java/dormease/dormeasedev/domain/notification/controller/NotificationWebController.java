@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.notification.controller;
 import dormease.dormeasedev.domain.block.dto.request.BlockReq;
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.dto.request.WriteNotificataionReq;
+import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailRes;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationRes;
 import dormease.dormeasedev.domain.notification.service.NotificationWebService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
@@ -34,7 +35,7 @@ public class NotificationWebController {
 
     private final NotificationWebService notificationWebService;
 
-    // Description : 공지사항 목록 조회
+    // Description : 공지사항(FAQ) 목록 조회
     @Operation(summary = "공지사항(FAQ) 목록 조회" , description = "공지사항(FAQ) 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "공지사항(FAQ) 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = NotificationRes.class)))}),
@@ -50,7 +51,7 @@ public class NotificationWebController {
         return notificationWebService.findNotifications(customUserDetails, notificationType, page - 1);
     }
 
-    // Description : 공지사항 및 FAQ 작성
+    // Description : 공지사항(FAQ) 작성
     @Operation(summary = "공지사항(FAQ) 작성" , description = "공지사항(FAQ)를 작성합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "공지사항(FAQ) 작성 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
@@ -63,6 +64,20 @@ public class NotificationWebController {
             @Parameter(description = "Schemas의 BlockReq을 참고해주세요.", required = false)@RequestPart("files") List<MultipartFile> multipartFiles
     ) {
         return notificationWebService.writeNotification(customUserDetails, writeNotificataionReq, multipartFiles);
+    }
+
+    // Description : 공지사항(FAQ) 상세 조회
+    @Operation(summary = "공지사항(FAQ) 상세 조회" , description = "공지사항(FAQ)을 상세 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "공지사항(FAQ) 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotificationDetailRes.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/notification/{notificationId}")
+    public ResponseEntity<?> findNotification(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Notification ID을 입력해주세요.", required = true) @PathVariable(value = "notificationId") Long notificationId
+    ) {
+        return notificationWebService.findNotification(customUserDetails, notificationId);
     }
 
 }

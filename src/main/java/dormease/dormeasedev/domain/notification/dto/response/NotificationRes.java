@@ -15,6 +15,8 @@ import java.time.LocalDate;
 public class NotificationRes {
 
     // TODO : 번호(?) - 인덱스로 쓰면 어떨지, 제목, 작성자, 등록일, 첨부 파일 여부, 조회수
+    @Schema(type = "Long", example = "1", description = "공지사항(FAQ) ID")
+    private Long notificationId;
 
     @Schema(type = "Boolean", example = "true", description = "상단핀 고정 체크 여부")
     private Boolean pinned;
