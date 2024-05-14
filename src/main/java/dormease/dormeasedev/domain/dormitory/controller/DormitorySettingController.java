@@ -56,7 +56,7 @@ public class DormitorySettingController {
     @GetMapping("")
     public ResponseEntity<?> getDormitories(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return dormitorySettingService.getDormitoriesExceptGenderBySchool(customUserDetails);
+        return dormitorySettingService.getDormitoriesBySchool(customUserDetails);
     }
 
     @Operation(summary = "건물 상세 조회", description = "건물 설정 프로세스 중 건물을 상세 조회합니다.")

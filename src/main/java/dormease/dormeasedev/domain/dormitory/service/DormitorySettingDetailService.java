@@ -260,7 +260,7 @@ public class DormitorySettingDetailService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("층 수가 변경되었습니다.").build()).build();
+                .information(Message.builder().message("층 수 및 호실 개수가 변경되었습니다.").build()).build();
         return ResponseEntity.ok(apiResponse);
     }
 
