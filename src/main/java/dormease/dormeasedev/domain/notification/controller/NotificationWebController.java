@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Tag(name = "Common API", description = "APP - 플로우를 위한 공용 API입니다.")
+@Tag(name = "Notifications API", description = "WEB - 공지사항(FAQ) 관련 API입니다.")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/web/notifications")
