@@ -42,22 +42,29 @@ public class DormitorySettingService {
     @Transactional
     public ResponseEntity<?> registerDormitory(CustomUserDetails customUserDetails, RegisterDormitoryReq registerDormitoryReq,
                                                MultipartFile image) {
-
         User user = userService.validateUserById(customUserDetails.getId());
+        boolean isEmptySameNameDormitories = dormitoryRepository.findBySchoolAndName(user.getSchool(), registerDormitoryReq.getName()).isEmpty();
 
-        Dormitory dormitory = Dormitory.builder()
-                .school(user.getSchool())
-                .name(registerDormitoryReq.getName())
-                .gender(Gender.EMPTY)
-                .roomCount(0)
-                .imageUrl(setAWSImage(image))
-                .build();
+        boolean check = true;
+        String msg = "건물이 추가되었습니다.";
+        if (isEmptySameNameDormitories) {
+            Dormitory dormitory = Dormitory.builder()
+                    .school(user.getSchool())
+                    .name(registerDormitoryReq.getName())
+                    .gender(Gender.EMPTY)
+                    .roomCount(0)
+                    .imageUrl(setAWSImage(image))
+                    .build();
 
-        dormitoryRepository.save(dormitory);
+            dormitoryRepository.save(dormitory);
+        } else {
+            check = false;
+            msg = "동일한 이름의 기숙사가 존재합니다.";
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("건물이 추가되었습니다.").build()).build();
+                .check(check)
+                .information(Message.builder().message(msg).build()).build();
 
         return ResponseEntity.ok(apiResponse);
     }
