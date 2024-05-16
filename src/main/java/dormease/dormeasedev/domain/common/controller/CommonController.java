@@ -27,7 +27,7 @@ public class CommonController {
     private final CommonService commonService;
 
     // Description : 입사 / 룸메이트 / 퇴사 신청 여부
-    @Operation(summary = "입사 / 룸메이트 / 퇴사 신청 여부 반환" , description = "입사 / 룸메이트 / 퇴사 신청 여부를 반홚바니다.")
+    @Operation(summary = "입사 / 룸메이트 / 퇴사 신청 여부 반환" , description = "입사 / 룸메이트 / 퇴사 신청 여부를 반환합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "입사 / 룸메이트 / 퇴사 신청 여부 반환 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExistApplicationRes.class))}),
             @ApiResponse(responseCode = "400", description = "입사 / 룸메이트 / 퇴사 신청 여부 반환 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
