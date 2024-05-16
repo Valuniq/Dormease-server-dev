@@ -11,5 +11,5 @@ import lombok.*;
 public class PeriodDateRes {
     
     @Schema(type = "Boolean", example = "true", description = "신청 기간이 맞는지 여부입니다. ex) true - 신청 기간 이므로 신청 가능합니다.")
-    private Boolean isOverPeriod;
+    private Boolean isPeriod;
 }

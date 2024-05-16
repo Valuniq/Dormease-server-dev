@@ -8,6 +8,7 @@ import dormease.dormeasedev.domain.exit_requestment.service.ExitRequestmentWebSe
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.payload.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,15 +34,16 @@ public class ExitRequestmentWebController {
     // Description : 퇴사 신청 사생 목록 조회
     @Operation(summary = "퇴사 신청 사생 목록 조회", description = "퇴사 신청 사생 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "퇴사 신청 사생 목록 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExitRequestmentResidentRes.class)))}),
+            @ApiResponse(responseCode = "0", description = "퇴사 신청 사생 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExitRequestmentResidentRes.class)))}),
+            @ApiResponse(responseCode = "200", description = "퇴사 신청 사생 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
             @ApiResponse(responseCode = "400", description = "퇴사 신청 사생 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/residents")
     public ResponseEntity<?> findResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = " 퇴사 신청 사생 목록을 페이지별로 조회합니다. **Page는 0부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "0") Integer page
+            @Parameter(description = " 퇴사 신청 사생 목록을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return exitRequestmentWebService.findResidents(customUserDetails, page);
+        return exitRequestmentWebService.findResidents(customUserDetails, page - 1);
     }
 
     // Description : 퇴사 신청서 조회

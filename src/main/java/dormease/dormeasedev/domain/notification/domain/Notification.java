@@ -1,12 +1,18 @@
 package dormease.dormeasedev.domain.notification.domain;
 
+import dormease.dormeasedev.domain.block.domain.Block;
 import dormease.dormeasedev.domain.common.BaseEntity;
+import dormease.dormeasedev.domain.file.domain.File;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -22,20 +28,48 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "school_id")
     private School school;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
     private String title;
 
     // 핀 여부
-    private Boolean is_pinned;
+    private Boolean pinned;
+
+    @OneToMany(mappedBy = "notification", cascade = CascadeType.REMOVE)
+    List<Block> blocks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "notification", cascade = CascadeType.REMOVE)
+    List<File> files = new ArrayList<>();
 
     @Builder
-    public Notification(Long id, School school, NotificationType notificationType, String title, Boolean is_pinned) {
+    public Notification(Long id, School school, User user, NotificationType notificationType, String title, Boolean pinned) {
         this.id = id;
         this.school = school;
+        this.user = user;
         this.notificationType = notificationType;
         this.title = title;
-        this.is_pinned = is_pinned;
+        this.pinned = pinned;
     }
+
+    public void updateBlocks() {
+        this.blocks = new ArrayList<>();
+    }
+
+    public void updateFiles() {
+        this.files = new ArrayList<>();
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updatePinned() {
+        this.pinned = !this.pinned;
+    }
+
 }

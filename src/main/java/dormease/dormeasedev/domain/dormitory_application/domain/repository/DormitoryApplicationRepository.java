@@ -17,6 +17,8 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
 
     Optional<DormitoryApplication> findByUserAndApplicationStatus(User user, ApplicationStatus applicationStatus);
 
+    boolean existsByUserAndApplicationStatus(User user, ApplicationStatus applicationStatus);
+
     List<DormitoryApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
 
     List<DormitoryApplication> findByDormitoryTerm(DormitoryTerm dormitoryTerm);
