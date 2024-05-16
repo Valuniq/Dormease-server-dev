@@ -1,12 +1,11 @@
 package dormease.dormeasedev.domain.refund_requestment.controller;
 
-import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryManagementListRes;
 import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentRes;
-import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentResWithPage;
 import dormease.dormeasedev.domain.refund_requestment.service.RefundRequestmentService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.payload.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,15 +30,16 @@ public class RefundRequestmentController {
     // Description : 환불 신청 사생 목록 조회
     @Operation(summary = "환불 신청 사생 목록 조회", description = "환불 신청 사생 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "환불 신청 사생 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RefundRequestmentResWithPage.class))}),
+            @ApiResponse(responseCode = "0", description = "환불 신청 사생 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RefundRequestmentRes.class)))}),
+            @ApiResponse(responseCode = "200", description = "환불 신청 사생 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
             @ApiResponse(responseCode = "400", description = "환불 신청 사생 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/residents")
     public ResponseEntity<?> findResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = " 환불 신청 사생 목록을 페이지별로 조회합니다. **Page는 0부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "0") Integer page
+            @Parameter(description = "환불 신청 사생 목록을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return refundRequestmentService.findResidents(customUserDetails, page);
+        return refundRequestmentService.findResidents(customUserDetails, page - 1);
     }
 
     // Description : 환불 신청한 사생 처리(삭제)

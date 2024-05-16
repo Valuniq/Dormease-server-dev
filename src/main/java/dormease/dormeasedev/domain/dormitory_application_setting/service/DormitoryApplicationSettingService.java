@@ -242,7 +242,7 @@ public class DormitoryApplicationSettingService {
         User user = userService.validateUserById(customUserDetails.getId());
         School school = user.getSchool();
 
-        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdDate"));
+        PageRequest pageRequest = PageRequest.of(page, 3, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<DormitoryApplicationSetting> dormitoryApplicationSettingPage = dormitoryApplicationSettingRepository.findBySchool(pageRequest, school);
 
         // 비어 있을 시, 빈 리스트 or 예외 던질지 고민

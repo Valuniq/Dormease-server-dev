@@ -9,6 +9,8 @@ import dormease.dormeasedev.domain.user.dto.response.DeleteUserInfoRes;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
+import dormease.dormeasedev.global.payload.PageInfo;
+import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +48,12 @@ public class UserManagementService {
                         .build())
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, users);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, activeUserInfoRes);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(activeUserInfoRes)
+                .information(pageResponse)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
@@ -72,10 +77,13 @@ public class UserManagementService {
                         .build())
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, pagedUsers);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, userInfos);
+
         // ApiResponse 객체 생성하여 결과 반환
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(userInfos)
+                .information(pageResponse)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -102,9 +110,12 @@ public class UserManagementService {
                         .build())
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, searchResultPage);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, searchUsers);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(searchUsers)
+                .information(pageResponse)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
@@ -130,9 +141,13 @@ public class UserManagementService {
                         .build())
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, users);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, deleteUserInfoRes);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(deleteUserInfoRes).build();
+                .information(pageResponse)
+                .build();
         return  ResponseEntity.ok(apiResponse);
     }
 
@@ -157,9 +172,12 @@ public class UserManagementService {
                         .build())
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, searchResult);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, searchUsers);
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(searchUsers)
+                .information(pageResponse)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

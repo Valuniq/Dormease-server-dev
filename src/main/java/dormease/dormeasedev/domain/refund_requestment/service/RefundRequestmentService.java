@@ -8,7 +8,6 @@ import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.refund_requestment.domain.RefundRequestment;
 import dormease.dormeasedev.domain.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentRes;
-import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentResWithPage;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
 import dormease.dormeasedev.domain.room.domain.Room;
@@ -19,6 +18,8 @@ import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.payload.PageInfo;
+import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,7 +52,6 @@ public class RefundRequestmentService {
 
         Pageable pageable = PageRequest.of(page, 13, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<RefundRequestment> refundRequestmentsBySchool = refundRequestmentRepository.findRefundRequestmentsBySchool(school, pageable);
-        Integer totalPage = refundRequestmentsBySchool.getTotalPages();
 
         List<RefundRequestment> refundRequestmentList = refundRequestmentsBySchool.getContent();
         List<RefundRequestmentRes> refundRequestmentResList = new ArrayList<>();
@@ -83,16 +83,12 @@ public class RefundRequestmentService {
             refundRequestmentResList.add(refundRequestmentRes);
         }
 
-        RefundRequestmentResWithPage refundRequestmentResWithPage = RefundRequestmentResWithPage.builder()
-                .totalPage(totalPage)
-                .currentPage(page)
-                .pageSize(13)
-                .refundRequestmentResList(refundRequestmentResList)
-                .build();
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, refundRequestmentsBySchool);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, refundRequestmentResList);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(refundRequestmentResWithPage)
+                .information(pageResponse)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
