@@ -160,10 +160,9 @@ public class DormitorySettingController {
     public ResponseEntity<?> getRoomSettingsByDormitoryAndFloor(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
-            @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @PathVariable Integer floor,
-            @Parameter(description = "호실을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
-        ) {
-        return dormitorySettingDetailService.getRoomsByDormitoryAndFloor(customUserDetails, dormitoryId, floor, page - 1);
+            @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @PathVariable Integer floor
+            ) {
+        return dormitorySettingDetailService.getRoomsByDormitoryAndFloor(customUserDetails, dormitoryId, floor);
     }
 
     @Operation(summary = "호실 삭제", description = "건물 세부 설정 프로세스 중 특정 층의 호실을 삭제합니다.")
