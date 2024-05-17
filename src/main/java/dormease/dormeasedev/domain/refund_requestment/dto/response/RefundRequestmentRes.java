@@ -37,25 +37,25 @@ public class RefundRequestmentRes {
     private String term;
 
     // 퇴실 날짜
-    @Schema(type = "String", example = "2024-05-02", description = "퇴실 날짜")
+    @Schema(type = "LocalDate", example = "2024-05-02", description = "퇴실 날짜")
     private LocalDate exitDate;
 
     // 신청 날짜
-    @Schema(type = "String", example = "2024-05-01", description = "신청 날짜")
+    @Schema(type = "LocalDate", example = "2024-05-01", description = "신청 날짜")
     private LocalDate createDate;
 
     @Schema(type = "String", example = "명덕관", description = "건물 (건물명)")
     private String dormitoryName;
 
     // 인실
-    @Schema(type = "String", example = "4인실", description = "인실")
+    @Schema(type = "Integer", example = "4인실", description = "인실")
     private Integer roomSize;
 
     // 호실
-    @Schema(type = "String", example = "999호", description = "호실")
+    @Schema(type = "Integer", example = "999호", description = "호실")
     private Integer roomNumber;
 
     // 침대 번호
-    @Schema(type = "String", example = "1", description = "침대번호")
+    @Schema(type = "Integer", example = "1", description = "침대번호")
     private Integer bedNumber;
 }

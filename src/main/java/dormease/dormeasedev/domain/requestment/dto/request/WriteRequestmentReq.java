@@ -17,9 +17,9 @@ public class WriteRequestmentReq {
     private String content;
 
     @Schema(type = "String", example = "true", description = "부재 중 방문 동의 여부")
-    private Boolean isVisited;
+    private Boolean consentDuringAbsence;
 
     @Schema(type = "String", example = "true", description = "공개 여부")
-    private Boolean isPublic;
+    private Boolean visibility;
 
 }
