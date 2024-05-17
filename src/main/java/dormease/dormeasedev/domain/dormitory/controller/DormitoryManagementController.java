@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -77,11 +78,9 @@ public class DormitoryManagementController {
     public ResponseEntity<?> getFloorsByDormitory(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
-            @Parameter(description = "floor를 입력해주세요.", required = true) @PathVariable Integer floor,
-            @Parameter(description = "호실을 페이지별로 조회합니다. **Page는 0부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "0") Integer page
-
+            @Parameter(description = "floor를 입력해주세요.", required = true) @PathVariable Integer floor
     ) {
-        return dormitoryManagementService.getRoomsByDormitory(customUserDetails, dormitoryId, floor, page);
+        return dormitoryManagementService.getRoomsByDormitory(customUserDetails, dormitoryId, floor);
     }
 
     @Operation(summary = "건물 정보 조회", description = "건물 관리 프로세스 중 건물의 정보를 조회합니다.")

@@ -20,6 +20,8 @@ import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.payload.PageInfo;
+import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,21 +46,19 @@ public class DormitoryManagementService {
     private final ResidentRepository residentRepository;
 
     // 건물, 층별 호실 목록 조회
-    public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor, Integer page) {
+    public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
         // 이름이 같은 기숙사 검색
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
         DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
-        // 페이징 정보 설정
-        Pageable pageable = PageRequest.of(page, 25); // 페이지 번호와 페이지 크기 설정
-
-        // 인실 구분없이 호실 정보 조회
+        // 호실 정보 조회
         List<RoomByDormitoryAndFloorRes> roomByDormitoryAndFloorRes = new ArrayList<>();
         for (Dormitory findDormitory : dormitories) {
-            Page<Room> roomPage = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true, pageable);
-            List<RoomByDormitoryAndFloorRes> rooms = roomPage.getContent().stream()
+            List<Room> roomList = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true);
+
+            List<RoomByDormitoryAndFloorRes> rooms = roomList.stream()
                     .map(room -> RoomByDormitoryAndFloorRes.builder()
                             .id(room.getId())
                             .roomNumber(room.getRoomNumber())
