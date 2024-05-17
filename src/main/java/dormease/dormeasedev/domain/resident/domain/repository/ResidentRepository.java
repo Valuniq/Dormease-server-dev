@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.resident.domain.repository;
 
+import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
@@ -33,4 +34,6 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
 
     Resident findByUserAndRoom(User user, Room room);
 
+    @Query("SELECT r FROM Resident r JOIN r.room rm JOIN rm.dormitory d WHERE d IN :dormitories")
+    List<Resident> findByDormitories(List<Dormitory> dormitories);
 }
