@@ -4,12 +4,14 @@ import dormease.dormeasedev.domain.requestment.domain.Progression;
 import dormease.dormeasedev.domain.requestment.domain.Requestment;
 import dormease.dormeasedev.domain.requestment.domain.repository.RequestmentRepository;
 import dormease.dormeasedev.domain.requestment.dto.request.WriteRequestmentReq;
+import dormease.dormeasedev.domain.requestment.dto.response.RequestmentDetailRes;
 import dormease.dormeasedev.domain.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
+import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -71,8 +74,8 @@ public class RequestmentAppService {
         User user = userService.validateUserById(customUserDetails.getId());
         School school = user.getSchool();
 
-        Pageable pageable = PageRequest.of(page, 8, Sort.by(Sort.Direction.DESC, "createdDate"));// 최신순.. 기능 정의서에는 날짜순이라는데 걍 최신으로 함
-        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsBySchool(school, pageable);
+        Pageable pageable = PageRequest.of(page, 8, Sort.by(Sort.Direction.DESC, "createdDate")); // 최신순.. 기능 정의서에는 날짜순이라는데 걍 최신으로 함
+        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsBySchoolAndVisibility(school, true, pageable);
 
         List<Requestment> requestmentList = requestmentPage.getContent();
         List<RequestmentRes> requestmentResList = new ArrayList<>();
@@ -100,4 +103,103 @@ public class RequestmentAppService {
 
         return ResponseEntity.ok(apiResponse);
     }
+
+    // Description : 내 요청사항 목록 조회
+    public ResponseEntity<?> findMyRequestments(CustomUserDetails customUserDetails, Integer page) {
+
+        User user = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentByUser(user);
+
+        Pageable pageable = PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByResident(resident, pageable);
+
+        List<Requestment> requestmentList = requestmentPage.getContent();
+        List<RequestmentRes> requestmentResList = new ArrayList<>();
+        for (Requestment requestment : requestmentList) {
+            RequestmentRes requestmentRes = RequestmentRes.builder()
+                    .requestmentId(requestment.getId())
+                    .title(requestment.getTitle())
+                    .writer(user.getName())
+                    .createdDate(requestment.getCreatedDate().toLocalDate())
+                    .progression(requestment.getProgression())
+                    .build();
+            requestmentResList.add(requestmentRes);
+        }
+
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, requestmentPage);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, requestmentResList);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(pageResponse)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 요청사항 상세 조회
+    public ResponseEntity<?> findRequestmentDetail(CustomUserDetails customUserDetails, Long requestmentId) {
+
+        User user = userService.validateUserById(customUserDetails.getId());
+        School school = user.getSchool();
+        Requestment requestment = validateRequestmentByIdAndSchool(requestmentId, school);
+
+        Resident resident = residentService.validateResidentByUser(user);
+        Resident requestmentResident = requestment.getResident();
+        Boolean myRequestment = resident.equals(requestmentResident);
+        User requestmentUser = requestmentResident.getUser();
+
+        RequestmentDetailRes requestmentDetailRes = RequestmentDetailRes.builder()
+                .requestmentId(requestmentId)
+                .myRequestment(myRequestment)
+                .title(requestment.getTitle())
+                .content(requestment.getContent())
+                .writer(requestmentUser.getName())
+                .createdDate(requestment.getCreatedDate().toLocalDate())
+                .consentDuringAbsence(requestment.getConsentDuringAbsence())
+                .visibility(requestment.getVisibility())
+                .progression(requestment.getProgression())
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(requestmentDetailRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 요청사항 삭제
+    @Transactional
+    public ResponseEntity<?> deleteRequestment(CustomUserDetails customUserDetails, Long requestmentId) {
+
+        User user = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentByUser(user);
+        Requestment requestment = validateRequestmentByIdAndResident(requestmentId, resident);
+
+        requestmentRepository.delete(requestment);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("요청사항 삭제가 완료되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+    
+
+    // Description : 유효성 검증 함수
+    public Requestment validateRequestmentByIdAndSchool(Long requestmentId, School school) {
+        Optional<Requestment> findRequestment = requestmentRepository.findByIdAndSchool(requestmentId, school);
+        DefaultAssert.isTrue(findRequestment.isPresent(), "올바르지 않은 요청사항 ID입니다.");
+        return findRequestment.get();
+    }
+
+    private Requestment validateRequestmentByIdAndResident(Long requestmentId, Resident resident) {
+        Optional<Requestment> findRequestment = requestmentRepository.findByIdAndResident(requestmentId, resident);
+        DefaultAssert.isTrue(findRequestment.isPresent(), "올바르지 않은 요청사항 ID입니다.");
+        return findRequestment.get();
+    }
+
+
 }
