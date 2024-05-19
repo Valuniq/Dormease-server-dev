@@ -17,4 +17,6 @@ public interface RefundRequestmentRepository extends JpaRepository<RefundRequest
     Optional<RefundRequestment> findByResident(Resident resident);
 
     Page<RefundRequestment> findRefundRequestmentsBySchool(School school, Pageable pageable);
+
+    boolean existsByResident(Resident resident);
 }

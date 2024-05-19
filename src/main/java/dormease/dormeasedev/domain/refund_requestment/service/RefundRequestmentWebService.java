@@ -36,7 +36,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class RefundRequestmentService {
+public class RefundRequestmentWebService {
 
     private final RefundRequestmentRepository refundRequestmentRepository;
 
