@@ -33,23 +33,23 @@ public class Requestment extends BaseEntity {
     private String content;
 
     // 부재 중 방문 동의 여부
-    private Boolean isVisited;
+    private Boolean consentDuringAbsence;
 
     // 공개 여부
-    private Boolean isPublic;
+    private Boolean visibility;
 
     @Enumerated(EnumType.STRING)
     private Progression progression;
 
     @Builder
-    public Requestment(Long id, Resident resident, School school, String title, String content, Boolean isVisited, Boolean isPublic, Progression progression) {
+    public Requestment(Long id, Resident resident, School school, String title, String content, Boolean consentDuringAbsence, Boolean visibility, Progression progression) {
         this.id = id;
         this.resident = resident;
         this.school = school;
         this.title = title;
         this.content = content;
-        this.isVisited = isVisited;
-        this.isPublic = isPublic;
+        this.consentDuringAbsence = consentDuringAbsence;
+        this.visibility = visibility;
         this.progression = progression;
     }
 }

@@ -15,6 +15,7 @@ public class DormitoryReq {
     @Schema(type = "Long", example = "1", description = "기숙사 ID")
     private Long dormitoryId;
 
+    // TODO : 바꾸기
     @Schema(type = "Integer", example = "250", description= "수용 인원입니다.")
     private Integer dormitorySize; // 수용 인원
 

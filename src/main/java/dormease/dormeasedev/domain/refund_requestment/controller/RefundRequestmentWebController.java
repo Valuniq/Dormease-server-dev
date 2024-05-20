@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.refund_requestment.controller;
 
 import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentRes;
-import dormease.dormeasedev.domain.refund_requestment.service.RefundRequestmentService;
+import dormease.dormeasedev.domain.refund_requestment.service.RefundRequestmentWebService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/web/refundRequestment")
-public class RefundRequestmentController {
+public class RefundRequestmentWebController {
 
-    private final RefundRequestmentService refundRequestmentService;
+    private final RefundRequestmentWebService refundRequestmentWebService;
 
     // Description : 환불 신청 사생 목록 조회
     @Operation(summary = "환불 신청 사생 목록 조회", description = "환불 신청 사생 목록을 조회합니다.")
@@ -39,7 +39,7 @@ public class RefundRequestmentController {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "환불 신청 사생 목록을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return refundRequestmentService.findResidents(customUserDetails, page - 1);
+        return refundRequestmentWebService.findResidents(customUserDetails, page - 1);
     }
 
     // Description : 환불 신청한 사생 처리(삭제)
@@ -52,6 +52,6 @@ public class RefundRequestmentController {
     public ResponseEntity<?> deleteResident(
             @Parameter(description = "처리(삭제)할 사생의 ID를 입력해주세요.", required = true) @PathVariable(value = "residentId") Long residentId
     ) {
-        return refundRequestmentService.deleteResident(residentId);
+        return refundRequestmentWebService.deleteResident(residentId);
     }
 }
