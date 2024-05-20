@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/app/roommateApplication")
-public class RoommateApplicationController {
+public class RoommateApplicationAppController {
 
     private final RoommateApplicationService roommateApplicationService;
 

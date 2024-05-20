@@ -32,7 +32,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/web/points")
-public class PointController {
+public class PointWebController {
 
     private final PointService pointService;
 

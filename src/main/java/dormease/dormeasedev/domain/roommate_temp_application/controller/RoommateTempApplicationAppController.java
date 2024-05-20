@@ -1,6 +1,5 @@
 package dormease.dormeasedev.domain.roommate_temp_application.controller;
 
-import dormease.dormeasedev.domain.point.dto.response.ResidentInfoRes;
 import dormease.dormeasedev.domain.roommate_temp_application.dto.response.ExistRoommateTempApplicationRes;
 import dormease.dormeasedev.domain.roommate_temp_application.dto.response.RoommateTempApplicationMemberRes;
 import dormease.dormeasedev.domain.roommate_temp_application.service.RoommateTempApplicationService;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/app/roommateTempApplication")
-public class RoommateTempApplicationController {
+public class RoommateTempApplicationAppController {
 
     private final RoommateTempApplicationService roommateTempApplicationService;
 

@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/web/users/management")
-public class UserManagementController {
+public class UserManagementWebController {
 
     private final UserManagementService userManagementService;
     private final BlackListService blackListService;
