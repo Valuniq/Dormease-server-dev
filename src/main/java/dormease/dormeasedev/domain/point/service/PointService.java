@@ -1,6 +1,12 @@
 package dormease.dormeasedev.domain.point.service;
 
 import dormease.dormeasedev.domain.common.Status;
+import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
+import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
+import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.point.domain.Point;
 import dormease.dormeasedev.domain.point.domain.PointType;
 import dormease.dormeasedev.domain.point.domain.repository.PointRepository;
@@ -30,6 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +51,7 @@ public class PointService {
     private final ResidentRepository residentRepository;
     private final PointRepository pointRepository;
     private final UserPointRepository userPointRepository;
+    private final DormitoryApplicationRepository dormitoryApplicationRepository;
 
 
     // 상벌점 리스트 내역 조회
@@ -68,6 +76,7 @@ public class PointService {
     }
 
     // 상벌점 리스트 내역 등록
+    // TODO: 수정 필요, req 값에 id 추가 후 받은 id와 findById 해서 안 맞으면 새로 등록할 것.
     @Transactional
     public ResponseEntity<?> registerPointList(CustomUserDetails customUserDetails, PointListReq pointListReqs) {
         User admin = validUserById(customUserDetails.getId());
@@ -128,6 +137,7 @@ public class PointService {
     // Description : 상벌점 내역 중 사생 관련 기능
 
     // 상벌점 부여
+    // TODO: type 안 받게 수정
     @Transactional
     public ResponseEntity<?> addUserPoints(CustomUserDetails customUserDetails, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs, String pointType) {
         User admin = validUserById(customUserDetails.getId());
@@ -233,6 +243,7 @@ public class PointService {
         return ResponseEntity.ok(apiResponse);
     }
 
+
     public ResponseEntity<?> getResidents(CustomUserDetails customUserDetails, Integer page) {
         User admin = validUserById(customUserDetails.getId());
         Pageable pageable = PageRequest.of(page, 25);
@@ -240,17 +251,24 @@ public class PointService {
         Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
 
         List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
-                .map(resident -> ResidentInfoRes.builder()
-                        .id(resident.getId())
-                        .name(resident.getUser().getName())
-                        .studentNumber(resident.getUser().getStudentNumber())
-                        .phoneNumber(resident.getUser().getPhoneNumber())
-                        .bonusPoint(resident.getUser().getBonusPoint())
-                        .minusPoint(resident.getUser().getMinusPoint())
-                        .dormitory(resident.getRoom().getDormitory().getName() + "(" + resident.getRoom().getDormitory().getRoomSize() + "인실)")
-//                        .dormitory(resident.getDormitorySettingTerm().getDormitory().getName() + "(" + resident.getDormitorySettingTerm().getDormitory().getRoomSize() + "인실)")
-                        .room(resident.getRoom().getRoomNumber())
-                        .build())
+                .map(resident -> {
+                    // null 여부 확인
+                    String dormitoryName = getDormitoryName(resident);
+                    Integer roomNumber = getRoomNumber(resident);
+                    return ResidentInfoRes.builder()
+                            .id(resident.getId())
+                            .name(resident.getUser().getName())
+                            .studentNumber(resident.getUser().getStudentNumber())
+                            .phoneNumber(resident.getUser().getPhoneNumber())
+                            .bonusPoint(resident.getUser().getBonusPoint())
+                            .minusPoint(resident.getUser().getMinusPoint())
+                            // 사생의 호실 미배정 고려, dormitory: 사생-회원-입사신청-거주기간-기숙사로 찾기
+                            // 해당 탐색 과정에서 null 값이 하나라도 있을 경우 null return
+                            .dormitory(dormitoryName)
+                            // 사생의 호실 미배정 고려 null 허용
+                            .room(roomNumber)
+                            .build();
+                })
                 .sorted(Comparator.comparing(ResidentInfoRes::getName))
                 .collect(Collectors.toList());
 
@@ -265,24 +283,66 @@ public class PointService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    private String getDormitoryName(Resident resident) {
+        // 호실 배정 시
+        if (resident.getRoom() != null) {
+            Dormitory dormitory = resident.getRoom().getDormitory();
+            return formatDormitoryName(dormitory);
+        // 호실 미배정 시
+        } else {
+            Dormitory dormitory = findDormitoryByResident(resident);
+            if (dormitory != null) {
+                return formatDormitoryName(dormitory);
+            }
+        }
+        return null;
+    }
+
+    private Integer getRoomNumber(Resident resident) {
+        if (resident.getRoom() != null) {
+            return resident.getRoom().getRoomNumber();
+        } else {
+            return null;
+        }
+    }
+
+    private String formatDormitoryName(Dormitory dormitory) {
+        return dormitory.getName() + "(" + dormitory.getRoomSize() + "인실)";
+    }
+
+    private Dormitory findDormitoryByResident(Resident resident) {
+        List<DormitoryApplicationResult> validResults = Arrays.asList(DormitoryApplicationResult.PASS, DormitoryApplicationResult.MOVE_PASS);
+
+        return dormitoryApplicationRepository.findTop1ByUserAndResultsOrderByCreatedDateDesc(resident.getUser(), validResults)
+                .map(DormitoryApplication::getDormitoryTerm)
+                .map(DormitoryTerm::getDormitory)
+                .orElse(null);
+    }
+
     public ResponseEntity<?> getSortedResidents(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending, Integer page) {
         User admin = validUserById(customUserDetails.getId());
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
         // 사생 목록 조회 (페이징 적용)
         Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
-
         List<ResidentInfoRes> residentInfoResList = residents.getContent().stream()
-                .map(resident -> ResidentInfoRes.builder()
-                        .id(resident.getId())
-                        .name(resident.getUser().getName())
-                        .studentNumber(resident.getUser().getStudentNumber())
-                        .phoneNumber(resident.getUser().getPhoneNumber())
-                        .bonusPoint(resident.getUser().getBonusPoint())
-                        .minusPoint(resident.getUser().getMinusPoint())
-                        .dormitory(resident.getRoom().getDormitory().getName() + "(" + resident.getRoom().getDormitory().getRoomSize() + "인실)")
-                        .room(resident.getRoom().getRoomNumber())
-                        .build())
+                .map(resident -> {
+                    // null 여부 확인
+                    String dormitoryName = getDormitoryName(resident);
+                    Integer roomNumber = getRoomNumber(resident);
+                    return ResidentInfoRes.builder()
+                            .id(resident.getId())
+                            .name(resident.getUser().getName())
+                            .studentNumber(resident.getUser().getStudentNumber())
+                            .phoneNumber(resident.getUser().getPhoneNumber())
+                            .bonusPoint(resident.getUser().getBonusPoint())
+                            .minusPoint(resident.getUser().getMinusPoint())
+                            // 사생의 호실 미배정 고려, room으로 찾는 게 아니라 입사신청 설정으로 찾기
+                            .dormitory(dormitoryName)
+                            // 사생의 호실 미배정 고려 null 허용
+                            .room(roomNumber)
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         PageInfo pageInfo = PageInfo.toPageInfo(pageable, residents);
@@ -303,18 +363,24 @@ public class PointService {
         Pageable pageable = PageRequest.of(page, 25);
         // 사생 목록 조회 (페이징 적용)
         Page<Resident> residents = residentRepository.searchResidentsByKeyword(admin.getSchool(), cleanedKeyword, pageable);
-
         List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
-                .map(resident -> ResidentInfoRes.builder()
-                        .id(resident.getId())
-                        .name(resident.getUser().getName())
-                        .studentNumber(resident.getUser().getStudentNumber())
-                        .phoneNumber(resident.getUser().getPhoneNumber())
-                        .bonusPoint(resident.getUser().getBonusPoint())
-                        .minusPoint(resident.getUser().getMinusPoint())
-                        .dormitory(resident.getRoom().getDormitory().getName() + "(" + resident.getRoom().getDormitory().getRoomSize() + "인실)")
-                        .room(resident.getRoom().getRoomNumber())
-                        .build())
+                .map(resident -> {
+                    // null 여부 확인
+                    String dormitoryName = getDormitoryName(resident);
+                    Integer roomNumber = getRoomNumber(resident);
+                    return ResidentInfoRes.builder()
+                            .id(resident.getId())
+                            .name(resident.getUser().getName())
+                            .studentNumber(resident.getUser().getStudentNumber())
+                            .phoneNumber(resident.getUser().getPhoneNumber())
+                            .bonusPoint(resident.getUser().getBonusPoint())
+                            .minusPoint(resident.getUser().getMinusPoint())
+                            // 사생의 호실 미배정 고려, room으로 찾는 게 아니라 입사신청 설정으로 찾기
+                            .dormitory(dormitoryName)
+                            // 사생의 호실 미배정 고려 null 허용
+                            .room(roomNumber)
+                            .build();
+                })
                 .sorted(Comparator.comparing(ResidentInfoRes::getName))
                 .collect(Collectors.toList());
 
