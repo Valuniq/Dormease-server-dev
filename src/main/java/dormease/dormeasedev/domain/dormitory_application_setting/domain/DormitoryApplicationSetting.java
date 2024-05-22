@@ -27,18 +27,17 @@ public class DormitoryApplicationSetting extends BaseEntity {
     @JoinColumn(name = "school_id")
     private School school;
 
-    // 거주 기간 별 입/퇴사 날짜
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "period_id")
-    private Period period;
-
     private String title;
 
-    // 시작 -> 마감일 中 시작일
+    // 입사 신청
     private LocalDate startDate;
 
-    // 시작 -> 마감일 中 마감일
     private LocalDate endDate;
+
+    // 입금
+    private LocalDate depositStartDate;
+
+    private LocalDate depositEndDate;
 
     // 보증금
     private Integer securityDeposit;
@@ -48,13 +47,14 @@ public class DormitoryApplicationSetting extends BaseEntity {
     private ApplicationStatus applicationStatus;
 
     @Builder
-    public DormitoryApplicationSetting(Long id, School school, Period period, String title, LocalDate startDate, LocalDate endDate, Integer securityDeposit, ApplicationStatus applicationStatus) {
+    public DormitoryApplicationSetting(Long id, School school, String title, LocalDate startDate, LocalDate endDate, LocalDate depositStartDate, LocalDate depositEndDate, Integer securityDeposit, ApplicationStatus applicationStatus) {
         this.id = id;
         this.school = school;
-        this.period = period;
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.depositStartDate = depositStartDate;
+        this.depositEndDate = depositEndDate;
         this.securityDeposit = securityDeposit;
         this.applicationStatus = applicationStatus;
     }

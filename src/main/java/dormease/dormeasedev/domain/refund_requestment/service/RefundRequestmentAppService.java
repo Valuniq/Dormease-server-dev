@@ -36,13 +36,11 @@ public class RefundRequestmentAppService {
         // 신청 버튼 클릭 시 이미 신청 여부 반환
         User user = userService.validateUserById(customUserDetails.getId());
         Resident resident = residentService.validateResidentByUser(user);
-        School school = user.getSchool();
 
         DefaultAssert.isTrue(!refundRequestmentRepository.existsByResident(resident), "이미 환불 신청 하였습니다.");
 
         RefundRequestment refundRequestment = RefundRequestment.builder()
                 .resident(resident)
-                .school(school)
                 .exitDate(refundRequestmentReq.getExitDate())
                 .bankName(refundRequestmentReq.getBankName())
                 .accountNumber(refundRequestmentReq.getAccountNumber())

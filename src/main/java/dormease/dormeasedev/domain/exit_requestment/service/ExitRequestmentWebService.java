@@ -47,7 +47,7 @@ public class ExitRequestmentWebService {
         School school = admin.getSchool();
 
         Pageable pageable = PageRequest.of(page, 23, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<ExitRequestment> exitRequestmentsBySchool = exitRequestmentRepository.findExitRequestmentsBySchool(school, pageable);
+        Page<ExitRequestment> exitRequestmentsBySchool = exitRequestmentRepository.findExitRequestmentsByResident_User_School(school, pageable);
 
         List<ExitRequestment> exitRequestmentList = exitRequestmentsBySchool.getContent();
         List<ExitRequestmentResidentRes> exitRequestmentResidentResList = new ArrayList<>();

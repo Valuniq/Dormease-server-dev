@@ -8,7 +8,6 @@ import dormease.dormeasedev.domain.exit_requestment.dto.response.ResidentInfoFor
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
 import dormease.dormeasedev.domain.room.domain.Room;
-import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
@@ -19,8 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -66,13 +63,11 @@ public class ExitRequestmentAppService {
     public ResponseEntity<?> submitExitRequestment(CustomUserDetails customUserDetails, ExitRequestmentReq exitRequestmentReq) {
 
         User user = userService.validateUserById(customUserDetails.getId());
-        School school = user.getSchool();
         Resident resident = residentService.validateResidentByUser(user);
         DefaultAssert.isTrue(!exitRequestmentRepository.existsByResident(resident), "이미 퇴사 확인서를 제출하였습니다.");
 
         ExitRequestment exitRequestment = ExitRequestment.builder()
                 .resident(resident)
-                .school(school)
                 .exitDate(exitRequestmentReq.getExitDate())
                 .hasKey(exitRequestmentReq.getHasKey())
                 .keyNumber(exitRequestmentReq.getKeyNumber())
