@@ -36,10 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -137,20 +134,18 @@ public class PointService {
     // Description : 상벌점 내역 중 사생 관련 기능
 
     // 상벌점 부여
-    // TODO: type 안 받게 수정
     @Transactional
-    public ResponseEntity<?> addUserPoints(CustomUserDetails customUserDetails, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs, String pointType) {
+    public ResponseEntity<?> addUserPoints(CustomUserDetails customUserDetails, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs) {
         User admin = validUserById(customUserDetails.getId());
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
-        PointType type = PointType.valueOf(pointType.toUpperCase());
-
+        Set<PointType> pointTypes = new HashSet<>();
         List<UserPoint> userPoints = addPointToResidentReqs.stream()
                 .map(req -> {
                     Point point = validPointById(req.getPointId());
-                    DefaultAssert.isTrue(point.getPointType() == type, "내역과 상벌점 타입이 일치하지 않습니다.");
                     DefaultAssert.isTrue(point.getStatus() == Status.ACTIVE, "삭제된 상벌점 내역은 부여할 수 없습니다.");
+                    pointTypes.add(point.getPointType());
                     return UserPoint.builder()
                             .user(user)
                             .point(validPointById(req.getPointId()))
@@ -159,29 +154,34 @@ public class PointService {
                 .collect(Collectors.toList());
 
         userPointRepository.saveAll(userPoints);
-        updatePoint(user, type);
+        updatePoint(user, pointTypes);
 
-        String message = type == PointType.BONUS ? "상점" : "벌점";
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message(message + "이 부여되었습니다.").build())
+                .information(Message.builder().message("상/벌점이 부여되었습니다.").build())
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
 
-    private void updatePoint(User user, PointType pointType) {
-        String message = pointType == PointType.BONUS ? "상점" : "벌점";
-
+    private void updatePoint(User user, Set<PointType> pointTypes) {
         List<UserPoint> userPoints = userPointRepository.findByUser(user);
-        DefaultAssert.isTrue(!userPoints.isEmpty(), message + "이 부여되지 않았습니다.");
+        DefaultAssert.isTrue(!userPoints.isEmpty(), "상/벌점이 부여되지 않았습니다.");
 
-        Integer totalPoint = userPoints.stream()
+        for (PointType pointType : pointTypes) {
+            Integer totalPoint = calculateTotalPoint(userPoints, pointType);
+            if (pointType == PointType.BONUS) {
+                user.updateBonusPoint(totalPoint);
+            } else {
+                user.updateMinusPoint(totalPoint);
+            }
+        }
+    }
+
+    private Integer calculateTotalPoint(List<UserPoint> userPoints, PointType pointType) {
+        return userPoints.stream()
                 .filter(userPoint -> userPoint.getPoint().getPointType().equals(pointType))
                 .mapToInt(userPoint -> userPoint.getPoint().getScore())
                 .sum();
-
-        if (pointType == PointType.BONUS) { user.updateBonusPoint(totalPoint);
-        } else { user.updateMinusPoint(totalPoint); }
     }
 
     // 상벌점 내역 삭제
@@ -196,10 +196,12 @@ public class PointService {
                 .map(this::validUserPointById)
                 .collect(Collectors.toList());
 
-        userPointRepository.deleteAll(userPoints);
+        Set<PointType> pointTypes = userPoints.stream()
+                .map(userPoint -> userPoint.getPoint().getPointType())
+                .collect(Collectors.toSet());
 
-        updatePoint(user, PointType.BONUS);
-        updatePoint(user, PointType.MINUS);
+        userPointRepository.deleteAll(userPoints);
+        updatePoint(user, pointTypes);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
