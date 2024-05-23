@@ -5,7 +5,6 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
-import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.point.domain.Point;
 import dormease.dormeasedev.domain.point.domain.PointType;
@@ -73,15 +72,21 @@ public class PointService {
     }
 
     // 상벌점 리스트 내역 등록
-    // TODO: 수정 필요, req 값에 id 추가 후 받은 id와 findById 해서 안 맞으면 새로 등록할 것.
     @Transactional
     public ResponseEntity<?> registerPointList(CustomUserDetails customUserDetails, PointListReq pointListReqs) {
         User admin = validUserById(customUserDetails.getId());
         List<BonusPointManagementReq> bonusPointList = pointListReqs.getBonusPointList();
         List<MinusPointManagementReq> minusPointList = pointListReqs.getMinusPointList();
 
-        if(!bonusPointList.isEmpty()) {
-            List<Point> bonusPoint = bonusPointList.stream()
+        if (!bonusPointList.isEmpty()) {
+            List<Point> bonusPointsToSave = bonusPointList.stream()
+                    // 요청받은 상점 내역의 존재 여부 확인
+                    .filter(bonusPointManagementReq -> !pointRepository.existsByIdAndScoreAndPointType(
+                            bonusPointManagementReq.getPointId(),
+                            bonusPointManagementReq.getScore(),
+                            PointType.BONUS
+                    ))
+                    // 해당하는 상점 내역이 없을 경우 리스트에 추가
                     .map(bonusPointManagementReq -> Point.builder()
                             .school(admin.getSchool())
                             .pointType(PointType.BONUS)
@@ -89,10 +94,18 @@ public class PointService {
                             .score(bonusPointManagementReq.getScore())
                             .build())
                     .collect(Collectors.toList());
-            pointRepository.saveAll(bonusPoint);
+
+            if (!bonusPointsToSave.isEmpty()) {
+                pointRepository.saveAll(bonusPointsToSave);
+            }
         }
-        if(!minusPointList.isEmpty()) {
-            List<Point> minusPoint = minusPointList.stream()
+        if (!minusPointList.isEmpty()) {
+            List<Point> minusPointsToSave = minusPointList.stream()
+                    .filter(minusPointManagementReq -> !pointRepository.existsByIdAndScoreAndPointType(
+                            minusPointManagementReq.getPointId(),
+                            minusPointManagementReq.getScore(),
+                            PointType.MINUS
+                    ))
                     .map(minusPointManagementReq -> Point.builder()
                             .school(admin.getSchool())
                             .pointType(PointType.MINUS)
@@ -100,7 +113,10 @@ public class PointService {
                             .score(minusPointManagementReq.getScore())
                             .build())
                     .collect(Collectors.toList());
-            pointRepository.saveAll(minusPoint);
+
+            if (!minusPointsToSave.isEmpty()) {
+                pointRepository.saveAll(minusPointsToSave);
+            }
         }
 
         ApiResponse apiResponse = ApiResponse.builder()
