@@ -329,9 +329,7 @@ public class PointService {
     }
 
     private Dormitory findDormitoryByResident(Resident resident) {
-        List<DormitoryApplicationResult> validResults = Arrays.asList(DormitoryApplicationResult.PASS, DormitoryApplicationResult.MOVE_PASS);
-
-        return dormitoryApplicationRepository.findTop1ByUserAndResultsOrderByCreatedDateDesc(resident.getUser(), validResults)
+        return dormitoryApplicationRepository.findTop1ByUserAndResultsOrderByCreatedDateDesc(resident.getUser(), DormitoryApplicationResult.PASS)
                 .map(DormitoryApplication::getDormitoryTerm)
                 .map(DormitoryTerm::getDormitory)
                 .orElse(null);

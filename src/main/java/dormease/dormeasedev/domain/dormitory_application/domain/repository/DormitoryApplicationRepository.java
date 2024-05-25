@@ -25,7 +25,7 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
 
     List<DormitoryApplication> findByDormitoryTerm(DormitoryTerm dormitoryTerm);
 
-    @Query("SELECT da FROM DormitoryApplication da WHERE da.user = :user AND da.dormitoryApplicationResult IN (:results) ORDER BY da.createdDate DESC")
-    Optional<DormitoryApplication> findTop1ByUserAndResultsOrderByCreatedDateDesc(User user, List<DormitoryApplicationResult> results);
+    @Query("SELECT da FROM DormitoryApplication da WHERE da.user = :user AND da.dormitoryApplicationResult = :results ORDER BY da.createdDate DESC")
+    Optional<DormitoryApplication> findTop1ByUserAndResultsOrderByCreatedDateDesc(User user, DormitoryApplicationResult results);
 
 }
