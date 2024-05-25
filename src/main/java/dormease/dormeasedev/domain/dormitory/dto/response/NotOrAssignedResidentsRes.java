@@ -5,28 +5,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 public class NotOrAssignedResidentsRes {
 
-    @Schema(type = "Long", example = "1", description= "사생의 고유 id입니다.")
-    private Long id;
+    private List<AssignedResidentRes> assignedResidentResList;
 
-    @Schema(type = "String", example = "60132566", description= "사생의 학번입니다.")
-    private String studentNumber;
-
-    @Schema(type = "String", example = "홍길동", description= "사생의 이름입니다.")
-    private String name;
-
-    @Schema(type = "String", example = "010-0000-0000", description= "사생의 휴대전화 번호입니다.")
-    private String phoneNumber;
+    private List<NotAssignedResidentRes> notAssignedResidentResList;
 
     @Builder
-    public NotOrAssignedResidentsRes(Long id, String studentNumber, String name, String phoneNumber) {
-        this.id = id;
-        this.studentNumber = studentNumber;
-        this.name = name;
-        this.phoneNumber = phoneNumber;
+    public NotOrAssignedResidentsRes(List<AssignedResidentRes> assignedResidentResList, List<NotAssignedResidentRes> notAssignedResidentResList) {
+        this.assignedResidentResList = assignedResidentResList;
+        this.notAssignedResidentResList = notAssignedResidentResList;
     }
 
 }

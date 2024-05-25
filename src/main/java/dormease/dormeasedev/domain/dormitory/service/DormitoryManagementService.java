@@ -46,6 +46,7 @@ public class DormitoryManagementService {
     private final ResidentRepository residentRepository;
 
     // 건물, 층별 호실 목록 조회
+    // TODO: 999 받으면 전체호실
     public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
@@ -192,7 +193,8 @@ public class DormitoryManagementService {
 
 
     // 배정된 호실이 없는 사생 목록 조회
-    public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
+    // TODO : 해당 방에 배정된 사생도 조회
+    public ResponseEntity<?> getNotAndAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
         Room room = validRoomById(roomId);
         List<Resident> notAssignedResidents = new ArrayList<>();
         // 기숙사 - 거주 기간 - 입사 신청 - 회원 - 사생
@@ -212,18 +214,27 @@ public class DormitoryManagementService {
             }
         }
 
-       List<NotOrAssignedResidentsRes> notOrAssignedResidentsResList = notAssignedResidents.stream()
-                .map(resident -> NotOrAssignedResidentsRes.builder()
+       List<NotAssignedResidentRes> notAssignedResidentsResList = notAssignedResidents.stream()
+                .map(resident -> NotAssignedResidentRes.builder()
                         .id(resident.getId())
                         .studentNumber(resident.getUser().getStudentNumber())
                         .name(resident.getUser().getName())
                         .phoneNumber(resident.getUser().getPhoneNumber())
+                        .isAssigned(checkResidentAssignedToRoom(resident))
                         .build())
                 .collect(Collectors.toList());
+        // 배정된 사생 조회
+        List<AssignedResidentRes> assignedResidentsResList = assignedResidentsByRoom(room);
+
+        NotOrAssignedResidentsRes residentsRes = NotOrAssignedResidentsRes.builder()
+                .assignedResidentResList(assignedResidentsResList)
+                .notAssignedResidentResList(notAssignedResidentsResList)
+                .build();
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(notOrAssignedResidentsResList).build();
+                .information(residentsRes)
+                .build();
 
         return  ResponseEntity.ok(apiResponse);
 
@@ -232,25 +243,39 @@ public class DormitoryManagementService {
     // 해당 호실에 거주하는 사생 조회
     public ResponseEntity<?> getAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
         Room room = validRoomById(roomId);
-
-        List<Resident> assignedResidents = residentRepository.findByRoom(room);
-        List<NotOrAssignedResidentsRes> assignedResidentsResList = assignedResidents.stream()
-                .map(resident -> NotOrAssignedResidentsRes.builder()
-                        .id(resident.getId())
-                        .name(resident.getUser().getName())
-                        .studentNumber(resident.getUser().getStudentNumber())
-                        .phoneNumber(resident.getUser().getPhoneNumber())
-                        .build())
-                .collect(Collectors.toList());
+        List<AssignedResidentRes> assignedResidentResList = assignedResidentsByRoom(room);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(assignedResidentsResList).build();
+                .information(assignedResidentResList).build();
 
         return  ResponseEntity.ok(apiResponse);
     }
 
+    // 배정된 사생 조회 메소드
+    private List<AssignedResidentRes> assignedResidentsByRoom(Room room) {
+        List<Resident> assignedResidents = residentRepository.findByRoom(room);
+        return assignedResidents.stream()
+                .map(resident -> AssignedResidentRes.builder()
+                        .id(resident.getId())
+                        .name(resident.getUser().getName())
+                        .studentNumber(resident.getUser().getStudentNumber())
+                        .phoneNumber(resident.getUser().getPhoneNumber())
+                        .isAssigned(checkResidentAssignedToRoom(resident))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    // 사생의 방 배정 여부 체크 메소드
+    private boolean checkResidentAssignedToRoom(Resident resident) {
+        Room findRoom = resident.getRoom();
+        return findRoom != null;
+    }
+
+
     // 수기 방배정
+    // TODO: 침대번호 배정 로직 다시 생각할 것 / 배정 취소 및 배정 가능
+    // ex. 1, 2번 중에 1번이 빠졌으면 1에 배정해야 하는데 현재 로직으로는 이거 불가능
     @Transactional
     public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails,List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
         // 리스트 사이즈만큼 반복
