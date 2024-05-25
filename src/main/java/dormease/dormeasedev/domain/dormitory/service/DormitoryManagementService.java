@@ -20,12 +20,7 @@ import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageInfo;
-import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -193,17 +188,24 @@ public class DormitoryManagementService {
 
 
     // 배정된 호실이 없는 사생 목록 조회
-    // TODO : 해당 방에 배정된 사생도 조회
-    public ResponseEntity<?> getNotAndAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
-        Room room = validRoomById(roomId);
+    // TODO: 입사신청을 하지않은 호실 미배정 사생의 조회가 가능한지?
+    public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long dormitoryId) {
+        User admin = validUserById(customUserDetails.getId());
+        Dormitory dormitory = validDormitoryById(dormitoryId);
+
         List<Resident> notAssignedResidents = new ArrayList<>();
+        // dormitory 이름, 성별 같은 기숙사 가져오기
+        List<Dormitory> sameNameAndSameGenderDormitories = dormitoryRepository.findBySchoolAndNameAndGender(admin.getSchool(), dormitory.getName(), dormitory.getGender());
         // 기숙사 - 거주 기간 - 입사 신청 - 회원 - 사생
-        List<DormitoryTerm> dormitoryTerms = dormitoryTermRepository.findByDormitory(room.getDormitory());
+        List<DormitoryTerm> dormitoryTerms = sameNameAndSameGenderDormitories.stream()
+                .map(dormitoryTermRepository::findByDormitory)
+                .flatMap(List::stream)
+                .toList();
 
         Set<User> users = new HashSet<>();
         for (DormitoryTerm term : dormitoryTerms) {
-            List<DormitoryApplication> findDormitoryApplications = dormitoryApplicationRepository.findByDormitoryTerm(term);
-            for (DormitoryApplication application : findDormitoryApplications) {
+            List<DormitoryApplication> dormitoryApplications = dormitoryApplicationRepository.findByDormitoryTerm(term);
+            for (DormitoryApplication application : dormitoryApplications) {
                 users.add(application.getUser());
             }
         }
@@ -214,8 +216,8 @@ public class DormitoryManagementService {
             }
         }
 
-       List<NotAssignedResidentRes> notAssignedResidentsResList = notAssignedResidents.stream()
-                .map(resident -> NotAssignedResidentRes.builder()
+       List<NotOrAssignedResidentRes> notAssignedResidentsResList = notAssignedResidents.stream()
+                .map(resident -> NotOrAssignedResidentRes.builder()
                         .id(resident.getId())
                         .studentNumber(resident.getUser().getStudentNumber())
                         .name(resident.getUser().getName())
@@ -223,40 +225,21 @@ public class DormitoryManagementService {
                         .isAssigned(checkResidentAssignedToRoom(resident))
                         .build())
                 .collect(Collectors.toList());
-        // 배정된 사생 조회
-        List<AssignedResidentRes> assignedResidentsResList = assignedResidentsByRoom(room);
-
-        NotOrAssignedResidentsRes residentsRes = NotOrAssignedResidentsRes.builder()
-                .assignedResidentResList(assignedResidentsResList)
-                .notAssignedResidentResList(notAssignedResidentsResList)
-                .build();
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(residentsRes)
+                .information(notAssignedResidentsResList)
                 .build();
 
         return  ResponseEntity.ok(apiResponse);
-
     }
 
     // 해당 호실에 거주하는 사생 조회
     public ResponseEntity<?> getAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
         Room room = validRoomById(roomId);
-        List<AssignedResidentRes> assignedResidentResList = assignedResidentsByRoom(room);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(assignedResidentResList).build();
-
-        return  ResponseEntity.ok(apiResponse);
-    }
-
-    // 배정된 사생 조회 메소드
-    private List<AssignedResidentRes> assignedResidentsByRoom(Room room) {
         List<Resident> assignedResidents = residentRepository.findByRoom(room);
-        return assignedResidents.stream()
-                .map(resident -> AssignedResidentRes.builder()
+        List<NotOrAssignedResidentRes> assignedResidentRes = assignedResidents.stream()
+                .map(resident -> NotOrAssignedResidentRes.builder()
                         .id(resident.getId())
                         .name(resident.getUser().getName())
                         .studentNumber(resident.getUser().getStudentNumber())
@@ -264,6 +247,12 @@ public class DormitoryManagementService {
                         .isAssigned(checkResidentAssignedToRoom(resident))
                         .build())
                 .collect(Collectors.toList());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(assignedResidentRes).build();
+
+        return  ResponseEntity.ok(apiResponse);
     }
 
     // 사생의 방 배정 여부 체크 메소드
