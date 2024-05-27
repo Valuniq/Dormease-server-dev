@@ -8,6 +8,10 @@ import lombok.Getter;
 public class BonusPointManagementReq {
 
     @NotBlank
+    @Schema(type = "Long", example = "1", description= "상점의 id입니다.")
+    private Long pointId;
+
+    @NotBlank
     @Size(max = 30, message = "최대 30자까지 입력 가능합니다.")
     @Schema(type = "String", example = "화재대피훈련 참여", description= "상점 내역의 내용입니다.")
     private String content;

@@ -5,7 +5,6 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
-import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.point.domain.Point;
 import dormease.dormeasedev.domain.point.domain.PointType;
@@ -36,10 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -76,15 +72,21 @@ public class PointService {
     }
 
     // 상벌점 리스트 내역 등록
-    // TODO: 수정 필요, req 값에 id 추가 후 받은 id와 findById 해서 안 맞으면 새로 등록할 것.
     @Transactional
     public ResponseEntity<?> registerPointList(CustomUserDetails customUserDetails, PointListReq pointListReqs) {
         User admin = validUserById(customUserDetails.getId());
         List<BonusPointManagementReq> bonusPointList = pointListReqs.getBonusPointList();
         List<MinusPointManagementReq> minusPointList = pointListReqs.getMinusPointList();
 
-        if(!bonusPointList.isEmpty()) {
-            List<Point> bonusPoint = bonusPointList.stream()
+        if (!bonusPointList.isEmpty()) {
+            List<Point> bonusPointsToSave = bonusPointList.stream()
+                    // 요청받은 상점 내역의 존재 여부 확인
+                    .filter(bonusPointManagementReq -> !pointRepository.existsByIdAndScoreAndPointType(
+                            bonusPointManagementReq.getPointId(),
+                            bonusPointManagementReq.getScore(),
+                            PointType.BONUS
+                    ))
+                    // 해당하는 상점 내역이 없을 경우 리스트에 추가
                     .map(bonusPointManagementReq -> Point.builder()
                             .school(admin.getSchool())
                             .pointType(PointType.BONUS)
@@ -92,10 +94,18 @@ public class PointService {
                             .score(bonusPointManagementReq.getScore())
                             .build())
                     .collect(Collectors.toList());
-            pointRepository.saveAll(bonusPoint);
+
+            if (!bonusPointsToSave.isEmpty()) {
+                pointRepository.saveAll(bonusPointsToSave);
+            }
         }
-        if(!minusPointList.isEmpty()) {
-            List<Point> minusPoint = minusPointList.stream()
+        if (!minusPointList.isEmpty()) {
+            List<Point> minusPointsToSave = minusPointList.stream()
+                    .filter(minusPointManagementReq -> !pointRepository.existsByIdAndScoreAndPointType(
+                            minusPointManagementReq.getPointId(),
+                            minusPointManagementReq.getScore(),
+                            PointType.MINUS
+                    ))
                     .map(minusPointManagementReq -> Point.builder()
                             .school(admin.getSchool())
                             .pointType(PointType.MINUS)
@@ -103,7 +113,10 @@ public class PointService {
                             .score(minusPointManagementReq.getScore())
                             .build())
                     .collect(Collectors.toList());
-            pointRepository.saveAll(minusPoint);
+
+            if (!minusPointsToSave.isEmpty()) {
+                pointRepository.saveAll(minusPointsToSave);
+            }
         }
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -137,20 +150,18 @@ public class PointService {
     // Description : 상벌점 내역 중 사생 관련 기능
 
     // 상벌점 부여
-    // TODO: type 안 받게 수정
     @Transactional
-    public ResponseEntity<?> addUserPoints(CustomUserDetails customUserDetails, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs, String pointType) {
+    public ResponseEntity<?> addUserPoints(CustomUserDetails customUserDetails, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs) {
         User admin = validUserById(customUserDetails.getId());
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
-        PointType type = PointType.valueOf(pointType.toUpperCase());
-
+        Set<PointType> pointTypes = new HashSet<>();
         List<UserPoint> userPoints = addPointToResidentReqs.stream()
                 .map(req -> {
                     Point point = validPointById(req.getPointId());
-                    DefaultAssert.isTrue(point.getPointType() == type, "내역과 상벌점 타입이 일치하지 않습니다.");
                     DefaultAssert.isTrue(point.getStatus() == Status.ACTIVE, "삭제된 상벌점 내역은 부여할 수 없습니다.");
+                    pointTypes.add(point.getPointType());
                     return UserPoint.builder()
                             .user(user)
                             .point(validPointById(req.getPointId()))
@@ -159,29 +170,34 @@ public class PointService {
                 .collect(Collectors.toList());
 
         userPointRepository.saveAll(userPoints);
-        updatePoint(user, type);
+        updatePoint(user, pointTypes);
 
-        String message = type == PointType.BONUS ? "상점" : "벌점";
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message(message + "이 부여되었습니다.").build())
+                .information(Message.builder().message("상/벌점이 부여되었습니다.").build())
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
 
-    private void updatePoint(User user, PointType pointType) {
-        String message = pointType == PointType.BONUS ? "상점" : "벌점";
-
+    private void updatePoint(User user, Set<PointType> pointTypes) {
         List<UserPoint> userPoints = userPointRepository.findByUser(user);
-        DefaultAssert.isTrue(!userPoints.isEmpty(), message + "이 부여되지 않았습니다.");
+        DefaultAssert.isTrue(!userPoints.isEmpty(), "상/벌점이 부여되지 않았습니다.");
 
-        Integer totalPoint = userPoints.stream()
+        for (PointType pointType : pointTypes) {
+            Integer totalPoint = calculateTotalPoint(userPoints, pointType);
+            if (pointType == PointType.BONUS) {
+                user.updateBonusPoint(totalPoint);
+            } else {
+                user.updateMinusPoint(totalPoint);
+            }
+        }
+    }
+
+    private Integer calculateTotalPoint(List<UserPoint> userPoints, PointType pointType) {
+        return userPoints.stream()
                 .filter(userPoint -> userPoint.getPoint().getPointType().equals(pointType))
                 .mapToInt(userPoint -> userPoint.getPoint().getScore())
                 .sum();
-
-        if (pointType == PointType.BONUS) { user.updateBonusPoint(totalPoint);
-        } else { user.updateMinusPoint(totalPoint); }
     }
 
     // 상벌점 내역 삭제
@@ -196,10 +212,12 @@ public class PointService {
                 .map(this::validUserPointById)
                 .collect(Collectors.toList());
 
-        userPointRepository.deleteAll(userPoints);
+        Set<PointType> pointTypes = userPoints.stream()
+                .map(userPoint -> userPoint.getPoint().getPointType())
+                .collect(Collectors.toSet());
 
-        updatePoint(user, PointType.BONUS);
-        updatePoint(user, PointType.MINUS);
+        userPointRepository.deleteAll(userPoints);
+        updatePoint(user, pointTypes);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
