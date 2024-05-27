@@ -202,7 +202,6 @@ public class DormitoryManagementService {
     public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long dormitoryId) {
         User admin = validUserById(customUserDetails.getId());
         Dormitory dormitory = validDormitoryById(dormitoryId);
-
         List<Resident> notAssignedResidents = new ArrayList<>();
         // dormitory 이름, 성별 같은 기숙사 가져오기
         List<Dormitory> sameNameAndSameGenderDormitories = dormitoryRepository.findBySchoolAndNameAndGender(admin.getSchool(), dormitory.getName(), dormitory.getGender());
@@ -272,9 +271,7 @@ public class DormitoryManagementService {
     }
 
 
-    // 수기 방배정
-    // TODO: 침대번호 배정 로직 다시 생각할 것 / 배정 취소 및 배정 가능
-    // ex. 1, 2번 중에 1번이 빠졌으면 1에 배정해야 하는데 현재 로직으로는 이거 불가능
+    // 수기 방배정(배정 취소 및 배정 가능)
     @Transactional
     public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails,List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
         // 리스트 사이즈만큼 반복
@@ -286,11 +283,12 @@ public class DormitoryManagementService {
             if (!residents.isEmpty()) {
                 for (Resident resident : residents) {
                     resident.updateRoom(null);
+                    resident.updateBedNumber(null);
                 }
             }
 
             int bedNumberCount = Integer.MAX_VALUE;
-            for (Long residentId : assignedResidentToRoomReq.getIds()) {
+            for (Long residentId : assignedResidentToRoomReq.getResidentIds()) {
                 // 인실 만큼 bedNumber 반복 room과 bedNumber로 사생 찾아서 없으면 해당 bedNumber에 배정
                 for (int i=1; i<=room.getRoomSize(); i++) {
                    if(!residentRepository.existsByRoomAndBedNumber(room, i)) {
