@@ -94,12 +94,9 @@ public class DormitoryApplicationSettingService {
             DormitorySettingTerm dormitorySettingTerm = DormitorySettingTerm.builder()
                     .dormitory(dormitory)
                     .dormitoryApplicationSetting(dormitoryApplicationSetting)
+                    .acceptLimit(dormitoryReq.getAcceptLimit())
                     .build();
             dormitorySettingTermRepository.save(dormitorySettingTerm);
-
-            // Dormitory 수용 인원 save(update)
-            // TODO : 수용 인원인지, 지금 뽑을 인원인지 파악 필요
-            dormitory.updateDormitorySize(dormitoryReq.getDormitorySize());
 
             // DormitoryTerm(거주 기간) save
             for (DormitoryTermReq dormitoryTermReq : dormitoryReq.getDormitoryTermReqList()) {

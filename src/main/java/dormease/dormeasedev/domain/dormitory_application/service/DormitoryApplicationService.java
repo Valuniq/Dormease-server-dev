@@ -10,6 +10,7 @@ import dormease.dormeasedev.domain.dormitory_application.dto.response.DormitoryA
 import dormease.dormeasedev.domain.dormitory_application.dto.response.DormitoryApplicationSimpleRes;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
@@ -41,6 +42,7 @@ public class DormitoryApplicationService {
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final DormitorySettingTermRepository dormitorySettingTermRepository;
     private final MealTicketRepository mealTicketRepository;
+    private final DormitoryApplicationSettingRepository dormitoryapplicationsettingRepository;
 
     private final UserService userService;
     private final DormitoryService dormitoryService;
@@ -56,9 +58,6 @@ public class DormitoryApplicationService {
         Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryApplicationReq.getDormitoryId());
         MealTicket mealTicket = mealTicketService.validateMealTicketById(dormitoryApplicationReq.getMealTicketId());
 
-//        List<DormitorySettingTerm> dormitorySettingTermList = dormitorySettingTermRepository.findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.NOW);
-//        DormitoryApplicationSetting dormitoryApplicationSetting = dormitorySettingTermList.get(0).getDormitoryApplicationSetting();
-
         Optional<DormitorySettingTerm> findDormitorySettingTerm = dormitorySettingTermRepository.findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.NOW);
         DefaultAssert.isTrue(findDormitorySettingTerm.isPresent(), "해당 기숙사에 대한 입사 신청 설정이 존재하지 않습니다.");
         DormitorySettingTerm dormitorySettingTerm = findDormitorySettingTerm.get();
@@ -72,7 +71,6 @@ public class DormitoryApplicationService {
         DormitoryApplication dormitoryApplication = DormitoryApplication.builder()
                 .user(user)
                 .dormitoryTerm(dormitoryTerm)
-                .dormitoryApplicationSetting(dormitoryApplicationSetting)
                 .copy(dormitoryApplicationReq.getCopy())
                 .prioritySelectionCopy(dormitoryApplicationReq.getPrioritySelectionCopy())
                 .isSmoking(dormitoryApplicationReq.getIsSmoking())
@@ -121,7 +119,10 @@ public class DormitoryApplicationService {
         Dormitory dormitory = dormitoryTerm.getDormitory();
 
         // 입사 신청 설정
-        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
+//        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
+        Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryapplicationsettingRepository.findBySchoolAndDateRange(school, dormitoryApplication.getCreatedDate().toLocalDate());
+        DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "입사 신청 날짜에 알맞은 입사 신청 설정이 존재하지 않습니다.");
+        DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
 
         // 총액 = 보증금 + 기숙사비 + 식권
         Integer totalPrice = dormitoryApplication.getTotalPrice();
@@ -177,7 +178,10 @@ public class DormitoryApplicationService {
             // 기숙사
             Dormitory dormitory = dormitoryTerm.getDormitory();
             // 입사 신청 설정
-            DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
+//            DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
+            Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryapplicationsettingRepository.findBySchoolAndDateRange(school, dormitoryApplication.getCreatedDate().toLocalDate());
+            DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "입사 신청 날짜에 알맞은 입사 신청 설정이 존재하지 않습니다.");
+            DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
 
             DormitoryApplicationSimpleRes dormitoryApplicationSimpleRes = DormitoryApplicationSimpleRes.builder()
                     .dormitoryApplicationId(dormitoryApplication.getId())
