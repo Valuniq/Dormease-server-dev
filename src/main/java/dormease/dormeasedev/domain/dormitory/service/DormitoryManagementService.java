@@ -47,7 +47,6 @@ public class DormitoryManagementService {
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
         DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
-        List<RoomByDormitoryAndFloorRes> roomByDormitoryAndFloorRes = new ArrayList<>();
         List<Room> roomList = new ArrayList<>();
         for (Dormitory findDormitory : dormitories) {
             // floor가 999인 경우 모든 방을 가져오고, 그렇지 않은 경우 특정 층의 방을 가져옴
@@ -70,11 +69,10 @@ public class DormitoryManagementService {
                         .build())
                 .sorted(Comparator.comparingInt(RoomByDormitoryAndFloorRes::getRoomNumber))
                 .toList();
-        roomByDormitoryAndFloorRes.addAll(rooms);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(roomByDormitoryAndFloorRes)
+                .information(rooms)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
