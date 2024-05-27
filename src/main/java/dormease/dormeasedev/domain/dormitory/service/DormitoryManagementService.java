@@ -4,7 +4,6 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.AssignedResidentToRoomReq;
-import dormease.dormeasedev.domain.dormitory.dto.request.ResidentIdReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.*;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
@@ -41,7 +40,6 @@ public class DormitoryManagementService {
     private final ResidentRepository residentRepository;
 
     // 건물, 층별 호실 목록 조회
-    // TODO: 999 받으면 전체호실
     public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
@@ -49,23 +47,30 @@ public class DormitoryManagementService {
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
         DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
-        // 호실 정보 조회
         List<RoomByDormitoryAndFloorRes> roomByDormitoryAndFloorRes = new ArrayList<>();
+        List<Room> roomList = new ArrayList<>();
         for (Dormitory findDormitory : dormitories) {
-            List<Room> roomList = roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true);
+            // floor가 999인 경우 모든 방을 가져오고, 그렇지 않은 경우 특정 층의 방을 가져옴
+            if (floor == 999) {
+                roomList.addAll(roomRepository.findByDormitoryAndIsActivated(findDormitory, true));
 
-            List<RoomByDormitoryAndFloorRes> rooms = roomList.stream()
-                    .map(room -> RoomByDormitoryAndFloorRes.builder()
-                            .id(room.getId())
-                            .roomNumber(room.getRoomNumber())
-                            .roomSize(room.getRoomSize())
-                            .gender(room.getGender().toString())
-                            .currentPeople(room.getCurrentPeople())
-                            .build())
-                    .sorted(Comparator.comparing(RoomByDormitoryAndFloorRes::getRoomNumber)) // roomNumber 오름차순 정렬
-                    .toList();
-            roomByDormitoryAndFloorRes.addAll(rooms);
+            } else {
+                roomList.addAll(roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true));
+            }
+
         }
+        // 가져온 방들을 처리하여 결과 리스트에 추가
+        List<RoomByDormitoryAndFloorRes> rooms = roomList.stream()
+                .map(room -> RoomByDormitoryAndFloorRes.builder()
+                        .id(room.getId())
+                        .roomNumber(room.getRoomNumber())
+                        .roomSize(room.getRoomSize())
+                        .gender(room.getGender().toString())
+                        .currentPeople(room.getCurrentPeople())
+                        .build())
+                .sorted(Comparator.comparingInt(RoomByDormitoryAndFloorRes::getRoomNumber))
+                .toList();
+        roomByDormitoryAndFloorRes.addAll(rooms);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -178,6 +183,13 @@ public class DormitoryManagementService {
                         .build())
                 .collect(Collectors.toList());
 
+        // 층 수 데이터가 있다면 999(전체) 값을 0번째 인덱스에 추가
+        if (!floorByDormitoryResList.isEmpty()) {
+            floorByDormitoryResList.add(0, FloorByDormitoryRes.builder()
+                    .floor(999)
+                    .build());
+        }
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(floorByDormitoryResList)
@@ -270,13 +282,29 @@ public class DormitoryManagementService {
         // 리스트 사이즈만큼 반복
         for (AssignedResidentToRoomReq assignedResidentToRoomReq : assignedResidentToRoomReqList) {
             Room room = validRoomById(assignedResidentToRoomReq.getRoomId());
-            Integer bedNumberCount = room.getCurrentPeople();
 
-            for (ResidentIdReq residentIdReq : assignedResidentToRoomReq.getResidentIdReqList()) {
-                bedNumberCount += 1;
-                DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
+            // room에 배정된 사생 가져와서 사생의 room null처리
+            List<Resident> residents = residentRepository.findByRoom(room);
+            if (!residents.isEmpty()) {
+                for (Resident resident : residents) {
+                    resident.updateRoom(null);
+                }
+            }
 
-                Optional<Resident> residentOpt = residentRepository.findById(residentIdReq.getId());
+            int bedNumberCount = Integer.MAX_VALUE;
+            for (Long residentId : assignedResidentToRoomReq.getIds()) {
+                // 인실 만큼 bedNumber 반복 room과 bedNumber로 사생 찾아서 없으면 해당 bedNumber에 배정
+                for (int i=1; i<=room.getRoomSize(); i++) {
+                   if(!residentRepository.existsByRoomAndBedNumber(room, i)) {
+                       bedNumberCount = i;
+                       break;
+                   }
+                }
+                DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 침대가 없습니다.");
+                // bedNumberCount += 1;
+                // DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
+
+                Optional<Resident> residentOpt = residentRepository.findById(residentId);
                 DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
                 Resident resident = residentOpt.get();
 
