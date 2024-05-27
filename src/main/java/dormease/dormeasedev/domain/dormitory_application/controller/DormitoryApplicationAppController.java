@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/app/dormitoryApplication")
-public class DormitoryApplicationController {
+public class DormitoryApplicationAppController {
 
     private final DormitoryApplicationService dormitoryApplicationService;
 

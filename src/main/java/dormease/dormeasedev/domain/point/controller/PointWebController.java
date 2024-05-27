@@ -32,7 +32,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/web/points")
-public class PointController {
+public class PointWebController {
 
     private final PointService pointService;
 
@@ -83,10 +83,9 @@ public class PointController {
     public ResponseEntity<?> addPointsToResident(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
-            @Parameter(description = "상점, 벌점 중 부여하고자 하는 유형을 bonus 또는 minus로 입력해주세요.", required = true) @RequestParam String pointType,
             @Parameter(description = "Schemas의 AddPointToResidentReq을 참고해주세요.", required = true) @Valid @RequestBody List<AddPointToResidentReq> addPointToResidentReqList
     ) {
-        return pointService.addUserPoints(customUserDetails, residentId, addPointToResidentReqList, pointType);
+        return pointService.addUserPoints(customUserDetails, residentId, addPointToResidentReqList);
     }
 
     @Operation(summary = "상벌점 내역 조회", description = "상벌점 관리 프로세스 중 사생의 상벌점 내역을 조회합니다.")
