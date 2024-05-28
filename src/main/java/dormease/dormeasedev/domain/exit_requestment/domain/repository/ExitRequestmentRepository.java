@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface ExitRequestmentRepository extends JpaRepository<ExitRequestment, Long> {
 
-    Page<ExitRequestment> findExitRequestmentsBySchool(School school, Pageable pageable);
-
     boolean existsByResident(Resident resident);
+
+    Page<ExitRequestment> findExitRequestmentsByResident_User_School(School school, Pageable pageable);
 }

@@ -25,10 +25,6 @@ public class ExitRequestment extends BaseEntity {
     @JoinColumn(name = "resident_id")
     private Resident resident;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id")
-    private School school;
-
     // 퇴실 날짜
     private LocalDate exitDate;
 
@@ -53,10 +49,9 @@ public class ExitRequestment extends BaseEntity {
     }
 
     @Builder
-    public ExitRequestment(Long id, Resident resident, School school, LocalDate exitDate, Boolean hasKey, String keyNumber, String bankName, String accountNumber) {
+    public ExitRequestment(Long id, Resident resident, LocalDate exitDate, Boolean hasKey, String keyNumber, String bankName, String accountNumber) {
         this.id = id;
         this.resident = resident;
-        this.school = school;
         this.exitDate = exitDate;
         this.hasKey = hasKey;
         this.keyNumber = keyNumber;

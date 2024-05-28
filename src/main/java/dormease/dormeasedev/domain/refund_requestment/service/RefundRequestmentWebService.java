@@ -51,7 +51,7 @@ public class RefundRequestmentWebService {
         School school = admin.getSchool();
 
         Pageable pageable = PageRequest.of(page, 13, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<RefundRequestment> refundRequestmentsBySchool = refundRequestmentRepository.findRefundRequestmentsBySchool(school, pageable);
+        Page<RefundRequestment> refundRequestmentsBySchool = refundRequestmentRepository.findRefundRequestmentsByResident_User_School(school, pageable);
 
         List<RefundRequestment> refundRequestmentList = refundRequestmentsBySchool.getContent();
         List<RefundRequestmentRes> refundRequestmentResList = new ArrayList<>();
@@ -70,8 +70,8 @@ public class RefundRequestmentWebService {
                     .residentName(user.getName())
                     .studentNumber(user.getStudentNumber())
                     .phoneNumber(user.getPhoneNumber())
-                    .bankName(resident.getBankName())
-                    .accountNumber(resident.getAccountNumber())
+                    .bankName(refundRequestment.getBankName())
+                    .accountNumber(refundRequestment.getAccountNumber())
                     .term(dormitoryTerm.getTerm())
                     .exitDate(refundRequestment.getExitDate())
                     .createDate(refundRequestment.getCreatedDate().toLocalDate())

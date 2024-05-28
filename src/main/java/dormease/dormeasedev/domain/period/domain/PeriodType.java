@@ -7,12 +7,9 @@ import lombok.Getter;
 @Getter
 public enum PeriodType {
 
-    JOIN("JOIN"), // 입사
     LEAVE("LEAVE"), // 퇴사
     REFUND("REFUND"), // 환불
-    ROOMMATE("ROOMMATE"), // 룸메이트
-    DEPOSIT("DEPOSIT"); // 입금
-
+    ROOMMATE("ROOMMATE"); // 룸메이트
 
     private String value;
 }

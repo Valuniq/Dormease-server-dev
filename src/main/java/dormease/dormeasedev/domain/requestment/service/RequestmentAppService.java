@@ -46,11 +46,9 @@ public class RequestmentAppService {
 
         User user = userService.validateUserById(customUserDetails.getId());
         Resident resident = residentService.validateResidentByUser(user);
-        School school = user.getSchool();
 
         Requestment requestment = Requestment.builder()
                 .resident(resident)
-                .school(school)
                 .title(writeRequestmentReq.getTitle())
                 .content(writeRequestmentReq.getContent())
                 .consentDuringAbsence(writeRequestmentReq.getConsentDuringAbsence()) // 부재중 방문 동의 여부
@@ -75,7 +73,7 @@ public class RequestmentAppService {
         School school = user.getSchool();
 
         Pageable pageable = PageRequest.of(page, 8, Sort.by(Sort.Direction.DESC, "createdDate")); // 최신순.. 기능 정의서에는 날짜순이라는데 걍 최신으로 함
-        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsBySchoolAndVisibility(school, true, pageable);
+        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByResident_User_SchoolAndVisibility(school, true, pageable);
 
         List<Requestment> requestmentList = requestmentPage.getContent();
         List<RequestmentRes> requestmentResList = new ArrayList<>();
@@ -190,7 +188,7 @@ public class RequestmentAppService {
 
     // Description : 유효성 검증 함수
     public Requestment validateRequestmentByIdAndSchool(Long requestmentId, School school) {
-        Optional<Requestment> findRequestment = requestmentRepository.findByIdAndSchool(requestmentId, school);
+        Optional<Requestment> findRequestment = requestmentRepository.findByIdAndResident_User_School(requestmentId, school);
         DefaultAssert.isTrue(findRequestment.isPresent(), "올바르지 않은 요청사항 ID입니다.");
         return findRequestment.get();
     }
