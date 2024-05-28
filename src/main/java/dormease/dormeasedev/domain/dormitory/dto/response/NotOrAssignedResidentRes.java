@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class NotOrAssignedResidentsRes {
+public class NotOrAssignedResidentRes {
 
     @Schema(type = "Long", example = "1", description= "사생의 고유 id입니다.")
     private Long id;
@@ -21,12 +21,15 @@ public class NotOrAssignedResidentsRes {
     @Schema(type = "String", example = "010-0000-0000", description= "사생의 휴대전화 번호입니다.")
     private String phoneNumber;
 
+    @Schema(type = "boolean", example = "true/false", description= "사생의 해당 호실 거주 여부입니다.")
+    private boolean isAssigned;
+
     @Builder
-    public NotOrAssignedResidentsRes(Long id, String studentNumber, String name, String phoneNumber) {
+    public NotOrAssignedResidentRes(Long id, String studentNumber, String name, String phoneNumber, boolean isAssigned) {
         this.id = id;
         this.studentNumber = studentNumber;
         this.name = name;
         this.phoneNumber = phoneNumber;
+        this.isAssigned = isAssigned;
     }
-
 }

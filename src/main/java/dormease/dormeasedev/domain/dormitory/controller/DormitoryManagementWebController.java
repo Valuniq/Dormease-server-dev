@@ -95,22 +95,22 @@ public class DormitoryManagementWebController {
         return dormitoryManagementService.getDormitoryInfo(customUserDetails, dormitoryId);
     }
 
-    @Operation(summary = "미배정 사생 조회", description = "건물 관리 프로세스 중 호실이 미배정된 사생 목록을 조회합니다.")
+    @Operation(summary = "미배정 사생 조회", description = "수기 방배정 시 호실 미배정 사생 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentsRes.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("/rooms/{roomId}/not-assigned")
+    @GetMapping("/rooms/{dormitoryId}/not-assigned")
     public ResponseEntity<?> getNotAssignedResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
     ) {
-        return dormitoryManagementService.getNotAssignedResidents(customUserDetails, roomId);
+        return dormitoryManagementService.getNotAssignedResidents(customUserDetails, dormitoryId);
     }
 
     @Operation(summary = "특정 호실에 배정된 사생 조회", description = "건물 관리 프로세스 중 특정 호실에 배정된 사생 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentsRes.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/rooms/{roomId}/assigned")
