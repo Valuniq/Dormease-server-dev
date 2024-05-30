@@ -11,6 +11,7 @@ import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.domain.repository.NotificationRepository;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationAppRes;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailAppRes;
+import dormease.dormeasedev.domain.notification.dto.response.NotificationMainRes;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -78,7 +80,6 @@ public class NotificationAppService {
     // Description : 공지사항(FAQ) 상세 조회
     public ResponseEntity<?> findNotification(CustomUserDetails customUserDetails, Long notificationId) {
 
-        // TODO :
         User user = userService.validateUserById(customUserDetails.getId());
         Notification notification = notificationWebService.validateById(notificationId);
 
@@ -117,6 +118,30 @@ public class NotificationAppService {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(notificationDetailAppRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 메인 페이지 공지사항 조회 - 상단핀 고정된 제일 최근 공지사항
+    public ResponseEntity<?> findMainNotification(CustomUserDetails customUserDetails) {
+
+        User user = userService.validateUserById(customUserDetails.getId());
+        School school = user.getSchool();
+
+        Optional<Notification> findNotification = notificationRepository.findTopBySchoolAndNotificationTypeAndPinnedOrderByCreatedDateDesc(school, NotificationType.ANNOUNCEMENT, true);
+        DefaultAssert.isTrue(findNotification.isPresent(), "해당 학교에 상단핀 고정된 공지사항이 없습니다.");
+        Notification notification = findNotification.get();
+
+        NotificationMainRes notificationMainRes = NotificationMainRes.builder()
+                .notificationId(notification.getId())
+                .title(notification.getTitle())
+                .createdDate(notification.getModifiedDate().toLocalDate())
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(notificationMainRes)
                 .build();
 
         return ResponseEntity.ok(apiResponse);

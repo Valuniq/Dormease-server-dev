@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.notification.controller;
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationAppRes;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailAppRes;
+import dormease.dormeasedev.domain.notification.dto.response.NotificationMainRes;
 import dormease.dormeasedev.domain.notification.service.NotificationAppService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
@@ -57,5 +58,18 @@ public class NotificationAppController {
             @Parameter(description = "Notification ID을 입력해주세요.", required = true) @PathVariable(value = "notificationId") Long notificationId
     ) {
         return notificationAppService.findNotification(customUserDetails, notificationId);
+    }
+
+    // Description : 메인 페이지 공지사항 조회 - 상단핀 고정된 제일 최근 공지사항
+    @Operation(summary = "메인 페이지 공지사항 조회" , description = "메인 페이지 공지사항을 조회합니다. 상단핀 고정된 제일 최근 공지사항입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "메인 페이지 공지사항 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotificationMainRes.class))}),
+            @ApiResponse(responseCode = "400", description = "메인 페이지 공지사항 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping
+    public ResponseEntity<?> findMainNotification(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return notificationAppService.findMainNotification(customUserDetails);
     }
 }
