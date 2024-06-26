@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.user.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
+import dormease.dormeasedev.domain.restaurant.domain.Restaurant;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.dto.request.ModifyStudentNumberReq;
 import jakarta.persistence.*;
@@ -28,6 +29,10 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
 
     private String loginId;
 
@@ -100,29 +105,32 @@ public class User extends BaseEntity {
     public void updateBonusPoint(Integer bonusPoint) { this.bonusPoint = bonusPoint; }
     public void updateMinusPoint(Integer minusPoint) { this.minusPoint = minusPoint; }
 
+    public void updateRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
+    }
+
     //    public void updateRefreshToken(String updateRefreshToken) {
 //        this.refreshToken = updateRefreshToken;
 //    }
 
     @Builder
-    public User(Long id, School school, String loginId, String password, String name, String phoneNumber, String studentNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer schoolYear, Double grade) {
-        this.id = id;
+    public User(School school, Restaurant restaurant, String loginId, String password, String name, String phoneNumber, String studentNumber, Boolean alarmSetting, Gender gender, UserType userType, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus, String address, String major, Integer schoolYear, Double grade) {
         this.school = school;
+        this.restaurant = restaurant;
         this.loginId = loginId;
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.studentNumber = studentNumber;
-        this.alarmSetting = true;
+        this.alarmSetting = alarmSetting;
         this.gender = gender;
         this.userType = userType;
-        this.bonusPoint = 0;
-        this.minusPoint = 0;
+        this.bonusPoint = bonusPoint;
+        this.minusPoint = minusPoint;
         this.schoolStatus = schoolStatus;
         this.address = address;
         this.major = major;
         this.schoolYear = schoolYear;
         this.grade = grade;
     }
-
 }
