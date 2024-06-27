@@ -28,13 +28,13 @@ public class Menu extends BaseEntity {
     private String name;
 
     // 날짜
-    private LocalDate date;
+    private LocalDate menuDate;
 
     @Builder
-    public Menu(Long id, Restaurant restaurant, String name, LocalDate date) {
+    public Menu(Long id, Restaurant restaurant, String name, LocalDate menuDate) {
         this.id = id;
         this.restaurant = restaurant;
         this.name = name;
-        this.date = date;
+        this.menuDate = menuDate;
     }
 }
