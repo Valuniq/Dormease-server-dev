@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryForFindDormitoryApplicationSettingRes;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.meal_ticket.dto.response.MealTicketRes;
-import dormease.dormeasedev.domain.period.dto.response.PeriodRes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

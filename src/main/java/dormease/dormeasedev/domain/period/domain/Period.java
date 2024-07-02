@@ -36,6 +36,11 @@ public class Period extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PeriodType periodType;
 
+    public void updateDate(LocalDate startDate, LocalDate endDate) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
     @Builder
     public Period(Long id, School school, LocalDate startDate, LocalDate endDate, PeriodType periodType) {
         this.id = id;
