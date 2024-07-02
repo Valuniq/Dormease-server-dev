@@ -79,6 +79,7 @@ public class DormitoryManagementService {
     }
 
     // 건물 정보 조회
+    // TODO: 오류 안나게 null 처리(인실, 방 개수, 총 인원 등)
     public ResponseEntity<?> getDormitoryInfo(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         // 건물명, 메모, 이미지는 dormitory에서 가져오기
@@ -92,28 +93,27 @@ public class DormitoryManagementService {
         Integer dormitorySize = 0;
 
         for (Dormitory findDormitory : sameNameDormitories) {
-            dormitorySize += findDormitory.getDormitorySize();
-            roomCount += findDormitory.getRoomCount();
+            dormitorySize += Optional.ofNullable(findDormitory.getDormitorySize()).orElse(0);
+            roomCount += Optional.ofNullable(findDormitory.getRoomCount()).orElse(0);
 
             List<Room> rooms = roomRepository.findByDormitoryAndIsActivated(findDormitory, true).stream().toList();
             for (Room room : rooms) {
-                currentPeopleCount += room.getCurrentPeople();
-                // 인실과 현재 수용된 인원이 동일할 시 꽉 찬 호실 수 추가
-                if (room.getRoomSize() == room.getCurrentPeople()) {
+                currentPeopleCount += Optional.ofNullable(room.getCurrentPeople()).orElse(0);
+
+                if (Optional.ofNullable(room.getRoomSize()).orElse(0).equals(room.getCurrentPeople())) {
                     fullRoomCount += 1;
                 }
             }
-
         }
 
         DormitoryManagementDetailRes dormitoryManagementDetailRes = DormitoryManagementDetailRes.builder()
                 .name(dormitory.getName())
-                .imageUrl(dormitory.getImageUrl())
+                .imageUrl(Optional.ofNullable(dormitory.getImageUrl()).orElse(""))
                 .fullRoomCount(fullRoomCount)
                 .roomCount(roomCount)
                 .currentPeopleCount(currentPeopleCount)
                 .dormitorySize(dormitorySize)
-                .memo(dormitory.getMemo())
+                .memo(Optional.ofNullable(dormitory.getMemo()).orElse(""))
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder()
