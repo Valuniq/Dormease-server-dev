@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "User API", description = "User 관련 API입니다.")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/app/users")
 public class UserController {
 
     private final UserService userService;
@@ -103,5 +103,19 @@ public class UserController {
             @Parameter(description = "Schemas의 ModifyPhoneNumberReq 참고해주세요.", required = true) @Valid @RequestBody ModifyPhoneNumberReq modifyPhoneNumberReq
     ) {
         return userService.modifyPhoneNumber(customUserDetails, modifyPhoneNumberReq);
+    }
+
+    // Description : 대표 식당 변경
+    @Operation(summary = "메인 페이지 - 대표 식당 변경", description = "메인 페이지에서 보일 대표 식당을 변경합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PutMapping("/restaurant/{restaurantId}")
+    public ResponseEntity<?> modifyRepresentativeRestaurant (
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "대표 식당으로 지정할 식당 id를 입력해주세요.", required = true) @PathVariable Long restaurantId
+    ) {
+        return userService.modifyRepresentativeRestaurant(customUserDetails, restaurantId);
     }
 }

@@ -13,8 +13,8 @@ import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.domain.repository.NotificationRepository;
 import dormease.dormeasedev.domain.notification.dto.request.ModifyNotificationReq;
 import dormease.dormeasedev.domain.notification.dto.request.WriteNotificataionReq;
-import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailRes;
-import dormease.dormeasedev.domain.notification.dto.response.NotificationRes;
+import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailWebRes;
+import dormease.dormeasedev.domain.notification.dto.response.NotificationWebRes;
 import dormease.dormeasedev.domain.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
@@ -60,14 +60,14 @@ public class NotificationWebService {
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
 
-        Pageable pageable = PageRequest.of(page, 23, Sort.by(Sort.Order.desc("pinned"), Sort.Order.asc("createdDate")));
+        Pageable pageable = PageRequest.of(page, 23, Sort.by(Sort.Order.desc("pinned"), Sort.Order.desc("createdDate")));
         Page<Notification> notificationPage = notificationRepository.findNotificationsBySchoolAndNotificationType(school, notificationType, pageable);
         List<Notification> notificationList = notificationPage.getContent();
 
-        List<NotificationRes> notificationResList = new ArrayList<>();
+        List<NotificationWebRes> notificationWebResList = new ArrayList<>();
         for (Notification notification : notificationList) {
             boolean existFile = fileRepository.existsByNotification(notification);
-            NotificationRes notificationRes = NotificationRes.builder()
+            NotificationWebRes notificationWebRes = NotificationWebRes.builder()
                     .notificationId(notification.getId())
                     .pinned(notification.getPinned())
                     .title(notification.getTitle())
@@ -75,11 +75,11 @@ public class NotificationWebService {
                     .createdDate(notification.getCreatedDate().toLocalDate())
                     .existFile(existFile)
                     .build();
-            notificationResList.add(notificationRes);
+            notificationWebResList.add(notificationWebRes);
         }
 
         PageInfo pageInfo = PageInfo.toPageInfo(pageable, notificationPage);
-        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, notificationResList);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, notificationWebResList);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -121,7 +121,6 @@ public class NotificationWebService {
     public ResponseEntity<?> findNotification(CustomUserDetails customUserDetails, Long notificationId) {
 
         // TODO : 제목, 작성자, 작성일, 수정일, 내용, 첨부파일, 최상단 고정 여부
-
         User admin = userService.validateUserById(customUserDetails.getId());
         Notification notification = validateById(notificationId);
 
@@ -150,7 +149,7 @@ public class NotificationWebService {
             fileResList.add(fileRes);
         }
 
-        NotificationDetailRes notificationDetailRes = NotificationDetailRes.builder()
+        NotificationDetailWebRes notificationDetailWebRes = NotificationDetailWebRes.builder()
                 .pinned(notification.getPinned())
                 .title(notification.getTitle())
                 .writer(notification.getUser().getName())
@@ -162,7 +161,7 @@ public class NotificationWebService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(notificationDetailRes)
+                .information(notificationDetailWebRes)
                 .build();
 
         return ResponseEntity.ok(apiResponse);

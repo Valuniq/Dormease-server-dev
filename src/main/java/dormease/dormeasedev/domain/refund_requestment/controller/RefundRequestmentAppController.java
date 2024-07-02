@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "APP : RefundRequestment API", description = "APP - 환불 신청 관련 API입니다.")
+@Tag(name = "RefundRequestment API", description = "APP - 환불 신청 관련 API입니다.")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/app/refundRequestment")
