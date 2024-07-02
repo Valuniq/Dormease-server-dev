@@ -20,13 +20,9 @@ import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.meal_ticket.domain.repository.MealTicketRepository;
 import dormease.dormeasedev.domain.meal_ticket.dto.request.MealTicketReq;
 import dormease.dormeasedev.domain.meal_ticket.dto.response.MealTicketRes;
-import dormease.dormeasedev.domain.meal_ticket.service.MealTicketService;
 import dormease.dormeasedev.domain.period.domain.Period;
-import dormease.dormeasedev.domain.period.domain.PeriodType;
-import dormease.dormeasedev.domain.period.domain.repository.PeriodRepository;
 import dormease.dormeasedev.domain.period.dto.response.PeriodRes;
 import dormease.dormeasedev.domain.school.domain.School;
-import dormease.dormeasedev.domain.school.service.SchoolService;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
@@ -51,15 +47,12 @@ import java.util.Optional;
 public class DormitoryApplicationSettingService {
 
     private final DormitoryApplicationSettingRepository dormitoryApplicationSettingRepository;
-    private final PeriodRepository periodRepository;
     private final DormitoryTermRepository dormitoryTermRepository;
     private final DormitorySettingTermRepository dormitorySettingTermRepository;
     private final MealTicketRepository mealTicketRepository;
 
     private final UserService userService;
-    private final SchoolService schoolService;
     private final DormitoryService dormitoryService;
-    private final MealTicketService mealTicketService;
 
     // Description : 입사 신청 설정 생성
     //  - 입사 신청 설정으로 저장 필요
@@ -70,27 +63,14 @@ public class DormitoryApplicationSettingService {
         User user = userService.validateUserById(customUserDetails.getId());
         School school = user.getSchool();
 
-        // Period(기간) save - (입사 신청 설정의) 입금 가능 기간
-        Period period = Period.builder()
-                .startDate(createDormitoryApplicationSettingReq.getStartDate())
-                .endDate(createDormitoryApplicationSettingReq.getEndDate())
-                .periodType(PeriodType.DEPOSIT)
-                .build();
-
-        Optional<Period> findPeriod = periodRepository.findBySchoolAndPeriodType(school, PeriodType.DEPOSIT);
-        if (findPeriod.isPresent()) {
-            Period existPeriod = findPeriod.get();
-            periodRepository.delete(existPeriod);
-        }
-        periodRepository.save(period);
-
         // 입사 신청 설정 save
         DormitoryApplicationSetting dormitoryApplicationSetting = DormitoryApplicationSetting.builder()
                 .school(school)
-                .period(period)
                 .title(createDormitoryApplicationSettingReq.getTitle())
                 .startDate(createDormitoryApplicationSettingReq.getStartDate())
                 .endDate(createDormitoryApplicationSettingReq.getEndDate())
+                .depositStartDate(createDormitoryApplicationSettingReq.getDepositStartDate())
+                .depositEndDate(createDormitoryApplicationSettingReq.getDepositEndDate())
                 .securityDeposit(createDormitoryApplicationSettingReq.getSecurityDeposit())
                 .applicationStatus(ApplicationStatus.NOW) // 앞으로 사용할 것이기에 NOW
                 .build();
@@ -114,12 +94,9 @@ public class DormitoryApplicationSettingService {
             DormitorySettingTerm dormitorySettingTerm = DormitorySettingTerm.builder()
                     .dormitory(dormitory)
                     .dormitoryApplicationSetting(dormitoryApplicationSetting)
+                    .acceptLimit(dormitoryReq.getAcceptLimit())
                     .build();
             dormitorySettingTermRepository.save(dormitorySettingTerm);
-
-            // Dormitory 수용 인원 save(update)
-            // TODO : 수용 인원인지, 지금 뽑을 인원인지 파악 필요
-            dormitory.updateDormitorySize(dormitoryReq.getDormitorySize());
 
             // DormitoryTerm(거주 기간) save
             for (DormitoryTermReq dormitoryTermReq : dormitoryReq.getDormitoryTermReqList()) {
@@ -147,15 +124,6 @@ public class DormitoryApplicationSettingService {
         DormitoryApplicationSetting dormitoryApplicationSetting = validateDormitoryApplicationSettingById(dormitoryApplicationSettingId);
         User user = userService.validateUserById(customUserDetails.getId());
         School school = user.getSchool();
-
-        // 기간 조회
-        Period period = dormitoryApplicationSetting.getPeriod();
-        PeriodRes periodRes = PeriodRes.builder()
-                .periodId(period.getId())
-                .startDate(period.getStartDate())
-                .endDate(period.getEndDate())
-                .periodType(period.getPeriodType())
-                .build();
 
         // 식권 조회
         List<MealTicketRes> mealTicketResList = new ArrayList<>();
@@ -206,9 +174,10 @@ public class DormitoryApplicationSettingService {
                 .title(dormitoryApplicationSetting.getTitle())
                 .startDate(dormitoryApplicationSetting.getStartDate())
                 .endDate(dormitoryApplicationSetting.getEndDate())
+                .depositStartDate(dormitoryApplicationSetting.getDepositStartDate())
+                .depositEndDate(dormitoryApplicationSetting.getDepositEndDate())
                 .securityDeposit(dormitoryApplicationSetting.getSecurityDeposit())
                 .applicationStatus(dormitoryApplicationSetting.getApplicationStatus())
-                .periodRes(periodRes)
                 .dormitoryForFindDormitoryApplicationSettingResList(dormitoryForFindDormitoryApplicationSettingResList)
                 .mealTicketResList(mealTicketResList)
                 .build();
@@ -241,7 +210,7 @@ public class DormitoryApplicationSettingService {
         User user = userService.validateUserById(customUserDetails.getId());
         School school = user.getSchool();
 
-        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdDate"));
+        PageRequest pageRequest = PageRequest.of(page, 3, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<DormitoryApplicationSetting> dormitoryApplicationSettingPage = dormitoryApplicationSettingRepository.findBySchool(pageRequest, school);
 
         // 비어 있을 시, 빈 리스트 or 예외 던질지 고민

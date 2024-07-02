@@ -32,7 +32,7 @@ public class Period extends BaseEntity {
     
     private LocalDate endDate;
 
-    // 입사, 퇴사, 환불, 룸메이트, 입금
+    // 퇴사, 환불, 룸메이트
     @Enumerated(EnumType.STRING)
     private PeriodType periodType;
 

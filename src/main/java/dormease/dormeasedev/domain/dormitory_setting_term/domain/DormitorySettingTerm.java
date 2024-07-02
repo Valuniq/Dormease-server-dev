@@ -28,10 +28,12 @@ public class DormitorySettingTerm extends BaseEntity {
     @JoinColumn(name = "dormitory_application_setting_id")
     private DormitoryApplicationSetting dormitoryApplicationSetting;
 
+    private Integer acceptLimit;
+
     @Builder
-    public DormitorySettingTerm(Long id, Dormitory dormitory, DormitoryApplicationSetting dormitoryApplicationSetting) {
-        this.id = id;
+    public DormitorySettingTerm(Dormitory dormitory, DormitoryApplicationSetting dormitoryApplicationSetting, Integer acceptLimit) {
         this.dormitory = dormitory;
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
+        this.acceptLimit = acceptLimit;
     }
 }

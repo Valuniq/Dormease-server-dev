@@ -15,6 +15,8 @@ import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.payload.PageInfo;
+import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,9 +55,22 @@ public class DormitorySettingDetailService {
         List<Room> rooms = generateRoomNumbers(dormitory, floor, start, end);
         DefaultAssert.isTrue(!rooms.isEmpty(), "호실 생성 중 오류가 발생했습니다.");
 
+        List<RoomSettingRes> roomSettingResList = rooms.stream()
+                .map(room -> RoomSettingRes.builder()
+                        .id(room.getId())
+                        .floor(room.getFloor())
+                        .gender(room.getGender().toString())
+                        .roomNumber(room.getRoomNumber())
+                        .roomSize(room.getRoomSize())
+                        .hasKey(room.getHasKey())
+                        .isActivated(room.getIsActivated())
+                        .build())
+                .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
+                .collect(Collectors.toList());
+
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("호실이 추가되었습니다.").build())
+                .information(roomSettingResList)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -135,7 +150,7 @@ public class DormitorySettingDetailService {
     }
 
     // 건물, 층으로 호실 조회
-    public ResponseEntity<?> getRoomsByDormitoryAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor, Integer page) {
+    public ResponseEntity<?> getRoomsByDormitoryAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
 
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
@@ -144,10 +159,9 @@ public class DormitorySettingDetailService {
         DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
         // 해당 기숙사의 층별 호실 가져오기
-        Pageable pageable = PageRequest.of(page, 25); // 페이지 번호와 페이지 크기 설정
-        Page<Room> roomPage = roomRepository.findByDormitoryInAndFloor(sameNameDormitories, floor, pageable);
+        List<Room> roomList = roomRepository.findByDormitoryInAndFloor(sameNameDormitories, floor);
 
-        List<RoomSettingRes> roomSettingResList = roomPage.getContent().stream()
+        List<RoomSettingRes> roomSettingResList = roomList.stream()
                 .map(room -> RoomSettingRes.builder()
                         .id(room.getId())
                         .floor(room.getFloor())
@@ -247,7 +261,7 @@ public class DormitorySettingDetailService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("층 수가 변경되었습니다.").build()).build();
+                .information(Message.builder().message("층 수 및 호실 개수가 변경되었습니다.").build()).build();
         return ResponseEntity.ok(apiResponse);
     }
 

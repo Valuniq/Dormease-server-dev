@@ -25,24 +25,30 @@ public class CreateDormitoryApplicationSettingReq {
     private String title;
 
     // 시작 -> 마감일 中 시작일
-    @Schema(type = "local date", example = "2023-12-25", description = "시작일")
+    @Schema(type = "local date", example = "2023-12-25", description = "입사 신청 시작일")
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate startDate;
 
-    // 시작 -> 마감일 中 마감일
-    @Schema(type = "local date", example = "2024-03-15", description = "마감일")
+    // 종료 -> 마감일 中 마감일
+    @Schema(type = "local date", example = "2024-03-15", description = "입사 신청 마감일")
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate endDate;
 
+    @Schema(type = "local date", example = "2024-03-15", description = "입금 시작일")
+    @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
+    private LocalDate depositStartDate;
+
+    @Schema(type = "local date", example = "2024-03-15", description = "입금 마감일")
+    @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
+    private LocalDate depositEndDate;
+
     // 보증금
     @Schema(type = "Integer", example = "500000", description= "보증금입니다.")
     private Integer securityDeposit;
-
-    // 입금 가능 기간
-    @Schema(type = "PeriodReq", example = "PeriodReq 객체", description= "입사 신청 설정의 입금 가능 기간입니다.")
-    private PeriodReq periodReq;
 
     @Schema(type = "List<DormitoryReq>", example = "dormitoryReqList", description= "입사 신청 설정에 사용되는 기숙사 정보 리스트입니다.")
     private List<DormitoryReq> dormitoryReqList = new ArrayList<>(); // dormitory id, 수용인원(Patch. 여기서 저장하는 것인듯)

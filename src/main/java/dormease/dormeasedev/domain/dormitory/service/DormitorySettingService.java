@@ -5,14 +5,14 @@ import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryReposito
 import dormease.dormeasedev.domain.dormitory.dto.request.RegisterDormitoryReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
-import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
-import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
+import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
@@ -33,9 +33,8 @@ import java.util.stream.Collectors;
 public class DormitorySettingService {
 
     private final DormitoryRepository dormitoryRepository;
-    private final UserRepository userRepository;
     private final ResidentRepository residentRepository;
-    private final DormitorySettingTermRepository dormitorySettingTermRepository;
+    private final UserService userService;
 
     private final S3Uploader s3Uploader;
 
@@ -43,23 +42,29 @@ public class DormitorySettingService {
     @Transactional
     public ResponseEntity<?> registerDormitory(CustomUserDetails customUserDetails, RegisterDormitoryReq registerDormitoryReq,
                                                MultipartFile image) {
+        User user = userService.validateUserById(customUserDetails.getId());
+        boolean isEmptySameNameDormitories = dormitoryRepository.findBySchoolAndName(user.getSchool(), registerDormitoryReq.getName()).isEmpty();
 
-        Optional<User> findUser = userRepository.findById(customUserDetails.getId());
-        User user = findUser.get();
+        boolean check = true;
+        String msg = "건물이 추가되었습니다.";
+        if (isEmptySameNameDormitories) {
+            Dormitory dormitory = Dormitory.builder()
+                    .school(user.getSchool())
+                    .name(registerDormitoryReq.getName())
+                    .gender(Gender.EMPTY)
+                    .roomCount(0)
+                    .imageUrl(setAWSImage(image))
+                    .build();
 
-        Dormitory dormitory = Dormitory.builder()
-                .school(user.getSchool())
-                .name(registerDormitoryReq.getName())
-                .gender(Gender.EMPTY)
-                .roomCount(0)
-                .imageUrl(setAWSImage(image))
-                .build();
-
-        dormitoryRepository.save(dormitory);
+            dormitoryRepository.save(dormitory);
+        } else {
+            check = false;
+            msg = "동일한 이름의 기숙사가 존재합니다.";
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("건물이 추가되었습니다.").build()).build();
+                .check(check)
+                .information(Message.builder().message(msg).build()).build();
 
         return ResponseEntity.ok(apiResponse);
     }
@@ -74,10 +79,8 @@ public class DormitorySettingService {
 
 
     // [건물 설정] 건물 목록 조회
-    public ResponseEntity<?> getDormitoriesExceptGenderBySchool(CustomUserDetails customUserDetails) {
-
-        Optional<User> findUser = userRepository.findById(customUserDetails.getId());
-        User user = findUser.get();
+    public ResponseEntity<?> getDormitoriesBySchool(CustomUserDetails customUserDetails) {
+        User user = userService.validateUserById(customUserDetails.getId());
 
         // 학교별 건물 조회
         List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
@@ -95,6 +98,7 @@ public class DormitorySettingService {
                             .id(dormitory.getId())
                             .name(dormitory.getName())
                             .imageUrl(dormitory.getImageUrl())
+                            .assignedResidents(hasRelatedResidents(dormitory))
                             .build())
                     .collect(Collectors.toList());
         }
@@ -111,9 +115,7 @@ public class DormitorySettingService {
     // [건물 설정] 건물 사진 추가 및 변경
     @Transactional
     public ResponseEntity<?> updateDormitoryImage(CustomUserDetails customUserDetails, Long dormitoryId, MultipartFile image) {
-        Optional<User> findUser = userRepository.findById(customUserDetails.getId());
-        User user = findUser.get();
-
+        User user = userService.validateUserById(customUserDetails.getId());
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
         // s3 이미지 업로드
@@ -145,7 +147,6 @@ public class DormitorySettingService {
     @Transactional
     public ResponseEntity<?> deleteDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
-
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
 
         // 관련된 사생 데이터 확인
@@ -155,7 +156,6 @@ public class DormitorySettingService {
         if (dormitory.getImageUrl() != null) {
             s3Uploader.deleteFile(dormitory.getImageUrl());
         }
-
         // 건물 삭제
         dormitoryRepository.deleteAll(sameNameDormitories);
 
@@ -167,18 +167,27 @@ public class DormitorySettingService {
 
     }
 
+    //private boolean hasRelatedResidents(List<Dormitory> sameNameDormitories) {
+    //    List<Resident> residents = new ArrayList<>();
+    //    for (Dormitory dormitory : sameNameDormitories) {
+    //        List<Room> rooms = roomRepository.findByDormitory(dormitory);
+    //        for (Room room : rooms) {
+    //            List<Resident> findResidents = residentRepository.findByRoom(room);
+    //            residents.addAll(findResidents);
+    //        }
+    //    }
+    //    return !residents.isEmpty();
+    //}
+
     private boolean hasRelatedResidents(List<Dormitory> sameNameDormitories) {
-        for (Dormitory dormitory : sameNameDormitories) {
-                // DormitorySettingTerm을 통해 Resident 조회
-                List<DormitorySettingTerm> settingTerms = dormitorySettingTermRepository.findByDormitory(dormitory);
-//                for (DormitorySettingTerm settingTerm : settingTerms) {
-//                    List<Resident> residents = residentRepository.findByDormitorySettingTerm(settingTerm);
-//                    if (!residents.isEmpty()) {
-//                        return true; // 관련된 Resident 데이터가 존재하는 경우
-//                    }
-//                }
-        }
-        return false; // 관련된 Resident 데이터가 없는 경우
+        List<Resident> residents = residentRepository.findByDormitories(sameNameDormitories);
+        return !residents.isEmpty();
+    }
+
+    private boolean hasRelatedResidents(Dormitory dormitory) {
+        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
+        List<Resident> residents = residentRepository.findByDormitories(sameNameDormitories);
+        return !residents.isEmpty();
     }
 
     // 건물명 변경

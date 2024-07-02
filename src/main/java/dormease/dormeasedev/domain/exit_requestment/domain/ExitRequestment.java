@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.exit_requestment.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.resident.domain.Resident;
+import dormease.dormeasedev.domain.school.domain.School;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class ExitRequestment extends BaseEntity {
     @Column(name = "exit_requestment_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resident_id")
     private Resident resident;
 
@@ -40,10 +41,15 @@ public class ExitRequestment extends BaseEntity {
     private String accountNumber;
 
     // 보증금 환급 여부
-    private Boolean isReturnSecurityDeposit;
+    private SecurityDepositReturnStatus securityDepositReturnStatus;
+
+    // update 함수
+    public void updateSecurityDepositReturnStatus(SecurityDepositReturnStatus securityDepositReturnStatus) {
+        this.securityDepositReturnStatus = securityDepositReturnStatus;
+    }
 
     @Builder
-    public ExitRequestment(Long id, Resident resident, LocalDate exitDate, Boolean hasKey, String keyNumber, String bankName, String accountNumber, Boolean isReturnSecurityDeposit) {
+    public ExitRequestment(Long id, Resident resident, LocalDate exitDate, Boolean hasKey, String keyNumber, String bankName, String accountNumber) {
         this.id = id;
         this.resident = resident;
         this.exitDate = exitDate;
@@ -51,6 +57,6 @@ public class ExitRequestment extends BaseEntity {
         this.keyNumber = keyNumber;
         this.bankName = bankName;
         this.accountNumber = accountNumber;
-        this.isReturnSecurityDeposit = isReturnSecurityDeposit;
+        this.securityDepositReturnStatus = SecurityDepositReturnStatus.UNPAID; // 최초 미지급
     }
 }

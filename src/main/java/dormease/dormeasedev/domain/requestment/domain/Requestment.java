@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.requestment.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.resident.domain.Resident;
+import dormease.dormeasedev.domain.school.domain.School;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -28,22 +29,22 @@ public class Requestment extends BaseEntity {
     private String content;
 
     // 부재 중 방문 동의 여부
-    private Boolean isVisited;
+    private Boolean consentDuringAbsence;
 
     // 공개 여부
-    private Boolean isPublic;
+    private Boolean visibility;
 
     @Enumerated(EnumType.STRING)
     private Progression progression;
 
     @Builder
-    public Requestment(Long id, Resident resident, String title, String content, Boolean isVisited, Boolean isPublic, Progression progression) {
+    public Requestment(Long id, Resident resident, String title, String content, Boolean consentDuringAbsence, Boolean visibility, Progression progression) {
         this.id = id;
         this.resident = resident;
         this.title = title;
         this.content = content;
-        this.isVisited = isVisited;
-        this.isPublic = isPublic;
+        this.consentDuringAbsence = consentDuringAbsence;
+        this.visibility = visibility;
         this.progression = progression;
     }
 }

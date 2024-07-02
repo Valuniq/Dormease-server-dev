@@ -12,6 +12,8 @@ import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.payload.PageInfo;
+import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,10 +59,13 @@ public class BlackListService {
                 })
                 .collect(Collectors.toList());
 
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, blackListedUsersPage);
+        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, blackListUserInfoRes);
+
         // ApiResponse 객체 생성 및 반환
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(blackListUserInfoRes)
+                .information(pageResponse)
                 .build();
 
         return ResponseEntity.ok(apiResponse);

@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.refund_requestment.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.resident.domain.Resident;
+import dormease.dormeasedev.domain.school.domain.School;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -22,10 +23,10 @@ public class RefundRequestment extends BaseEntity {
     @Column(name = "refund_requestment_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resident_id")
     private Resident resident;
-    
+
     // 퇴실 날짜
     private LocalDate exitDate;
 

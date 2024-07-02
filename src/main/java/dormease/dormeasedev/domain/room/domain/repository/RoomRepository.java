@@ -17,7 +17,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     List<Room> findByDormitoryAndIsActivated(Dormitory dormitory, boolean b);
 
-    Page<Room> findByDormitoryAndFloorAndIsActivated(Dormitory dormitory, Integer floor, boolean b, Pageable pageable);
+    List<Room> findByDormitoryAndFloorAndIsActivated(Dormitory dormitory, Integer floor, boolean b);
 
-    Page<Room> findByDormitoryInAndFloor(List<Dormitory> sameNameDormitories, Integer floor, Pageable pageable);
+    List<Room> findByDormitoryInAndFloor(List<Dormitory> sameNameDormitories, Integer floor);
 }

@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 @Getter
 public class MealTicketReq {
 
-    @Schema(type = "Long", example = "1", description = "식권 ID")
-    private Long id;
-
     @Schema(type = "Integer", example = "50", description= "식권 개수입니다.")
     private Integer count;
 
