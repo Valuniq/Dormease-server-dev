@@ -1,6 +1,8 @@
 package dormease.dormeasedev.domain.user.service;
 
 import dormease.dormeasedev.domain.auth.domain.repository.RefreshTokenRepository;
+import dormease.dormeasedev.domain.restaurant.domain.Restaurant;
+import dormease.dormeasedev.domain.restaurant.domain.repository.RestaurantRepository;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
@@ -26,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RestaurantRepository restaurantRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -143,6 +146,30 @@ public class UserService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // Description : 대표 식당 변경
+    @Transactional
+    public ResponseEntity<?> modifyRepresentativeRestaurant(CustomUserDetails customUserDetails, Long restaurantId) {
+
+        User user = validateUserById(customUserDetails.getId());
+        School school = user.getSchool();
+        Optional<Restaurant> findRestaurant = restaurantRepository.findBySchoolAndId(school, restaurantId);
+        DefaultAssert.isTrue(findRestaurant.isPresent(), "존재하지 않는 식당 id입니다.");
+
+        Restaurant newRestaurant = findRestaurant.get();
+        Restaurant restaurant = user.getRestaurant();
+        if (restaurant != null)
+            DefaultAssert.isTrue(!restaurant.getId().equals(restaurantId), "이미 대표 식당으로 지정된 식당입니다.");
+
+        user.updateRestaurant(newRestaurant);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("대표 식당이 변경되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
     // Description : 유효성 검증 함수
     public User validateUserById(Long userId) {
         Optional<User> findUser = userRepository.findById(userId);
@@ -155,6 +182,5 @@ public class UserService {
         Optional<User> findUser = userRepository.findBySchoolAndStudentNumber(school, studentNumber);
         DefaultAssert.isTrue(findUser.isEmpty(), "이미 가입된 학번입니다."); // 동일 학교 검증 추가 필요
     }
-
 
 }

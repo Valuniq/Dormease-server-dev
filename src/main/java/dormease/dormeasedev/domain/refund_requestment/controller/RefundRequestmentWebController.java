@@ -34,7 +34,7 @@ public class RefundRequestmentWebController {
             @ApiResponse(responseCode = "200", description = "환불 신청 사생 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
             @ApiResponse(responseCode = "400", description = "환불 신청 사생 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("/residents")
+    @GetMapping
     public ResponseEntity<?> findResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "환불 신청 사생 목록을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "1") Integer page
@@ -43,15 +43,16 @@ public class RefundRequestmentWebController {
     }
 
     // Description : 환불 신청한 사생 처리(삭제)
-    @Operation(summary = "환불 완료 사생 처리 (삭제)", description = "환불 완료 사생을 처리(삭제)합니다.")
+    @Operation(summary = "환불 요청 완료 처리 (삭제)", description = "환불 요청 완료 처리(삭제)합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "환불 완료 사생 처리(삭제) 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "환불 완료 사생 처리(삭제) 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @DeleteMapping("/{residentId}")
-    public ResponseEntity<?> deleteResident(
-            @Parameter(description = "처리(삭제)할 사생의 ID를 입력해주세요.", required = true) @PathVariable(value = "residentId") Long residentId
+    @DeleteMapping("/{refundRequestmentId}")
+    public ResponseEntity<?> deleteRefundRequestment(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "처리(삭제)할 사생의 ID를 입력해주세요.", required = true) @PathVariable(value = "refundRequestmentId") Long refundRequestmentId
     ) {
-        return refundRequestmentWebService.deleteResident(residentId);
+        return refundRequestmentWebService.deleteRefundRequestment(customUserDetails, refundRequestmentId);
     }
 }

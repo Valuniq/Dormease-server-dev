@@ -9,10 +9,12 @@ import dormease.dormeasedev.domain.refund_requestment.domain.RefundRequestment;
 import dormease.dormeasedev.domain.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
+import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
+import dormease.dormeasedev.domain.user.domain.UserType;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
@@ -39,6 +41,7 @@ import java.util.Optional;
 public class RefundRequestmentWebService {
 
     private final RefundRequestmentRepository refundRequestmentRepository;
+    private final ResidentRepository residentRepository;
 
     private final UserService userService;
     private final ResidentService residentService;
@@ -96,14 +99,20 @@ public class RefundRequestmentWebService {
 
     // Description : 환불 신청한 사생 처리(삭제)
     @Transactional
-    public ResponseEntity<?> deleteResident(Long residentId) {
+    public ResponseEntity<?> deleteRefundRequestment(CustomUserDetails customUserDetails, Long refundRequestmentId) {
 
-        Resident resident = residentService.validateResidentById(residentId);
-        Optional<RefundRequestment> findRefundRequestment = refundRequestmentRepository.findByResident(resident);
-        DefaultAssert.isTrue(findRefundRequestment.isPresent(), "해당 id를 가진 사생의 환불 신청이 존재하지 않습니다.");
-        RefundRequestment refundRequestment = findRefundRequestment.get();
+        User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
 
+        RefundRequestment refundRequestment = validateRefundRequestmentById(refundRequestmentId);
+        Resident resident = refundRequestment.getResident();
+        User user = resident.getUser();
+        DefaultAssert.isTrue(user.getSchool().equals(school), "본인이 소속된 학교의 환불 요청만 처리할 수 있습니다.");
+
+        // 삭제 시, refund_requestment 삭제 + resident 삭제(user의 userType = USER 로 변경)
         refundRequestmentRepository.delete(refundRequestment);
+        user.updateUserType(UserType.USER);
+        residentRepository.delete(resident);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -111,5 +120,11 @@ public class RefundRequestmentWebService {
                 .build();
 
         return ResponseEntity.ok(apiResponse);
+    }
+
+    public RefundRequestment validateRefundRequestmentById(Long refundRequestmentId) {
+        Optional<RefundRequestment> findRefundRequestment = refundRequestmentRepository.findById(refundRequestmentId);
+        DefaultAssert.isTrue(findRefundRequestment.isPresent(), "해당 아이디의 환불 요청이 존재하지 않습니다.");
+        return findRefundRequestment.get();
     }
 }
