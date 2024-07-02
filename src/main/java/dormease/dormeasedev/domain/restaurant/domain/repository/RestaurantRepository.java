@@ -14,4 +14,6 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
     List<Restaurant> findAllBySchool(School school);
 
     Optional<Restaurant> findBySchoolAndId(School school, Long restaurantId);
+
+    Optional<Restaurant> findTopBySchoolOrderByIdDesc(School school);
 }
