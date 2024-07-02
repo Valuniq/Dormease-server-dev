@@ -1,11 +1,10 @@
 package dormease.dormeasedev.domain.notification.controller;
 
-import dormease.dormeasedev.domain.block.dto.request.BlockReq;
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.dto.request.ModifyNotificationReq;
 import dormease.dormeasedev.domain.notification.dto.request.WriteNotificataionReq;
-import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailRes;
-import dormease.dormeasedev.domain.notification.dto.response.NotificationRes;
+import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailWebRes;
+import dormease.dormeasedev.domain.notification.dto.response.NotificationWebRes;
 import dormease.dormeasedev.domain.notification.service.NotificationWebService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
@@ -39,7 +38,7 @@ public class NotificationWebController {
     // Description : 공지사항(FAQ) 목록 조회
     @Operation(summary = "공지사항(FAQ) 목록 조회" , description = "공지사항(FAQ) 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "0", description = "공지사항(FAQ) 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = NotificationRes.class)))}),
+            @ApiResponse(responseCode = "0", description = "공지사항(FAQ) 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = NotificationWebRes.class)))}),
             @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
             @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
@@ -70,7 +69,7 @@ public class NotificationWebController {
     // Description : 공지사항(FAQ) 상세 조회
     @Operation(summary = "공지사항(FAQ) 상세 조회" , description = "공지사항(FAQ)을 상세 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotificationDetailRes.class))}),
+            @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotificationDetailWebRes.class))}),
             @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/notification/{notificationId}")
