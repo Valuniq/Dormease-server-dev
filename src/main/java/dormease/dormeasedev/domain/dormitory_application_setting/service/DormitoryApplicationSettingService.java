@@ -20,8 +20,6 @@ import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.meal_ticket.domain.repository.MealTicketRepository;
 import dormease.dormeasedev.domain.meal_ticket.dto.request.MealTicketReq;
 import dormease.dormeasedev.domain.meal_ticket.dto.response.MealTicketRes;
-import dormease.dormeasedev.domain.period.domain.Period;
-import dormease.dormeasedev.domain.period.dto.response.PeriodRes;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
