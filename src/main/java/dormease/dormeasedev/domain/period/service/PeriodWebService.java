@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -37,16 +38,19 @@ public class PeriodWebService {
 
         // TODO : 기간 테이블 요소들 관리 어떻게?
         //  생성 및 삭제에 관하여 / 현재에 적용되는 기간인지 구분 어떻게 할 것인지 등
-        
+        LocalDate startDate = periodReq.getStartDate();
+        LocalDate endDate = periodReq.getEndDate();
+        DefaultAssert.isTrue(endDate.isAfter(startDate), "시작일이 마감일보다 과거여야 합니다.");
+
         Optional<Period> findPeriod = periodRepository.findBySchoolAndPeriodType(school, periodReq.getPeriodType());
         if (findPeriod.isPresent()) {
             Period existPeriod = findPeriod.get();
-            existPeriod.updateDate(periodReq.getStartDate(), periodReq.getEndDate());
+            existPeriod.updateDate(startDate, endDate);
         } else {
             Period period = Period.builder()
                     .school(school)
-                    .startDate(periodReq.getStartDate())
-                    .endDate(periodReq.getEndDate())
+                    .startDate(startDate)
+                    .endDate(endDate)
                     .periodType(periodReq.getPeriodType())
                     .build();
 
