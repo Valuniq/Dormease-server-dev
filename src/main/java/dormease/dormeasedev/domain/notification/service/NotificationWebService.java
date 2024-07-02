@@ -33,6 +33,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -180,7 +181,7 @@ public class NotificationWebService {
         if (StringUtils.hasLength(modifyNotificationReq.getTitle()))
             notification.updateTitle(modifyNotificationReq.getTitle());
 
-        if ( modifyNotificationReq.getPinned() != null && notification.getPinned() != modifyNotificationReq.getPinned())
+        if (modifyNotificationReq.getPinned() != null && notification.getPinned() != modifyNotificationReq.getPinned())
             notification.updatePinned();
 
         if (!modifyNotificationReq.getDeletedBlockIds().isEmpty())
@@ -217,8 +218,8 @@ public class NotificationWebService {
         DefaultAssert.isTrue(school.equals(notification.getSchool()), "해당 관리자의 학교만 삭제할 수 있습니다.");
 
         deleteFiles(notification, school);
+        deleteBlock(notification, school);
         notificationRepository.delete(notification);
-        // s3에서 파일 삭제 필요
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -284,6 +285,11 @@ public class NotificationWebService {
 
             block.updateBlock(updateBlockReq);
         }
+    }
+
+    public void deleteBlock(Notification notification, School school) {
+        List<Block> blockList = blockRepository.findByNotification(notification);
+        blockRepository.deleteAll(blockList);
 
     }
 
@@ -304,15 +310,15 @@ public class NotificationWebService {
 
     // Description : s3에서 파일 삭제 + file에서 삭제 (notification)
     public void deleteFiles(Notification notification, School school) {
-        List<File> files = fileRepository.findByNotification(notification);
-        if (!files.isEmpty()) {
-            for (File file : files) {
+        List<File> fileList = fileRepository.findByNotification(notification);
+        if (!fileList.isEmpty()) {
+            for (File file : fileList) {
                 DefaultAssert.isTrue(file.getNotification().getSchool().equals(school), "해당 관리자가 속한 학교의 파일만 삭제할 수 있습니다.");
                 // s3에서 삭제
                 String fileName = file.getFileUrl().split("amazonaws.com/")[1];
                 s3Uploader.deleteFile(fileName);
             }
-            fileRepository.deleteAll(files);
+            fileRepository.deleteAll(fileList);
         }
     }
 }
