@@ -118,21 +118,21 @@ public class DormitorySettingService {
         User user = userService.validateUserById(customUserDetails.getId());
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
-        // s3 이미지 업로드
-        String imagePath = s3Uploader.uploadImage(image);
-
-        dormitory.updateImageUrl(imagePath);
-        dormitoryRepository.save(dormitory);
-
-        // 동일 학교와 동일 건물 이름을 가진 모든 건물의 이미지 경로 업데이트
-        dormitoryRepository.updateImageUrlForSchoolAndDorm(user.getSchool(), dormitory.getName(), imagePath);
-
         // 기존 이미지 삭제
         String originalFilePath = dormitory.getImageUrl();
         if (originalFilePath != null && originalFilePath.contains("amazonaws.com/")) {
             String originalFileName = originalFilePath.split("amazonaws.com/")[1];
             s3Uploader.deleteFile(originalFileName);
         }
+
+        // s3 이미지 업로드
+        String imagePath = s3Uploader.uploadImage(image);
+
+        dormitory.updateImageUrl(imagePath);
+        // dormitoryRepository.save(dormitory);
+
+        // 동일 학교와 동일 건물 이름을 가진 모든 건물의 이미지 경로 업데이트
+        dormitoryRepository.updateImageUrlForSchoolAndDorm(user.getSchool(), dormitory.getName(), imagePath);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
