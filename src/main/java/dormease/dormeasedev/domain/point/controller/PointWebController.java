@@ -117,7 +117,7 @@ public class PointWebController {
         return pointService.deleteUserPoints(customUserDetails, residentId, deleteUserPointReqs);
     }
 
-    @Operation(summary = "사생 목록 조회", description = "상벌점 관리 프로세스 중 회원의 상벌점 목록을 조회합니다.")
+    @Operation(summary = "사생 목록 조회 및 정렬", description = "상벌점 관리 프로세스 중 회원의 상벌점 목록을 조회 또는 정렬하여 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ResidentInfoRes.class)))}),
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
@@ -126,30 +126,15 @@ public class PointWebController {
     @GetMapping("")
     public ResponseEntity<?> getResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "상벌점 내역을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
-
-    ) {
-        return pointService.getResidents(customUserDetails, page - 1);
-    }
-
-    @Operation(summary = "사생 정렬", description = "상벌점 관리 프로세스 중 회원의 상벌점 목록을 입력받은 기준으로 정렬하여 조회합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "0", description = "조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ResidentInfoRes.class)))}),
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-    })
-    @GetMapping("/sort")
-    public ResponseEntity<?> sortedResidents(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "bonusPoint, minusPoint 중 정렬 기준을 입력해주세요.", required = true) @RequestParam String sortBy,
-            @Parameter(description = "오름차순/내림차순 기준을 입력해주세요.", required = true) @RequestParam Boolean isAscending,
+            @Parameter(description = "bonusPoint, minusPoint 중 정렬 기준을 입력해주세요. 미입력 시 기본 정렬은 이름 순으로 정렬됩니다.", required = true) @RequestParam(value = "sortBy", defaultValue = "name") String sortBy,
+            @Parameter(description = "오름차순/내림차순 기준을 입력해주세요. 미입력 시 기본 정렬은 오름차순으로 정렬됩니다.", required = true) @RequestParam(value = "isAscending", defaultValue = "true") Boolean isAscending,
             @Parameter(description = "사생을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
 
     ) {
-        return pointService.getSortedResidents(customUserDetails, sortBy, isAscending, page - 1);
+        return pointService.getResidents(customUserDetails, sortBy, isAscending, page - 1);
     }
 
-    @Operation(summary = "사생 검색", description = "상벌점 관리 프로세스 중 회원을 학번 또는 이름으로 검색합니다.")
+    @Operation(summary = "사생 검색 및 정렬", description = "상벌점 관리 프로세스 중 회원을 학번 또는 이름으로 검색 또는 정렬하여 검색합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ResidentInfoRes.class)))}),
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
@@ -159,8 +144,11 @@ public class PointWebController {
     public ResponseEntity<?> searchResidentsByKeyword(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam String keyword,
+            @Parameter(description = "bonusPoint, minusPoint 중 정렬 기준을 입력해주세요. 미입력 시 정렬은 이름 순으로 정렬됩니다.", required = true) @RequestParam(value = "sortBy", defaultValue = "name") String sortBy,
+            @Parameter(description = "오름차순/내림차순 기준을 입력해주세요. 미입력 시 기본 정렬은 오름차순으로 정렬됩니다.", required = true) @RequestParam(value = "isAscending", defaultValue = "true") Boolean isAscending,
             @Parameter(description = "사생을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
+
     ) {
-        return pointService.getSearchResidents(customUserDetails, keyword, page - 1);
+        return pointService.getSearchResidents(customUserDetails, keyword, sortBy, isAscending, page - 1);
     }
 }

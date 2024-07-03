@@ -261,46 +261,6 @@ public class PointService {
         return ResponseEntity.ok(apiResponse);
     }
 
-
-    public ResponseEntity<?> getResidents(CustomUserDetails customUserDetails, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
-        Pageable pageable = PageRequest.of(page, 25);
-        // 사생 목록 조회 (페이징 적용)
-        Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
-
-        List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
-                .map(resident -> {
-                    // null 여부 확인
-                    String dormitoryName = getDormitoryName(resident);
-                    Integer roomNumber = getRoomNumber(resident);
-                    return ResidentInfoRes.builder()
-                            .id(resident.getId())
-                            .name(resident.getUser().getName())
-                            .studentNumber(resident.getUser().getStudentNumber())
-                            .phoneNumber(resident.getUser().getPhoneNumber())
-                            .bonusPoint(resident.getUser().getBonusPoint())
-                            .minusPoint(resident.getUser().getMinusPoint())
-                            // 사생의 호실 미배정 고려, dormitory: 사생-회원-입사신청-거주기간-기숙사로 찾기
-                            // 해당 탐색 과정에서 null 값이 하나라도 있을 경우 null return
-                            .dormitory(dormitoryName)
-                            // 사생의 호실 미배정 고려 null 허용
-                            .room(roomNumber)
-                            .build();
-                })
-                .sorted(Comparator.comparing(ResidentInfoRes::getName))
-                .collect(Collectors.toList());
-
-        PageInfo pageInfo = PageInfo.toPageInfo(pageable, residents);
-        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, userResidentInfoResList);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(pageResponse)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
-    }
-
     private String getDormitoryName(Resident resident) {
         // 호실 배정 시
         if (resident.getRoom() != null) {
@@ -335,7 +295,9 @@ public class PointService {
                 .orElse(null);
     }
 
-    public ResponseEntity<?> getSortedResidents(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending, Integer page) {
+    // 전체 사생 대상 조회 및 정렬
+    // Description: 기본 정렬 (sortBy: name, isAscending: true)
+    public ResponseEntity<?> getResidents(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending, Integer page) {
         User admin = validUserById(customUserDetails.getId());
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
@@ -372,11 +334,13 @@ public class PointService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    public ResponseEntity<?> getSearchResidents(CustomUserDetails customUserDetails, String keyword, Integer page) {
+    // 검색된 사생 대상 조회 및 정렬
+    // Description: 기본 정렬 (sortBy: name, isAscending: true)
+    public ResponseEntity<?> getSearchResidents(CustomUserDetails customUserDetails, String keyword, String sortBy, Boolean isAscending, Integer page) {
         User admin = validUserById(customUserDetails.getId());
         String cleanedKeyword = keyword.trim().toLowerCase();;
-
-        Pageable pageable = PageRequest.of(page, 25);
+        String sortField = "user." + sortBy;
+        Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
         // 사생 목록 조회 (페이징 적용)
         Page<Resident> residents = residentRepository.searchResidentsByKeyword(admin.getSchool(), cleanedKeyword, pageable);
         List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
@@ -397,7 +361,6 @@ public class PointService {
                             .room(roomNumber)
                             .build();
                 })
-                .sorted(Comparator.comparing(ResidentInfoRes::getName))
                 .collect(Collectors.toList());
 
         PageInfo pageInfo = PageInfo.toPageInfo(pageable, residents);
