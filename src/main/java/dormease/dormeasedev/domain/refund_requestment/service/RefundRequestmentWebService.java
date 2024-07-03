@@ -4,7 +4,7 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.service.DormitoryApplicationService;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
-import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.term.domain.Term;
 import dormease.dormeasedev.domain.refund_requestment.domain.RefundRequestment;
 import dormease.dormeasedev.domain.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentRes;
@@ -65,8 +65,8 @@ public class RefundRequestmentWebService {
             Room room = resident.getRoom();
 
             DormitoryApplication dormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
-            DormitoryTerm dormitoryTerm = dormitoryApplication.getDormitoryTerm();
-            Dormitory dormitory = dormitoryTerm.getDormitory();
+            Term term = dormitoryApplication.getTerm();
+            Dormitory dormitory = dormitoryApplication.getDormitory();
 
             RefundRequestmentRes refundRequestmentRes = RefundRequestmentRes.builder()
                     .refundRequestmentId(refundRequestment.getId())
@@ -75,7 +75,7 @@ public class RefundRequestmentWebService {
                     .phoneNumber(user.getPhoneNumber())
                     .bankName(refundRequestment.getBankName())
                     .accountNumber(refundRequestment.getAccountNumber())
-                    .term(dormitoryTerm.getTerm())
+                    .termName(term.getTermName())
                     .exitDate(refundRequestment.getExitDate())
                     .createDate(refundRequestment.getCreatedDate().toLocalDate())
                     .dormitoryName(dormitory.getName())

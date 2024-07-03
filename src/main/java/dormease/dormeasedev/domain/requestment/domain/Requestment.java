@@ -1,8 +1,7 @@
 package dormease.dormeasedev.domain.requestment.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
-import dormease.dormeasedev.domain.resident.domain.Resident;
-import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,8 +19,8 @@ public class Requestment extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resident_id")
-    private Resident resident;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     private String title;
 
@@ -38,9 +37,8 @@ public class Requestment extends BaseEntity {
     private Progression progression;
 
     @Builder
-    public Requestment(Long id, Resident resident, String title, String content, Boolean consentDuringAbsence, Boolean visibility, Progression progression) {
-        this.id = id;
-        this.resident = resident;
+    public Requestment(Long id, User user, String title, String content, Boolean consentDuringAbsence, Boolean visibility, Progression progression) {
+        this.user = user;
         this.title = title;
         this.content = content;
         this.consentDuringAbsence = consentDuringAbsence;

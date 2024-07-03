@@ -1,6 +1,8 @@
 package dormease.dormeasedev.domain.period.controller;
 
+import dormease.dormeasedev.domain.period.domain.PeriodType;
 import dormease.dormeasedev.domain.period.dto.request.PeriodReq;
+import dormease.dormeasedev.domain.period.dto.response.PeriodRes;
 import dormease.dormeasedev.domain.period.service.PeriodWebService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
@@ -15,10 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Period API", description = "WEB - 기간 관련 API입니다.")
 @RequiredArgsConstructor
@@ -28,11 +27,11 @@ public class PeriodWebController {
 
     private final PeriodWebService periodWebService;
 
-    // Description : 신청 기간 등록
-    @Operation(summary = "신청 기간 등록", description = "신청 기간 등록. 같은 타입의 기존 신청 기간이 존재하는 경우 **삭제 후 생성합니다**.") // TODO : 아예 타입 받아서 공용으로?
+    // Description : 신청 기간 등록 / 수정
+    @Operation(summary = "신청 기간 등록 / 수정", description = "타입에 맞는 신청 기간을 등록 / 수정합니다. 같은 타입의 **기존 신청 기간이 존재하는 경우 날짜만 변경합니다**.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "신청 기간 검증 등록 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "신청 기간 검증 등록 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "201", description = "신청 기간 등록 / 수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "신청 기간 등록 / 수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> registerPeriod(
@@ -40,5 +39,19 @@ public class PeriodWebController {
             @Parameter(description = "Schemas의 PeriodReq를 참고해주세요.", required = true) @RequestBody PeriodReq periodReq
     ) {
         return periodWebService.registerPeriod(customUserDetails, periodReq);
+    }
+
+    // Description : 신청 기간 조회
+    @Operation(summary = "신청 기간 조회", description = "타입에 맞는 신청 기간을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "신청 기간 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PeriodRes.class))}),
+            @ApiResponse(responseCode = "400", description = "신청 기간 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("{periodType}")
+    public ResponseEntity<?> findPeriod(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "조회할 기간의 타입을 입력해주세요. LEAVE(퇴사) / REFUND(환불) / ROOMMATE(룸메이트) 中 1.", required = true) @PathVariable(value = "periodType") PeriodType periodType
+            ) {
+        return periodWebService.findPeriod(customUserDetails, periodType);
     }
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 public class DormitoryApplicationReq {
 
     @Schema(type = "Long", example = "1", description = "거주 기간 ID")
-    private Long dormitoryTermId;
+    private Long termId;
 
     @Schema(type = "Long", example = "1", description = "기숙사 ID")
     private Long dormitoryId;

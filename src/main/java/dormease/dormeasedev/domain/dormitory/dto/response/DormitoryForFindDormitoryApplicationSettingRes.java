@@ -1,6 +1,6 @@
 package dormease.dormeasedev.domain.dormitory.dto.response;
 
-import dormease.dormeasedev.domain.dormitory_term.dto.response.DormitoryTermRes;
+import dormease.dormeasedev.domain.term.dto.response.DormitoryTermRes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -20,6 +20,6 @@ public class DormitoryForFindDormitoryApplicationSettingRes {
     @Schema(type = "Integer", example = "250", description= "수용 인원입니다.")
     private Integer dormitorySize; // 수용 인원
 
-    @Schema(type = "List<DormitoryTermRes>", example = "DormitoryTermResList", description= ".")
+    @Schema(type = "List<DormitoryTermRes>", example = "TermResList", description= ".")
     private List<DormitoryTermRes> dormitoryTermResList = new ArrayList<>();
 }

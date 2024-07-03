@@ -1,10 +1,10 @@
 package dormease.dormeasedev.domain.dormitory_application_setting.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import dormease.dormeasedev.domain.dormitory.dto.response.DormitoryForFindDormitoryApplicationSettingRes;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_setting_term.dto.DormitorySettingTermRes;
+import dormease.dormeasedev.domain.dormitory_term.dto.TermRes;
 import dormease.dormeasedev.domain.meal_ticket.dto.response.MealTicketRes;
-import dormease.dormeasedev.domain.period.dto.response.PeriodRes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -54,8 +54,11 @@ public class FindDormitoryApplicationSettingRes {
     @Schema(type = "ApplicationStatus", example = "NOW", description= "내역으로 들어갈지 / 앞으로 사용할 것인지 결정합니다.")
     private ApplicationStatus applicationStatus;
 
-    @Schema(type = "List<DormitoryForFindDormitoryApplicationSettingRes>", example = "DormitoryForFindDormitoryApplicationSettingRes 객체", description= "기숙사 정보 리스트입니다.")
-    private List<DormitoryForFindDormitoryApplicationSettingRes> dormitoryForFindDormitoryApplicationSettingResList = new ArrayList<>();
+    @Schema(type = "List<DormitorySettingTermRes>", example = "DormitorySettingTermRes 객체", description= "기숙사 정보 리스트입니다.")
+    private List<DormitorySettingTermRes> dormitorySettingTermResList = new ArrayList<>();
+
+    @Schema(type = "List<TermRes>", example = "TermRes 객체", description= "거주 기간 정보 리스트입니다.")
+    private List<TermRes> termResList = new ArrayList<>();
 
     @Schema(type = "List<MealTicketRes>", example = "List<MealTicketRes>", description= "식권 정보 리스트입니다.")
     private List<MealTicketRes> mealTicketResList = new ArrayList<>();
