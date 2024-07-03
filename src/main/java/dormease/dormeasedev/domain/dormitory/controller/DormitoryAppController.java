@@ -30,12 +30,12 @@ public class DormitoryAppController {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FindDormitoryRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping
+    @GetMapping("/{termId}")
     public ResponseEntity<?> findDormitories(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "거주 기간을 입력해주세요.", required = true) @RequestParam String term
+            @Parameter(description = "거주 기간을 입력해주세요.", required = true) @PathVariable Long termId
         ) {
-        return dormitoryService.findDormitories(customUserDetails, term);
+        return dormitoryService.findDormitories(customUserDetails, termId);
     }
 
 }

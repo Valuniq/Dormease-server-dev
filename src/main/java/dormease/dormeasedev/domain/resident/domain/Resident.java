@@ -43,30 +43,6 @@ public class Resident extends BaseEntity {
     // 룸메이트 신청 여부
     private Boolean isRoommateApplied;
 
-    // 등본
-    private String copy;
-
-    // 우선 선발 증빙 서류
-    private String prioritySelectionCopy;
-
-    // 흡연 여부
-    private Boolean isSmoking;
-    
-    // 생활관비 납부 여부
-    private Boolean dormitoryPayment;
-
-    // 비상 연락처
-    private String emergencyContact;
-
-    // 비상 연락처와의 관계
-    private String emergencyRelation;
-
-    // 은행명
-    private String bankName;
-
-    // 계좌번호
-    private String accountNumber;
-
     // 열쇠 수령 여부
     private Boolean hasKey;
 
@@ -92,22 +68,13 @@ public class Resident extends BaseEntity {
     }
 
     @Builder
-    public Resident(Long id, User user, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, Integer bedNumber, Boolean isRoommateApplied, String copy, String prioritySelectionCopy, Boolean isSmoking, Boolean dormitoryPayment, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean hasKey) {
-        this.id = id;
+    public Resident(User user, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
         this.user = user;
         this.room = room;
         this.roommateTempApplication = roommateTempApplication;
         this.roommateApplication = roommateApplication;
         this.bedNumber = bedNumber;
         this.isRoommateApplied = isRoommateApplied;
-        this.copy = copy;
-        this.prioritySelectionCopy = prioritySelectionCopy;
-        this.isSmoking = isSmoking;
-        this.dormitoryPayment = dormitoryPayment;
-        this.emergencyContact = emergencyContact;
-        this.emergencyRelation = emergencyRelation;
-        this.bankName = bankName;
-        this.accountNumber = accountNumber;
         this.hasKey = hasKey;
     }
 

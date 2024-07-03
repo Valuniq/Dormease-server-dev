@@ -25,15 +25,15 @@ public class FindDormitoryRes {
     private Integer price;
 
     @Schema(type = "String", example = "학기", description = "거주 기간")
-    private String term;
+    private String termName;
 
     @Builder
-    public FindDormitoryRes(Long dormitoryId, String dormitoryName, Integer roomSize, String imageUrl, Integer price, String term) {
+    public FindDormitoryRes(Long dormitoryId, String dormitoryName, Integer roomSize, String imageUrl, Integer price, String termName) {
         this.dormitoryId = dormitoryId;
         this.dormitoryName = dormitoryName;
         this.roomSize = roomSize;
         this.imageUrl = imageUrl;
         this.price = price;
-        this.term = term;
+        this.termName = termName;
     }
 }

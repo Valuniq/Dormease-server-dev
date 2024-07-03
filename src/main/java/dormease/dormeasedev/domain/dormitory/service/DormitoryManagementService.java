@@ -7,8 +7,9 @@ import dormease.dormeasedev.domain.dormitory.dto.request.AssignedResidentToRoomR
 import dormease.dormeasedev.domain.dormitory.dto.response.*;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
-import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
-import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.term.domain.Term;
+import dormease.dormeasedev.domain.term.domain.repository.TermRepository;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.room.domain.Room;
@@ -35,7 +36,7 @@ public class DormitoryManagementService {
     private final DormitoryRepository dormitoryRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
-    private final DormitoryTermRepository dormitoryTermRepository;
+    private final TermRepository termRepository;
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final ResidentRepository residentRepository;
 
@@ -206,19 +207,32 @@ public class DormitoryManagementService {
         // dormitory 이름, 성별 같은 기숙사 가져오기
         List<Dormitory> sameNameAndSameGenderDormitories = dormitoryRepository.findBySchoolAndNameAndGender(admin.getSchool(), dormitory.getName(), dormitory.getGender());
         // 기숙사 - 거주 기간 - 입사 신청 - 회원 - 사생
-        List<DormitoryTerm> dormitoryTerms = sameNameAndSameGenderDormitories.stream()
-                .map(dormitoryTermRepository::findByDormitory)
-                .flatMap(List::stream)
-                .toList();
-
-        Set<User> users = new HashSet<>();
-        for (DormitoryTerm term : dormitoryTerms) {
-            List<DormitoryApplication> dormitoryApplications = dormitoryApplicationRepository.findByDormitoryTerm(term);
-            for (DormitoryApplication application : dormitoryApplications) {
-                users.add(application.getUser());
-            }
+        List<DormitoryApplication> dormitoryApplicationList = new ArrayList<>();
+        for (Dormitory sameNameAndSameGenderDormitory : sameNameAndSameGenderDormitories) {
+            Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByDormitoryAndApplicationStatus(sameNameAndSameGenderDormitory, ApplicationStatus.NOW);
+            DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "입사 신청이 존재하지 않습니다.");
+            DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
+            dormitoryApplicationList.add(dormitoryApplication);
         }
-        for (User user : users) {
+
+        List<User> userList = new ArrayList<>();
+        for (DormitoryApplication dormitoryApplication : dormitoryApplicationList)
+            userList.add(dormitoryApplication.getUser());
+
+//        List<Term> terms = sameNameAndSameGenderDormitories.stream()
+//                .map(termRepository::findByDormitory)
+//                .flatMap(List::stream)
+//                .toList();
+//
+//        Set<User> users = new HashSet<>();
+//        for (Term term : terms) {
+//            List<DormitoryApplication> dormitoryApplications = dormitoryApplicationRepository.findByTerm(term);
+//            for (DormitoryApplication application : dormitoryApplications) {
+//                users.add(application.getUser());
+//            }
+//        }
+
+        for (User user : userList) {
             Resident resident = residentRepository.findByUserAndRoom(user, null);
             if (resident != null) {
                 notAssignedResidents.add(resident);

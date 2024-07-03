@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryReq;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.meal_ticket.dto.request.MealTicketReq;
 import dormease.dormeasedev.domain.period.dto.request.PeriodReq;
+import dormease.dormeasedev.domain.term.dto.request.TermReq;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -52,6 +53,9 @@ public class CreateDormitoryApplicationSettingReq {
 
     @Schema(type = "List<DormitoryReq>", example = "dormitoryReqList", description= "입사 신청 설정에 사용되는 기숙사 정보 리스트입니다.")
     private List<DormitoryReq> dormitoryReqList = new ArrayList<>(); // dormitory id, 수용인원(Patch. 여기서 저장하는 것인듯)
+
+    @Schema(type = "List<TermReq>", example = "termReqList", description= "거주 기간 리스트입니다.")
+    private List<TermReq> termReqList = new ArrayList<>();
 
     @Schema(type = "List<MealTicketReq>", example = "mealTicketReqList", description= "거주 기간 별 가격 및 입.퇴사 날짜 리스트입니다.")
     private List<MealTicketReq> mealTicketReqList = new ArrayList<>();

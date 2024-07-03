@@ -34,7 +34,7 @@ public class RefundRequestmentRes {
 
     // 거주 기간
     @Schema(type = "String", example = "6개월", description = "거주 기간")
-    private String term;
+    private String termName;
 
     // 퇴실 날짜
     @Schema(type = "LocalDate", example = "2024-05-02", description = "퇴실 날짜")

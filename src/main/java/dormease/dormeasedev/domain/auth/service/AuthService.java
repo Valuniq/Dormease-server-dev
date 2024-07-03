@@ -6,6 +6,8 @@ import dormease.dormeasedev.domain.auth.dto.request.SignInReq;
 import dormease.dormeasedev.domain.auth.dto.response.CheckLoginIdRes;
 import dormease.dormeasedev.domain.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.auth.dto.request.SignUpReq;
+import dormease.dormeasedev.domain.restaurant.domain.Restaurant;
+import dormease.dormeasedev.domain.restaurant.domain.repository.RestaurantRepository;
 import dormease.dormeasedev.domain.school.service.SchoolService;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
@@ -32,6 +34,7 @@ public class AuthService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final RestaurantRepository restaurantRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
@@ -46,15 +49,22 @@ public class AuthService {
         // 이미 존재하는 로그인 아이디가 있으면
         DefaultAssert.isTrue(userRepository.findByLoginId(signUpReq.getLoginId()).isEmpty(), "중복된 아이디입니다.");
 
+        Optional<Restaurant> findRestaurant = restaurantRepository.findTopBySchoolOrderByIdDesc(school);
+        DefaultAssert.isTrue(findRestaurant.isPresent(), "대표 식당으로 지정할 식당이 해당 학교에 존재하지 않습니다.");
+        Restaurant restaurant = findRestaurant.get();
+
         User user = User.builder()
                 .school(school)
-                .name(signUpReq.getName())
-                .gender(signUpReq.getGender())
-                .phoneNumber(signUpReq.getPhoneNumber())
-                .studentNumber(signUpReq.getStudentNumber())
+                .restaurant(restaurant)
                 .loginId(signUpReq.getLoginId())
                 .password(signUpReq.getPassword())
+                .name(signUpReq.getName())
+                .phoneNumber(signUpReq.getPhoneNumber())
+                .studentNumber(signUpReq.getStudentNumber())
+                .gender(signUpReq.getGender())
                 .userType(UserType.USER) // 관리자는 직접 만들어 줄 것이기 떄문
+                .bonusPoint(0)
+                .minusPoint(0)
                 .build();
 
         user.passwordEncode(passwordEncoder);

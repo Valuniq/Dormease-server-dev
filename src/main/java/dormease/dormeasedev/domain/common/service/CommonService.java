@@ -1,7 +1,6 @@
 package dormease.dormeasedev.domain.common.service;
 
 import dormease.dormeasedev.domain.common.dto.response.ExistApplicationRes;
-import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.exit_requestment.domain.repository.ExitRequestmentRepository;
