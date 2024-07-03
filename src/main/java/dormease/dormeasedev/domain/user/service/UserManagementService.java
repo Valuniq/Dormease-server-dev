@@ -28,38 +28,10 @@ public class UserManagementService {
 
     private final UserRepository userRepository;
 
-    // 회원 목록 조회
-    public ResponseEntity<?> getActiveUsers(CustomUserDetails customUserDetails, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
-        Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
-
-        // ACTIVE 상태이고 ADMIN 유형이 아닌 사용자 목록 조회 (페이징 적용)
-        Page<User> users = userRepository.findBySchoolAndStatusAndUserTypeNot(admin.getSchool(), Status.ACTIVE, UserType.ADMIN, pageable);
-
-        List<ActiveUserInfoRes> activeUserInfoRes = users.getContent().stream()
-                .map(user -> ActiveUserInfoRes.builder()
-                        .id(user.getId())
-                        .name(user.getName())
-                        .studentNumber(user.getStudentNumber())
-                        .phoneNumber(user.getPhoneNumber())
-                        .bonusPoint(user.getBonusPoint())
-                        .minusPoint(user.getMinusPoint())
-                        .createdAt(user.getCreatedDate().toLocalDate())
-                        .build())
-                .collect(Collectors.toList());
-
-        PageInfo pageInfo = PageInfo.toPageInfo(pageable, users);
-        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, activeUserInfoRes);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(pageResponse)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
-    }
-
-    public ResponseEntity<?> sortedUsers(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending, Integer page) {
+    // TODO: admin user 분리 시 변경사항 적용
+    // 전체 회원 조회 및 정렬
+    // Description: 기본(sortBy: createdDate / isAscending: false)
+    public ResponseEntity<?> getActiveUsers(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending, Integer page) {
         User admin = validUserById(customUserDetails.getId());
 
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
@@ -88,13 +60,15 @@ public class UserManagementService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // 검색
-    public ResponseEntity<?> searchActiveUsers(CustomUserDetails customUserDetails, String keyword, Integer page) {
+    // 검색 회원 조회 및 정렬
+    // Description: 기본(sortBy: createdDate / isAscending: false)
+    // TODO: admin user 분리 시 변경사항 반영
+    public ResponseEntity<?> getSearchActiveUsers(CustomUserDetails customUserDetails, String keyword, String sortBy, Boolean isAscending, Integer page) {
         User admin = validUserById(customUserDetails.getId());
         // 공백 제거
         String cleanedKeyword = keyword.trim().toLowerCase();;
         // 검색 결과 조회 및 페이징
-        Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
         Page<User> searchResultPage = userRepository.searchUsersByKeyword(
                 admin.getSchool(), cleanedKeyword, Status.ACTIVE, UserType.ADMIN, pageable);
 
