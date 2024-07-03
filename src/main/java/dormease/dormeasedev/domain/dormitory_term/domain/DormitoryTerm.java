@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.dormitory_term.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,6 +26,10 @@ public class DormitoryTerm extends BaseEntity {
     @JoinColumn(name = "dormitory_id")
     private Dormitory dormitory;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dormitory_application_setting_id")
+    private DormitoryApplicationSetting dormitoryApplicationSetting;
+
     // 거주 기간
     private String term;
 
@@ -41,9 +46,10 @@ public class DormitoryTerm extends BaseEntity {
     // 이전 내역인지 구분하는 컬럼
 
     @Builder
-    public DormitoryTerm(Long id, Dormitory dormitory, String term, Integer price, LocalDate startDate, LocalDate endDate) {
+    public DormitoryTerm(Long id, Dormitory dormitory, String term, DormitoryApplicationSetting dormitoryApplicationSetting, Integer price, LocalDate startDate, LocalDate endDate) {
         this.id = id;
         this.dormitory = dormitory;
+        this.dormitoryApplicationSetting = dormitoryApplicationSetting;
         this.term = term;
         this.price = price;
         this.startDate = startDate;

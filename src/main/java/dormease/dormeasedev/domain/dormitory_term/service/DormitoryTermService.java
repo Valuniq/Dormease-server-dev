@@ -1,6 +1,9 @@
 package dormease.dormeasedev.domain.dormitory_term.service;
 
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
 import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.dto.response.DormitoryTermNameRes;
@@ -25,6 +28,7 @@ import java.util.Optional;
 @Service
 public class DormitoryTermService {
 
+    private final DormitoryApplicationSettingRepository dormitoryApplicationSettingRepository;
     private final DormitoryTermRepository dormitoryTermRepository;
     private final DormitoryRepository dormitoryRepository;
 
@@ -37,18 +41,15 @@ public class DormitoryTermService {
         User user = userService.validateUserById(customUserDetails.getId());
         School school = user.getSchool();
 
-//        // 학교 -> 기숙사 -> 거주 기간 (price != 0)
-//        List<Dormitory> dormitoryList = dormitoryRepository.findBySchool(school);
-//        DefaultAssert.isTrue(!dormitoryList.isEmpty(), "학교에 등록된 기숙사가 없습니다.");
-//
-//        // 아무거나 하나
-//        Dormitory dormitory = dormitoryList.get(0);
+        Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW);
+        DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "입사 신청 기간이 아닙니다.");
+        DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
 
-        // 거주 기간 (Dormitory Term)은 기간 지나면 삭제하므로, 지금 있는 것들이 다임
-        List<DormitoryTerm> dormitoryTermList = dormitoryTermRepository.findAll();
+        List<DormitoryTerm> dormitoryTermList = dormitoryTermRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
         List<DormitoryTermNameRes> dormitoryTermNameResList = new ArrayList<>();
         for (DormitoryTerm dormitoryTerm : dormitoryTermList) {
             DormitoryTermNameRes dormitoryTermNameRes = DormitoryTermNameRes.builder()
+                    .dormitoryTermId(dormitoryTerm.getId())
                     .term(dormitoryTerm.getTerm())
                     .build();
             dormitoryTermNameResList.add(dormitoryTermNameRes);

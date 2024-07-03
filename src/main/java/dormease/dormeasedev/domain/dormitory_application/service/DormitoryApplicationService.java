@@ -59,6 +59,7 @@ public class DormitoryApplicationService {
         MealTicket mealTicket = mealTicketService.validateMealTicketById(dormitoryApplicationReq.getMealTicketId());
 
         Optional<DormitorySettingTerm> findDormitorySettingTerm = dormitorySettingTermRepository.findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.NOW);
+        // or 식권으로 찾기
         DefaultAssert.isTrue(findDormitorySettingTerm.isPresent(), "해당 기숙사에 대한 입사 신청 설정이 존재하지 않습니다.");
         DormitorySettingTerm dormitorySettingTerm = findDormitorySettingTerm.get();
         DormitoryApplicationSetting dormitoryApplicationSetting = dormitorySettingTerm.getDormitoryApplicationSetting();
@@ -71,6 +72,7 @@ public class DormitoryApplicationService {
         DormitoryApplication dormitoryApplication = DormitoryApplication.builder()
                 .user(user)
                 .dormitoryTerm(dormitoryTerm)
+//                .dormitoryApplicationSetting()
                 .copy(dormitoryApplicationReq.getCopy())
                 .prioritySelectionCopy(dormitoryApplicationReq.getPrioritySelectionCopy())
                 .isSmoking(dormitoryApplicationReq.getIsSmoking())
