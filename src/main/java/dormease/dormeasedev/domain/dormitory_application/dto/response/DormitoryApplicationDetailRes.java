@@ -31,7 +31,7 @@ public class DormitoryApplicationDetailRes {
     private Integer roomSize;
 
     @Schema(type = "String", example = "6개월", description = "거주 기간")
-    private String term;
+    private String termName;
 
     @Schema(type = "Integer", example = "100(식)", description = "식권 개수. 숫자만 응답합니다.")
     private Integer mealTicketCount;

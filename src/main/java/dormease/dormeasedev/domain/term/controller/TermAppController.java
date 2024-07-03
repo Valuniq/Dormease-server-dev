@@ -1,7 +1,7 @@
-package dormease.dormeasedev.domain.dormitory_term.controller;
+package dormease.dormeasedev.domain.term.controller;
 
-import dormease.dormeasedev.domain.dormitory_term.dto.response.DormitoryTermNameRes;
-import dormease.dormeasedev.domain.dormitory_term.service.DormitoryTermService;
+import dormease.dormeasedev.domain.term.dto.response.TermNameRes;
+import dormease.dormeasedev.domain.term.service.TermService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,20 +22,20 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Dormitory API", description = "기숙사 건물 관련 API입니다.")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/app/dormitoryTerm")
-public class DormitoryTermAppController {
+@RequestMapping("/api/v1/app/term")
+public class TermAppController {
 
-    private final DormitoryTermService dormitoryTermService;
+    private final TermService termService;
 
     @Operation(summary = "거주 기간 목록 조회", description = "입사 신청 단계 중 거주 기간 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryTermNameRes.class)))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = TermNameRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping
-    public ResponseEntity<?> findDormitoryTerms(
+    public ResponseEntity<?> findTerms(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        return dormitoryTermService.findDormitoryTerms(customUserDetails);
+        return termService.findTerms(customUserDetails);
     }
 }

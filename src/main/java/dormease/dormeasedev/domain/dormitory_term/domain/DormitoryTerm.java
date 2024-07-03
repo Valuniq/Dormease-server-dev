@@ -1,20 +1,17 @@
 package dormease.dormeasedev.domain.dormitory_term.domain;
 
-import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.term.domain.Term;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
-// 거주 기간
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class DormitoryTerm extends BaseEntity {
+public class DormitoryTerm {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,31 +19,19 @@ public class DormitoryTerm extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "term_id")
+    private Term term;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dormitory_id")
     private Dormitory dormitory;
 
-    // 거주 기간
-    private String term;
-
     private Integer price;
 
-    // 시작 -> 마감일 中 시작일
-    private LocalDate startDate;
-
-    // 시작 -> 마감일 中 마감일
-    private LocalDate endDate;
-
-    // 입사-퇴사 기간 여기 넣을지?
-
-    // 이전 내역인지 구분하는 컬럼
-
     @Builder
-    public DormitoryTerm(Long id, Dormitory dormitory, String term, Integer price, LocalDate startDate, LocalDate endDate) {
-        this.id = id;
-        this.dormitory = dormitory;
+    public DormitoryTerm(Term term, Dormitory dormitory, Integer price) {
         this.term = term;
+        this.dormitory = dormitory;
         this.price = price;
-        this.startDate = startDate;
-        this.endDate = endDate;
     }
 }
