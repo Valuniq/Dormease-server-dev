@@ -59,6 +59,8 @@ public class DormitoryApplication extends BaseEntity {
     // 계좌번호
     private String accountNumber;
 
+    private Boolean dormitoryPayment;
+
     // 신청 결과
     @Enumerated(EnumType.STRING)
     private DormitoryApplicationResult dormitoryApplicationResult;
@@ -75,7 +77,7 @@ public class DormitoryApplication extends BaseEntity {
     }
 
     @Builder
-    public DormitoryApplication(User user, Term term, DormitoryApplicationSetting dormitoryApplicationSetting, Dormitory dormitory, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
+    public DormitoryApplication(User user, Term term, DormitoryApplicationSetting dormitoryApplicationSetting, Dormitory dormitory, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
         this.user = user;
         this.term = term;
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
@@ -87,6 +89,7 @@ public class DormitoryApplication extends BaseEntity {
         this.emergencyRelation = emergencyRelation;
         this.bankName = bankName;
         this.accountNumber = accountNumber;
+        this.dormitoryPayment = dormitoryPayment;
         this.dormitoryApplicationResult = dormitoryApplicationResult;
         this.totalPrice = totalPrice;
         this.applicationStatus = applicationStatus;

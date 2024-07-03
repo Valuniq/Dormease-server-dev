@@ -81,6 +81,7 @@ public class DormitoryApplicationService {
                 .emergencyRelation(dormitoryApplicationReq.getEmergencyRelation())
                 .bankName(dormitoryApplicationReq.getBankName())
                 .accountNumber(dormitoryApplicationReq.getAccountNumber())
+                .dormitoryPayment(false)
                 .dormitoryApplicationResult(DormitoryApplicationResult.WAIT)
                 .totalPrice(totalPrice)
                 .applicationStatus(ApplicationStatus.NOW)
