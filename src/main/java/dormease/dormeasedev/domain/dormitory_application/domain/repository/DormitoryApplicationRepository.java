@@ -1,9 +1,10 @@
 package dormease.dormeasedev.domain.dormitory_application.domain.repository;
 
+import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
-import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.term.domain.Term;
 import dormease.dormeasedev.domain.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,9 +24,10 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
 
     List<DormitoryApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
 
-    List<DormitoryApplication> findByDormitoryTerm(DormitoryTerm dormitoryTerm);
+    List<DormitoryApplication> findByTerm(Term term);
 
     @Query("SELECT da FROM DormitoryApplication da WHERE da.user = :user AND da.dormitoryApplicationResult = :results ORDER BY da.createdDate DESC")
     Optional<DormitoryApplication> findTop1ByUserAndResultsOrderByCreatedDateDesc(User user, DormitoryApplicationResult results);
 
+    Optional<DormitoryApplication> findByDormitoryAndApplicationStatus(Dormitory sameNameAndSameGenderDormitory, ApplicationStatus applicationStatus);
 }

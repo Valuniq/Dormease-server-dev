@@ -4,7 +4,7 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.service.DormitoryApplicationService;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
-import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.term.domain.Term;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.resident.service.ResidentService;
@@ -138,8 +138,9 @@ public class RoommateTempApplicationService {
         DefaultAssert.isTrue(resident.getRoommateApplication() == null, "이미 소속된 그룹이 존재합니다.");
 
         DormitoryApplication myDormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
-        DormitoryTerm myDormitoryTerm = myDormitoryApplication.getDormitoryTerm();
-        Dormitory myDormitory = myDormitoryTerm.getDormitory();
+        Term myTerm = myDormitoryApplication.getTerm();
+//        Dormitory myDormitory = myTerm.getDormitory();
+        Dormitory myDormitory = myDormitoryApplication.getDormitory();
 
         RoommateTempApplication roommateTempApplication = validateRoommateTempApplicationByCode(code);
         DefaultAssert.isTrue(!roommateTempApplication.getIsApplied(), "이미 신청이 확정된 그룹입니다.");
@@ -148,8 +149,9 @@ public class RoommateTempApplicationService {
         Resident roommateMasterResident = residentService.validateResidentById(roommateMasterId);
         User roommateMasterUser = roommateMasterResident.getUser();
         DormitoryApplication dormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(roommateMasterUser, ApplicationStatus.NOW);
-        DormitoryTerm dormitoryTerm = dormitoryApplication.getDormitoryTerm();
-        Dormitory dormitory = dormitoryTerm.getDormitory();
+        Term term = dormitoryApplication.getTerm();
+//        Dormitory dormitory = term.getDormitory();
+        Dormitory dormitory = dormitoryApplication.getDormitory();
         Integer roomSize = dormitory.getRoomSize();
 
         DefaultAssert.isTrue(myDormitory.equals(dormitory), "신청한 기숙사가 해당 그룹의 방장의 신청 기숙사와 일치하지 않습니다.");

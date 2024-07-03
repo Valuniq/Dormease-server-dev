@@ -5,7 +5,8 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
-import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.term.domain.Term;
 import dormease.dormeasedev.domain.point.domain.Point;
 import dormease.dormeasedev.domain.point.domain.PointType;
 import dormease.dormeasedev.domain.point.domain.repository.PointRepository;
@@ -329,10 +330,16 @@ public class PointService {
     }
 
     private Dormitory findDormitoryByResident(Resident resident) {
-        return dormitoryApplicationRepository.findTop1ByUserAndResultsOrderByCreatedDateDesc(resident.getUser(), DormitoryApplicationResult.PASS)
-                .map(DormitoryApplication::getDormitoryTerm)
-                .map(DormitoryTerm::getDormitory)
-                .orElse(null);
+        User user = resident.getUser();
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "사생의 현재 입사 신청이 존재하지 않습니다.");
+        DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
+        return dormitoryApplication.getDormitory();
+
+//        return dormitoryApplicationRepository.findTop1ByUserAndResultsOrderByCreatedDateDesc(resident.getUser(), DormitoryApplicationResult.PASS)
+//                .map(DormitoryApplication::getTerm)
+//                .map(Term::getDormitory)
+//                .orElse(null);
     }
 
     public ResponseEntity<?> getSortedResidents(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending, Integer page) {

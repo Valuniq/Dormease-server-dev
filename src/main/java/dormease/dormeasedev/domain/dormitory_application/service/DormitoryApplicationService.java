@@ -11,10 +11,12 @@ import dormease.dormeasedev.domain.dormitory_application.dto.response.DormitoryA
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
-import dormease.dormeasedev.domain.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_term.service.DormitoryTermService;
+import dormease.dormeasedev.domain.term.domain.Term;
+import dormease.dormeasedev.domain.term.service.TermService;
 import dormease.dormeasedev.domain.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.meal_ticket.domain.repository.MealTicketRepository;
 import dormease.dormeasedev.domain.meal_ticket.service.MealTicketService;
@@ -43,26 +45,24 @@ public class DormitoryApplicationService {
     private final DormitorySettingTermRepository dormitorySettingTermRepository;
     private final MealTicketRepository mealTicketRepository;
     private final DormitoryApplicationSettingRepository dormitoryapplicationsettingRepository;
+    private final DormitoryTermRepository dormitoryTermRepository;
 
     private final UserService userService;
     private final DormitoryService dormitoryService;
-    private final DormitoryTermService dormitoryTermService;
+    private final TermService termService;
     private final MealTicketService mealTicketService;
+    private final DormitoryTermService dormitoryTermService;
 
     // Description : 입사 신청
     @Transactional
     public ResponseEntity<?> dormitoryApplication(CustomUserDetails customUserDetails, DormitoryApplicationReq dormitoryApplicationReq) {
 
         User user = userService.validateUserById(customUserDetails.getId());
-        DormitoryTerm dormitoryTerm = dormitoryTermService.validateDormitoryTermId(dormitoryApplicationReq.getDormitoryTermId());
+        Term term = termService.validateTermId(dormitoryApplicationReq.getTermId());
         Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryApplicationReq.getDormitoryId());
         MealTicket mealTicket = mealTicketService.validateMealTicketById(dormitoryApplicationReq.getMealTicketId());
-
-        Optional<DormitorySettingTerm> findDormitorySettingTerm = dormitorySettingTermRepository.findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(dormitory, ApplicationStatus.NOW);
-        // or 식권으로 찾기
-        DefaultAssert.isTrue(findDormitorySettingTerm.isPresent(), "해당 기숙사에 대한 입사 신청 설정이 존재하지 않습니다.");
-        DormitorySettingTerm dormitorySettingTerm = findDormitorySettingTerm.get();
-        DormitoryApplicationSetting dormitoryApplicationSetting = dormitorySettingTerm.getDormitoryApplicationSetting();
+        DormitoryApplicationSetting dormitoryApplicationSetting = term.getDormitoryApplicationSetting();
+        DormitoryTerm dormitoryTerm = dormitoryTermService.validateDormitoryTermByTermAndDormitory(term, dormitory);
 
         int totalPrice = 0;
         totalPrice += mealTicket.getPrice(); // + 식권
@@ -71,8 +71,9 @@ public class DormitoryApplicationService {
 
         DormitoryApplication dormitoryApplication = DormitoryApplication.builder()
                 .user(user)
-                .dormitoryTerm(dormitoryTerm)
-//                .dormitoryApplicationSetting()
+                .term(term)
+                .dormitoryApplicationSetting(dormitoryApplicationSetting)
+                .dormitory(dormitory)
                 .copy(dormitoryApplicationReq.getCopy())
                 .prioritySelectionCopy(dormitoryApplicationReq.getPrioritySelectionCopy())
                 .isSmoking(dormitoryApplicationReq.getIsSmoking())
@@ -84,7 +85,6 @@ public class DormitoryApplicationService {
                 .totalPrice(totalPrice)
                 .applicationStatus(ApplicationStatus.NOW)
                 .build();
-
         dormitoryApplicationRepository.save(dormitoryApplication);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -115,16 +115,18 @@ public class DormitoryApplicationService {
         DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
 
         // 거주 기간
-        DormitoryTerm dormitoryTerm = dormitoryApplication.getDormitoryTerm();
+        Term term = dormitoryApplication.getTerm();
 
         // 기숙사
-        Dormitory dormitory = dormitoryTerm.getDormitory();
+        Dormitory dormitory = dormitoryApplication.getDormitory();
 
         // 입사 신청 설정
 //        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
         Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryapplicationsettingRepository.findBySchoolAndDateRange(school, dormitoryApplication.getCreatedDate().toLocalDate());
         DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "입사 신청 날짜에 알맞은 입사 신청 설정이 존재하지 않습니다.");
         DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
+
+        DormitoryTerm dormitoryTerm = dormitoryTermService.validateDormitoryTermByTermAndDormitory(term, dormitory);
 
         // 총액 = 보증금 + 기숙사비 + 식권
         Integer totalPrice = dormitoryApplication.getTotalPrice();
@@ -140,7 +142,7 @@ public class DormitoryApplicationService {
                 .dormitoryName(dormitory.getName())
                 .gender(dormitory.getGender())
                 .roomSize(dormitory.getRoomSize())
-                .term(dormitoryTerm.getTerm())
+                .termName(term.getTermName())
                 .mealTicketCount(mealTicket.getCount())
 //                 null이면 제출 x
                 .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy() != null)
@@ -176,9 +178,9 @@ public class DormitoryApplicationService {
 
         for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
             // 거주 기간
-            DormitoryTerm dormitoryTerm = dormitoryApplication.getDormitoryTerm();
+            Term term = dormitoryApplication.getTerm();
             // 기숙사
-            Dormitory dormitory = dormitoryTerm.getDormitory();
+            Dormitory dormitory = dormitoryApplication.getDormitory();
             // 입사 신청 설정
 //            DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
             Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryapplicationsettingRepository.findBySchoolAndDateRange(school, dormitoryApplication.getCreatedDate().toLocalDate());

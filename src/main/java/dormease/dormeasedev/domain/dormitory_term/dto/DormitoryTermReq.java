@@ -1,4 +1,4 @@
-package dormease.dormeasedev.domain.dormitory.dto.request;
+package dormease.dormeasedev.domain.dormitory_term.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -6,11 +6,12 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class DormitoryReq {
+public class DormitoryTermReq {
 
     @Schema(type = "Long", example = "1", description = "기숙사 ID")
     private Long dormitoryId;
 
-    @Schema(type = "Integer", example = "250", description= "수용 인원입니다.")
-    private Integer acceptLimit; // 수용 인원
+    // 가격
+    @Schema(type = "Integer", example = "1300000", description= "가격입니다.")
+    private Integer price;
 }

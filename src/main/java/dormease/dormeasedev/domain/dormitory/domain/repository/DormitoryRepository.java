@@ -31,7 +31,7 @@ public interface DormitoryRepository extends JpaRepository<Dormitory, Long> {
     // 학교, 성별, 거주 기간에 따른 기숙사 목록 조회
 //    @Query("SELECT d FROM Dormitory d " +
 //            "INNER JOIN DormitorySettingTerm dst ON d.id = dst.dormitory.id " +
-//            "INNER JOIN DormitoryTerm dt ON dst.dormitoryTerm.id = dt.id " +
+//            "INNER JOIN Term dt ON dst.dormitoryTerm.id = dt.id " +
 //            "WHERE d.school.id = :schoolId " +
 //            "AND d.gender = :gender " +
 //            "AND dt.term = :term")
