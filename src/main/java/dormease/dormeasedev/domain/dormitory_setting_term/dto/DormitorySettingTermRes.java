@@ -20,5 +20,5 @@ public class DormitorySettingTermRes {
     private Integer roomSize;
 
     @Schema(type = "Integer", example = "250", description= "수용 인원입니다.")
-    private Integer dormitorySize; // 수용 인원
+    private Integer acceptLimit; // 수용 인원
 }

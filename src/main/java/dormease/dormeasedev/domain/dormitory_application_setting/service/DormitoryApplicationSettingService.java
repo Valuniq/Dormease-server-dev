@@ -161,7 +161,7 @@ public class DormitoryApplicationSettingService {
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
                     .roomSize(dormitory.getRoomSize())
-                    .dormitorySize(dormitorySettingTerm.getAcceptLimit())
+                    .acceptLimit(dormitorySettingTerm.getAcceptLimit())
                     .build();
             dormitorySettingTermResList.add(dormitorySettingTermRes);
         }
