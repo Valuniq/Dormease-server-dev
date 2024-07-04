@@ -109,7 +109,7 @@ public class RefundRequestmentWebService {
         User user = resident.getUser();
         DefaultAssert.isTrue(user.getSchool().equals(school), "본인이 소속된 학교의 환불 요청만 처리할 수 있습니다.");
 
-        // 삭제 시, refund_requestment 삭제 + resident 삭제(user의 userType = USER 로 변경)
+        // 삭제 시, refund_requestment-data.sql 삭제 + resident 삭제(user의 userType = USER 로 변경)
         refundRequestmentRepository.delete(refundRequestment);
         user.updateUserType(UserType.USER);
         residentRepository.delete(resident);
