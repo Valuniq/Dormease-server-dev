@@ -3,18 +3,13 @@ package dormease.dormeasedev.domain.point.service;
 import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
-import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
-import dormease.dormeasedev.domain.term.domain.Term;
 import dormease.dormeasedev.domain.point.domain.Point;
 import dormease.dormeasedev.domain.point.domain.PointType;
 import dormease.dormeasedev.domain.point.domain.repository.PointRepository;
 import dormease.dormeasedev.domain.point.dto.request.*;
-import dormease.dormeasedev.domain.point.dto.response.PointRes;
-import dormease.dormeasedev.domain.point.dto.response.TotalUserPointRes;
-import dormease.dormeasedev.domain.point.dto.response.ResidentInfoRes;
-import dormease.dormeasedev.domain.point.dto.response.UserPointDetailRes;
+import dormease.dormeasedev.domain.point.dto.response.*;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.user.domain.User;
@@ -50,7 +45,45 @@ public class PointService {
     private final UserPointRepository userPointRepository;
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
 
+    // Description: [APP] 상벌점 관련 기능
+    // 회원 상벌점 조회
+    public ResponseEntity<?> getUserPointTotal(CustomUserDetails customUserDetails) {
+        User user = validUserById(customUserDetails.getId());
+        UserPointAppRes userPointAppRes = UserPointAppRes.builder()
+                .bonusPoint(user.getBonusPoint())
+                .minusPoint(user.getMinusPoint())
+                .build();
 
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(userPointAppRes)
+                .build();
+        return  ResponseEntity.ok(apiResponse);
+    }
+
+    // 회원 상점/벌점 내역 조회
+    public ResponseEntity<?> getUserPointHistory(CustomUserDetails customUserDetails, String type) {
+        User user = validUserById(customUserDetails.getId());
+        List<UserPoint> userPoints = userPointRepository.findUserPointsByUserAndPoint_pointTypeOrderByCreatedDateDesc(user, PointType.valueOf(type));
+
+        List<UserPointHistoryAppRes> userPointHistoryAppResList = userPoints.stream()
+                .map(userPoint -> UserPointHistoryAppRes.builder()
+                        .userPointId(userPoint.getId())
+                        .createdDate(userPoint.getCreatedDate().toLocalDate())
+                        .content(userPoint.getPoint().getContent())
+                        .score(userPoint.getPoint().getScore())
+                        .build())
+                .toList();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(userPointHistoryAppResList)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+
+    // Description: [WEB] 상벌점 관련 기능
     // 상벌점 리스트 내역 조회
     public ResponseEntity<?> getPointList(CustomUserDetails customUserDetails) {
         User admin = validUserById(customUserDetails.getId());
@@ -242,7 +275,7 @@ public class PointService {
                         .content(userPoint.getPoint().getContent())
                         .score(userPoint.getPoint().getScore())
                         .pointType(userPoint.getPoint().getPointType())
-                        .createdAt(userPoint.getCreatedDate().toLocalDate())
+                        .createdDate(userPoint.getCreatedDate().toLocalDate())
                         .build())
                 .collect(Collectors.toList());
 

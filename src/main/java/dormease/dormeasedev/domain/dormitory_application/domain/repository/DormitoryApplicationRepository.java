@@ -30,4 +30,6 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
     Optional<DormitoryApplication> findTop1ByUserAndResultsOrderByCreatedDateDesc(User user, DormitoryApplicationResult results);
 
     Optional<DormitoryApplication> findByDormitoryAndApplicationStatus(Dormitory sameNameAndSameGenderDormitory, ApplicationStatus applicationStatus);
+
+    DormitoryApplication findByUserAndApplicationStatusAndDormitoryApplicationResult(User user, ApplicationStatus applicationStatus, DormitoryApplicationResult dormitoryApplicationResult);
 }

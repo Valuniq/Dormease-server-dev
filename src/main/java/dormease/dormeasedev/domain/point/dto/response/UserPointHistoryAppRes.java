@@ -1,6 +1,5 @@
 package dormease.dormeasedev.domain.point.dto.response;
 
-import dormease.dormeasedev.domain.point.domain.PointType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +9,7 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
-public class UserPointDetailRes {
+public class UserPointHistoryAppRes {
 
     @Schema(type = "Long", example = "1", description= "userPoint 테이블의 id입니다,")
     private Long userPointId;
@@ -24,15 +23,11 @@ public class UserPointDetailRes {
     @Schema(type = "Integer", example = "1~99", description= "상벌점 내역의 점수입니다.")
     private Integer score;
 
-    @Schema(type = "Integer", example = "BONUS/MINUS", description= "상벌점 내역의 점수입니다.")
-    private PointType pointType;
-
     @Builder
-    public UserPointDetailRes(Long userPointId, String content, LocalDate createdDate, PointType pointType, Integer score) {
+    public UserPointHistoryAppRes(Long userPointId, String content, LocalDate createdDate, Integer score) {
         this.userPointId = userPointId;
         this.content = content;
-        this.createdDate = createdDate;
-        this.pointType = pointType;
         this.score = score;
+        this.createdDate = createdDate;
     }
 }
