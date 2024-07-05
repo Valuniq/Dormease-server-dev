@@ -1,10 +1,13 @@
 package dormease.dormeasedev.domain.resident.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
+import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.roommate_application.domain.RoommateApplication;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.term.domain.Term;
+import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -31,6 +34,14 @@ public class Resident extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dormitory_id")
+    private Dormitory dormitory;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "term_id")
+    private Term term;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private Room room;
 
@@ -41,6 +52,11 @@ public class Resident extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "roommate_application_id")
     private RoommateApplication roommateApplication;
+
+    private String name;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     // 침대 번호
     private Integer bedNumber;
@@ -73,12 +89,16 @@ public class Resident extends BaseEntity {
     }
 
     @Builder
-    public Resident(School school, User user, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
+    public Resident(School school, User user, Dormitory dormitory, Term term, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, String name, Gender gender, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
         this.school = school;
         this.user = user;
+        this.dormitory = dormitory;
+        this.term = term;
         this.room = room;
         this.roommateTempApplication = roommateTempApplication;
         this.roommateApplication = roommateApplication;
+        this.name = name;
+        this.gender = gender;
         this.bedNumber = bedNumber;
         this.isRoommateApplied = isRoommateApplied;
         this.hasKey = hasKey;
