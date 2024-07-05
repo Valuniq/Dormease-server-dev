@@ -4,6 +4,7 @@ import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.roommate_application.domain.RoommateApplication;
 import dormease.dormeasedev.domain.roommate_temp_application.domain.RoommateTempApplication;
+import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -20,6 +21,10 @@ public class Resident extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "resident_id")
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
+    private School school;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -68,7 +73,8 @@ public class Resident extends BaseEntity {
     }
 
     @Builder
-    public Resident(User user, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
+    public Resident(School school, User user, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
+        this.school = school;
         this.user = user;
         this.room = room;
         this.roommateTempApplication = roommateTempApplication;
