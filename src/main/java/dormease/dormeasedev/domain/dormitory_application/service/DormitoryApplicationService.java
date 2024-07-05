@@ -129,12 +129,16 @@ public class DormitoryApplicationService {
 
         DormitoryTerm dormitoryTerm = dormitoryTermService.validateDormitoryTermByTermAndDormitory(term, dormitory);
 
+        // mealticket 관련 로직 변화 필요
+        MealTicket mealTicket = dormitoryApplication.getMealTicket();
+        Integer mealTicketPrice = mealTicket.getPrice();
+
         // 총액 = 보증금 + 기숙사비 + 식권
         Integer totalPrice = dormitoryApplication.getTotalPrice();
-        Integer mealTicketPrice = totalPrice - dormitoryTerm.getPrice() -dormitoryApplicationSetting.getSecurityDeposit();
-        Optional<MealTicket> findMealTicket = mealTicketRepository.findByDormitoryApplicationSettingAndPrice(dormitoryApplicationSetting, mealTicketPrice);
-        DefaultAssert.isTrue(findMealTicket.isPresent(), "식권 정보가 올바르지 않습니다.");
-        MealTicket mealTicket = findMealTicket.get();
+//        Integer mealTicketPrice = totalPrice - dormitoryTerm.getPrice() - dormitoryApplicationSetting.getSecurityDeposit();
+//        Optional<MealTicket> findMealTicket = mealTicketRepository.findByDormitoryApplicationSettingAndPrice(dormitoryApplicationSetting, mealTicketPrice);
+//        DefaultAssert.isTrue(findMealTicket.isPresent(), "식권 정보가 올바르지 않습니다.");
+//        MealTicket mealTicket = findMealTicket.get();
 
         DormitoryApplicationDetailRes dormitoryApplicationDetailRes = DormitoryApplicationDetailRes.builder()
                 .dormitoryApplicationId(dormitoryApplication.getId())
