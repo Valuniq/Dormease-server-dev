@@ -209,6 +209,7 @@ public class DormitoryManagementService {
         // 기숙사 - 거주 기간 - 입사 신청 - 회원 - 사생
         List<DormitoryApplication> dormitoryApplicationList = new ArrayList<>();
         for (Dormitory sameNameAndSameGenderDormitory : sameNameAndSameGenderDormitories) {
+            // pass && now
             Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByDormitoryAndApplicationStatus(sameNameAndSameGenderDormitory, ApplicationStatus.NOW);
             DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "입사 신청이 존재하지 않습니다.");
             DormitoryApplication dormitoryApplication = findDormitoryApplication.get();

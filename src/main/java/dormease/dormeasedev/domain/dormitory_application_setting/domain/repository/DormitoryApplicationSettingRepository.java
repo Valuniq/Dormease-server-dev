@@ -16,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface DormitoryApplicationSettingRepository extends JpaRepository<DormitoryApplicationSetting, Long> {
 
-    Page<DormitoryApplicationSetting> findBySchool(Pageable pageable, School school);
+    Page<DormitoryApplicationSetting> findBySchoolAndApplicationStatus(Pageable pageable, School school, ApplicationStatus applicationStatus);
 
     // ApplicationStatus.NOW 전용!! / BEFORE 하면 여러 개 나오기에 안됨
     Optional<DormitoryApplicationSetting> findBySchoolAndApplicationStatus(School school, ApplicationStatus applicationStatus);

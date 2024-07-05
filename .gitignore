@@ -39,6 +39,7 @@ out/
 ### Database ###
 /src/main/resources/application-rds.yml
 /src/main/resources/application-h2.yml
+/src/main/resources/application-sql.yml
 
 ### Swagger ###
 /src/main/resources/application-swagger.yml

@@ -122,19 +122,23 @@ public class DormitoryApplicationService {
         Dormitory dormitory = dormitoryApplication.getDormitory();
 
         // 입사 신청 설정
-//        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
-        Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryapplicationsettingRepository.findBySchoolAndDateRange(school, dormitoryApplication.getCreatedDate().toLocalDate());
-        DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "입사 신청 날짜에 알맞은 입사 신청 설정이 존재하지 않습니다.");
-        DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
+//        Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryapplicationsettingRepository.findBySchoolAndDateRange(school, dormitoryApplication.getCreatedDate().toLocalDate());
+//        DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "입사 신청 날짜에 알맞은 입사 신청 설정이 존재하지 않습니다.");
+//        DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
 
         DormitoryTerm dormitoryTerm = dormitoryTermService.validateDormitoryTermByTermAndDormitory(term, dormitory);
 
+        // mealticket 관련 로직 변화 필요
+        MealTicket mealTicket = dormitoryApplication.getMealTicket();
+        Integer mealTicketPrice = mealTicket.getPrice();
+
         // 총액 = 보증금 + 기숙사비 + 식권
         Integer totalPrice = dormitoryApplication.getTotalPrice();
-        Integer mealTicketPrice = totalPrice - dormitoryTerm.getPrice() -dormitoryApplicationSetting.getSecurityDeposit();
-        Optional<MealTicket> findMealTicket = mealTicketRepository.findByDormitoryApplicationSettingAndPrice(dormitoryApplicationSetting, mealTicketPrice);
-        DefaultAssert.isTrue(findMealTicket.isPresent(), "식권 정보가 올바르지 않습니다.");
-        MealTicket mealTicket = findMealTicket.get();
+//        Integer mealTicketPrice = totalPrice - dormitoryTerm.getPrice() - dormitoryApplicationSetting.getSecurityDeposit();
+//        Optional<MealTicket> findMealTicket = mealTicketRepository.findByDormitoryApplicationSettingAndPrice(dormitoryApplicationSetting, mealTicketPrice);
+//        DefaultAssert.isTrue(findMealTicket.isPresent(), "식권 정보가 올바르지 않습니다.");
+//        MealTicket mealTicket = findMealTicket.get();
 
         DormitoryApplicationDetailRes dormitoryApplicationDetailRes = DormitoryApplicationDetailRes.builder()
                 .dormitoryApplicationId(dormitoryApplication.getId())

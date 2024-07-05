@@ -24,7 +24,7 @@ public class Requestment extends BaseEntity {
 
     private String title;
 
-    @Lob
+    @Column(columnDefinition = "text")
     private String content;
 
     // 부재 중 방문 동의 여부
