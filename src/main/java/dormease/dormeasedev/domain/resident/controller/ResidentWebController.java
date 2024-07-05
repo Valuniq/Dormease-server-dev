@@ -30,7 +30,7 @@ public class ResidentWebController {
 
     private final ResidentManagementService residentManagementService;
 
-    @Operation(summary = "사생 목록 조회 및 정렬", description = "상벌점 관리 프로세스 중 회원의 상벌점 목록을 조회 또는 정렬하여 조회합니다.")
+    @Operation(summary = "사생 목록 조회 및 정렬", description = "사생 관리 프로세스 중 전체 사생을 조회 또는 정렬하여 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ResidentRes.class)))}),
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
@@ -47,7 +47,7 @@ public class ResidentWebController {
         return residentManagementService.getResidents(customUserDetails, sortBy, isAscending, page - 1);
     }
 
-    @Operation(summary = "사생 검색 및 정렬", description = "상벌점 관리 프로세스 중 회원을 학번 또는 이름으로 검색 또는 정렬하여 검색합니다.")
+    @Operation(summary = "사생 검색 및 정렬", description = "사생 관리 프로세스 중 사생을 학번 또는 이름으로 검색 또는 정렬하여 검색합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ResidentRes.class)))}),
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
