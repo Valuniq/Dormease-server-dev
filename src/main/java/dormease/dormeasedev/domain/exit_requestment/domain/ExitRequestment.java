@@ -41,6 +41,7 @@ public class ExitRequestment extends BaseEntity {
     private String accountNumber;
 
     // 보증금 환급 여부
+    @Enumerated(EnumType.STRING)
     private SecurityDepositReturnStatus securityDepositReturnStatus;
 
     // update 함수

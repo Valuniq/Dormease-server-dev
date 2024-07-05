@@ -233,7 +233,7 @@ public class DormitoryApplicationSettingService {
         School school = user.getSchool();
 
         PageRequest pageRequest = PageRequest.of(page, 3, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<DormitoryApplicationSetting> dormitoryApplicationSettingPage = dormitoryApplicationSettingRepository.findBySchool(pageRequest, school);
+        Page<DormitoryApplicationSetting> dormitoryApplicationSettingPage = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(pageRequest, school, ApplicationStatus.BEFORE);
 
         // 비어 있을 시, 빈 리스트 or 예외 던질지 고민
         DefaultAssert.isTrue(!dormitoryApplicationSettingPage.isEmpty(), "입사 신청 설정 내역이 존재하지 않습니다.");
