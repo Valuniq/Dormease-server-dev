@@ -25,8 +25,12 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
     Page<Resident> findBySchool(School school, Pageable pageable);
 
     @Query("SELECT r FROM Resident r " +
-            "WHERE (r.user.school = :school AND r.user.name LIKE %:keyword%) " +
-            "   OR (r.user.school = :school AND r.user.studentNumber LIKE %:keyword%)")
+            "LEFT JOIN r.user u " +
+            "WHERE r.school = :school " +
+            "AND (" +
+            "   r.name LIKE %:keyword% " +
+            "   OR (u.studentNumber LIKE %:keyword%)" +
+            ")")
     Page<Resident> searchResidentsByKeyword(School school, String keyword, Pageable pageable);
 
     Optional<Resident> findByUser(User user);
