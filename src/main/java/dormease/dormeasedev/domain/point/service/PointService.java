@@ -13,6 +13,7 @@ import dormease.dormeasedev.domain.point.dto.response.*;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.user.domain.User;
+import dormease.dormeasedev.domain.user.domain.UserType;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.user_point.domain.UserPoint;
 import dormease.dormeasedev.domain.user_point.domain.repository.UserPointRepository;
@@ -336,14 +337,22 @@ public class PointService {
     }
 
     // 전체 사생 대상 조회 및 정렬
+    // 미회원 사생 배제 필요
     // Description: 기본 정렬 (sortBy: name, isAscending: true)
     public ResponseEntity<?> getResidents(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending, Integer page) {
         User admin = validUserById(customUserDetails.getId());
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
+        // userType이 RESIDENT인 user를 찾아서 사생 리스트 만들기
+        List<User> users = userRepository.findBySchoolAndUserType(admin.getSchool(), UserType.RESIDENT);
+        // user를 가지고 있는 resident 찾기 (페이징 적용)
+        Page<Resident> residents = residentRepository.findResidentsByUsers(users, pageable);
+
         // 사생 목록 조회 (페이징 적용)
-        Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
-        List<ResidentInfoRes> residentInfoResList = residents.getContent().stream()
+        // Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
+
+        List<ResidentInfoRes> residentInfoResList = residents.stream()
                 .map(resident -> {
                     // null 여부 확인
                     String dormitoryName = getDormitoryName(resident);
@@ -381,8 +390,12 @@ public class PointService {
         String cleanedKeyword = keyword.trim().toLowerCase();;
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
-        // 사생 목록 조회 (페이징 적용)
-        Page<Resident> residents = residentRepository.searchResidentsByKeyword(admin.getSchool(), cleanedKeyword, pageable);
+
+        /// userType이 RESIDENT인 user를 keyword로 검색 사생 리스트 만들기
+        List<User> users = userRepository.searchUsersByKeyword(admin.getSchool(), cleanedKeyword, UserType.RESIDENT);
+        // user를 가지고 있는 resident 찾기 (페이징 적용)
+        Page<Resident> residents = residentRepository.findResidentsByUsers(users, pageable);
+
         List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
                 .map(resident -> {
                     // null 여부 확인
