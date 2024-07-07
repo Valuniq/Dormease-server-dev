@@ -206,49 +206,29 @@ public class DormitoryManagementService {
         List<Resident> notAssignedResidents = new ArrayList<>();
         // dormitory 이름, 성별 같은 기숙사 가져오기
         List<Dormitory> sameNameAndSameGenderDormitories = dormitoryRepository.findBySchoolAndNameAndGender(admin.getSchool(), dormitory.getName(), dormitory.getGender());
-        // 기숙사 - 거주 기간 - 입사 신청 - 회원 - 사생
-        List<DormitoryApplication> dormitoryApplicationList = new ArrayList<>();
-        for (Dormitory sameNameAndSameGenderDormitory : sameNameAndSameGenderDormitories) {
             // pass && now
-            Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByDormitoryAndApplicationStatus(sameNameAndSameGenderDormitory, ApplicationStatus.NOW);
-            DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "입사 신청이 존재하지 않습니다.");
-            DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
-            dormitoryApplicationList.add(dormitoryApplication);
-        }
+            // -> 미배정 사생 조회이므로 resident findByDormitory / 해당 기숙사의 미배정 사생
+        List<Resident> residentList = residentRepository.findByDormitoryAndRoom(dormitory, null);
 
-        List<User> userList = new ArrayList<>();
-        for (DormitoryApplication dormitoryApplication : dormitoryApplicationList)
-            userList.add(dormitoryApplication.getUser());
-
-//        List<Term> terms = sameNameAndSameGenderDormitories.stream()
-//                .map(termRepository::findByDormitory)
-//                .flatMap(List::stream)
-//                .toList();
-//
-//        Set<User> users = new HashSet<>();
-//        for (Term term : terms) {
-//            List<DormitoryApplication> dormitoryApplications = dormitoryApplicationRepository.findByTerm(term);
-//            for (DormitoryApplication application : dormitoryApplications) {
-//                users.add(application.getUser());
-//            }
-//        }
-
-        for (User user : userList) {
-            Resident resident = residentRepository.findByUserAndRoom(user, null);
-            if (resident != null) {
-                notAssignedResidents.add(resident);
+        List<NotOrAssignedResidentRes> notAssignedResidentsResList = new ArrayList<>();
+        for (Resident resident : residentList) {
+            String studentNumber = null;
+            String phoneNumber= null;
+            Boolean isAssigned = false;
+            if (resident.getUser() != null) {
+                studentNumber = resident.getUser().getStudentNumber();
+                phoneNumber = resident.getUser().getPhoneNumber();
             }
-        }
 
-       List<NotOrAssignedResidentRes> notAssignedResidentsResList = notAssignedResidents.stream()
-                .map(resident -> NotOrAssignedResidentRes.builder()
-                        .id(resident.getId())
-                        .studentNumber(resident.getUser().getStudentNumber())
-                        .name(resident.getUser().getName())
-                        .phoneNumber(resident.getUser().getPhoneNumber())
-                        .isAssigned(checkResidentAssignedToRoom(resident))
-                        .build())
-                .collect(Collectors.toList());
+            NotOrAssignedResidentRes notOrAssignedResidentRes = NotOrAssignedResidentRes.builder()
+                    .id(resident.getId()) // 사생 id
+                    .studentNumber(studentNumber)
+                    .name(resident.getName())
+                    .phoneNumber(phoneNumber)
+                    .isAssigned(checkResidentAssignedToRoom(resident)) // 호실 거주 여부 / 무조건 false여야 함
+                    .build();
+            notAssignedResidentsResList.add(notOrAssignedResidentRes);
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -260,6 +240,7 @@ public class DormitoryManagementService {
 
     // 해당 호실에 거주하는 사생 조회
     public ResponseEntity<?> getAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
+        User admin = validUserById(customUserDetails.getId());
         Room room = validRoomById(roomId);
         List<Resident> assignedResidents = residentRepository.findByRoom(room);
         List<NotOrAssignedResidentRes> assignedResidentRes = assignedResidents.stream()
