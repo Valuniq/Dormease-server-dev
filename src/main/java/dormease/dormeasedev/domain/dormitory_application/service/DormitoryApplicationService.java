@@ -74,6 +74,7 @@ public class DormitoryApplicationService {
                 .term(term)
                 .dormitoryApplicationSetting(dormitoryApplicationSetting)
                 .dormitory(dormitory)
+                .mealTicket(mealTicket)
                 .copy(dormitoryApplicationReq.getCopy())
                 .prioritySelectionCopy(dormitoryApplicationReq.getPrioritySelectionCopy())
                 .isSmoking(dormitoryApplicationReq.getIsSmoking())
@@ -117,28 +118,18 @@ public class DormitoryApplicationService {
 
         // 거주 기간
         Term term = dormitoryApplication.getTerm();
-
         // 기숙사
         Dormitory dormitory = dormitoryApplication.getDormitory();
-
         // 입사 신청 설정
         DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
-//        Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryapplicationsettingRepository.findBySchoolAndDateRange(school, dormitoryApplication.getCreatedDate().toLocalDate());
-//        DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "입사 신청 날짜에 알맞은 입사 신청 설정이 존재하지 않습니다.");
-//        DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
 
         DormitoryTerm dormitoryTerm = dormitoryTermService.validateDormitoryTermByTermAndDormitory(term, dormitory);
 
-        // mealticket 관련 로직 변화 필요
         MealTicket mealTicket = dormitoryApplication.getMealTicket();
         Integer mealTicketPrice = mealTicket.getPrice();
 
         // 총액 = 보증금 + 기숙사비 + 식권
         Integer totalPrice = dormitoryApplication.getTotalPrice();
-//        Integer mealTicketPrice = totalPrice - dormitoryTerm.getPrice() - dormitoryApplicationSetting.getSecurityDeposit();
-//        Optional<MealTicket> findMealTicket = mealTicketRepository.findByDormitoryApplicationSettingAndPrice(dormitoryApplicationSetting, mealTicketPrice);
-//        DefaultAssert.isTrue(findMealTicket.isPresent(), "식권 정보가 올바르지 않습니다.");
-//        MealTicket mealTicket = findMealTicket.get();
 
         DormitoryApplicationDetailRes dormitoryApplicationDetailRes = DormitoryApplicationDetailRes.builder()
                 .dormitoryApplicationId(dormitoryApplication.getId())
@@ -208,6 +199,63 @@ public class DormitoryApplicationService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // Description : 입사 신청 상세 조회
+    public ResponseEntity<?> findDormitoryApplication(CustomUserDetails customUserDetails, Long dormitoryApplicationId) {
+
+        User user = userService.validateUserById(customUserDetails.getId());
+        School school = user.getSchool();
+
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findById(dormitoryApplicationId);
+        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "해당 id의 입사 신청이 존재하지 않습니다.");
+        DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
+        DefaultAssert.isTrue(dormitoryApplication.getUser().equals(user), "본인의 입사 신청만 조회할 수 있습니다.");
+
+        // 거주 기간
+        Term term = dormitoryApplication.getTerm();
+        // 기숙사
+        Dormitory dormitory = dormitoryApplication.getDormitory();
+        // 입사 신청 설정
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
+        DormitoryTerm dormitoryTerm = dormitoryTermService.validateDormitoryTermByTermAndDormitory(term, dormitory);
+
+        MealTicket mealTicket = dormitoryApplication.getMealTicket();
+        Integer mealTicketPrice = mealTicket.getPrice();
+
+        // 총액 = 보증금 + 기숙사비 + 식권
+        Integer totalPrice = dormitoryApplication.getTotalPrice();
+
+        DormitoryApplicationDetailRes dormitoryApplicationDetailRes = DormitoryApplicationDetailRes.builder()
+                .dormitoryApplicationId(dormitoryApplication.getId())
+                .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
+                .schoolName(user.getName())
+                .dormitoryName(dormitory.getName())
+                .gender(dormitory.getGender())
+                .roomSize(dormitory.getRoomSize())
+                .termName(term.getTermName())
+                .mealTicketCount(mealTicket.getCount())
+//                 null이면 제출 x
+                .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy() != null)
+                .copy(dormitoryApplication.getCopy() != null)
+                .smoking(dormitoryApplication.getIsSmoking())
+                .securityDeposit(dormitoryApplicationSetting.getSecurityDeposit())
+                .dormitoryPlusMealTicketPrice(dormitoryTerm.getPrice() + mealTicketPrice)
+                .totalPrice(totalPrice)
+                .emergencyContact(dormitoryApplication.getEmergencyContact())
+                .emergencyRelation(dormitoryApplication.getEmergencyRelation())
+                .bankName(dormitoryApplication.getBankName())
+                .accountNumber(dormitoryApplication.getAccountNumber())
+                .dormitoryApplicationResult(dormitoryApplication.getDormitoryApplicationResult())
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryApplicationDetailRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+
+    }
+
     // Description : 이동 합격 수락
     @Transactional
     public ResponseEntity<?> acceptMovePass(CustomUserDetails customUserDetails) {
@@ -254,4 +302,5 @@ public class DormitoryApplicationService {
         DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "해당 회원의 현재 입사 신청이 존재하지 않습니다.");
         return findDormitoryApplication.get();
     }
+
 }

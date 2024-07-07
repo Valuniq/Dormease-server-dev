@@ -43,7 +43,7 @@ public class DormitoryApplicationAppController {
         return dormitoryApplicationService.dormitoryApplication(customUserDetails, dormitoryApplicationReq);
     }
 
-    // Description : 입사 신청 내역 조회 (여기서 내역은 history보단 이번에 신청한 내역을 말하는 것)
+    // Description : 입사 신청 내역 조회 (현재)
     @Operation(summary = "입사 신청 내역 조회", description = "입사 신청 내역을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "입사 신청 내역 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryApplicationDetailRes.class))}),
@@ -69,6 +69,19 @@ public class DormitoryApplicationAppController {
         return dormitoryApplicationService.findMyDormitoryApplicationHistory(customUserDetails);
     }
 
+    // Description : 입사 신청 상세 조회
+    @Operation(summary = "입사 신청 상세 조회", description = "입사 신청을 상세 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "입사 신청 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryApplicationDetailRes.class))}),
+            @ApiResponse(responseCode = "400", description = "입사 신청 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/{dormitoryApplicationId}")
+    public ResponseEntity<?> findDormitoryApplication(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryApplicationId
+    ) {
+        return dormitoryApplicationService.findDormitoryApplication(customUserDetails, dormitoryApplicationId);
+    }
 
     // Description : 이동 합격 수락
     @Operation(summary = "이동 합격 수락", description = "이동 합격을 수락합니다.")

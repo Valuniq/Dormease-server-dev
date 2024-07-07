@@ -44,6 +44,8 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
 
     boolean existsByRoomAndBedNumber(Room room, int i);
 
+    List<Resident> findByDormitoryAndRoom(Dormitory dormitory, Room room);
+
     @Query("SELECT r FROM Resident r WHERE r.user IN :users")
     Page<Resident> findResidentsByUsers(@Param("users") List<User> users, Pageable pageable);
 
