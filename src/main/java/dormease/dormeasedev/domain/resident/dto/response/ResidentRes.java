@@ -27,23 +27,27 @@ public class ResidentRes {
     @Schema(type = "Integer", example = "1", description= "사생의 벌점 총점입니다.")
     private Integer minusPoint;
 
-    @Schema(type = "String", example = "건물명(인실)", description= "사생이 거주하는 건물의 이름(+인실)입니다.")
-    private String dormitory;
+    @Schema(type = "String", example = "건물명(인실)", description= "사생이 거주하는 건물명입니다.")
+    private String dormitoryName;
+
+    @Schema(type = "String", example = "건물명(인실)", description= "사생이 거주하는 건물의 인실입니다.")
+    private Integer roomSize;
 
     @Schema(type = "Integer", example = "1", description= "사생이 거주하는 호실의 번호입니다.")
-    private Integer room;
+    private Integer roomNumber;
 
     @Schema(type = "String", example = "재학", description= "사생의 학적 상태입니다.")
     private SchoolStatus schoolStatus;
 
     @Builder
-    public ResidentRes(Long residentId, String name, String studentNumber, Gender gender, String dormitory, Integer room, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus) {
+    public ResidentRes(Long residentId, String name, String studentNumber, Gender gender, String dormitoryName, Integer roomSize, Integer roomNumber, Integer bonusPoint, Integer minusPoint, SchoolStatus schoolStatus) {
         this.residentId = residentId;
         this.name = name;
         this.studentNumber = studentNumber;
         this.gender = gender;
-        this.dormitory = dormitory;
-        this.room = room;
+        this.dormitoryName = dormitoryName;
+        this.roomSize = roomSize;
+        this.roomNumber = roomNumber;
         this.bonusPoint = bonusPoint;
         this.minusPoint = minusPoint;
         this.schoolStatus = schoolStatus;

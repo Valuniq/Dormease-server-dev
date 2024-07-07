@@ -37,6 +37,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "   OR (u.school = :school AND u.studentNumber LIKE %:keyword% AND u.status = :status AND u.userType != :userType)")
     Page<User> searchUsersByKeyword(School school, String keyword, Status status, UserType userType, Pageable pageable);
 
+    @Query("SELECT u FROM User u " +
+            "WHERE (u.school = :school AND u.name LIKE %:keyword% AND u.userType = :userType) " +
+            "   OR (u.school = :school AND u.studentNumber LIKE %:keyword% AND u.userType = :userType)")
+    List<User> searchUsersByKeyword(School school, String keyword, UserType userType);
+
+    List<User> findBySchoolAndUserType(School school, UserType userType);
+
 //    Optional<User> findByRefreshToken(String refreshToken);
 
     /**
