@@ -47,15 +47,8 @@ public class DormitoryApplicationWebService {
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
 
-        Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting;
-        if (dormitoryApplicationSettingId == null) { // 현재 입사 신청 설정의 신청자 명단 조회의 경우
-            findDormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW);
-            DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "해당 학교에 현재 진행 중인 입사 신청 설정이 존재하지 않습니다.");
-
-        } else {
-            findDormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId);
-            DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "존재하지 않는 입사 신청 설정 id입니다.");
-        }
+        Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId);
+        DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "존재하지 않는 입사 신청 설정 id입니다.");
         DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
 
         Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));

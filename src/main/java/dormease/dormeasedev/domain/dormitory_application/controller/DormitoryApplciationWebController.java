@@ -35,10 +35,10 @@ public class DormitoryApplciationWebController {
             @ApiResponse(responseCode = "200", description = "입사 신청자 명단 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
             @ApiResponse(responseCode = "400", description = "입사 신청자 명단 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping({"/{dormitoryApplicationSettingId}", ""})
+    @GetMapping("/{dormitoryApplicationSettingId}")
     public ResponseEntity<?> findDormitoryApplicationList(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "입사 신청자 명단을 조회할 입사 신청 설정 id를 입력해주세요. 현재 입사 신청 설정의 입사 신청자 명단 조회 시는 id값을 입력하지 않으면 됩니다!", required = false) @PathVariable(value = "dormitoryApplicationSettingId", required = false) Long dormitoryApplicationSettingId,
+            @Parameter(description = "입사 신청자 명단을 조회할 입사 신청 설정 id를 입력해주세요.", required = true) @PathVariable(value = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @Parameter(description = "페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
         return dormitoryApplicationWebService.findDormitoryApplicationList(customUserDetails, dormitoryApplicationSettingId, page - 1);
