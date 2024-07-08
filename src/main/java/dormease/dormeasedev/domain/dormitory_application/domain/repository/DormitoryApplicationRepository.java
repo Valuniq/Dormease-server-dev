@@ -4,8 +4,11 @@ import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.term.domain.Term;
 import dormease.dormeasedev.domain.user.domain.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -32,4 +35,6 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
     Optional<DormitoryApplication> findByDormitoryAndApplicationStatus(Dormitory sameNameAndSameGenderDormitory, ApplicationStatus applicationStatus);
 
     DormitoryApplication findByUserAndApplicationStatusAndDormitoryApplicationResult(User user, ApplicationStatus applicationStatus, DormitoryApplicationResult dormitoryApplicationResult);
+
+    Page<DormitoryApplication> findDormitoryApplicaionsByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting, Pageable pageable);
 }

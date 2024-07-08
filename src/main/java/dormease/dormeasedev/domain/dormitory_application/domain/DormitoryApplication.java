@@ -43,6 +43,10 @@ public class DormitoryApplication extends BaseEntity {
     @JoinColumn(name = "meal_ticket_id")
     private MealTicket mealTicket;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "result_dormitory_id")
+    private Dormitory resultDormitory;
+
     // 등본
     private String copy;
 
@@ -82,12 +86,13 @@ public class DormitoryApplication extends BaseEntity {
     }
 
     @Builder
-    public DormitoryApplication(User user, Term term, DormitoryApplicationSetting dormitoryApplicationSetting, Dormitory dormitory, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
+    public DormitoryApplication(User user, Term term, DormitoryApplicationSetting dormitoryApplicationSetting, Dormitory dormitory, Dormitory resultDormitory, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
         this.user = user;
         this.term = term;
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
         this.dormitory = dormitory;
         this.mealTicket = mealTicket;
+        this.resultDormitory = resultDormitory;
         this.copy = copy;
         this.prioritySelectionCopy = prioritySelectionCopy;
         this.isSmoking = isSmoking;

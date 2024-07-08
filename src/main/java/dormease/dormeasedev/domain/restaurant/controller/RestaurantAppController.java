@@ -27,7 +27,7 @@ public class RestaurantAppController {
 
     private final RestaurantService restaurantService;
 
-    // Description : 식권 목록 조회
+    // Description : 식당 목록 조회
     @Operation(summary = "식당 목록 조회", description = "식당 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "식당 목록 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RestaurantNameRes.class)))}),
