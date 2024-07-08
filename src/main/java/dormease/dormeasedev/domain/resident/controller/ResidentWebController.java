@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.resident.controller;
 
+import dormease.dormeasedev.domain.resident.dto.response.ResidentPrivateInfoRes;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentRes;
 import dormease.dormeasedev.domain.resident.service.ResidentManagementService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
@@ -7,10 +8,7 @@ import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.PageResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -63,6 +61,33 @@ public class ResidentWebController {
 
     ) {
         return residentManagementService.getSearchResidents(customUserDetails, keyword, sortBy, isAscending, page - 1);
+    }
+
+
+    @Operation(summary = "사생 상세 조회(개인정보)", description = "사생 관리 프로세스 중 특정 사생의 개인정보를 상세 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ResidentPrivateInfoRes.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/{residentId}")
+    public ResponseEntity<?> getResidentPrivateInfo(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
+            ) {
+        return residentManagementService.getResidentPrivateInfo(customUserDetails, residentId);
+    }
+
+    @Operation(summary = "사생 상세 조회(기숙사 정보)", description = "사생 관리 프로세스 중 특정 사생의 기숙사 정보를 상세 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ResidentPrivateInfoRes.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/{residentId}/dormitory")
+    public ResponseEntity<?> getResidentDormitoryInfo(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
+    ) {
+        return residentManagementService.getResidentDormitoryInfo(customUserDetails, residentId);
     }
 
 }
