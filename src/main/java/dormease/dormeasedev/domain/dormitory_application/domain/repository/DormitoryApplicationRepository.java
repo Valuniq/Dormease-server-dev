@@ -37,4 +37,6 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
     DormitoryApplication findByUserAndApplicationStatusAndDormitoryApplicationResult(User user, ApplicationStatus applicationStatus, DormitoryApplicationResult dormitoryApplicationResult);
 
     Page<DormitoryApplication> findDormitoryApplicaionsByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting, Pageable pageable);
+
+    List<DormitoryApplication> findAllByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting);
 }

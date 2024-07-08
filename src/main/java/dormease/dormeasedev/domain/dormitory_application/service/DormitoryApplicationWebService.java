@@ -41,7 +41,55 @@ public class DormitoryApplicationWebService {
     private final UserService userService;
     private final DormitoryApplicationService dormitoryApplicationService;
 
-    // Description : 신청자 명단 조회
+    // Description : 현재 입사 신청자 목록 조회 / 페이징 x
+    public ResponseEntity<?> findNowDormitoryApplicationList(CustomUserDetails customUserDetails) {
+
+        User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
+
+        Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW);
+        DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "현재 입사 신청 설정이 존재하지 않습니다.");
+        DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
+
+        List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllByDormitoryApplicationSetting(dormitoryApplicationSetting);
+        List<DormitoryApplicationUserRes> dormitoryApplicationUserResList = new ArrayList<>();
+        for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
+            User user = dormitoryApplication.getUser();
+            Dormitory dormitory = dormitoryApplication.getDormitory();
+            Dormitory resultDormitory = dormitoryApplication.getResultDormitory();
+            String resultDormitoryName = null;
+            Integer resultDormitorySize = null;
+            if (resultDormitory != null) {
+                resultDormitoryName = resultDormitory.getName();
+                resultDormitorySize = resultDormitory.getDormitorySize();
+            }
+
+            DormitoryApplicationUserRes dormitoryApplicationUserRes = DormitoryApplicationUserRes.builder()
+                    .dormitoryApplicationId(dormitoryApplication.getId())
+                    .name(user.getName())
+                    .studentNumber(user.getStudentNumber())
+                    .gender(user.getGender())
+                    .applicationDormitoryName(dormitory.getName())
+                    .applicationDormitoryRoomSize(dormitory.getRoomSize())
+                    .address(user.getAddress())
+                    .copy(dormitoryApplication.getCopy())
+                    .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy())
+                    .resultDormitoryName(resultDormitoryName)
+                    .resultDormitorySize(resultDormitorySize)
+                    .dormitoryApplicationResult(dormitoryApplication.getDormitoryApplicationResult())
+                    .build();
+            dormitoryApplicationUserResList.add(dormitoryApplicationUserRes);
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryApplicationUserResList)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 입사 신청 설정 id로 신청자 명단 조회
     public ResponseEntity<?> findDormitoryApplicationList(CustomUserDetails customUserDetails, Long dormitoryApplicationSettingId, Integer page) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
@@ -51,7 +99,7 @@ public class DormitoryApplicationWebService {
         DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "존재하지 않는 입사 신청 설정 id입니다.");
         DormitoryApplicationSetting dormitoryApplicationSetting = findDormitoryApplicationSetting.get();
 
-        Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.ASC, "createdDate"));
 
         Page<DormitoryApplication> dormitoryApplicationPage = dormitoryApplicationRepository.findDormitoryApplicaionsByDormitoryApplicationSetting(dormitoryApplicationSetting, pageable);
         List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationPage.getContent();
@@ -94,4 +142,5 @@ public class DormitoryApplicationWebService {
 
         return ResponseEntity.ok(apiResponse);
     }
+
 }

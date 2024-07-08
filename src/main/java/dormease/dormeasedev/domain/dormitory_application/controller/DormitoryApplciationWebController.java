@@ -29,7 +29,19 @@ public class DormitoryApplciationWebController {
 
     private final DormitoryApplicationWebService dormitoryApplicationWebService;
 
-    @Operation(summary = "입사 신청자 명단 상세 조회", description = "입사 신청자 명단을 상세 조회합니다.")
+    @Operation(summary = "현재 입사 신청자 명단 조회", description = "현재 입사 신청자 명단을 조회합니다. (페이징 x, 한 번에 전체 조회)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "현재 입사 신청자 명단 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryApplicationUserRes.class)))}),
+            @ApiResponse(responseCode = "400", description = "현재 입사 신청자 명단 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping
+    public ResponseEntity<?> findNowDormitoryApplicationList(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return dormitoryApplicationWebService.findNowDormitoryApplicationList(customUserDetails);
+    }
+
+    @Operation(summary = "입사 신청자 명단 조회", description = "입사 신청자 명단을 조회합니다. 입사 신청 설정 id로 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "입사 신청자 명단 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryApplicationUserRes.class)))}),
             @ApiResponse(responseCode = "200", description = "입사 신청자 명단 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
