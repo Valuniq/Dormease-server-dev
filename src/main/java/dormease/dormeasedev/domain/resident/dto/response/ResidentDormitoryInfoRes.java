@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResidentDormitoryInfoRes {
 
-    // 건물 id?
+    // 건물 id
+    @Schema(type = "Long", example = "1", description = "기숙사 ID")
+    private Long dormitoryId;
+
     @Schema(type = "String", example = "건물명", description= "사생이 거주하는 건물명입니다.")
     private String dormitoryName;
 
@@ -32,7 +35,8 @@ public class ResidentDormitoryInfoRes {
     private String[] roommateNames;
 
     @Builder
-    public ResidentDormitoryInfoRes(String dormitoryName, Integer roomSize, Integer roomNumber, Integer bedNumber, String termName, Boolean isApplyRoommate, String[] roommateNames) {
+    public ResidentDormitoryInfoRes(Long dormitoryId, String dormitoryName, Integer roomSize, Integer roomNumber, Integer bedNumber, String termName, Boolean isApplyRoommate, String[] roommateNames) {
+        this.dormitoryId = dormitoryId;
         this.dormitoryName = dormitoryName;
         this.roomSize = roomSize;
         this.roomNumber = roomNumber;

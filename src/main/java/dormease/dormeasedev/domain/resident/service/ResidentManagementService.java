@@ -5,7 +5,6 @@ import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplica
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
-import dormease.dormeasedev.domain.point.dto.response.ResidentInfoRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentDormitoryInfoRes;
@@ -14,6 +13,7 @@ import dormease.dormeasedev.domain.resident.dto.response.ResidentRes;
 import dormease.dormeasedev.domain.user.domain.SchoolStatus;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
+import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.PageInfo;
@@ -50,25 +50,28 @@ public class ResidentManagementService {
     public ResponseEntity<?> getResidentPrivateInfo(CustomUserDetails customUserDetails, Long residentId) {
         User admin = userService.validateUserById(customUserDetails.getId());
         Resident resident = residentService.validateResidentById(residentId);
-        User user = resident.getUser();
+        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
 
+        User user = resident.getUser();
         // 개인정보
         ResidentPrivateInfoRes residentPrivateInfoRes;
         // 미회원 사생 고려
         if (user == null) {
             residentPrivateInfoRes = ResidentPrivateInfoRes.builder()
+                    .residentId(resident.getId())
                     .name(resident.getName())
-                    .gender(resident.getGender().toString())
+                    .gender(resident.getGender())
                     .build();
         } else {
             DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatusAndDormitoryApplicationResult(user, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
             residentPrivateInfoRes = ResidentPrivateInfoRes.builder()
+                    .residentId(resident.getId())
                     .name(resident.getName())
                     .major(user.getMajor())
                     .schoolYear(user.getSchoolYear())
                     .studentNumber(user.getStudentNumber())
-                    .schoolStatus(user.getSchoolStatus().getValue())
-                    .gender(resident.getGender().toString())
+                    .schoolStatus(user.getSchoolStatus())
+                    .gender(resident.getGender())
                     .phoneNumber(user.getPhoneNumber())
                     .address(user.getAddress())
                     .copy(dormitoryApplication.getCopy())
@@ -96,7 +99,9 @@ public class ResidentManagementService {
 
     // 사생 상세 조회 - 기숙사정보
     public ResponseEntity<?> getResidentDormitoryInfo(CustomUserDetails customUserDetails, Long residentId) {
+        User admin = userService.validateUserById(customUserDetails.getId());
         Resident resident = residentService.validateResidentById(residentId);
+        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
 
         ResidentDormitoryInfoRes residentDormitoryInfoRes;
         Dormitory dormitory = resident.getDormitory();
@@ -106,15 +111,24 @@ public class ResidentManagementService {
                     .termName(resident.getTerm().getTermName())
                     .isApplyRoommate(resident.getIsRoommateApplied())
                     .build();
+        } else if (resident.getRoom() == null) {
+            residentDormitoryInfoRes = ResidentDormitoryInfoRes.builder()
+                    .dormitoryId(dormitory.getId())
+                    .dormitoryName(dormitory.getName())
+                    .roomSize(dormitory.getRoomSize())
+                    .termName(resident.getTerm().getTermName())
+                    .isApplyRoommate(resident.getIsRoommateApplied() != null)
+                    .build();
         } else {
             String[] roommateNames = getRoommateNames(resident);
             residentDormitoryInfoRes = ResidentDormitoryInfoRes.builder()
+                    .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
                     .roomSize(dormitory.getRoomSize())
-                    .roomNumber(resident.getRoom() != null ? resident.getRoom().getRoomNumber() : null) // room이 없는 경우 고려
-                    .bedNumber(resident.getRoom() != null ? resident.getBedNumber() : null)
+                    .roomNumber(resident.getRoom().getRoomNumber())
+                    .bedNumber(resident.getBedNumber())
                     .termName(resident.getTerm().getTermName())
-                    .isApplyRoommate(resident.getIsRoommateApplied() != null)
+                    .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : false)
                     .roommateNames(roommateNames)
                     .build();
         }
@@ -127,9 +141,6 @@ public class ResidentManagementService {
     }
 
     private String[] getRoommateNames(Resident resident) {
-        if (resident.getRoom() == null) {
-            return null;
-        }
         List<Resident> residents = residentRepository.findByRoom(resident.getRoom());
         List<String> roommatesList = new ArrayList<>();
         for (Resident r : residents) {
