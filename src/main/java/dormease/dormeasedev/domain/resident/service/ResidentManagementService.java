@@ -109,7 +109,7 @@ public class ResidentManagementService {
         if (dormitory == null) {
             residentDormitoryInfoRes = ResidentDormitoryInfoRes.builder()
                     .termName(resident.getTerm().getTermName())
-                    .isApplyRoommate(resident.getIsRoommateApplied())
+                    .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
         } else if (resident.getRoom() == null) {
             residentDormitoryInfoRes = ResidentDormitoryInfoRes.builder()
@@ -117,7 +117,7 @@ public class ResidentManagementService {
                     .dormitoryName(dormitory.getName())
                     .roomSize(dormitory.getRoomSize())
                     .termName(resident.getTerm().getTermName())
-                    .isApplyRoommate(resident.getIsRoommateApplied() != null)
+                    .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
         } else {
             String[] roommateNames = getRoommateNames(resident);
@@ -128,7 +128,7 @@ public class ResidentManagementService {
                     .roomNumber(resident.getRoom().getRoomNumber())
                     .bedNumber(resident.getBedNumber())
                     .termName(resident.getTerm().getTermName())
-                    .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : false)
+                    .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .roommateNames(roommateNames)
                     .build();
         }
