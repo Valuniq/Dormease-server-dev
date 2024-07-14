@@ -27,10 +27,10 @@ public class ResidentRes {
     @Schema(type = "Integer", example = "1", description= "사생의 벌점 총점입니다.")
     private Integer minusPoint;
 
-    @Schema(type = "String", example = "건물명(인실)", description= "사생이 거주하는 건물명입니다.")
+    @Schema(type = "String", example = "건물명", description= "사생이 거주하는 건물명입니다.")
     private String dormitoryName;
 
-    @Schema(type = "String", example = "건물명(인실)", description= "사생이 거주하는 건물의 인실입니다.")
+    @Schema(type = "Integer", example = "2", description= "사생이 거주하는 건물의 인실입니다.")
     private Integer roomSize;
 
     @Schema(type = "Integer", example = "1", description= "사생이 거주하는 호실의 번호입니다.")
