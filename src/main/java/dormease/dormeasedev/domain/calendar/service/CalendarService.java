@@ -60,6 +60,7 @@ public class CalendarService {
     // 일정 조회(년도 및 월별)
     public ResponseEntity<?> getCalendarsBySchoolAndYearAndMonth(CustomUserDetails customUserDetails, int year, int month) {
         User admin = userService.validateUserById(customUserDetails.getId());
+        // 시작일로 정렬
         List<Calendar> calendars = calendarRepository.findBySchoolAndYearAndMonth(admin.getSchool(), year, month);
 
         List<CalendarRes> calendarResList = calendars.stream()
@@ -112,7 +113,7 @@ public class CalendarService {
         LocalDate endDate = calendarReq.getEndDate() == null ? calendarReq.getStartDate() : calendarReq.getEndDate();
         DefaultAssert.isTrue(calendarReq.getStartDate().isBefore(endDate) || calendarReq.getStartDate().isEqual(endDate), "시작일자는 종료일자와 같거나 먼저여야 합니다.");
 
-        calendar.updateCalendar(calendar.getStartDate(), endDate, calendarReq.getTitle(), calendarReq.getContent(), color);
+        calendar.updateCalendar(calendarReq.getStartDate(), endDate, calendarReq.getTitle(), calendarReq.getContent(), color);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
