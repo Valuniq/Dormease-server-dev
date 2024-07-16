@@ -35,10 +35,8 @@ public class CalendarService {
     @Transactional
     public ResponseEntity<?> registerCalendar(CustomUserDetails customUserDetails, CalendarReq calendarReq) {
         User admin = userService.validateUserById(customUserDetails.getId());
-        Color color = calendarReq.getColor() == null ? Color.GREY : Color.valueOf(calendarReq.getColor());
-        LocalDate endDate = calendarReq.getEndDate() == null ? calendarReq.getStartDate() : calendarReq.getEndDate();
-
-        DefaultAssert.isTrue(calendarReq.getStartDate().isBefore(endDate) || calendarReq.getStartDate().isEqual(endDate), "시작일자는 종료일자와 같거나 먼저여야 합니다.");
+        Color color = selectDefaultColor(calendarReq);
+        LocalDate endDate = selectDefaultEndDate(calendarReq);
         Calendar calendar = Calendar.builder()
                 .school(admin.getSchool())
                 .startDate(calendarReq.getStartDate())
@@ -69,7 +67,7 @@ public class CalendarService {
                         .startDate(calendar.getStartDate())
                         .endDate(calendar.getEndDate())
                         .title(calendar.getTitle())
-                        .color(calendar.getColor().toString())
+                        .color(calendar.getColor())
                         .build()).
                 toList();
 
@@ -92,7 +90,7 @@ public class CalendarService {
                 .endDate(calendar.getEndDate())
                 .title(calendar.getTitle())
                 .content(calendar.getContent())
-                .color(calendar.getColor().toString())
+                .color(calendar.getColor())
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -109,9 +107,8 @@ public class CalendarService {
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
-        Color color = calendarReq.getColor() == null ? Color.GREY : Color.valueOf(calendarReq.getColor());
-        LocalDate endDate = calendarReq.getEndDate() == null ? calendarReq.getStartDate() : calendarReq.getEndDate();
-        DefaultAssert.isTrue(calendarReq.getStartDate().isBefore(endDate) || calendarReq.getStartDate().isEqual(endDate), "시작일자는 종료일자와 같거나 먼저여야 합니다.");
+        Color color = selectDefaultColor(calendarReq);
+        LocalDate endDate = selectDefaultEndDate(calendarReq);
 
         calendar.updateCalendar(calendarReq.getStartDate(), endDate, calendarReq.getTitle(), calendarReq.getContent(), color);
 
@@ -121,6 +118,17 @@ public class CalendarService {
                 .build();
 
         return ResponseEntity.ok(apiResponse);
+    }
+
+    private Color selectDefaultColor(CalendarReq calendarReq) {
+        return calendarReq.getColor() == null ? Color.GREY : calendarReq.getColor();
+    }
+
+    private LocalDate selectDefaultEndDate(CalendarReq calendarReq) {
+        LocalDate endDate = calendarReq.getEndDate() == null ? calendarReq.getStartDate() : calendarReq.getEndDate();
+        DefaultAssert.isTrue(calendarReq.getStartDate().isBefore(endDate) || calendarReq.getStartDate().isEqual(endDate), "시작일자는 종료일자와 같거나 먼저여야 합니다.");
+
+        return endDate;
     }
 
     // 일정 삭제
