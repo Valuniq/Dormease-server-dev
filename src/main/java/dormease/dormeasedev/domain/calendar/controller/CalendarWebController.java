@@ -65,7 +65,7 @@ public class CalendarWebController {
     @GetMapping("/{calendarId}")
     public ResponseEntity<?> getCalendarDetail(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "조회하고자 하는 일정의 년도입니다.", required = true) @PathVariable Long calendarId
+            @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId
     ) {
         return calendarService.getCalendarDetail(customUserDetails, calendarId);
     }
@@ -78,7 +78,7 @@ public class CalendarWebController {
     @PutMapping("/{calendarId}")
     public ResponseEntity<?> updateCalendarDetail(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "조회하고자 하는 일정의 년도입니다.", required = true) @PathVariable Long calendarId,
+            @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId,
             @Parameter(description = "Schemas의 CalendarReq를 참고해주세요. 일정 수정 시 필요한 Request입니다.", required = true) @RequestBody CalendarReq calendarReq
     ) {
         return calendarService.updateCalendar(customUserDetails, calendarId, calendarReq);
@@ -92,7 +92,7 @@ public class CalendarWebController {
     @DeleteMapping("/{calendarId}")
     public ResponseEntity<?> deleteCalendarDetail(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "조회하고자 하는 일정의 년도입니다.", required = true) @PathVariable Long calendarId
+            @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId
     ) {
         return calendarService.deleteCalendar(customUserDetails, calendarId);
     }

@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.calendar.dto.request;
 
+import dormease.dormeasedev.domain.calendar.domain.Color;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,7 +28,7 @@ public class CalendarReq {
     @Size(max = 2000, message = "내용은 최대 2000자까지 가능합니다.")
     private String content;
 
-    @Schema(type = "String", example = "GREY, RED, GREEN, YELLOW, BLUE", description= "일정의 색깔입니다.")
-    private String color;
+    @Schema(type = "String", example = "GREY", description= "일정의 색깔입니다. GREY, RED, GREEN, YELLOW, BLUE만 입력 가능합니다.")
+    private Color color;
 
 }

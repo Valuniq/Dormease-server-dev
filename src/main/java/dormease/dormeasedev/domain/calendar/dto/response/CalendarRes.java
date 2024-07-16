@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.calendar.dto.response;
 
+import dormease.dormeasedev.domain.calendar.domain.Color;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,11 +24,11 @@ public class CalendarRes {
     @Schema(type = "String", example = "수강신청", description= "일정의 제목입니다.")
     private String title;
 
-    @Schema(type = "String", example = "GREY, RED, GREEN, YELLOW, BLUE", description= "일정의 색깔입니다.")
-    private String color;
+    @Schema(type = "String", example = "GREY", description= "일정의 색깔입니다. GREY, RED, GREEN, YELLOW, BLUE만 입력 가능합니다.")
+    private Color color;
 
     @Builder
-    public CalendarRes(Long calendarId, LocalDate startDate, LocalDate endDate, String title, String color) {
+    public CalendarRes(Long calendarId, LocalDate startDate, LocalDate endDate, String title, Color color) {
         this.calendarId = calendarId;
         this.startDate = startDate;
         this.endDate = endDate;
