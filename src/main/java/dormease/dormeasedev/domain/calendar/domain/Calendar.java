@@ -37,6 +37,14 @@ public class Calendar extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Color color;
 
+    public void updateCalendar(LocalDate startDate, LocalDate endDate, String title, String content, Color color) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.title = title;
+        this.content = content;
+        this.color = color;
+    }
+
     @Builder
     public Calendar(Long id, School school, LocalDate startDate, LocalDate endDate, String title, String content, Color color) {
         this.id = id;
