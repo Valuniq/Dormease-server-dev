@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.resident.controller;
 
+import dormease.dormeasedev.domain.resident.dto.request.ResidentPrivateInfoReq;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentPrivateInfoRes;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentRes;
 import dormease.dormeasedev.domain.resident.service.ResidentManagementService;
@@ -19,6 +20,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Optional;
 
 @Tag(name = "Resident Management API", description = "사생 관리 관련 API입니다.")
 @RequiredArgsConstructor
@@ -88,6 +92,22 @@ public class ResidentWebController {
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
     ) {
         return residentManagementService.getResidentDormitoryInfo(customUserDetails, residentId);
+    }
+
+    @Operation(summary = "사생 정보 수정(개인정보)", description = "사생 관리 프로세스 중 특정 사생의 개인정보를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ResidentPrivateInfoRes.class))}),
+            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PutMapping("/{residentId}")
+    public ResponseEntity<?> updateResidentPrivateInfo(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
+            @Parameter(description = "form-data 형식의 Multipart-file을 입력해주세요. 등본 파일입니다.") @RequestPart Optional<MultipartFile> copy,
+            @Parameter(description = "form-data 형식의 Multipart-file을 입력해주세요. 우선선발증빙서류 파일입니다.") @RequestPart Optional<MultipartFile> prioritySelectionCopy,
+            @Parameter(description = "ResidentPrivateInfoReq Schema를 확인해주세요", required = true) @RequestPart ResidentPrivateInfoReq residentPrivateInfoReq
+    ) {
+        return residentManagementService.updateResidentPrivateInfo(customUserDetails, residentId, copy, prioritySelectionCopy, residentPrivateInfoReq);
     }
 
 }

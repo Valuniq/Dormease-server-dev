@@ -7,15 +7,18 @@ import dormease.dormeasedev.domain.dormitory_application.domain.repository.Dormi
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.resident.dto.request.ResidentPrivateInfoReq;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentDormitoryInfoRes;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentPrivateInfoRes;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentRes;
+import dormease.dormeasedev.domain.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.user.domain.SchoolStatus;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
+import dormease.dormeasedev.global.payload.Message;
 import dormease.dormeasedev.global.payload.PageInfo;
 import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +28,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,11 +42,7 @@ public class ResidentManagementService {
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final UserService userService;
     private final ResidentService residentService;
-
-    // 사생 직접 추가
-    // 사생 정보 수정
-    // 사생의 성별에 맞는 건물 조회
-
+    private final S3Uploader s3Uploader;
 
     // 사생 상세 조회 - 개인정보
     public ResponseEntity<?> getResidentPrivateInfo(CustomUserDetails customUserDetails, Long residentId) {
@@ -312,8 +310,83 @@ public class ResidentManagementService {
 
         return ResponseEntity.ok(apiResponse);
     }
-    
+
+    // 사생 직접 추가
+    // 이름 성별만 필수
+
+    // 사생 정보 수정
+    // Description : emergencyContact, emergencyRelation, bankName, accountNumber, dormitoryPayment, hasKey는 정보 수정 시 모두 보내줘야 함(변경되지 않은 값이 있더라도)
+    // null을 보내는 건지 변경을 안하는 건지 구분 못함
+    // Description : copy, prioritySelectionCopy는 변경 없을 시 보내지 말 것
+    @Transactional
+    public ResponseEntity<?> updateResidentPrivateInfo(CustomUserDetails customUserDetails, Long residentId,
+                                                       Optional<MultipartFile> copy, Optional<MultipartFile>  prioritySelectionCopy, ResidentPrivateInfoReq residentPrivateInfoReq) {
+        User admin = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentById(residentId);
+        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
+
+        String emergencyContact = residentPrivateInfoReq.getEmergencyContact();
+        String emergencyRelation = residentPrivateInfoReq.getEmergencyRelation();
+        String bankName = residentPrivateInfoReq.getBankName();
+        String accountNumber = residentPrivateInfoReq.getAccountNumber();
+        Boolean dormitoryPayment = residentPrivateInfoReq.getDormitoryPayment();
+        // 미회원 사생 고려
+        if (resident.getUser() != null) {
+            // user가 있으면 입사신청을 했을 것이므로
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatusAndDormitoryApplicationResult(resident.getUser(), ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+            if (copy.isPresent()) {
+                uploadCopyFile(dormitoryApplication, copy.get());
+            } else if (prioritySelectionCopy.isPresent()) {
+                uploadPrioritySelectionCopyFile(dormitoryApplication, prioritySelectionCopy.get());
+            }
+            dormitoryApplication.updateResidentPrivateInfo(emergencyContact, emergencyRelation, bankName, accountNumber, dormitoryPayment);
+        }
+        resident.updateHasKey(residentPrivateInfoReq.getHasKey());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("사생의 정보가 수정되었습니다.").build()).build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    private void uploadCopyFile(DormitoryApplication dormitoryApplication, MultipartFile file) {
+        String originalFile = dormitoryApplication.getCopy().split("amazonaws.com/")[1];
+        s3Uploader.deleteFile(originalFile);
+
+        String imageUrl = s3Uploader.uploadImage(file);
+        dormitoryApplication.updateCopy(imageUrl);
+    }
+
+    private void uploadPrioritySelectionCopyFile(DormitoryApplication dormitoryApplication, MultipartFile file) {
+        String originalFile = dormitoryApplication.getPrioritySelectionCopy().split("amazonaws.com/")[1];
+        s3Uploader.deleteFile(originalFile);
+
+        String imageUrl = s3Uploader.uploadImage(file);
+        dormitoryApplication.updatePrioritySelectionCopy(imageUrl);
+    }
+
+
+    // 기숙사 정보 수정
+    // 호실, 침대번호는 NULL값 허용
+    // 호실, 침대번호는 숫자만 입력 가능
+    // 호실 수정 시 자동으로 비어있는 침대번호가 배정되도록 함
+
+    // 사생의 성별에 맞는 건물 조회
+    // 빈 자리가 없는 건물은 드롭다운 메뉴에 뜨지 않음
+
+    // 사생 건물 재배치
+    // 재배치 시 기숙사 인원 정보 업데이트?
+
+    // 호실 배치시 인원 없으면 없다고 띄우기
+    // 배치 되면 인원 업데이트
+    //// 맞춰서 기숙사 정보 업데이트(룸메이트)
+
     // 퇴사 처리
-    // 블랙리스트 추가
     // userType user로 변경
+    // 입사신청 있으면 BEFORE로 ?
+
+    // 블랙리스트 추가
+    // userType BlackList
+    // 사생 데이터 삭제 - 하기전에 선행작업 필요한지?
 }
