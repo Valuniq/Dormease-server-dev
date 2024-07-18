@@ -7,6 +7,8 @@ import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplica
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.exit_requestment.domain.repository.ExitRequestmentRepository;
+import dormease.dormeasedev.domain.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.resident.dto.request.ResidentPrivateInfoReq;
@@ -16,6 +18,7 @@ import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.user.domain.SchoolStatus;
 import dormease.dormeasedev.domain.user.domain.User;
+import dormease.dormeasedev.domain.user.domain.UserType;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
@@ -47,6 +50,8 @@ public class ResidentManagementService {
     private final UserService userService;
     private final ResidentService residentService;
     private final DormitoryService dormitoryService;
+    private final RefundRequestmentRepository refundRequestmentRepository;
+    private final ExitRequestmentRepository exitRequestmentRepository;
     private final S3Uploader s3Uploader;
 
     // 사생 상세 조회
@@ -474,8 +479,37 @@ public class ResidentManagementService {
     //// 맞춰서 기숙사 정보 업데이트(룸메이트)
 
     // 퇴사 처리
-    // userType user로 변경
-    // 입사신청 있으면 BEFORE로 ?
+    @Transactional
+    public ResponseEntity<?> deleteResident(CustomUserDetails customUserDetails, Long residentId) {
+        User admin = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentById(residentId);
+        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
+        User user = resident.getUser();
+
+        // 환불 신청서 존재하면 예외
+        DefaultAssert.isTrue(!refundRequestmentRepository.existsByResident(resident), "아직 해당 사생의 환불 신청서가 존재합니다.");
+        // 퇴사 신청서 존재하면 예외
+        DefaultAssert.isTrue(!exitRequestmentRepository.existsByResident(resident), "아직 해당 사생의 퇴사 신청서가 존재합니다.");
+
+        // room 정보 변경
+        Room room = resident.getRoom();
+        room.adjustRoomCurrentPeople(room, -1);
+
+        // 사생 데이터 삭제
+        residentRepository.delete(resident);
+        if (user != null) {
+            user.updateUserType(UserType.USER);
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatusAndDormitoryApplicationResult(user, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+            // 입사신청 상태 변경
+            dormitoryApplication.updateApplicationStatus(ApplicationStatus.BEFORE);
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("퇴사 처리되었습니다.").build())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
 
     // 블랙리스트 추가
     // userType BlackList

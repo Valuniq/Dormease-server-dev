@@ -81,6 +81,10 @@ public class DormitoryApplication extends BaseEntity {
         this.dormitoryApplicationResult = dormitoryApplicationResult;
     }
 
+    public void updateApplicationStatus(ApplicationStatus applicationStatus) {
+        this.applicationStatus = applicationStatus;
+    }
+
     public void updateCopy(String copy) {
         this.copy = copy;
     }
