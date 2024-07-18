@@ -478,9 +478,17 @@ public class ResidentManagementService {
     // 배치 되면 인원 업데이트
     //// 맞춰서 기숙사 정보 업데이트(룸메이트)
 
-    // 퇴사 처리
     @Transactional
     public ResponseEntity<?> deleteResident(CustomUserDetails customUserDetails, Long residentId) {
+        return processResidentExit(customUserDetails, residentId, UserType.USER, "퇴사 처리되었습니다.");
+    }
+
+    @Transactional
+    public ResponseEntity<?> addBlackList(CustomUserDetails customUserDetails, Long residentId) {
+        return processResidentExit(customUserDetails, residentId, UserType.BLACKLIST, "블랙리스트로 추가되었습니다.");
+    }
+
+    private ResponseEntity<?> processResidentExit(CustomUserDetails customUserDetails, Long residentId, UserType userType, String message) {
         User admin = userService.validateUserById(customUserDetails.getId());
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
@@ -493,25 +501,25 @@ public class ResidentManagementService {
 
         // room 정보 변경
         Room room = resident.getRoom();
-        room.adjustRoomCurrentPeople(room, -1);
+        if (room != null) {
+            room.adjustRoomCurrentPeople(room, -1);
+        }
 
         // 사생 데이터 삭제
         residentRepository.delete(resident);
         if (user != null) {
-            user.updateUserType(UserType.USER);
+            user.updateUserType(userType);
             DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatusAndDormitoryApplicationResult(user, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
             // 입사신청 상태 변경
-            dormitoryApplication.updateApplicationStatus(ApplicationStatus.BEFORE);
+            if (dormitoryApplication != null) {
+                dormitoryApplication.updateApplicationStatus(ApplicationStatus.BEFORE);
+            }
         }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("퇴사 처리되었습니다.").build())
+                .information(Message.builder().message(message).build())
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
-
-    // 블랙리스트 추가
-    // userType BlackList
-    // 사생 데이터 삭제 - 하기전에 선행작업 필요한지?
 }

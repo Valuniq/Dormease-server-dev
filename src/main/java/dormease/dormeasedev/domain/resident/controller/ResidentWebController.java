@@ -131,8 +131,8 @@ public class ResidentWebController {
 
     @Operation(summary = "사생 퇴사 처리", description = "사생 관리 프로세스 중 특정 사생을 퇴사 처리합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ResidentDetailInfoRes.class))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "200", description = "처리 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "처리 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @DeleteMapping("/{residentId}")
     public ResponseEntity<?> deleteResident (
@@ -140,6 +140,19 @@ public class ResidentWebController {
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
     ) {
         return residentManagementService.deleteResident(customUserDetails, residentId);
+    }
+
+    @Operation(summary = "사생 블랙리스트 처리", description = "사생 관리 프로세스 중 특정 사생을 블랙리스트 처리합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "처리 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "처리 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @DeleteMapping("/{residentId}/blackList")
+    public ResponseEntity<?> addBlackList (
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
+    ) {
+        return residentManagementService.addBlackList(customUserDetails, residentId);
     }
 
 }
