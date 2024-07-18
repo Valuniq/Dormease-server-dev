@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.resident.controller;
 
 import dormease.dormeasedev.domain.resident.dto.request.ResidentPrivateInfoReq;
+import dormease.dormeasedev.domain.resident.dto.response.DormitoryResidentAssignmentRes;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentDetailInfoRes;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentPrivateInfoRes;
 import dormease.dormeasedev.domain.resident.dto.response.ResidentRes;
@@ -96,6 +97,19 @@ public class ResidentWebController {
             @Parameter(description = "ResidentPrivateInfoReq Schema를 확인해주세요", required = true) @RequestPart ResidentPrivateInfoReq residentPrivateInfoReq
     ) {
         return residentManagementService.updateResidentPrivateInfo(customUserDetails, residentId, copy, prioritySelectionCopy, residentPrivateInfoReq);
+    }
+
+    @Operation(summary = "사생 성별에 맞는 기숙사 조회", description = "사생의 기숙사 정보 중 성별에 맞는 기숙사 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryResidentAssignmentRes.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @GetMapping("/{residentId}/dormitory")
+    public ResponseEntity<?> getDormitoriesAssignResident(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
+    ) {
+        return residentManagementService.getDormitoriesByGender(customUserDetails, residentId);
     }
 
 }

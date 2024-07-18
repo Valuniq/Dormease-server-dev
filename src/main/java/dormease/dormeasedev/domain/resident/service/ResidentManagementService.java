@@ -387,6 +387,55 @@ public class ResidentManagementService {
 
     // 사생의 성별에 맞는 건물 조회
     // 빈 자리가 없는 건물은 드롭다운 메뉴에 뜨지 않음
+    public ResponseEntity<?> getDormitoriesByGender(CustomUserDetails customUserDetails, Long residentId) {
+        User admin = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentById(residentId);
+        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
+        // school gender로 건물 찾기
+        List<Dormitory> sameGenderDormitories = dormitoryRepository.findBySchoolAndGender(resident.getSchool(), resident.getGender());
+
+        List<Dormitory> findDormitories =  new ArrayList<>();;
+        for (Dormitory dormitory : sameGenderDormitories) {
+            // 현재 거주인원
+            Integer currentPeopleCount = calculateCurrentPeopleCount(dormitory);
+            // 수용인원
+            Integer dormitorySize = calculateDormitorySize(dormitory);
+            if (currentPeopleCount < dormitorySize) {
+                findDormitories.add(dormitory);
+            }
+        }
+
+        List<DormitoryResidentAssignmentRes> dormitoryResidentAssignmentRes = findDormitories.stream()
+                .map(dormitory -> DormitoryResidentAssignmentRes.builder()
+                        .dormitoryId(dormitory.getId())
+                        .dormitoryName(dormitory.getName())
+                        .roomSize(dormitory.getRoomSize())
+                        .build())
+                .sorted(Comparator.comparing(DormitoryResidentAssignmentRes::getDormitoryName)
+                        .thenComparing(DormitoryResidentAssignmentRes::getRoomSize))
+                .toList();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryResidentAssignmentRes)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // 현재 거주 인원
+    public Integer calculateCurrentPeopleCount(Dormitory dormitory) {
+        Integer currentPeopleCount = 0;
+        List<Room> rooms = roomRepository.findByDormitoryAndIsActivated(dormitory, true);
+        for (Room room : rooms) {
+            currentPeopleCount += Optional.ofNullable(room.getCurrentPeople()).orElse(0);
+        }
+        return currentPeopleCount;
+    }
+
+    // 수용인원
+    public Integer calculateDormitorySize(Dormitory dormitory) {
+        return Optional.ofNullable(dormitory.getDormitorySize()).orElse(0);
+    }
 
     // 사생 건물 재배치
     // 재배치 시 기숙사 인원 정보 업데이트?
