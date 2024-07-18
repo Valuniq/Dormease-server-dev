@@ -115,18 +115,18 @@ public class ResidentWebController {
         return residentManagementService.getDormitoriesByGender(customUserDetails, residentId);
     }
 
-    @Operation(summary = "사생 건물 재배치", description = "사생 정보 수정 중 사생의 배정된 건물을 재배치합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-    })
-    @PatchMapping("/{residentId}/dormitory/{dormitoryId}")
-    public ResponseEntity<?> reassignedResident(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
-            @Parameter(description = "기숙사의 id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
-    ) {
-        return residentManagementService.reassignResidentToDormitory(customUserDetails, residentId, dormitoryId);
-    }
+    // @Operation(summary = "사생 건물 재배치", description = "사생 정보 수정 중 사생의 배정된 건물을 재배치합니다.")
+    // @ApiResponses(value = {
+    //         @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+    //         @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    // })
+    // @PatchMapping("/{residentId}/dormitory/{dormitoryId}")
+    // public ResponseEntity<?> reassignedResident(
+    //         @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+    //         @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
+    //         @Parameter(description = "기숙사의 id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
+    // ) {
+    //     return residentManagementService.reassignResidentToDormitory(customUserDetails, residentId, dormitoryId);
+    // }
 
 }

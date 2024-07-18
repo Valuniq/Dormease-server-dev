@@ -442,32 +442,32 @@ public class ResidentManagementService {
 
     // 사생 건물 재배치
     // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 기숙사 -> 거주기간 순서(예정))
-    @Transactional
-    public ResponseEntity<?> reassignResidentToDormitory(CustomUserDetails customUserDetails, Long residentId, Long dormitoryId) {
-        User admin = userService.validateUserById(customUserDetails.getId());
-        Resident resident = residentService.validateResidentById(residentId);
-        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
+    // @Transactional
+    // public ResponseEntity<?> reassignResidentToDormitory(CustomUserDetails customUserDetails, Long residentId, Long dormitoryId) {
+    //     User admin = userService.validateUserById(customUserDetails.getId());
+    //     Resident resident = residentService.validateResidentById(residentId);
+    //     DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
 
         // 사생의 호실 및 침대번호 초기화
-        Room room = resident.getRoom();
-        if (room != null) {
-            resident.updateRoom(null);
-            resident.updateBedNumber(null);
+    //     Room room = resident.getRoom();
+    //     if (room != null) {
+    //         resident.updateRoom(null);
+    //         resident.updateBedNumber(null);
             // room의 현재 거주인원 변경
-            room.adjustRoomCurrentPeople(room, -1);
-        }
+    //         room.adjustRoomCurrentPeople(room, -1);
+    //     }
 
         // 사생의 건물 업데이트
-        Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryId);
-        DefaultAssert.isTrue(dormitory.getGender() == resident.getGender(), "건물과 사생의 성별이 일치하지 않습니다.");
-        resident.updateDormitory(dormitory);
+    //     Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryId);
+    //     DefaultAssert.isTrue(dormitory.getGender() == resident.getGender(), "건물과 사생의 성별이 일치하지 않습니다.");
+    //     resident.updateDormitory(dormitory);
 
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("건물이 재배치되었습니다.").build()).build();
+    //     ApiResponse apiResponse = ApiResponse.builder()
+    //             .check(true)
+    //             .information(Message.builder().message("건물이 재배치되었습니다.").build()).build();
 
-        return ResponseEntity.ok(apiResponse);
-    }
+    //     return ResponseEntity.ok(apiResponse);
+    // }
 
     // 호실 배치시 인원 없으면 없다고 띄우기
     // 배치 되면 인원 업데이트
