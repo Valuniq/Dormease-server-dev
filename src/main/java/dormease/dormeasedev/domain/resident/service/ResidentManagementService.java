@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.resident.service;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
+import dormease.dormeasedev.domain.dormitory.service.DormitoryService;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
@@ -45,6 +46,7 @@ public class ResidentManagementService {
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final UserService userService;
     private final ResidentService residentService;
+    private final DormitoryService dormitoryService;
     private final S3Uploader s3Uploader;
 
     // 사생 상세 조회
@@ -392,6 +394,7 @@ public class ResidentManagementService {
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
         // school gender로 건물 찾기
+        // 이미 배정된 건물 제외
         List<Dormitory> sameGenderDormitories = dormitoryRepository.findBySchoolAndGender(resident.getSchool(), resident.getGender());
 
         List<Dormitory> findDormitories =  new ArrayList<>();;
@@ -438,7 +441,32 @@ public class ResidentManagementService {
     }
 
     // 사생 건물 재배치
-    // 재배치 시 기숙사 인원 정보 업데이트?
+    // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 기숙사 -> 거주기간 순서이므로)
+    @Transactional
+    public ResponseEntity<?> reassignResidentToDormitory(CustomUserDetails customUserDetails, Long residentId, Long dormitoryId) {
+        User admin = userService.validateUserById(customUserDetails.getId());
+        Resident resident = residentService.validateResidentById(residentId);
+        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
+
+        // 사생의 호실 및 침대번호 초기화
+        Room room = resident.getRoom();
+        if (room != null) {
+            resident.updateRoom(null);
+            resident.updateBedNumber(null);
+            // room의 현재 거주인원 변경
+            room.adjustRoomCurrentPeople(room, -1);
+        }
+
+        // 사생의 건물 업데이트
+        Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryId);
+        resident.updateDormitory(dormitory);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("건물이 재배치되었습니다.").build()).build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
 
     // 호실 배치시 인원 없으면 없다고 띄우기
     // 배치 되면 인원 업데이트

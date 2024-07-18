@@ -110,4 +110,5 @@ public class Resident extends BaseEntity {
 
     public void updateRoom(Room room) { this.room = room; }
     public void updateBedNumber(Integer bedNumber) { this.bedNumber = bedNumber; }
+    public void updateDormitory(Dormitory dormitory) { this.dormitory = dormitory; }
 }

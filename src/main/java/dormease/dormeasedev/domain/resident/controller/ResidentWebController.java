@@ -8,6 +8,7 @@ import dormease.dormeasedev.domain.resident.dto.response.ResidentRes;
 import dormease.dormeasedev.domain.resident.service.ResidentManagementService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
+import dormease.dormeasedev.global.payload.Message;
 import dormease.dormeasedev.global.payload.PageResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -83,9 +84,11 @@ public class ResidentWebController {
         return residentManagementService.getResidentDetailInfo(customUserDetails, residentId);
     }
 
+
+    // Description: 사생 정보 수정
     @Operation(summary = "사생 정보 수정(개인정보)", description = "사생 관리 프로세스 중 특정 사생의 개인정보를 수정합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ResidentPrivateInfoRes.class))}),
+            @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @PutMapping("/{residentId}")
@@ -110,6 +113,20 @@ public class ResidentWebController {
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
     ) {
         return residentManagementService.getDormitoriesByGender(customUserDetails, residentId);
+    }
+
+    @Operation(summary = "사생 건물 재배치", description = "사생 정보 수정 중 사생의 배정된 건물을 재배치합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PatchMapping("/{residentId}/dormitory/{dormitoryId}")
+    public ResponseEntity<?> reassignedResident(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
+            @Parameter(description = "기숙사의 id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
+    ) {
+        return residentManagementService.reassignResidentToDormitory(customUserDetails, residentId, dormitoryId);
     }
 
 }
