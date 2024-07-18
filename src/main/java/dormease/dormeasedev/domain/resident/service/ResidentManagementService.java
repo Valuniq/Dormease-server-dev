@@ -441,7 +441,7 @@ public class ResidentManagementService {
     }
 
     // 사생 건물 재배치
-    // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 기숙사 -> 거주기간 순서이므로)
+    // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 기숙사 -> 거주기간 순서(예정))
     @Transactional
     public ResponseEntity<?> reassignResidentToDormitory(CustomUserDetails customUserDetails, Long residentId, Long dormitoryId) {
         User admin = userService.validateUserById(customUserDetails.getId());
@@ -459,6 +459,7 @@ public class ResidentManagementService {
 
         // 사생의 건물 업데이트
         Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryId);
+        DefaultAssert.isTrue(dormitory.getGender() == resident.getGender(), "건물과 사생의 성별이 일치하지 않습니다.");
         resident.updateDormitory(dormitory);
 
         ApiResponse apiResponse = ApiResponse.builder()
