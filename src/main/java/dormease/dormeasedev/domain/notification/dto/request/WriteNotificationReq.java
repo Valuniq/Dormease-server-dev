@@ -11,7 +11,7 @@ import java.util.List;
 
 @NoArgsConstructor
 @Getter
-public class WriteNotificataionReq {
+public class WriteNotificationReq {
 
     @Schema(type = "String", example = "2024-1 전자식권 사용방법 안내", description = "공지사항(FAQ) 제목")
     private String title;

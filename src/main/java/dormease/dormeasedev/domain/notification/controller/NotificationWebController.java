@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.notification.controller;
 
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.dto.request.ModifyNotificationReq;
-import dormease.dormeasedev.domain.notification.dto.request.WriteNotificataionReq;
+import dormease.dormeasedev.domain.notification.dto.request.WriteNotificationReq;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailWebRes;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationWebRes;
 import dormease.dormeasedev.domain.notification.service.NotificationWebService;
@@ -60,10 +60,10 @@ public class NotificationWebController {
     @PostMapping
     public ResponseEntity<?> writeNotification(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "Schemas의 WriteNotificataionReq을 참고해주세요.", required = true) @RequestPart("writeNotificataionReq") WriteNotificataionReq writeNotificataionReq,
+            @Parameter(description = "Schemas의 WriteNotificataionReq을 참고해주세요.", required = true) @RequestPart("writeNotificationReq") WriteNotificationReq writeNotificationReq,
             @Parameter(description = "업로드할 이미지 파일 목록 (Multipart form-data 형식).")@RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles
     ) {
-        return notificationWebService.writeNotification(customUserDetails, writeNotificataionReq, multipartFiles);
+        return notificationWebService.writeNotification(customUserDetails, writeNotificationReq, multipartFiles);
     }
 
     // Description : 공지사항(FAQ) 상세 조회

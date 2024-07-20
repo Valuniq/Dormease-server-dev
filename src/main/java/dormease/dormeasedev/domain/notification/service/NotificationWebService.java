@@ -11,7 +11,7 @@ import dormease.dormeasedev.domain.notification.domain.Notification;
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.domain.repository.NotificationRepository;
 import dormease.dormeasedev.domain.notification.dto.request.ModifyNotificationReq;
-import dormease.dormeasedev.domain.notification.dto.request.WriteNotificataionReq;
+import dormease.dormeasedev.domain.notification.dto.request.WriteNotificationReq;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationDetailWebRes;
 import dormease.dormeasedev.domain.notification.dto.response.NotificationWebRes;
 import dormease.dormeasedev.domain.s3.service.S3Uploader;
@@ -90,7 +90,7 @@ public class NotificationWebService {
 
     // Description : 공지사항(FAQ) 작성
     @Transactional
-    public ResponseEntity<?> writeNotification(CustomUserDetails customUserDetails, WriteNotificataionReq writeNotificataionReq, List<MultipartFile> multipartFiles) {
+    public ResponseEntity<?> writeNotification(CustomUserDetails customUserDetails, WriteNotificationReq writeNotificationReq, List<MultipartFile> multipartFiles) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
@@ -98,14 +98,14 @@ public class NotificationWebService {
         Notification notification = Notification.builder()
                 .school(school)
                 .user(admin)
-                .notificationType(writeNotificataionReq.getNotificationType())
-                .title(writeNotificataionReq.getTitle())
-                .pinned(writeNotificataionReq.getPinned())
-                .content(writeNotificataionReq.getContent())
+                .notificationType(writeNotificationReq.getNotificationType())
+                .title(writeNotificationReq.getTitle())
+                .pinned(writeNotificationReq.getPinned())
+                .content(writeNotificationReq.getContent())
                 .build();
         notificationRepository.save(notification);
 
-        List<ImageReq> imageReqList = writeNotificataionReq.getImageReqList();
+        List<ImageReq> imageReqList = writeNotificationReq.getImageReqList();
         createImages(notification, imageReqList);
         uploadFiles(notification, multipartFiles);
 
