@@ -88,6 +88,10 @@ public class Resident extends BaseEntity {
         this.roommateApplication = roommateApplication;
     }
 
+    public void updateHasKey(Boolean hasKey) {
+        this.hasKey = hasKey;
+    }
+
     @Builder
     public Resident(School school, User user, Dormitory dormitory, Term term, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, String name, Gender gender, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
         this.school = school;
@@ -106,4 +110,5 @@ public class Resident extends BaseEntity {
 
     public void updateRoom(Room room) { this.room = room; }
     public void updateBedNumber(Integer bedNumber) { this.bedNumber = bedNumber; }
+    public void updateDormitory(Dormitory dormitory) { this.dormitory = dormitory; }
 }

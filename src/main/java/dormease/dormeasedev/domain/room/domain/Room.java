@@ -60,7 +60,13 @@ public class Room extends BaseEntity {
 
     public void updateRoomNumber(Integer roomNumber) { this.roomNumber = roomNumber; }
     public void updateFloor(Integer floor) { this.floor = floor; }
-    public void updateCurrentUser(Integer currentPeople) { this.currentPeople = currentPeople; }
+    public void updateCurrentPeople(Integer currentPeople) { this.currentPeople = currentPeople; }
+
+    // num만큼 room의 currentPeople를 빼거나 더해서 업데이트
+    public void adjustRoomCurrentPeople(Room room, int num) {
+        int count = room.getCurrentPeople() + num;
+        updateCurrentPeople(Math.max(count, 0));
+    }
 
     public void updateRoomSetting(Dormitory dormitory, Integer roomSize, Gender gender, Boolean hasKey) {
         this.dormitory = dormitory;
