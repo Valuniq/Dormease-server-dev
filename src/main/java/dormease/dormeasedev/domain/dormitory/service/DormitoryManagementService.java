@@ -355,8 +355,6 @@ public class DormitoryManagementService {
     private void updateCurrentPeople(Room room) {
         Integer currentPeopleCount = residentRepository.findByRoom(room).size();
         DefaultAssert.isTrue(currentPeopleCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
-        room.updateCurrentUser(currentPeopleCount);
+        room.updateCurrentPeople(currentPeopleCount);
     }
-
-
 }

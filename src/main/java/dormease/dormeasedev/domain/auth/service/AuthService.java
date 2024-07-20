@@ -99,6 +99,7 @@ public class AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .userType(user.getUserType())
+                .userName(user.getName())
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder()

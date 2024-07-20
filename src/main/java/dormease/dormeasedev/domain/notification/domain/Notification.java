@@ -1,8 +1,8 @@
 package dormease.dormeasedev.domain.notification.domain;
 
-import dormease.dormeasedev.domain.block.domain.Block;
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.file.domain.File;
+import dormease.dormeasedev.domain.image.domain.Image;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import jakarta.persistence.*;
@@ -40,24 +40,27 @@ public class Notification extends BaseEntity {
     // 핀 여부
     private Boolean pinned;
 
+    @Column(columnDefinition = "text")
+    private String content;
+
     @OneToMany(mappedBy = "notification", cascade = CascadeType.REMOVE)
-    List<Block> blocks = new ArrayList<>();
+    List<Image> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "notification", cascade = CascadeType.REMOVE)
     List<File> files = new ArrayList<>();
 
     @Builder
-    public Notification(Long id, School school, User user, NotificationType notificationType, String title, Boolean pinned) {
-        this.id = id;
+    public Notification(School school, User user, NotificationType notificationType, String title, Boolean pinned, String content) {
         this.school = school;
         this.user = user;
         this.notificationType = notificationType;
         this.title = title;
         this.pinned = pinned;
+        this.content = content;
     }
 
-    public void updateBlocks() {
-        this.blocks = new ArrayList<>();
+    public void updateImages() {
+        this.images = new ArrayList<>();
     }
 
     public void updateFiles() {
@@ -66,6 +69,10 @@ public class Notification extends BaseEntity {
 
     public void updateTitle(String title) {
         this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
     }
 
     public void updatePinned() {
