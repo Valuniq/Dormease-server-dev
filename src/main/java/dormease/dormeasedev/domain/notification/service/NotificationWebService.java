@@ -1,13 +1,12 @@
 package dormease.dormeasedev.domain.notification.service;
 
-import dormease.dormeasedev.domain.block.domain.Block;
-import dormease.dormeasedev.domain.block.domain.repository.BlockRepository;
-import dormease.dormeasedev.domain.block.dto.request.BlockReq;
-import dormease.dormeasedev.domain.block.dto.request.UpdateBlockReq;
-import dormease.dormeasedev.domain.block.dto.response.BlockRes;
 import dormease.dormeasedev.domain.file.domain.File;
 import dormease.dormeasedev.domain.file.domain.repository.FileRepository;
 import dormease.dormeasedev.domain.file.dto.response.FileRes;
+import dormease.dormeasedev.domain.image.domain.Image;
+import dormease.dormeasedev.domain.image.domain.repository.ImageRepository;
+import dormease.dormeasedev.domain.image.dto.request.ImageReq;
+import dormease.dormeasedev.domain.image.dto.response.ImageRes;
 import dormease.dormeasedev.domain.notification.domain.Notification;
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.domain.repository.NotificationRepository;
@@ -26,6 +25,7 @@ import dormease.dormeasedev.global.payload.Message;
 import dormease.dormeasedev.global.payload.PageInfo;
 import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Block;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +33,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,7 +47,7 @@ import java.util.Optional;
 public class NotificationWebService {
 
     private final NotificationRepository notificationRepository;
-    private final BlockRepository blockRepository;
+    private final ImageRepository imageRepository;
     private final FileRepository fileRepository;
 
     private final UserService userService;
@@ -103,11 +102,12 @@ public class NotificationWebService {
                 .notificationType(writeNotificataionReq.getNotificationType())
                 .title(writeNotificataionReq.getTitle())
                 .pinned(writeNotificataionReq.getPinned())
+                .content(writeNotificataionReq.getContent())
                 .build();
         notificationRepository.save(notification);
 
-        List<BlockReq> blockReqList = writeNotificataionReq.getBlockReqList();
-        createBlock(notification, blockReqList);
+        List<ImageReq> imageReqList = writeNotificataionReq.getImageReqList();
+        createImages(notification, imageReqList);
         uploadFiles(notification, multipartFiles);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -121,22 +121,19 @@ public class NotificationWebService {
     // Description : 공지사항(FAQ) 상세 조회
     public ResponseEntity<?> findNotification(CustomUserDetails customUserDetails, Long notificationId) {
 
-        // TODO : 제목, 작성자, 작성일, 수정일, 내용, 첨부파일, 최상단 고정 여부
         User admin = userService.validateUserById(customUserDetails.getId());
         Notification notification = validateById(notificationId);
 
         DefaultAssert.isTrue(admin.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 조회할 수 있습니다.");
 
-        List<Block> blockList = blockRepository.findByNotification(notification);
-        List<BlockRes> blockResList = new ArrayList<>();
-        for (Block block : blockList) {
-            BlockRes blockRes = BlockRes.builder()
-                    .blockId(block.getId())
-                    .imageUrl(block.getImageUrl())
-                    .sequence(block.getSequence())
-                    .content(block.getContent())
+        List<Image> imageList = imageRepository.findByNotification(notification);
+        List<ImageRes> imageResList = new ArrayList<>();
+        for (Image image : imageList) {
+            ImageRes imageRes = ImageRes.builder()
+                    .imageId(image.getId())
+                    .imageUrl(image.getImageUrl())
                     .build();
-            blockResList.add(blockRes);
+            imageResList.add(imageRes);
         }
 
         List<File> fileList = fileRepository.findByNotification(notification);
@@ -156,7 +153,8 @@ public class NotificationWebService {
                 .writer(notification.getUser().getName())
                 .createdDate(notification.getCreatedDate().toLocalDate())
                 .modifiedDate(notification.getModifiedDate().toLocalDate())
-                .blockResList(blockResList)
+                .content(notification.getContent())
+                .imageResList(imageResList)
                 .fileList(fileResList)
                 .build();
 
@@ -184,17 +182,14 @@ public class NotificationWebService {
         if (modifyNotificationReq.getPinned() != null && notification.getPinned() != modifyNotificationReq.getPinned())
             notification.updatePinned();
 
-        if (!modifyNotificationReq.getDeletedBlockIds().isEmpty())
-            blockRepository.deleteAllById(modifyNotificationReq.getDeletedBlockIds());
+        if (!modifyNotificationReq.getDeletedImageIds().isEmpty())
+            deleteImages(modifyNotificationReq.getDeletedImageIds(), school);
+
+        if (!modifyNotificationReq.getImageReqList().isEmpty())
+            createImages(notification, modifyNotificationReq.getImageReqList());
 
         if (!modifyNotificationReq.getDeletedFileIds().isEmpty())
             deleteFiles(modifyNotificationReq.getDeletedFileIds(), school);
-
-        if (!modifyNotificationReq.getCreateBlockReqList().isEmpty())
-            createBlock(notification, modifyNotificationReq.getCreateBlockReqList());
-
-        if (!modifyNotificationReq.getUpdateBlockReqList().isEmpty())
-            updateBlock(notification, modifyNotificationReq.getUpdateBlockReqList());
 
         if (!multipartFiles.isEmpty())
             uploadFiles(notification, multipartFiles);
@@ -218,7 +213,7 @@ public class NotificationWebService {
         DefaultAssert.isTrue(school.equals(notification.getSchool()), "해당 관리자의 학교만 삭제할 수 있습니다.");
 
         deleteFiles(notification, school);
-        deleteBlock(notification, school);
+        deleteImages(notification, school);
         notificationRepository.delete(notification);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -259,38 +254,46 @@ public class NotificationWebService {
         }
     }
 
-    // Description : 블럭 생성 함수
-    public void createBlock(Notification notification, List<BlockReq> blockReqList) {
+    // Description : 작성(수정) 시 테이블에 저장 (s3는 작성(수정) 버튼 클릭 이전에 올림)
+    public void createImages(Notification notification, List<ImageReq> imageReqList) {
 
-        for (BlockReq blockReq : blockReqList) {
-            Block block = Block.builder()
+        for (ImageReq imageReq : imageReqList) {
+            Image image = Image.builder()
                     .notification(notification)
-                    .imageUrl(blockReq.getImageUrl())
-                    .sequence(blockReq.getSequence())
-                    .content(blockReq.getContent())
+                    .imageUrl(imageReq.getImageUrl())
                     .build();
-            blockRepository.save(block);
-            block.addNotification(notification);
+            imageRepository.save(image);
+            image.addNotification(notification);
         }
     }
 
-    // Description : 블럭 수정 함수
-    private void updateBlock(Notification notification, List<UpdateBlockReq> updateBlockReqList) {
+    // Description : s3에서 이미지 삭제 + image에서 삭제 (ids)
+    public void deleteImages(List<Long> deleteImageIds, School school) {
 
-        for (UpdateBlockReq updateBlockReq : updateBlockReqList) {
-            Long blockId = updateBlockReq.getBlockId();
-            Optional<Block> findBlock = blockRepository.findById(blockId);
-            DefaultAssert.isTrue(findBlock.isPresent(), "존재하지 않는 블럭입니다.");
-            Block block = findBlock.get();
-
-            block.updateBlock(updateBlockReq);
+        if (!deleteImageIds.isEmpty()) {
+            List<Image> images = imageRepository.findAllById(deleteImageIds);
+            // s3에서 삭제
+            for (Image image : images) {
+                DefaultAssert.isTrue(image.getNotification().getSchool().equals(school), "해당 관리자가 속한 학교의 이미지만 삭제할 수 있습니다.");
+                String imageName = image.getImageUrl().split("amazonaws.com/")[1];
+                s3Uploader.deleteFile(imageName);
+            }
+            imageRepository.deleteAll(images);
         }
     }
 
-    public void deleteBlock(Notification notification, School school) {
-        List<Block> blockList = blockRepository.findByNotification(notification);
-        blockRepository.deleteAll(blockList);
-
+    // Description : s3에서 이미지 삭제 + image에서 삭제 (notification)
+    public void deleteImages(Notification notification, School school) {
+        List<Image> imageList = imageRepository.findByNotification(notification);
+        if (!imageList.isEmpty()) {
+            for (Image image : imageList) {
+                DefaultAssert.isTrue(image.getNotification().getSchool().equals(school), "해당 관리자가 속한 학교의 이미지만 삭제할 수 있습니다.");
+                // s3에서 삭제
+                String imageName = image.getImageUrl().split("amazonaws.com/")[1];
+                s3Uploader.deleteFile(imageName);
+            }
+            imageRepository.deleteAll(imageList);
+        }
     }
 
     // Description : s3에서 파일 삭제 + file에서 삭제 (ids)

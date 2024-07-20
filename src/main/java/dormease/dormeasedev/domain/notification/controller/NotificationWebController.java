@@ -61,7 +61,7 @@ public class NotificationWebController {
     public ResponseEntity<?> writeNotification(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "Schemas의 WriteNotificataionReq을 참고해주세요.", required = true) @RequestPart("writeNotificataionReq") WriteNotificataionReq writeNotificataionReq,
-            @Parameter(description = "Schemas의 BlockReq을 참고해주세요.", required = false)@RequestPart("files") List<MultipartFile> multipartFiles
+            @Parameter(description = "Schemas의 BlockReq을 참고해주세요.")@RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles
     ) {
         return notificationWebService.writeNotification(customUserDetails, writeNotificataionReq, multipartFiles);
     }
