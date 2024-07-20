@@ -81,6 +81,27 @@ public class DormitoryApplication extends BaseEntity {
         this.dormitoryApplicationResult = dormitoryApplicationResult;
     }
 
+    public void updateApplicationStatus(ApplicationStatus applicationStatus) {
+        this.applicationStatus = applicationStatus;
+    }
+
+    public void updateCopy(String copy) {
+        this.copy = copy;
+    }
+
+    public void updatePrioritySelectionCopy(String prioritySelectionCopy) {
+        this.prioritySelectionCopy = prioritySelectionCopy;
+    }
+
+    // 사생 관리 - 사생 정보 수정 시 사용
+    public void updateResidentPrivateInfo(String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment) {
+        this.emergencyContact = emergencyContact;
+        this.emergencyRelation = emergencyRelation;
+        this.bankName = bankName;
+        this.accountNumber = accountNumber;
+        this.dormitoryPayment = dormitoryPayment;
+    }
+
     @Builder
     public DormitoryApplication(User user, Term term, DormitoryApplicationSetting dormitoryApplicationSetting, Dormitory dormitory, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
         this.user = user;
