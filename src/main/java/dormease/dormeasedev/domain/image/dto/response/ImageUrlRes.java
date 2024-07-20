@@ -8,10 +8,7 @@ import lombok.*;
 @Setter
 @Getter
 @Builder
-public class ImageRes {
-
-    @Schema(type = "Long", example = "1", description = "텍스트 에디터 속 이미지 id")
-    private Long imageId;
+public class ImageUrlRes {
 
     @Schema(type = "String", example = "www.dasdsadsa", description = "텍스트 에디터 속 이미지 경로")
     private String imageUrl;
