@@ -89,8 +89,8 @@ public class NotificationWebController {
     @PatchMapping
     public ResponseEntity<?> modifyNotification(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "Schemas의 ModifyNotificationReq을 참고해주세요.", required = false) @RequestPart("modifyNotificationReq") ModifyNotificationReq modifyNotificationReq,
-            @Parameter(description = "Schemas의 BlockReq을 참고해주세요.", required = false)@RequestPart("files") List<MultipartFile> multipartFiles
+            @Parameter(description = "Schemas의 ModifyNotificationReq을 참고해주세요.") @RequestPart("modifyNotificationReq") ModifyNotificationReq modifyNotificationReq,
+            @Parameter(description = "Schemas의 BlockReq을 참고해주세요.") @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles
     ) {
         return notificationWebService.modifyNotification(customUserDetails, modifyNotificationReq, multipartFiles);
     }

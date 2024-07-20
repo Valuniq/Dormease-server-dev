@@ -1,8 +1,8 @@
 package dormease.dormeasedev.domain.notification.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import dormease.dormeasedev.domain.block.dto.response.BlockRes;
 import dormease.dormeasedev.domain.file.dto.response.FileRes;
+import dormease.dormeasedev.domain.image.dto.response.ImageRes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -25,7 +25,12 @@ public class NotificationDetailAppRes {
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate createdDate;
 
-    private List<BlockRes> blockResList = new ArrayList<>();
+    @Schema(type = "String", example = "공지사항(FAQ) 내용", description = "공지사항(FAQ) 내용(html)")
+    private String content;
 
+    @Schema(type = "ImageRes", description = "공지사항(FAQ) 텍스트 에디터 속 이미지 목록")
+    private List<ImageRes> imageResList = new ArrayList<>();
+
+    @Schema(type = "ImageRes", description = "공지사항(FAQ) 첨부파일 목록")
     private List<FileRes> fileList = new ArrayList<>();
 }

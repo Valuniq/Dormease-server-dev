@@ -25,7 +25,6 @@ import dormease.dormeasedev.global.payload.Message;
 import dormease.dormeasedev.global.payload.PageInfo;
 import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Block;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -212,8 +211,8 @@ public class NotificationWebService {
 
         DefaultAssert.isTrue(school.equals(notification.getSchool()), "해당 관리자의 학교만 삭제할 수 있습니다.");
 
-        deleteFiles(notification, school);
         deleteImages(notification, school);
+        deleteFiles(notification, school);
         notificationRepository.delete(notification);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -238,7 +237,7 @@ public class NotificationWebService {
         for (MultipartFile multipartFile : multipartFiles) {
             String fileUrl;
             if (multipartFile.isEmpty())
-                fileUrl = null;
+                continue;
             else
                 fileUrl = s3Uploader.uploadImage(multipartFile);
 

@@ -1,11 +1,11 @@
 package dormease.dormeasedev.domain.notification.service;
 
-import dormease.dormeasedev.domain.block.domain.Block;
-import dormease.dormeasedev.domain.block.domain.repository.BlockRepository;
-import dormease.dormeasedev.domain.block.dto.response.BlockRes;
 import dormease.dormeasedev.domain.file.domain.File;
 import dormease.dormeasedev.domain.file.domain.repository.FileRepository;
 import dormease.dormeasedev.domain.file.dto.response.FileRes;
+import dormease.dormeasedev.domain.image.domain.Image;
+import dormease.dormeasedev.domain.image.domain.repository.ImageRepository;
+import dormease.dormeasedev.domain.image.dto.response.ImageRes;
 import dormease.dormeasedev.domain.notification.domain.Notification;
 import dormease.dormeasedev.domain.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notification.domain.repository.NotificationRepository;
@@ -21,6 +21,7 @@ import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.PageInfo;
 import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Block;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +40,7 @@ import java.util.Optional;
 public class NotificationAppService {
 
     private final NotificationRepository notificationRepository;
-    private final BlockRepository blockRepository;
+    private final ImageRepository imageRepository;
     private final FileRepository fileRepository;
 
     private final UserService userService;
@@ -85,16 +86,14 @@ public class NotificationAppService {
 
         DefaultAssert.isTrue(user.getSchool().equals(notification.getSchool()), "해당 학생의 학교만 조회할 수 있습니다.");
 
-        List<Block> blockList = blockRepository.findByNotification(notification);
-        List<BlockRes> blockResList = new ArrayList<>();
-        for (Block block : blockList) {
-            BlockRes blockRes = BlockRes.builder()
-                    .blockId(block.getId())
-                    .imageUrl(block.getImageUrl())
-                    .sequence(block.getSequence())
-                    .content(block.getContent())
+        List<Image> imageList = imageRepository.findByNotification(notification);
+        List<ImageRes> imageResList = new ArrayList<>();
+        for (Image image : imageList) {
+            ImageRes imageRes = ImageRes.builder()
+                    .imageId(image.getId())
+                    .imageUrl(image.getImageUrl())
                     .build();
-            blockResList.add(blockRes);
+            imageResList.add(imageRes);
         }
 
         List<File> fileList = fileRepository.findByNotification(notification);
@@ -111,7 +110,8 @@ public class NotificationAppService {
         NotificationDetailAppRes notificationDetailAppRes = NotificationDetailAppRes.builder()
                 .title(notification.getTitle())
                 .createdDate(notification.getCreatedDate().toLocalDate())
-                .blockResList(blockResList)
+                .content(notification.getContent())
+                .imageResList(imageResList)
                 .fileList(fileResList)
                 .build();
 

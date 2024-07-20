@@ -1,6 +1,5 @@
 package dormease.dormeasedev.domain.notification.domain;
 
-import dormease.dormeasedev.domain.block.domain.Block;
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.file.domain.File;
 import dormease.dormeasedev.domain.image.domain.Image;
@@ -41,9 +40,6 @@ public class Notification extends BaseEntity {
     // 핀 여부
     private Boolean pinned;
 
-//    @OneToMany(mappedBy = "notification", cascade = CascadeType.REMOVE)
-//    List<Block> blocks = new ArrayList<>();
-
     @Column(columnDefinition = "text")
     private String content;
 
@@ -62,10 +58,6 @@ public class Notification extends BaseEntity {
         this.pinned = pinned;
         this.content = content;
     }
-
-//    public void updateBlocks() {
-//        this.blocks = new ArrayList<>();
-//    }
 
     public void updateImages() {
         this.images = new ArrayList<>();
