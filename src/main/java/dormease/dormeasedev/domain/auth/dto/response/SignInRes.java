@@ -20,4 +20,7 @@ public class SignInRes {
     @Schema(type = "UserType", example = "USER", description = "유저 타입을 출력합니다. ADMIN, USER, BLACKLIST 中 1")
     private UserType userType;
 
+    @Schema(type = "String", example = "홍길동" , description= "회원 이름입니다.")
+    private String userName;
+
 }
