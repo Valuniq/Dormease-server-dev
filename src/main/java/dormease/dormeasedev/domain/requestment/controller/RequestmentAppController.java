@@ -1,7 +1,5 @@
 package dormease.dormeasedev.domain.requestment.controller;
 
-import dormease.dormeasedev.domain.notification.dto.request.WriteNotificataionReq;
-import dormease.dormeasedev.domain.refund_requestment.dto.response.RefundRequestmentRes;
 import dormease.dormeasedev.domain.requestment.dto.request.WriteRequestmentReq;
 import dormease.dormeasedev.domain.requestment.dto.response.RequestmentDetailRes;
 import dormease.dormeasedev.domain.requestment.dto.response.RequestmentRes;
