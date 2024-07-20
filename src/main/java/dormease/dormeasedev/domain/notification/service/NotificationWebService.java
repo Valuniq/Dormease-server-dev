@@ -178,6 +178,9 @@ public class NotificationWebService {
         if (StringUtils.hasLength(modifyNotificationReq.getTitle()))
             notification.updateTitle(modifyNotificationReq.getTitle());
 
+        if (StringUtils.hasLength(modifyNotificationReq.getContent()))
+            notification.updateContent(modifyNotificationReq.getContent());
+
         if (modifyNotificationReq.getPinned() != null && notification.getPinned() != modifyNotificationReq.getPinned())
             notification.updatePinned();
 

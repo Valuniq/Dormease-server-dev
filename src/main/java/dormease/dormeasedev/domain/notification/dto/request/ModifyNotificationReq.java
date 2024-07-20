@@ -21,6 +21,9 @@ public class ModifyNotificationReq {
     @Schema(type = "Boolean", example = "true", description = "상단핀 고정 체크 여부")
     private Boolean pinned;
 
+    @Schema(type = "String", example = "html로 변환된 내용", description = "수정할 공지사항(FAQ) 내용")
+    private String content;
+
     @Schema(type = "List<Long>", example = "[1, 2, 3]", description = "삭제할 (텍스트 에디터 속)이미지 리스트. 없을 시 null")
     private List<Long> deletedImageIds = new ArrayList<>();
 

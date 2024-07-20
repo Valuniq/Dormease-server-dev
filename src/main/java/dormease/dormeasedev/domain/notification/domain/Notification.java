@@ -71,6 +71,10 @@ public class Notification extends BaseEntity {
         this.title = title;
     }
 
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
     public void updatePinned() {
         this.pinned = !this.pinned;
     }
