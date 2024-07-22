@@ -107,7 +107,8 @@ public class NotificationWebService {
 
         List<ImageReq> imageReqList = writeNotificationReq.getImageReqList();
         createImages(notification, imageReqList);
-        uploadFiles(notification, multipartFiles);
+        if (multipartFiles != null)
+            uploadFiles(notification, multipartFiles);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -193,7 +194,7 @@ public class NotificationWebService {
         if (!modifyNotificationReq.getDeletedFileIds().isEmpty())
             deleteFiles(modifyNotificationReq.getDeletedFileIds(), school);
 
-        if (!multipartFiles.isEmpty())
+        if (multipartFiles != null)
             uploadFiles(notification, multipartFiles);
 
         ApiResponse apiResponse = ApiResponse.builder()
