@@ -8,6 +8,9 @@ import lombok.Getter;
 @Getter
 public class BlackListContentReq {
 
+    @Schema(type = "Long", example = "1", description = "블랙리스트 ID")
+    private Long blacklistId;
+
     @NotBlank
     @Schema(type = "String", example = "생활관 내 흡연", description= "블랙리스트 사유입니다.")
     @Size(max = 30, message = "사유는 최대 30글자까지 입력 가능합니다.")
