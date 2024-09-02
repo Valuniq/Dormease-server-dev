@@ -73,9 +73,11 @@ public class BlackListService {
 
     // 블랙리스트 사유 작성
     @Transactional
-    public ResponseEntity<?> registerBlackListContent(CustomUserDetails customUserDetails, Long blackListId, BlackListContentReq blackListContentReq) {
-        BlackList blackList = validBlackListById(blackListId);
-        blackList.updateContent(blackListContentReq.getContent());
+    public ResponseEntity<?> registerBlackListContent(CustomUserDetails customUserDetails, List<BlackListContentReq> blackListContentReqList) {
+        for (BlackListContentReq blackListContentReq : blackListContentReqList) {
+            BlackList blackList = validBlackListById(blackListContentReq.getBlacklistId());
+            blackList.updateContent(blackListContentReq.getContent());
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

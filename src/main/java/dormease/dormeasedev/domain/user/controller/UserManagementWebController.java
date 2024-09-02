@@ -25,6 +25,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "User Management API", description = "User Management 관련 API입니다.")
 @RequiredArgsConstructor
 @RestController
@@ -122,13 +124,12 @@ public class UserManagementWebController {
             @ApiResponse(responseCode = "200", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PutMapping("/blacklist/{blackListId}")
+    @PutMapping("/blacklist")
     public ResponseEntity<?> registerBlackListContent(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "블랙리스트 id를 입력해주세요.", required = true) @PathVariable Long blackListId,
-            @Parameter(description = "Schemas의 BlackListContentReq을 참고해주세요.", required = true) @Valid @RequestBody BlackListContentReq blackListContentReq
+            @Parameter(description = "Schemas의 BlackListContentReq을 참고해주세요.", required = true) @Valid @RequestBody List<BlackListContentReq> blackListContentReqList
             ) {
-        return blackListService.registerBlackListContent(customUserDetails, blackListId, blackListContentReq);
+        return blackListService.registerBlackListContent(customUserDetails, blackListContentReqList);
     }
 
     @Operation(summary = "블랙리스트 삭제", description = "블랙리스트 프로세스 중 블랙리스트를 삭제합니다.")
