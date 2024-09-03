@@ -1,6 +1,8 @@
 package dormease.dormeasedev.domain.user.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +30,8 @@ public class DeleteUserInfoRes {
 
     // 탈퇴 일자
     @Schema(type = "LocalDate", example = "2024-04-26", description = "탈퇴 일자입니다.")
+    @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate deletedAt;
 
     @Builder
