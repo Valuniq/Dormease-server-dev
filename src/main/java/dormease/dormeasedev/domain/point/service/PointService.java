@@ -191,27 +191,59 @@ public class PointService {
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
-        Set<PointType> pointTypes = new HashSet<>();
-        List<UserPoint> userPoints = addPointToResidentReqs.stream()
-                .map(req -> {
-                    Point point = validPointById(req.getPointId());
-                    DefaultAssert.isTrue(point.getStatus() == Status.ACTIVE, "삭제된 상벌점 내역은 부여할 수 없습니다.");
-                    pointTypes.add(point.getPointType());
-                    return UserPoint.builder()
-                            .user(user)
-                            .point(validPointById(req.getPointId()))
-                            .build();
-                })
-                .collect(Collectors.toList());
+        int bonus = 0;
+        int minus = 0;
 
-        userPointRepository.saveAll(userPoints);
-        updatePoint(user, pointTypes);
+        for (AddPointToResidentReq addPointToResidentReq : addPointToResidentReqs) {
+            Point point = validPointById(addPointToResidentReq.getPointId());
+            DefaultAssert.isTrue(point.getStatus().equals(Status.ACTIVE), "삭제된 상벌점 내역은 부여할 수 없습니다.");
+
+            UserPoint userPoint = UserPoint.builder()
+                    .user(user)
+                    .point(point)
+                    .build();
+            userPointRepository.save(userPoint);
+            if (point.getPointType().equals(PointType.BONUS))
+                bonus += point.getScore();
+            else
+                minus += point.getScore();
+        }
+
+        user.updateBonusPoint(user.getBonusPoint() + bonus);
+        user.updateMinusPoint(user.getMinusPoint() + minus);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("상/벌점이 부여되었습니다.").build())
+                .information(
+                        Message.builder()
+                                .message("상/벌점이 부여되었습니다.")
+                                .build()
+                )
                 .build();
         return ResponseEntity.ok(apiResponse);
+
+        //
+//        Set<PointType> pointTypes = new HashSet<>();
+//        List<UserPoint> userPoints = addPointToResidentReqs.stream()
+//                .map(req -> {
+//                    Point point = validPointById(req.getPointId());
+//                    DefaultAssert.isTrue(point.getStatus() == Status.ACTIVE, "삭제된 상벌점 내역은 부여할 수 없습니다.");
+//                    pointTypes.add(point.getPointType());
+//                    return UserPoint.builder()
+//                            .user(user)
+//                            .point(validPointById(req.getPointId()))
+//                            .build();
+//                })
+//                .collect(Collectors.toList());
+//
+//        userPointRepository.saveAll(userPoints);
+//        updatePoint(user, pointTypes);
+//
+//        ApiResponse apiResponse = ApiResponse.builder()
+//                .check(true)
+//                .information(Message.builder().message("상/벌점이 부여되었습니다.").build())
+//                .build();
+//        return ResponseEntity.ok(apiResponse);
     }
 
     private void updatePoint(User user, Set<PointType> pointTypes) {
@@ -246,19 +278,43 @@ public class PointService {
                 .map(DeleteUserPointReq::getUserPointId)
                 .map(this::validUserPointById)
                 .collect(Collectors.toList());
-
-        Set<PointType> pointTypes = userPoints.stream()
-                .map(userPoint -> userPoint.getPoint().getPointType())
-                .collect(Collectors.toSet());
-
+        int bonus = 0;
+        int minus = 0;
+        for (UserPoint userPoint : userPoints) {
+            Point point = userPoint.getPoint();
+            PointType pointType = point.getPointType();
+            if (pointType.equals(PointType.BONUS))
+                bonus += point.getScore();
+            else
+                minus += point.getScore();
+        }
         userPointRepository.deleteAll(userPoints);
-        updatePoint(user, pointTypes);
+        user.updateBonusPoint(user.getBonusPoint() + bonus);
+        user.updateMinusPoint(user.getMinusPoint() + minus);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("내역이 삭제되었습니다.").build())
+                .information(
+                        Message.builder()
+                                .message("내역이 삭제되었습니다.")
+                                .build()
+                )
                 .build();
         return ResponseEntity.ok(apiResponse);
+
+        //
+//        Set<PointType> pointTypes = userPoints.stream()
+//                .map(userPoint -> userPoint.getPoint().getPointType())
+//                .collect(Collectors.toSet());
+//
+//        userPointRepository.deleteAll(userPoints);
+//        updatePoint(user, pointTypes);
+//
+//        ApiResponse apiResponse = ApiResponse.builder()
+//                .check(true)
+//                .information(Message.builder().message("내역이 삭제되었습니다.").build())
+//                .build();
+//        return ResponseEntity.ok(apiResponse);
     }
 
     // 상벌점 내역 조회

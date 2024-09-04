@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.point.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dormease.dormeasedev.domain.point.domain.PointType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -19,6 +20,7 @@ public class UserPointDetailRes {
     private String content;
 
     @Schema(type = "LocalDate", example = "2024-04-26", description = "상벌점이 부여된 날짜입니다.")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate createdDate;
 
     @Schema(type = "Integer", example = "1~99", description= "상벌점 내역의 점수입니다.")
