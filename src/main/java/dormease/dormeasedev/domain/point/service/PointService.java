@@ -12,6 +12,7 @@ import dormease.dormeasedev.domain.point.dto.request.*;
 import dormease.dormeasedev.domain.point.dto.response.*;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.UserType;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
@@ -110,53 +111,80 @@ public class PointService {
     @Transactional
     public ResponseEntity<?> registerPointList(CustomUserDetails customUserDetails, PointListReq pointListReqs) {
         User admin = validUserById(customUserDetails.getId());
+        School school = admin.getSchool();
+
         List<BonusPointManagementReq> bonusPointList = pointListReqs.getBonusPointList();
         List<MinusPointManagementReq> minusPointList = pointListReqs.getMinusPointList();
-
-        if (!bonusPointList.isEmpty()) {
-            List<Point> bonusPointsToSave = bonusPointList.stream()
-                    // 요청받은 상점 내역의 존재 여부 확인
-                    .filter(bonusPointManagementReq -> !pointRepository.existsByIdAndScoreAndPointType(
-                            bonusPointManagementReq.getPointId(),
-                            bonusPointManagementReq.getScore(),
-                            PointType.BONUS
-                    ))
-                    // 해당하는 상점 내역이 없을 경우 리스트에 추가
-                    .map(bonusPointManagementReq -> Point.builder()
-                            .school(admin.getSchool())
-                            .pointType(PointType.BONUS)
-                            .content(bonusPointManagementReq.getContent())
-                            .score(bonusPointManagementReq.getScore())
-                            .build())
-                    .collect(Collectors.toList());
-
-            if (!bonusPointsToSave.isEmpty()) {
-                pointRepository.saveAll(bonusPointsToSave);
-            }
+        List<Point> pointListToSave = new ArrayList<>();
+        for (BonusPointManagementReq bonusPointManagementReq : bonusPointList) {
+            Point bonusPoint = Point.builder()
+                    .school(school)
+                    .pointType(PointType.BONUS)
+                    .score(bonusPointManagementReq.getScore())
+                    .content(bonusPointManagementReq.getContent())
+                    .build();
+            pointListToSave.add(bonusPoint);
         }
-        if (!minusPointList.isEmpty()) {
-            List<Point> minusPointsToSave = minusPointList.stream()
-                    .filter(minusPointManagementReq -> !pointRepository.existsByIdAndScoreAndPointType(
-                            minusPointManagementReq.getPointId(),
-                            minusPointManagementReq.getScore(),
-                            PointType.MINUS
-                    ))
-                    .map(minusPointManagementReq -> Point.builder()
-                            .school(admin.getSchool())
-                            .pointType(PointType.MINUS)
-                            .content(minusPointManagementReq.getContent())
-                            .score(minusPointManagementReq.getScore())
-                            .build())
-                    .collect(Collectors.toList());
-
-            if (!minusPointsToSave.isEmpty()) {
-                pointRepository.saveAll(minusPointsToSave);
-            }
+        for (MinusPointManagementReq minusPointManagementReq : minusPointList) {
+            Point minusPoint = Point.builder()
+                    .school(school)
+                    .pointType(PointType.MINUS)
+                    .score(minusPointManagementReq.getScore())
+                    .content(minusPointManagementReq.getContent())
+                    .build();
+            pointListToSave.add(minusPoint);
         }
+        pointRepository.saveAll(pointListToSave);
+
+        //
+//        if (!bonusPointList.isEmpty()) {
+//            List<Point> bonusPointsToSave = bonusPointList.stream()
+//                    // 요청받은 상점 내역의 존재 여부 확인
+//                    .filter(bonusPointManagementReq -> !pointRepository.existsByIdAndScoreAndPointType(
+//                            bonusPointManagementReq.getPointId(),
+//                            bonusPointManagementReq.getScore(),
+//                            PointType.BONUS
+//                    ))
+//                    // 해당하는 상점 내역이 없을 경우 리스트에 추가
+//                    .map(bonusPointManagementReq -> Point.builder()
+//                            .school(admin.getSchool())
+//                            .pointType(PointType.BONUS)
+//                            .content(bonusPointManagementReq.getContent())
+//                            .score(bonusPointManagementReq.getScore())
+//                            .build())
+//                    .collect(Collectors.toList());
+//
+//            if (!bonusPointsToSave.isEmpty()) {
+//                pointRepository.saveAll(bonusPointsToSave);
+//            }
+//        }
+//        if (!minusPointList.isEmpty()) {
+//            List<Point> minusPointsToSave = minusPointList.stream()
+//                    .filter(minusPointManagementReq -> !pointRepository.existsByIdAndScoreAndPointType(
+//                            minusPointManagementReq.getPointId(),
+//                            minusPointManagementReq.getScore(),
+//                            PointType.MINUS
+//                    ))
+//                    .map(minusPointManagementReq -> Point.builder()
+//                            .school(admin.getSchool())
+//                            .pointType(PointType.MINUS)
+//                            .content(minusPointManagementReq.getContent())
+//                            .score(minusPointManagementReq.getScore())
+//                            .build())
+//                    .collect(Collectors.toList());
+//
+//            if (!minusPointsToSave.isEmpty()) {
+//                pointRepository.saveAll(minusPointsToSave);
+//            }
+//        }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("상벌점 내역이 등록되었습니다.").build())
+                .information(
+                        Message.builder()
+                                .message("상벌점 내역이 등록되었습니다.")
+                                .build()
+                )
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -191,27 +219,59 @@ public class PointService {
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
-        Set<PointType> pointTypes = new HashSet<>();
-        List<UserPoint> userPoints = addPointToResidentReqs.stream()
-                .map(req -> {
-                    Point point = validPointById(req.getPointId());
-                    DefaultAssert.isTrue(point.getStatus() == Status.ACTIVE, "삭제된 상벌점 내역은 부여할 수 없습니다.");
-                    pointTypes.add(point.getPointType());
-                    return UserPoint.builder()
-                            .user(user)
-                            .point(validPointById(req.getPointId()))
-                            .build();
-                })
-                .collect(Collectors.toList());
+        int bonus = 0;
+        int minus = 0;
 
-        userPointRepository.saveAll(userPoints);
-        updatePoint(user, pointTypes);
+        for (AddPointToResidentReq addPointToResidentReq : addPointToResidentReqs) {
+            Point point = validPointById(addPointToResidentReq.getPointId());
+            DefaultAssert.isTrue(point.getStatus().equals(Status.ACTIVE), "삭제된 상벌점 내역은 부여할 수 없습니다.");
+
+            UserPoint userPoint = UserPoint.builder()
+                    .user(user)
+                    .point(point)
+                    .build();
+            userPointRepository.save(userPoint);
+            if (point.getPointType().equals(PointType.BONUS))
+                bonus += point.getScore();
+            else
+                minus += point.getScore();
+        }
+
+        user.updateBonusPoint(user.getBonusPoint() + bonus);
+        user.updateMinusPoint(user.getMinusPoint() + minus);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("상/벌점이 부여되었습니다.").build())
+                .information(
+                        Message.builder()
+                                .message("상/벌점이 부여되었습니다.")
+                                .build()
+                )
                 .build();
         return ResponseEntity.ok(apiResponse);
+
+        //
+//        Set<PointType> pointTypes = new HashSet<>();
+//        List<UserPoint> userPoints = addPointToResidentReqs.stream()
+//                .map(req -> {
+//                    Point point = validPointById(req.getPointId());
+//                    DefaultAssert.isTrue(point.getStatus() == Status.ACTIVE, "삭제된 상벌점 내역은 부여할 수 없습니다.");
+//                    pointTypes.add(point.getPointType());
+//                    return UserPoint.builder()
+//                            .user(user)
+//                            .point(validPointById(req.getPointId()))
+//                            .build();
+//                })
+//                .collect(Collectors.toList());
+//
+//        userPointRepository.saveAll(userPoints);
+//        updatePoint(user, pointTypes);
+//
+//        ApiResponse apiResponse = ApiResponse.builder()
+//                .check(true)
+//                .information(Message.builder().message("상/벌점이 부여되었습니다.").build())
+//                .build();
+//        return ResponseEntity.ok(apiResponse);
     }
 
     private void updatePoint(User user, Set<PointType> pointTypes) {
@@ -246,19 +306,43 @@ public class PointService {
                 .map(DeleteUserPointReq::getUserPointId)
                 .map(this::validUserPointById)
                 .collect(Collectors.toList());
-
-        Set<PointType> pointTypes = userPoints.stream()
-                .map(userPoint -> userPoint.getPoint().getPointType())
-                .collect(Collectors.toSet());
-
+        int bonus = 0;
+        int minus = 0;
+        for (UserPoint userPoint : userPoints) {
+            Point point = userPoint.getPoint();
+            PointType pointType = point.getPointType();
+            if (pointType.equals(PointType.BONUS))
+                bonus += point.getScore();
+            else
+                minus += point.getScore();
+        }
         userPointRepository.deleteAll(userPoints);
-        updatePoint(user, pointTypes);
+        user.updateBonusPoint(user.getBonusPoint() + bonus);
+        user.updateMinusPoint(user.getMinusPoint() + minus);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("내역이 삭제되었습니다.").build())
+                .information(
+                        Message.builder()
+                                .message("내역이 삭제되었습니다.")
+                                .build()
+                )
                 .build();
         return ResponseEntity.ok(apiResponse);
+
+        //
+//        Set<PointType> pointTypes = userPoints.stream()
+//                .map(userPoint -> userPoint.getPoint().getPointType())
+//                .collect(Collectors.toSet());
+//
+//        userPointRepository.deleteAll(userPoints);
+//        updatePoint(user, pointTypes);
+//
+//        ApiResponse apiResponse = ApiResponse.builder()
+//                .check(true)
+//                .information(Message.builder().message("내역이 삭제되었습니다.").build())
+//                .build();
+//        return ResponseEntity.ok(apiResponse);
     }
 
     // 상벌점 내역 조회
