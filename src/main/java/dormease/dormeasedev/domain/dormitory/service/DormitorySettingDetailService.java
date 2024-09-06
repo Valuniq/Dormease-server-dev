@@ -3,7 +3,6 @@ package dormease.dormeasedev.domain.dormitory.service;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.RoomSettingReq;
-import dormease.dormeasedev.domain.dormitory.dto.request.UpdateRoomNumberAndFloorReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.FloorAndRoomNumberRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingDetailRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
@@ -15,12 +14,7 @@ import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageInfo;
-import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -211,104 +205,6 @@ public class DormitorySettingDetailService {
 
         return ResponseEntity.ok(apiResponse);
     }
-
-
-    // 층 수, 호실 개수 수정(호실 번호 업데이트)
-    @Transactional
-    public ResponseEntity<?> updateRoomNumberAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, UpdateRoomNumberAndFloorReq updateRoomNumberAndFloorReq) {
-        Dormitory dormitory = validDormitoryById(dormitoryId);
-
-        // 이미 해당 층이 존재하면 예외처리
-        DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, updateRoomNumberAndFloorReq.getNewFloor()).isEmpty(), "중복된 층이 존재합니다.");
-
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
-
-        // 변경 호실 시작, 끝 번호
-        Integer startRoomNumber = updateRoomNumberAndFloorReq.getStartRoomNumber();
-        Integer endRoomNumber = updateRoomNumberAndFloorReq.getEndRoomNumber();
-        Integer newFloor = updateRoomNumberAndFloorReq.getNewFloor();
-
-        List<Room> updatedRooms = new ArrayList<>();
-
-        for (Dormitory findDormitory : sameNameDormitories) {
-            List<Room> rooms = roomRepository.findByDormitoryAndFloor(findDormitory, updateRoomNumberAndFloorReq.getFloor());
-            // 호실 번호에 변경사항이 있을 경우 수정
-            if (startRoomNumber != null && endRoomNumber != null && !rooms.isEmpty()) {
-                verifyRoomNumber(startRoomNumber, endRoomNumber);
-
-                deleteRoomsByRoomNumber(rooms, startRoomNumber, endRoomNumber);
-                createRoomsByRoomNumber(findDormitory, updateRoomNumberAndFloorReq.getFloor(), rooms, startRoomNumber, endRoomNumber);
-            }
-            // 층 수에 변경사항이 있을 경우 수정
-            if (newFloor != null && !rooms.isEmpty()) {
-                DefaultAssert.isTrue(newFloor > 1, "층 수는 양수여야 합니다.");
-                for (Room room : rooms) {
-                    Integer roomNumberTwoDigits = extractLastTwoDigits(room.getRoomNumber());
-                    Integer updatedRoomNumber = updateRoomNumberAndFloorReq.getNewFloor() * 100 + roomNumberTwoDigits; // 새로운 floor로 roomNumber 수정
-
-                    room.updateRoomNumber(updatedRoomNumber);
-                    room.updateFloor(updateRoomNumberAndFloorReq.getNewFloor());
-
-                    updatedRooms.add(room);
-                }
-            }
-        }
-
-        // 호실 개수 업데이트
-        updateRoomCount(updatedRooms);
-        updateDormitorySize(updatedRooms);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("층 수 및 호실 개수가 변경되었습니다.").build()).build();
-        return ResponseEntity.ok(apiResponse);
-    }
-
-    private void deleteRoomsByRoomNumber(List<Room> rooms, Integer startNewRoomNumber, Integer endNewRoomNumber) {
-        // minRoomNumber < startRoomNumber
-        // minRoomNumber부터 startRoomNumber를 가진 호실 삭제
-
-        // maxRoomNumber > endRoomNumber
-        // endRoomNumber 이후부터 maxRoomNumber까지 호실 삭제
-
-        // 삭제할 호실 번호를 roomNumbersToDelete 리스트에 추가
-        List<Room> roomsToDelete = rooms.stream()
-                .filter(room -> {
-                    int roomNumber = extractLastTwoDigits(room.getRoomNumber());
-                    return roomNumber < startNewRoomNumber || roomNumber > endNewRoomNumber;
-                })
-                .toList();
-
-        roomRepository.deleteAll(roomsToDelete);
-
-    }
-
-    private void createRoomsByRoomNumber(Dormitory dormitory, Integer floor, List<Room> rooms, Integer startNewRoomNumber, Integer endNewRoomNumber) {
-        // 최소, 최대 roomNumber 구하기
-        Optional<Integer> minRoomNumberOpt = rooms.stream()
-                .map(Room::getRoomNumber)
-                .min(Comparator.naturalOrder());
-
-        Optional<Integer> maxRoomNumberOpt = rooms.stream()
-                .map(Room::getRoomNumber)
-                .max(Comparator.naturalOrder());
-
-        int minRoomNumber = extractLastTwoDigits(minRoomNumberOpt.get());
-        int maxRoomNumber = extractLastTwoDigits(maxRoomNumberOpt.get());
-
-        // 호실 생성 범위 결정
-        if (minRoomNumber > startNewRoomNumber) {
-            // startRoomNumber부터 room 이전까지 호실 생성
-            generateRoomNumbers(dormitory, floor, startNewRoomNumber, minRoomNumber - 1);
-        }
-        if (maxRoomNumber < endNewRoomNumber) {
-            // room의 마지막 호실 이후부터 endRoomNumber까지 호실 생성
-            generateRoomNumbers(dormitory, floor, maxRoomNumber + 1, endNewRoomNumber);
-        }
-
-    }
-
 
     // 호실 정보 수정
     // 필터
