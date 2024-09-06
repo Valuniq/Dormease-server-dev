@@ -43,10 +43,9 @@ public class DormitorySettingWebController {
     })
     @PostMapping("")
     public ResponseEntity<?> registerDormitory(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "Schemas의 RegisterDormitoryReq을 참고해주세요.", required = true) @Valid @RequestPart RegisterDormitoryReq registerDormitoryReq,
-            @Parameter(description = "업로드할 이미지 파일 (Multipart form-data 형식)") @RequestPart MultipartFile image) {
-        return dormitorySettingService.registerDormitory(customUserDetails, registerDormitoryReq, image);
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return dormitorySettingService.registerDormitory(customUserDetails);
     }
 
     @Operation(summary = "건물 목록 조회", description = "건물 설정 프로세스 중 건물 목록을 조회합니다.")

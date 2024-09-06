@@ -1,7 +1,6 @@
 package dormease.dormeasedev.domain.dormitory.domain.repository;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitory.dto.response.app_dormitory_application.FindDormitoryRes;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,7 +43,7 @@ public interface DormitoryRepository extends JpaRepository<Dormitory, Long> {
 
     List<Dormitory> findBySchoolAndGender(School school, Gender gender);
 
-    List<Dormitory> findBySchoolOrderByCreatedDateDesc(School school);
-
     List<Dormitory> findBySchoolOrderByCreatedDateAsc(School school);
+
+    boolean existsByName(String dormitoryName);
 }

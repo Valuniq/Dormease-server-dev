@@ -7,11 +7,9 @@ import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
-import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.domain.user.domain.User;
-import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,32 +37,26 @@ public class DormitorySettingService {
 
     // [건물 설정] 건물 추가
     @Transactional
-    public ResponseEntity<?> registerDormitory(CustomUserDetails customUserDetails, RegisterDormitoryReq registerDormitoryReq,
-                                               MultipartFile image) {
+    public ResponseEntity<?> registerDormitory(CustomUserDetails customUserDetails) {
         User user = userService.validateUserById(customUserDetails.getId());
-        boolean isEmptySameNameDormitories = dormitoryRepository.findBySchoolAndName(user.getSchool(), registerDormitoryReq.getName()).isEmpty();
 
-        boolean check = true;
-        String msg = "건물이 추가되었습니다.";
-        if (isEmptySameNameDormitories) {
-            Dormitory dormitory = Dormitory.builder()
+        String dormitoryName = generateAvailableDormitoryName();
+        Dormitory dormitory = Dormitory.builder()
                     .school(user.getSchool())
-                    .name(registerDormitoryReq.getName())
+                    .name(dormitoryName)
                     .gender(Gender.EMPTY)
                     .roomCount(0)
-                    .imageUrl(setAWSImage(image))
+                    .imageUrl(null)
                     .build();
-
-            dormitoryRepository.save(dormitory);
-        } else {
-            check = false;
-            msg = "동일한 이름의 기숙사가 존재합니다.";
-        }
+        dormitoryRepository.save(dormitory);
 
         ApiResponse apiResponse = ApiResponse.builder()
-                .check(check)
-                .information(Message.builder().message(msg).build()).build();
-
+                .check(true)
+                .information(
+                        Message.builder()
+                                .message("건물이 생성되었습니다.")
+                                .build())
+                .build();
         return ResponseEntity.ok(apiResponse);
     }
 
@@ -75,6 +66,17 @@ public class DormitorySettingService {
             return null;
         } else
             return s3Uploader.uploadImage(image);
+    }
+
+    private String generateAvailableDormitoryName() {
+        String name = "건물명";
+        int num = 1;
+        String dormitoryName = name;
+        while (dormitoryRepository.existsByName(dormitoryName)) {
+            dormitoryName = name + num;
+            num++;
+        }
+        return dormitoryName;
     }
 
 
