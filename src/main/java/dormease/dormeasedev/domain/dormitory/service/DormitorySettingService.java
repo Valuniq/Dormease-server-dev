@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.dormitory.service;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;import dormease.dormeasedev.domain.dormitory.dto.request.RegisterDormitoryReq;
+import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
@@ -14,7 +14,9 @@ import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.error.DefaultException;
 import dormease.dormeasedev.global.payload.ApiResponse;
+import dormease.dormeasedev.global.payload.ErrorCode;
 import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -159,11 +161,22 @@ public class DormitorySettingService {
     public ResponseEntity<?> deleteDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
+
         // 관련된 사생 데이터 확인
         DefaultAssert.isTrue(!hasRelatedResidents(sameNameDormitories), "해당 건물에 배정된 사생이 있어 삭제할 수 없습니다.");
-        // 건물 이미지 삭제
+
+        // 건물 이미지 삭제(같은 이미지를 사용하므로 1회만 삭제)
         if (dormitory.getImageUrl() != null) {
             s3Uploader.deleteFile(dormitory.getImageUrl());
+        }
+        // 연결된 room 먼저 삭제
+        try {
+            for (Dormitory dormitory1 : sameNameDormitories) {
+                List<Room> rooms = roomRepository.findByDormitory(dormitory1);
+                roomRepository.deleteAll(rooms);
+            }
+        } catch (Exception e) {
+            throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR, "기숙사에 연결된 호실 삭제 중 오류가 발생했습니다.");
         }
         // 건물 삭제
         dormitoryRepository.deleteAll(sameNameDormitories);
@@ -175,18 +188,6 @@ public class DormitorySettingService {
         return ResponseEntity.ok(apiResponse);
 
     }
-
-    //private boolean hasRelatedResidents(List<Dormitory> sameNameDormitories) {
-    //    List<Resident> residents = new ArrayList<>();
-    //    for (Dormitory dormitory : sameNameDormitories) {
-    //        List<Room> rooms = roomRepository.findByDormitory(dormitory);
-    //        for (Room room : rooms) {
-    //            List<Resident> findResidents = residentRepository.findByRoom(room);
-    //            residents.addAll(findResidents);
-    //        }
-    //    }
-    //    return !residents.isEmpty();
-    //}
 
     private boolean hasRelatedResidents(List<Dormitory> sameNameDormitories) {
         List<Resident> residents = residentRepository.findByDormitories(sameNameDormitories);
