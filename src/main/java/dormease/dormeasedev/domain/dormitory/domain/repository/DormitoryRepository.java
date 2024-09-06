@@ -45,5 +45,7 @@ public interface DormitoryRepository extends JpaRepository<Dormitory, Long> {
 
     List<Dormitory> findBySchoolOrderByCreatedDateAsc(School school);
 
-    boolean existsByName(String dormitoryName);
+    int countBySchool(School school);
+
+    boolean existsBySchoolAndName(School school, String dormitoryName);
 }

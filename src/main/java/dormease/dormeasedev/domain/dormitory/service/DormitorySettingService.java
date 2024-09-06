@@ -7,6 +7,8 @@ import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.room.domain.Room;
+import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.domain.user.domain.User;
@@ -31,6 +33,7 @@ public class DormitorySettingService {
 
     private final DormitoryRepository dormitoryRepository;
     private final ResidentRepository residentRepository;
+    private final RoomRepository roomRepository;
     private final UserService userService;
 
     private final S3Uploader s3Uploader;
@@ -38,11 +41,11 @@ public class DormitorySettingService {
     // [건물 설정] 건물 추가
     @Transactional
     public ResponseEntity<?> registerDormitory(CustomUserDetails customUserDetails) {
-        User user = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(customUserDetails.getId());
 
-        String dormitoryName = generateAvailableDormitoryName();
+        String dormitoryName = generateAvailableDormitoryName(admin);
         Dormitory dormitory = Dormitory.builder()
-                    .school(user.getSchool())
+                    .school(admin.getSchool())
                     .name(dormitoryName)
                     .gender(Gender.EMPTY)
                     .roomCount(0)
@@ -60,19 +63,11 @@ public class DormitorySettingService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // 이미지 추가 메소드 구현
-    private String setAWSImage(MultipartFile image) {
-        if (image.isEmpty()) {
-            return null;
-        } else
-            return s3Uploader.uploadImage(image);
-    }
-
-    private String generateAvailableDormitoryName() {
+    private String generateAvailableDormitoryName(User user) {
         String name = "건물명";
         int num = 1;
         String dormitoryName = name;
-        while (dormitoryRepository.existsByName(dormitoryName)) {
+        while (dormitoryRepository.existsBySchoolAndName(user.getSchool(), dormitoryName)) {
             dormitoryName = name + num;
             num++;
         }
@@ -147,15 +142,12 @@ public class DormitorySettingService {
     }
 
     // 건물 삭제(해당 건물에 배정된 사생이 있을 시 삭제 불가)
-    // 연결된 room도 다 삭제하기
     @Transactional
     public ResponseEntity<?> deleteDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-
         // 관련된 사생 데이터 확인
         DefaultAssert.isTrue(!hasRelatedResidents(sameNameDormitories), "해당 건물에 배정된 사생이 있어 삭제할 수 없습니다.");
-
         // 건물 이미지 삭제
         if (dormitory.getImageUrl() != null) {
             s3Uploader.deleteFile(dormitory.getImageUrl());
