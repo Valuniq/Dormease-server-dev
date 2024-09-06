@@ -43,4 +43,8 @@ public interface DormitoryRepository extends JpaRepository<Dormitory, Long> {
     List<Dormitory> findBySchoolAndNameAndGender(School school, String name, Gender gender);
 
     List<Dormitory> findBySchoolAndGender(School school, Gender gender);
+
+    List<Dormitory> findBySchoolOrderByCreatedDateDesc(School school);
+
+    List<Dormitory> findBySchoolOrderByCreatedDateAsc(School school);
 }

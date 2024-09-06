@@ -81,27 +81,29 @@ public class DormitorySettingService {
     // [건물 설정] 건물 목록 조회
     public ResponseEntity<?> getDormitoriesBySchool(CustomUserDetails customUserDetails) {
         User user = userService.validateUserById(customUserDetails.getId());
-
         // 학교별 건물 조회
-        List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
+        List<Dormitory> dormitories = dormitoryRepository.findBySchoolOrderByCreatedDateAsc(user.getSchool());
 
-        // 기존에 등록된 기숙사 이름 저장
-        Set<String> existingDormitoryNames = ConcurrentHashMap.newKeySet();
-
-        List<DormitorySettingListRes> dormitorySettingListRes;
-
-        // 기존에 등록된 기숙사 이름 추가
-        synchronized (existingDormitoryNames) {
-            dormitorySettingListRes = dormitories.stream()
-                    .filter(dormitory -> existingDormitoryNames.add(dormitory.getName()))
-                    .map(dormitory -> DormitorySettingListRes.builder()
-                            .id(dormitory.getId())
-                            .name(dormitory.getName())
-                            .imageUrl(dormitory.getImageUrl())
-                            .assignedResidents(hasRelatedResidents(dormitory))
-                            .build())
-                    .collect(Collectors.toList());
+        Set<String> existingDormitoryNames = new HashSet<>();
+        List<Dormitory> distinctDormitories = new ArrayList<>();
+        for (Dormitory dormitory : dormitories) {
+            // 기숙사명이 Set에 있는지 확인
+            if (!existingDormitoryNames.contains(dormitory.getName())) {
+                // 기숙사 이름이 없다면 리스트에 추가하고 Set에 기숙사명 저장
+                distinctDormitories.add(dormitory);
+                existingDormitoryNames.add(dormitory.getName());
+            }
+            // 있으면 패스
         }
+        distinctDormitories.sort(Comparator.comparing(Dormitory::getCreatedDate).reversed());
+        List<DormitorySettingListRes> dormitorySettingListRes = distinctDormitories.stream()
+                .map(dormitory -> DormitorySettingListRes.builder()
+                        .id(dormitory.getId())
+                        .name(dormitory.getName())
+                        .imageUrl(dormitory.getImageUrl())
+                        .assignedResidents(hasRelatedResidents(dormitory))
+                        .build())
+                .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
