@@ -1,8 +1,7 @@
 package dormease.dormeasedev.domain.dormitory.service;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
-import dormease.dormeasedev.domain.dormitory.dto.request.RegisterDormitoryReq;
+import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;import dormease.dormeasedev.domain.dormitory.dto.request.RegisterDormitoryReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.resident.domain.Resident;
@@ -42,6 +41,8 @@ public class DormitorySettingService {
     @Transactional
     public ResponseEntity<?> registerDormitory(CustomUserDetails customUserDetails) {
         User admin = userService.validateUserById(customUserDetails.getId());
+        // 건물 개수 검증
+        checkDormitoryLimit(admin);
 
         String dormitoryName = generateAvailableDormitoryName(admin);
         Dormitory dormitory = Dormitory.builder()
@@ -74,6 +75,18 @@ public class DormitorySettingService {
         return dormitoryName;
     }
 
+    private void checkDormitoryLimit(User user) {
+        // 하나의 학교당 기숙사 개수 최대 15개 제한
+        // 동일한 이름의 기숙사가 존재하기 때문에(인실 구분) 중복 제거
+        List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
+
+        long uniqueDormitoryCount = dormitories.stream()
+                .map(Dormitory::getName)
+                .distinct()
+                .count();
+
+        DefaultAssert.isTrue(uniqueDormitoryCount < 15, "생성할 수 있는 최대 개수는 15개입니다.");
+    }
 
     // [건물 설정] 건물 목록 조회
     public ResponseEntity<?> getDormitoriesBySchool(CustomUserDetails customUserDetails) {
