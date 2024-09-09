@@ -12,6 +12,7 @@ import dormease.dormeasedev.domain.point.dto.request.*;
 import dormease.dormeasedev.domain.point.dto.response.*;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.UserType;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
@@ -298,14 +299,15 @@ public class PointService {
 
     private String getDormitoryName(Resident resident) {
         // 호실 배정 시
-        if (resident.getRoom() != null) {
-            Dormitory dormitory = resident.getRoom().getDormitory();
-            return formatDormitoryName(dormitory);
+        Room room = resident.getRoom();
+        if (room != null) {
+            Dormitory dormitory = room.getDormitory();
+            return dormitory.getName() + "(" + room.getRoomType().getRoomSize() + "인실)";
         // 호실 미배정 시
         } else {
             Dormitory dormitory = findDormitoryByResident(resident);
             if (dormitory != null) {
-                return formatDormitoryName(dormitory);
+                return dormitory.getName();
             }
         }
         return null;
@@ -319,9 +321,6 @@ public class PointService {
         }
     }
 
-    private String formatDormitoryName(Dormitory dormitory) {
-        return dormitory.getName() + "(" + dormitory.getRoomSize() + "인실)";
-    }
 
     private Dormitory findDormitoryByResident(Resident resident) {
         User user = resident.getUser();
