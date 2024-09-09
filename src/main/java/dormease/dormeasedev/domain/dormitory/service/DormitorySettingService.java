@@ -50,7 +50,6 @@ public class DormitorySettingService {
         Dormitory dormitory = Dormitory.builder()
                     .school(admin.getSchool())
                     .name(dormitoryName)
-                    .gender(Gender.EMPTY)
                     .roomCount(0)
                     .imageUrl(null)
                     .build();
@@ -79,14 +78,7 @@ public class DormitorySettingService {
 
     private void checkDormitoryLimit(User user) {
         // 하나의 학교당 기숙사 개수 최대 15개 제한
-        // 동일한 이름의 기숙사가 존재하기 때문에(인실 구분) 중복 제거
-        List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
-
-        long uniqueDormitoryCount = dormitories.stream()
-                .map(Dormitory::getName)
-                .distinct()
-                .count();
-
+        int uniqueDormitoryCount = dormitoryRepository.countBySchool(user.getSchool());
         DefaultAssert.isTrue(uniqueDormitoryCount < 15, "생성할 수 있는 최대 개수는 15개입니다.");
     }
 
