@@ -60,7 +60,7 @@ public class DormitoryService {
             FindDormitoryRes findDormitoryRes = FindDormitoryRes.builder()
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
-                    .roomSize(dormitory.getDormitoryRoomType().getRoomType().getRoomSize())    // TODO: 수정 필요
+                    //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
                     .imageUrl(dormitory.getImageUrl())
                     .price(dormitoryTerm.getPrice())
                     .termName(term.getTermName())

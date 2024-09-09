@@ -136,8 +136,8 @@ public class DormitoryApplicationService {
                 .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
                 .schoolName(user.getName())
                 .dormitoryName(dormitory.getName())
-                .gender(dormitory.getDormitoryRoomType().getRoomType().getGender())// TODO: 수정 필요
-                .roomSize(dormitory.getDormitoryRoomType().getRoomType().getRoomSize())    // TODO: 수정 필요
+                //.gender(dormitory.getGender())// TODO: 수정 필요
+                //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
                 .termName(term.getTermName())
                 .mealTicketCount(mealTicket.getCount())
 //                 null이면 제출 x
@@ -229,8 +229,8 @@ public class DormitoryApplicationService {
                 .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
                 .schoolName(user.getName())
                 .dormitoryName(dormitory.getName())
-                .gender(dormitory.getDormitoryRoomType().getRoomType().getGender())// TODO: 수정 필요
-                .roomSize(dormitory.getDormitoryRoomType().getRoomType().getRoomSize())    // TODO: 수정 필요
+                //.gender(dormitory.getGender())// TODO: 수정 필요
+                //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
                 .termName(term.getTermName())
                 .mealTicketCount(mealTicket.getCount())
 //                 null이면 제출 x
