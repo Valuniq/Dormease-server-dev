@@ -152,7 +152,7 @@ public class RoommateTempApplicationService {
         Term term = dormitoryApplication.getTerm();
 //        Dormitory dormitory = term.getDormitory();
         Dormitory dormitory = dormitoryApplication.getDormitory();
-        Integer roomSize = dormitory.getRoomSize();
+        Integer roomSize = dormitory.getDormitoryRoomType().getRoomType().getRoomSize();   // TODO: 수정 필요
 
         DefaultAssert.isTrue(myDormitory.equals(dormitory), "신청한 기숙사가 해당 그룹의 방장의 신청 기숙사와 일치하지 않습니다.");
         DefaultAssert.isTrue(!(roommateTempApplication.getResidents().size() >= roomSize), "인원이 가득 찬 그룹입니다.");
