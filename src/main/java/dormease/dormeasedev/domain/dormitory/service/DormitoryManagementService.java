@@ -138,21 +138,14 @@ public class DormitoryManagementService {
     // 건물별 층 수 목록 조회
     public ResponseEntity<?> getFloorsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
-
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndNameAndRoomSize(dormitory.getSchool(), dormitory.getName(), dormitory.getDormitoryRoomType().getRoomType().getRoomSize());
-        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
-
         Set<Integer> uniqueFloorNumbers = new HashSet<>();
 
-        for (Dormitory findDormitory : sameNameDormitories) {
-            List<Integer> floorNumbers = roomRepository.findByDormitoryAndIsActivated(findDormitory, true).stream()
-                    .map(Room::getFloor)
-                    .distinct()
-                    .sorted()
-                    .toList();
-
-            uniqueFloorNumbers.addAll(floorNumbers);
-        }
+        List<Integer> floorNumbers = roomRepository.findByDormitoryAndIsActivated(dormitory, true).stream()
+                .map(Room::getFloor)
+                .distinct()
+                .sorted()
+                .toList();
+        uniqueFloorNumbers.addAll(floorNumbers);
 
         List<FloorByDormitoryRes> floorByDormitoryResList = uniqueFloorNumbers.stream()
                 .map(floor -> FloorByDormitoryRes.builder()
@@ -183,7 +176,7 @@ public class DormitoryManagementService {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Resident> notAssignedResidents = new ArrayList<>();
         // dormitory 이름, 성별 같은 기숙사 가져오기
-        List<Dormitory> sameNameAndSameGenderDormitories = dormitoryRepository.findBySchoolAndNameAndGender(admin.getSchool(), dormitory.getName(), dormitory.getDormitoryRoomType().getRoomType().getGender());
+        // List<Dormitory> sameNameAndSameGenderDormitories = dormitoryRepository.findBySchoolAndNameAndGender(admin.getSchool(), dormitory.getName(), dormitory.getDormitoryRoomType().getRoomType().getGender());
             // pass && now
             // -> 미배정 사생 조회이므로 resident findByDormitory / 해당 기숙사의 미배정 사생
         List<Resident> residentList = residentRepository.findByDormitoryAndRoom(dormitory, null);
