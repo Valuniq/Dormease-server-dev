@@ -84,26 +84,21 @@ public class DormitoryManagementService {
     public ResponseEntity<?> getDormitoryInfo(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         // 건물명, 메모, 이미지는 dormitory에서 가져오기
-
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
+        // DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
         Integer fullRoomCount = 0;
-        Integer roomCount = 0;
         Integer currentPeopleCount = 0;
-        Integer dormitorySize = 0;
 
-        for (Dormitory findDormitory : sameNameDormitories) {
-            dormitorySize += Optional.ofNullable(findDormitory.getDormitorySize()).orElse(0);
-            roomCount += Optional.ofNullable(findDormitory.getRoomCount()).orElse(0);
+        // TODO: 테이블 변경에 따른 수정 가능성 있음
+        Integer dormitorySize = Optional.ofNullable(dormitory.getDormitorySize()).orElse(0);
+        Integer roomCount = Optional.ofNullable(dormitory.getRoomCount()).orElse(0);
 
-            List<Room> rooms = roomRepository.findByDormitoryAndIsActivated(findDormitory, true).stream().toList();
-            for (Room room : rooms) {
-                currentPeopleCount += Optional.ofNullable(room.getCurrentPeople()).orElse(0);
+        List<Room> rooms = roomRepository.findByDormitoryAndIsActivated(dormitory, true).stream().toList();
+        for (Room room : rooms) {
+            currentPeopleCount += Optional.ofNullable(room.getCurrentPeople()).orElse(0);
 
-                if (Optional.ofNullable(room.getRoomSize()).orElse(0).equals(room.getCurrentPeople())) {
-                    fullRoomCount += 1;
-                }
+            if (Optional.ofNullable(room.getRoomSize()).orElse(0).equals(room.getCurrentPeople())) {
+                fullRoomCount += 1;
             }
         }
 
@@ -161,7 +156,7 @@ public class DormitoryManagementService {
     public ResponseEntity<?> getFloorsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndNameAndRoomSize(dormitory.getSchool(), dormitory.getName(), dormitory.getRoomSize());
+        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndNameAndRoomSize(dormitory.getSchool(), dormitory.getName(), dormitory.getDormitoryRoomType().getRoomType().getRoomSize());
         DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
 
         Set<Integer> uniqueFloorNumbers = new HashSet<>();
@@ -205,7 +200,7 @@ public class DormitoryManagementService {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Resident> notAssignedResidents = new ArrayList<>();
         // dormitory 이름, 성별 같은 기숙사 가져오기
-        List<Dormitory> sameNameAndSameGenderDormitories = dormitoryRepository.findBySchoolAndNameAndGender(admin.getSchool(), dormitory.getName(), dormitory.getGender());
+        List<Dormitory> sameNameAndSameGenderDormitories = dormitoryRepository.findBySchoolAndNameAndGender(admin.getSchool(), dormitory.getName(), dormitory.getDormitoryRoomType().getRoomType().getGender());
             // pass && now
             // -> 미배정 사생 조회이므로 resident findByDormitory / 해당 기숙사의 미배정 사생
         List<Resident> residentList = residentRepository.findByDormitoryAndRoom(dormitory, null);
