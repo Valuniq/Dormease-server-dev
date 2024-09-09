@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.room.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.domain.user.domain.User;
 import jakarta.persistence.*;
@@ -23,6 +24,10 @@ public class Room extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dormitory_id")
     private Dormitory dormitory;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_type_id")
+    private RoomType roomType;
     
     // 호수
     private Integer roomNumber;
@@ -46,9 +51,10 @@ public class Room extends BaseEntity {
     private Boolean isActivated;
 
     @Builder
-    public Room(Long id, Dormitory dormitory, Integer roomNumber, Integer floor, Gender gender, Integer roomSize, Boolean hasKey, Integer currentPeople, Boolean isActivated) {
+    public Room(Long id, Dormitory dormitory, RoomType roomType, Integer roomNumber, Integer floor, Gender gender, Integer roomSize, Boolean hasKey, Integer currentPeople, Boolean isActivated) {
         this.id = id;
         this.dormitory = dormitory;
+        this.roomType = roomType;
         this.roomNumber = roomNumber;
         this.floor = floor;
         this.gender = gender;
