@@ -49,4 +49,5 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
     @Query("SELECT r FROM Resident r WHERE r.user IN :users")
     Page<Resident> findResidentsByUsers(@Param("users") List<User> users, Pageable pageable);
 
+    boolean existsByDormitory(Dormitory dormitory);
 }
