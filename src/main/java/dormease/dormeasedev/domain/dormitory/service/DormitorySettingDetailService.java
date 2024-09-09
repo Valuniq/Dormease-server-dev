@@ -222,13 +222,13 @@ public class DormitorySettingDetailService {
             validateRoomSetting(room, roomSettingReq);
 
             // 기존 dormitory의 Gender, roomSize
-            String existingGender = room.getDormitory().getGender().toString();
-            Integer existingRoomSize = room.getDormitory().getRoomSize();
+            // String existingGender = room.getDormitory().getGender().toString();
+            // Integer existingRoomSize = room.getDormitory().getRoomSize();
 
             // 기존 dormitory와 다른 Gender 또는 roomSize인 경우
-            if (!Objects.equals(existingGender, roomSettingReq.getGender()) || !Objects.equals(existingRoomSize, roomSettingReq.getRoomSize())) {
-                createOrUpdateDormitory(room, roomSettingReq);
-            }
+            // if (!Objects.equals(existingGender, roomSettingReq.getGender()) || !Objects.equals(existingRoomSize, roomSettingReq.getRoomSize())) {
+            //    createOrUpdateDormitory(room, roomSettingReq);
+            //}
 
             // 적절한 dormitory에 room 할당
             assignRoomToDormitory(room, roomSettingReq);
@@ -249,43 +249,14 @@ public class DormitorySettingDetailService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    private void createOrUpdateDormitory(Room room, RoomSettingReq roomSettingReq){
-        Dormitory dormitory = room.getDormitory();
-        // 기존에 저장된 dormitory가 있는지
-        Dormitory existDormitory = dormitoryRepository.findBySchoolAndNameAndGenderAndRoomSize(dormitory.getSchool(), dormitory.getName(), Gender.valueOf(roomSettingReq.getGender()), roomSettingReq.getRoomSize());
-        if (existDormitory == null) {
-            // EMPTY면 기존 정보 업데이트
-            if (dormitory.getGender() == Gender.EMPTY) {
-                dormitory.updateGenderAndRoomSize(Gender.valueOf(roomSettingReq.getGender()), roomSettingReq.getRoomSize());
-            } else {
-                Gender gender = Gender.valueOf(roomSettingReq.getGender());
-                Integer roomSize = roomSettingReq.getRoomSize();
-                // 새로운 dormitory 생성
-                Dormitory newDormitory = Dormitory.builder()
-                        .school(dormitory.getSchool())
-                        .name(dormitory.getName())
-                        .memo(dormitory.getMemo())
-                        .gender(gender)
-                        .roomSize(roomSize)
-                        .imageUrl(dormitory.getImageUrl())
-                        .dormitorySize(dormitory.getDormitorySize())
-                        .roomCount(0)
-                        .build();
-
-                dormitoryRepository.save(newDormitory);
-        }
-        }
-
-    }
-
     private void assignRoomToDormitory(Room room, RoomSettingReq roomSettingReq) {
         Dormitory dormitory = room.getDormitory();
         // 이름,  GENDER, roomSize 같은 기숙사 조회
-        Dormitory newDormitory = dormitoryRepository.findBySchoolAndNameAndGenderAndRoomSize(dormitory.getSchool(), dormitory.getName(), Gender.valueOf(roomSettingReq.getGender()), roomSettingReq.getRoomSize());
-        DefaultAssert.isTrue(newDormitory != null, "해당하는 건물이 없습니다.");
+        //Dormitory newDormitory = dormitoryRepository.findBySchoolAndNameAndGenderAndRoomSize(dormitory.getSchool(), dormitory.getName(), Gender.valueOf(roomSettingReq.getGender()), roomSettingReq.getRoomSize());
+        //DefaultAssert.isTrue(newDormitory != null, "해당하는 건물이 없습니다.");
         // room update
-        room.updateRoomSetting(newDormitory, roomSettingReq.getRoomSize(), Gender.valueOf(roomSettingReq.getGender()), roomSettingReq.getHasKey());
-        if (roomSettingReq.getIsActivated() != null) { room.updateIsActivated(roomSettingReq.getIsActivated());}
+        //room.updateRoomSetting(newDormitory, roomSettingReq.getRoomSize(), Gender.valueOf(roomSettingReq.getGender()), roomSettingReq.getHasKey());
+        //if (roomSettingReq.getIsActivated() != null) { room.updateIsActivated(roomSettingReq.getIsActivated());}
 
     }
 
@@ -298,9 +269,9 @@ public class DormitorySettingDetailService {
         }
 
         for (Dormitory dormitory : dormitoriesToUpdate) {
-            Integer roomSize = dormitory.getRoomSize();
-            Integer dormitorySize = roomRepository.findByDormitoryAndIsActivated(dormitory, true).size();
-            dormitory.updateDormitorySize(dormitorySize * roomSize);
+            //Integer roomSize = dormitory.getRoomSize();
+            //Integer dormitorySize = roomRepository.findByDormitoryAndIsActivated(dormitory, true).size();
+            //dormitory.updateDormitorySize(dormitorySize * roomSize);
         }
     }
 

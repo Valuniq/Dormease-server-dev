@@ -25,7 +25,7 @@ public interface DormitoryRepository extends JpaRepository<Dormitory, Long> {
     @Query("UPDATE Dormitory d SET d.name = :newName WHERE d.school = :school AND d.name = :oldName")
     void updateNamesBySchoolAndName(School school, String oldName, String newName);
 
-    Dormitory findBySchoolAndNameAndGenderAndRoomSize(School school, String name, Gender gender, Integer roomSize);
+    //Dormitory findBySchoolAndNameAndGenderAndRoomSize(School school, String name, Gender gender, Integer roomSize);
 
     // 학교, 성별, 거주 기간에 따른 기숙사 목록 조회
 //    @Query("SELECT d FROM Dormitory d " +
@@ -36,12 +36,10 @@ public interface DormitoryRepository extends JpaRepository<Dormitory, Long> {
 //            "AND dt.term = :term")
 //    List<Dormitory> findDormitoriesBySchoolIdAndGenderAndTerm(Long schoolId, Gender gender, String term);
 
-    List<Dormitory> findDormitoriesBySchoolIdAndGender(Long id, Gender gender);
-    List<Dormitory> findBySchoolAndNameAndRoomSize(School school, String name, Integer roomSize);
+    //List<Dormitory> findDormitoriesBySchoolIdAndGender(Long id, Gender gender);
+    //List<Dormitory> findBySchoolAndNameAndRoomSize(School school, String name, Integer roomSize);
 
-    List<Dormitory> findBySchoolAndNameAndGender(School school, String name, Gender gender);
-
-    List<Dormitory> findBySchoolAndGender(School school, Gender gender);
+    //List<Dormitory> findBySchoolAndNameAndGender(School school, String name, Gender gender);
 
     List<Dormitory> findBySchoolOrderByCreatedDateAsc(School school);
 
