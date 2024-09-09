@@ -25,16 +25,11 @@ public class RoomType extends BaseEntity {
     // 인실
     private Integer roomSize;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dormitory_room_type_id")
-    private DormitoryRoomType dormitoryRoomType;
-
     @Builder
-    public RoomType(Long id, Gender gender, Integer roomSize, DormitoryRoomType dormitoryRoomType) {
+    public RoomType(Long id, Gender gender, Integer roomSize) {
         this.id = id;
         this.gender = gender;
         this.roomSize = roomSize;
-        this.dormitoryRoomType = dormitoryRoomType;
     }
 
     // public void updateGenderAndRoomSize(Gender gender, Integer roomSize) {

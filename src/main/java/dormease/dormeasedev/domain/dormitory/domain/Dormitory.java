@@ -27,10 +27,6 @@ public class Dormitory extends BaseEntity {
     @JoinColumn(name = "school_id")
     private School school;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dormitory_room_type_id")
-    private DormitoryRoomType dormitoryRoomType;
-
     // 기숙사 건물 이름
     @Column(nullable = false)
     private String name;
@@ -47,10 +43,9 @@ public class Dormitory extends BaseEntity {
     private Integer roomCount;
 
     @Builder
-    public Dormitory(Long id, School school, DormitoryRoomType dormitoryRoomType, String name, String memo, String imageUrl, Integer dormitorySize, Integer roomCount) {
+    public Dormitory(Long id, School school, String name, String memo, String imageUrl, Integer dormitorySize, Integer roomCount) {
         this.id = id;
         this.school = school;
-        this.dormitoryRoomType = dormitoryRoomType;
         this.name = name;
         this.memo = memo;
         this.imageUrl = imageUrl;
