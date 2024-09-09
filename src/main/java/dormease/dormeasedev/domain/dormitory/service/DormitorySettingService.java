@@ -87,20 +87,7 @@ public class DormitorySettingService {
         User user = userService.validateUserById(customUserDetails.getId());
         // 학교별 건물 조회
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolOrderByCreatedDateAsc(user.getSchool());
-
-        Set<String> existingDormitoryNames = new HashSet<>();
-        List<Dormitory> distinctDormitories = new ArrayList<>();
-        for (Dormitory dormitory : dormitories) {
-            // 기숙사명이 Set에 있는지 확인
-            if (!existingDormitoryNames.contains(dormitory.getName())) {
-                // 기숙사 이름이 없다면 리스트에 추가하고 Set에 기숙사명 저장
-                distinctDormitories.add(dormitory);
-                existingDormitoryNames.add(dormitory.getName());
-            }
-            // 있으면 패스
-        }
-        distinctDormitories.sort(Comparator.comparing(Dormitory::getCreatedDate).reversed());
-        List<DormitorySettingListRes> dormitorySettingListRes = distinctDormitories.stream()
+        List<DormitorySettingListRes> dormitorySettingListRes = dormitories.stream()
                 .map(dormitory -> DormitorySettingListRes.builder()
                         .id(dormitory.getId())
                         .name(dormitory.getName())
@@ -187,9 +174,8 @@ public class DormitorySettingService {
     }
 
     private boolean hasRelatedResidents(Dormitory dormitory) {
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        List<Resident> residents = residentRepository.findByDormitories(sameNameDormitories);
-        return !residents.isEmpty();
+        // List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
+        return residentRepository.existsByDormitory(dormitory);
     }
 
     // 건물명 변경
