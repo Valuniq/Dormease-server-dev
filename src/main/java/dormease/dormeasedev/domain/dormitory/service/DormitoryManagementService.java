@@ -44,21 +44,15 @@ public class DormitoryManagementService {
     public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
-        // 이름이 같은 기숙사 검색
-        List<Dormitory> dormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
-
         List<Room> roomList = new ArrayList<>();
-        for (Dormitory findDormitory : dormitories) {
-            // floor가 999인 경우 모든 방을 가져오고, 그렇지 않은 경우 특정 층의 방을 가져옴
-            if (floor == 999) {
-                roomList.addAll(roomRepository.findByDormitoryAndIsActivated(findDormitory, true));
+        // floor가 999인 경우 모든 방을 가져오고, 그렇지 않은 경우 특정 층의 방을 가져옴
+        if (floor == 999) {
+            roomList.addAll(roomRepository.findByDormitoryAndIsActivated(dormitory, true));
 
-            } else {
-                roomList.addAll(roomRepository.findByDormitoryAndFloorAndIsActivated(findDormitory, floor, true));
-            }
-
+        } else {
+            roomList.addAll(roomRepository.findByDormitoryAndFloorAndIsActivated(dormitory, floor, true));
         }
+
         // 가져온 방들을 처리하여 결과 리스트에 추가
         List<RoomByDormitoryAndFloorRes> rooms = roomList.stream()
                 .map(room -> RoomByDormitoryAndFloorRes.builder()
@@ -125,24 +119,13 @@ public class DormitoryManagementService {
         User user = validUserById(customUserDetails.getId());
 
         List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
-        DefaultAssert.isTrue(!dormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
-
-        Set<String> existingDormitoryNames = new HashSet<>();
-        List<DormitoryManagementListRes> dormitoryManagementListRes = new ArrayList<>();
-
-        for (Dormitory dormitory : dormitories) {
-            String key = dormitory.getName();
-            if (existingDormitoryNames.add(key)) {
-                dormitoryManagementListRes.add(
-                        DormitoryManagementListRes.builder()
+        List<DormitoryManagementListRes> dormitoryManagementListRes = dormitories.stream()
+                .map(dormitory -> DormitoryManagementListRes.builder()
                         .id(dormitory.getId())
-                        .name(key).build());
-            }
-        }
-
-        // 건물명 오름차순 정렬
-        Comparator<DormitoryManagementListRes> comparator = Comparator.comparing(DormitoryManagementListRes::getName);
-        dormitoryManagementListRes.sort(comparator);
+                        .name(dormitory.getName())
+                        .build())
+                .sorted(Comparator.comparing(DormitoryManagementListRes::getName))
+                .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
