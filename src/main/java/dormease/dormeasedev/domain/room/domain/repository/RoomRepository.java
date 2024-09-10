@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.room.domain.Room;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +21,10 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findByDormitoryAndFloorAndIsActivated(Dormitory dormitory, Integer floor, boolean b);
 
     List<Room> findByDormitoryInAndFloor(List<Dormitory> sameNameDormitories, Integer floor);
+
+    @Query("SELECT MAX(r.roomNumber) FROM Room r WHERE r.dormitory = :dormitory AND r.floor = :floor")
+    Integer findMaxRoomNumberByDormitoryAndFloor(Dormitory dormitory, Integer floor);
+
+    @Query("SELECT MIN(r.roomNumber) FROM Room r WHERE r.dormitory = :dormitory AND r.floor = :floor")
+    Integer findMinRoomNumberByDormitoryAndFloor(Dormitory dormitory, Integer floor);
 }

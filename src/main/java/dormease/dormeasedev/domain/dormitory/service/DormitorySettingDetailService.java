@@ -31,6 +31,7 @@ public class DormitorySettingDetailService {
     private final DormitoryRepository dormitoryRepository;
 
     // 호실 개수 추가
+    // 복제 추가할지
     @Transactional
     public ResponseEntity<?> addFloorAndRoomNumber(CustomUserDetails customUserDetails, Long dormitoryId, AddRoomNumberReq addRoomNumberReq) {
 
@@ -91,32 +92,28 @@ public class DormitorySettingDetailService {
     // 건물 상세 조회
     public ResponseEntity<?> getDormitoryDetails(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
 
-        List<Room> rooms = new ArrayList<>();
-        for (Dormitory findDormitory : sameNameDormitories) {
-            List<Room> dormitoryRooms = roomRepository.findByDormitory(findDormitory);
-            rooms.addAll(dormitoryRooms);
+        List<Integer> floorNumbers = roomRepository.findByDormitoryAndIsActivated(dormitory, true).stream()
+                .map(Room::getFloor)
+                .distinct()
+                .sorted()
+                .toList();
+
+        List<FloorAndRoomNumberRes> floorAndRoomNumberResList = new ArrayList<>();
+        // 층별 최대/최소 호실 번호 추출
+        for (Integer floor : floorNumbers) {
+            Integer max = extractLastTwoDigits(roomRepository.findMaxRoomNumberByDormitoryAndFloor(dormitory, floor));
+            Integer min = extractLastTwoDigits(roomRepository.findMinRoomNumberByDormitoryAndFloor(dormitory, floor));
+            floorAndRoomNumberResList.add(
+                    FloorAndRoomNumberRes.builder()
+                            .floor(floor)
+                            .startRoomNumber(min)
+                            .endRoomNumber(max)
+                            .build()
+            );
         }
-        // 각 층별 호실 정보 저장
-        Map<Integer, List<Room>> floorToRoomsMap = rooms.stream()
-                .collect(Collectors.groupingBy(room -> extractFloorFromRoomNumber(room.getRoomNumber())));
-
-        // 각 층별 최소/최대 호실 번호를 계산하여 FloorAndRoomNumberRes 객체 생성
-        List<FloorAndRoomNumberRes> floorAndRoomNumberResList = floorToRoomsMap.entrySet().stream()
-                .map(entry -> {
-                    List<Room> roomList = entry.getValue();
-                    int minRoomNumber = extractLastTwoDigits(Collections.min(roomList, Comparator.comparing(Room::getRoomNumber)).getRoomNumber());
-                    int maxRoomNumber = extractLastTwoDigits(Collections.max(roomList, Comparator.comparing(Room::getRoomNumber)).getRoomNumber());
-
-                    return FloorAndRoomNumberRes.builder()
-                            .floor(entry.getKey())
-                            .startRoomNumber(minRoomNumber)
-                            .endRoomNumber(maxRoomNumber)
-                            .build();
-                })
-                .sorted(Comparator.comparing(FloorAndRoomNumberRes::getFloor))
-                .collect(Collectors.toList());
+        // 정렬
+        floorAndRoomNumberResList.sort(Comparator.comparing(FloorAndRoomNumberRes::getFloor));
 
         DormitorySettingDetailRes dormitorySettingDetailRes = DormitorySettingDetailRes.builder()
                 .id(dormitoryId)
@@ -131,11 +128,6 @@ public class DormitorySettingDetailService {
                 .build();
 
         return ResponseEntity.ok(apiResponse);
-    }
-
-    // 호실 번호에서 층 수 추출
-    private int extractFloorFromRoomNumber(int roomNumber) {
-        return roomNumber / 100; // 예시: 101 -> 1층, 201 -> 2층, 305 -> 3층
     }
 
     // 호실 번호에서 뒤의 두 자리 숫자만 추출하는 메서드
