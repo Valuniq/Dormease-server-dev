@@ -45,7 +45,7 @@ public class ExitRequestmentAppService {
                 .major(user.getMajor())
                 .schoolYear(user.getSchoolYear())
                 .dormitoryName(dormitory.getName())
-                //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
+                .roomSize(room.getRoomSize())    // 수정
                 .roomNumber(room.getRoomNumber())
                 .bedNumber(resident.getBedNumber())
                 .build();

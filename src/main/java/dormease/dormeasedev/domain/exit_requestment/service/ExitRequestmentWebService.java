@@ -62,7 +62,7 @@ public class ExitRequestmentWebService {
                     .residentName(user.getName())
                     .studentNumber(user.getStudentNumber())
                     .dormitoryName(dormitory.getName())
-                    //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
+                    .roomSize(room.getRoomType().getRoomSize())    // 수정
                     .roomNumber(room.getRoomNumber())
                     .exitDate(exitRequestment.getExitDate())
                     .hasKey(exitRequestment.getHasKey())
