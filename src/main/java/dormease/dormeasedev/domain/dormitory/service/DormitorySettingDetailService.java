@@ -81,6 +81,7 @@ public class DormitorySettingDetailService {
                     .floor(floor)
                     .currentPeople(0)
                     .roomNumber(roomNumberInt)
+                    .isActivated(true)
                     .build();
             rooms.add(room);
         }
