@@ -94,7 +94,7 @@ public class DormitorySettingDetailService {
     public ResponseEntity<?> getDormitoryDetails(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
-        List<Integer> floorNumbers = roomRepository.findByDormitoryAndIsActivated(dormitory, true).stream()
+        List<Integer> floorNumbers = roomRepository.findByDormitory(dormitory).stream()
                 .map(Room::getFloor)
                 .distinct()
                 .sorted()
