@@ -44,7 +44,7 @@ public class DormitoryManagementWebController {
         return dormitoryManagementService.registerDormitoryMemo(customUserDetails, dormitoryId, dormitoryMemoReq);
     }
 
-    @Operation(summary = "건물명(인실) 목록 조회", description = "건물 관리 프로세스 중 건물 목록을 인실과 함께 조회합니다.")
+    @Operation(summary = "건물명 목록 조회", description = "건물 관리 프로세스 중 건물 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryManagementListRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
