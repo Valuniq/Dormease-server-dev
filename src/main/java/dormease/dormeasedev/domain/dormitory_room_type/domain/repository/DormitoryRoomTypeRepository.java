@@ -13,4 +13,6 @@ public interface DormitoryRoomTypeRepository extends JpaRepository<DormitoryRoom
     List<DormitoryRoomType> findByDormitory(Dormitory dormitory);
 
     boolean existsByDormitoryAndRoomTypeGender(Dormitory dormitory, Gender gender);
+
+    List<DormitoryRoomType> findByDormitoryAndRoomTypeGender(Dormitory dormitory, Gender gender);
 }

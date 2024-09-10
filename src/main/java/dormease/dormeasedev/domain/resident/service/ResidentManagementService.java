@@ -7,6 +7,7 @@ import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplica
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.exit_requestment.domain.repository.ExitRequestmentRepository;
 import dormease.dormeasedev.domain.refund_requestment.domain.respository.RefundRequestmentRepository;
@@ -131,7 +132,7 @@ public class ResidentManagementService {
             return ResidentDormitoryInfoRes.builder()
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
-                    // .roomSize(resident.getRoom().getRoomType().getRoomSize()) TODO: 호실이 없으면 인실은 입사신청에서 가져올 것
+                    // .roomSize() 호실이 없으면 인실 가져올 수 없음
                     .termName(resident.getTerm().getTermName())
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
@@ -194,7 +195,6 @@ public class ResidentManagementService {
                         roomSize = resident.getRoom().getRoomType().getRoomSize();
                     } else if (resident.getDormitory() != null) {
                         dormitoryName = resident.getDormitory().getName();
-                        // roomSize = resident.getDormitory().getRoomSize(); TODO: 사생의 입사신청에서 가져올 것
                     }
 
                     return ResidentRes.builder()
@@ -275,7 +275,6 @@ public class ResidentManagementService {
                         roomSize = resident.getRoom().getRoomType().getRoomSize();
                     } else if (resident.getDormitory() != null) {
                         dormitoryName = resident.getDormitory().getName();
-                        // roomSize = resident.getDormitory().getRoomSize();
                     }
 
                     return ResidentRes.builder()
@@ -404,31 +403,36 @@ public class ResidentManagementService {
         // 이미 배정된 건물 제외
         List<Dormitory> sameSchoolDormitories = dormitoryRepository.findBySchool(resident.getSchool());
 
-        // 성별 조건을 만족하는 기숙사 리스트 필터링
-        List<Dormitory> filteredDormitories = sameSchoolDormitories.stream()
+        List<Dormitory> findDormitories = sameSchoolDormitories.stream()
+                // 성별 조건을 만족하는 기숙사 필터링
                 .filter(dormitory -> dormitoryRoomTypeRepository.existsByDormitoryAndRoomTypeGender(dormitory, resident.getGender()))
+                // 수용인원 체크
+                .filter(dormitory -> {
+                    Integer currentPeopleCount = calculateCurrentPeopleCount(dormitory);
+                    Integer dormitorySize = calculateDormitorySize(dormitory);
+                    return currentPeopleCount < dormitorySize;
+                })
                 .toList();
 
-        List<Dormitory> findDormitories =  new ArrayList<>();;
-        for (Dormitory dormitory : filteredDormitories) {
-            // 현재 거주인원
-            Integer currentPeopleCount = calculateCurrentPeopleCount(dormitory);
-            // 수용인원
-            Integer dormitorySize = calculateDormitorySize(dormitory);
-            if (currentPeopleCount < dormitorySize) {
-                findDormitories.add(dormitory);
+        List<DormitoryResidentAssignmentRes> dormitoryResidentAssignmentRes = new ArrayList<>();
+
+        for (Dormitory dormitory : findDormitories) {
+            List<DormitoryRoomType> dormitoryRoomTypes = dormitoryRoomTypeRepository.findByDormitoryAndRoomTypeGender(dormitory, resident.getGender());
+            // dormitoryRoomType별로 DormitoryResidentAssignmentRes 생성
+            for (DormitoryRoomType dormitoryRoomType : dormitoryRoomTypes) {
+                Integer roomSize = dormitoryRoomType.getRoomType().getRoomSize();
+                dormitoryResidentAssignmentRes.add(
+                        DormitoryResidentAssignmentRes.builder()
+                                .dormitoryId(dormitory.getId())
+                                .dormitoryName(dormitory.getName())
+                                .roomSize(roomSize)
+                                .build()
+                );
             }
         }
-
-        List<DormitoryResidentAssignmentRes> dormitoryResidentAssignmentRes = findDormitories.stream()
-                .map(dormitory -> DormitoryResidentAssignmentRes.builder()
-                        .dormitoryId(dormitory.getId())
-                        .dormitoryName(dormitory.getName())
-                        //.roomSize(dormitory.getRoomSize()) TODO: 피그마 확인하고 수정
-                        .build())
-                .sorted(Comparator.comparing(DormitoryResidentAssignmentRes::getDormitoryName)
-                        .thenComparing(DormitoryResidentAssignmentRes::getRoomSize))
-                .toList();
+        // 기숙사 이름, 인실로 정렬
+        dormitoryResidentAssignmentRes.sort(Comparator.comparing(DormitoryResidentAssignmentRes::getDormitoryName)
+                .thenComparing(DormitoryResidentAssignmentRes::getRoomSize));
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
