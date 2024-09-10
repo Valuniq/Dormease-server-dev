@@ -7,6 +7,7 @@ import dormease.dormeasedev.domain.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
+import dormease.dormeasedev.domain.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.room.domain.Room;
@@ -22,8 +23,10 @@ import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.ErrorCode;
 import dormease.dormeasedev.global.payload.Message;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,6 +42,7 @@ public class DormitorySettingService {
     private final ResidentRepository residentRepository;
     private final RoomRepository roomRepository;
     private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
+    private final DormitorySettingTermRepository dormitorySettingTermRepository;
     private final UserService userService;
 
     private final S3Uploader s3Uploader;
@@ -147,7 +151,9 @@ public class DormitorySettingService {
         List<Room> rooms = roomRepository.findByDormitory(dormitory);
         roomRepository.deleteAll(rooms);
 
-        try {
+        // 입사신청설정에 사용된 적이 있는지 확인
+        boolean isDeletable = !dormitorySettingTermRepository.existsByDormitory(dormitory);
+        if (isDeletable) {
             if (dormitory.getImageUrl() != null) {
                 s3Uploader.deleteFile(dormitory.getImageUrl());
             }
@@ -156,10 +162,11 @@ public class DormitorySettingService {
             dormitoryRoomTypeRepository.deleteAll(dormitoryRoomTypes);
 
             dormitoryRepository.delete(dormitory); // 기숙사 삭제 시도
-        } catch (Exception e) {
-            // 오류 발생 시 소프트 삭제로 처리
+        } else {
+            // 소프트 삭제 처리
             dormitory.updateStatus(Status.DELETE);
         }
+
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
