@@ -128,9 +128,6 @@ public class DormitorySettingService {
         dormitory.updateImageUrl(imagePath);
         // dormitoryRepository.save(dormitory);
 
-        // 동일 학교와 동일 건물 이름을 가진 모든 건물의 이미지 경로 업데이트
-        dormitoryRepository.updateImageUrlForSchoolAndDorm(user.getSchool(), dormitory.getName(), imagePath);
-
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(Message.builder().message("사진이 변경되었습니다.").build())
