@@ -103,7 +103,7 @@ public class DormitoryManagementWebController {
     @GetMapping("/rooms/{roomId}/not-assigned")
     public ResponseEntity<?> getNotAssignedResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long roomId
+            @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId
     ) {
         return dormitoryManagementService.getNotAssignedResidents(customUserDetails, roomId);
     }
