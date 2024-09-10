@@ -147,20 +147,19 @@ public class DormitorySettingService {
         List<Room> rooms = roomRepository.findByDormitory(dormitory);
         roomRepository.deleteAll(rooms);
 
-        try  {
+        try {
             if (dormitory.getImageUrl() != null) {
                 s3Uploader.deleteFile(dormitory.getImageUrl());
             }
-            // dormitoryRoomType 삭제
+            // 기숙사와 연결된 DormitoryRoomType 삭제
             List<DormitoryRoomType> dormitoryRoomTypes = dormitoryRoomTypeRepository.findByDormitory(dormitory);
             dormitoryRoomTypeRepository.deleteAll(dormitoryRoomTypes);
 
-            dormitoryRepository.delete(dormitory);
+            dormitoryRepository.delete(dormitory); // 기숙사 삭제 시도
         } catch (Exception e) {
-            throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR, "기숙사에 연결된 호실 삭제 중 오류가 발생했습니다.");
+            // 오류 발생 시 소프트 삭제로 처리
+            dormitory.updateStatus(Status.DELETE);
         }
-        // soft delete
-        dormitory.updateStatus(Status.DELETE);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
