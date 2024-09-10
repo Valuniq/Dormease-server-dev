@@ -17,13 +17,13 @@ public interface DormitoryRepository extends JpaRepository<Dormitory, Long> {
 
     List<Dormitory> findBySchoolAndName(School school, String name);
 
-    @Modifying
-    @Query("UPDATE Dormitory d SET d.imageUrl = :imageUrl WHERE d.school = :school AND d.name = :name")
-    void updateImageUrlForSchoolAndDorm(School school, String name, String imageUrl);
+    // @Modifying
+    // @Query("UPDATE Dormitory d SET d.imageUrl = :imageUrl WHERE d.school = :school AND d.name = :name")
+    // void updateImageUrlForSchoolAndDorm(School school, String name, String imageUrl);
 
-    @Modifying
-    @Query("UPDATE Dormitory d SET d.name = :newName WHERE d.school = :school AND d.name = :oldName")
-    void updateNamesBySchoolAndName(School school, String oldName, String newName);
+    // @Modifying
+    // @Query("UPDATE Dormitory d SET d.name = :newName WHERE d.school = :school AND d.name = :oldName")
+    // void updateNamesBySchoolAndName(School school, String oldName, String newName);
 
     //Dormitory findBySchoolAndNameAndGenderAndRoomSize(School school, String name, Gender gender, Integer roomSize);
 

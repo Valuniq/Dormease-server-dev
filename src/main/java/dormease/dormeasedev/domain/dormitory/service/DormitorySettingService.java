@@ -182,11 +182,8 @@ public class DormitorySettingService {
         // 이미 존재하는 이름이면 변경 불가
         DefaultAssert.isTrue(dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), updateDormitoryNameReq.getName()).isEmpty(), "해당 이름의 건물이 이미 존재합니다.");
 
-        // 동일 기숙사 조회
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
-        // 기숙사 이름 일괄 변경
-        dormitoryRepository.updateNamesBySchoolAndName(dormitory.getSchool(), dormitory.getName(), updateDormitoryNameReq.getName());
+        // 기숙사 이름 변경
+        dormitory.updateName(updateDormitoryNameReq.getName());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

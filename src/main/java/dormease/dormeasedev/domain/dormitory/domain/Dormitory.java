@@ -69,4 +69,8 @@ public class Dormitory extends BaseEntity {
         this.memo = memo;
     }
 
+    public void updateName(String name) {
+        this.name = name;
+    }
+
 }
