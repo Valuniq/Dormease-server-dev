@@ -100,12 +100,12 @@ public class DormitoryManagementWebController {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("/rooms/{dormitoryId}/not-assigned")
+    @GetMapping("/rooms/{roomId}/not-assigned")
     public ResponseEntity<?> getNotAssignedResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long roomId
     ) {
-        return dormitoryManagementService.getNotAssignedResidents(customUserDetails, dormitoryId);
+        return dormitoryManagementService.getNotAssignedResidents(customUserDetails, roomId);
     }
 
     @Operation(summary = "특정 호실에 배정된 사생 조회", description = "건물 관리 프로세스 중 특정 호실에 배정된 사생 목록을 조회합니다.")

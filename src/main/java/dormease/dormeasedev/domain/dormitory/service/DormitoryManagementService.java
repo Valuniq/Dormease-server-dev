@@ -14,6 +14,7 @@ import dormease.dormeasedev.domain.resident.domain.Resident;
 import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
+import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.domain.user.domain.User;
 import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
 import dormease.dormeasedev.global.DefaultAssert;
@@ -82,8 +83,6 @@ public class DormitoryManagementService {
 
         Integer fullRoomCount = 0;
         Integer currentPeopleCount = 0;
-
-        // TODO: 테이블 변경에 따른 수정 가능성 있음
         Integer dormitorySize = Optional.ofNullable(dormitory.getDormitorySize()).orElse(0);
         Integer roomCount = Optional.ofNullable(dormitory.getRoomCount()).orElse(0);
 
@@ -138,16 +137,16 @@ public class DormitoryManagementService {
     // 건물별 층 수 목록 조회
     public ResponseEntity<?> getFloorsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
-        Set<Integer> uniqueFloorNumbers = new HashSet<>();
+        // Set<Integer> uniqueFloorNumbers = new HashSet<>();
 
         List<Integer> floorNumbers = roomRepository.findByDormitoryAndIsActivated(dormitory, true).stream()
                 .map(Room::getFloor)
                 .distinct()
                 .sorted()
                 .toList();
-        uniqueFloorNumbers.addAll(floorNumbers);
+        // uniqueFloorNumbers.addAll(floorNumbers);
 
-        List<FloorByDormitoryRes> floorByDormitoryResList = uniqueFloorNumbers.stream()
+        List<FloorByDormitoryRes> floorByDormitoryResList = floorNumbers.stream()
                 .map(floor -> FloorByDormitoryRes.builder()
                         .floor(floor)
                         .build())
@@ -171,21 +170,23 @@ public class DormitoryManagementService {
 
     // 배정된 호실이 없는 사생 목록 조회
     // TODO: 입사신청을 하지않은 호실 미배정 사생의 조회가 가능한지?
-    public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long dormitoryId) {
+    public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {    // roomId 받아야함
         User admin = validUserById(customUserDetails.getId());
-        Dormitory dormitory = validDormitoryById(dormitoryId);
-        List<Resident> notAssignedResidents = new ArrayList<>();
+
+        Room room = validRoomById(roomId);
+        Dormitory dormitory = validDormitoryById(room.getDormitory().getId());
         // dormitory 이름, 성별 같은 기숙사 가져오기
         // List<Dormitory> sameNameAndSameGenderDormitories = dormitoryRepository.findBySchoolAndNameAndGender(admin.getSchool(), dormitory.getName(), dormitory.getDormitoryRoomType().getRoomType().getGender());
             // pass && now
             // -> 미배정 사생 조회이므로 resident findByDormitory / 해당 기숙사의 미배정 사생
-        List<Resident> residentList = residentRepository.findByDormitoryAndRoom(dormitory, null);
+        Gender gender = room.getRoomType().getGender();
+        List<Resident> residentList = residentRepository.findByDormitoryAndRoomAndGender(dormitory, null, gender);
 
         List<NotOrAssignedResidentRes> notAssignedResidentsResList = new ArrayList<>();
         for (Resident resident : residentList) {
             String studentNumber = null;
             String phoneNumber= null;
-            Boolean isAssigned = false;
+            // 회원가입 여부 확인
             if (resident.getUser() != null) {
                 studentNumber = resident.getUser().getStudentNumber();
                 phoneNumber = resident.getUser().getPhoneNumber();
