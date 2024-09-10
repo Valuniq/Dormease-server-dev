@@ -241,7 +241,7 @@ public class DormitoryManagementService {
 
     // 수기 방배정(배정 취소 및 배정 가능)
     @Transactional
-    public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails,List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
+    public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails, List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
         // 리스트 사이즈만큼 반복
         for (AssignedResidentToRoomReq assignedResidentToRoomReq : assignedResidentToRoomReqList) {
             Room room = validRoomById(assignedResidentToRoomReq.getRoomId());
@@ -290,13 +290,7 @@ public class DormitoryManagementService {
     @Transactional
     public ResponseEntity<?> registerDormitoryMemo(CustomUserDetails customUserDetails, Long dormitoryId, DormitoryMemoReq dormitoryMemoReq) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
-
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
-
-        for (Dormitory updateDormitory : sameNameDormitories) {
-            updateDormitory.updateMemo(dormitoryMemoReq.getMemo());
-        }
+        dormitory.updateMemo(dormitoryMemoReq.getMemo());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
