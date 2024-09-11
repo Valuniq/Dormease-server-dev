@@ -130,9 +130,11 @@ public class DormitorySettingWebController {
     @PostMapping("/room/setting")
     public ResponseEntity<?> updateRoomSetting(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "Schemas의 RoomSettingReq을 참고해주세요.", required = true) @RequestBody List<RoomSettingReq> roomSettingReqs) {
+            @Parameter(description = "Schemas의 RoomSettingReq을 참고해주세요.", required = true) @RequestBody List<RoomSettingReq> roomSettingReqs,
+            @Parameter(description = "저장할 속성값의 종류입니다. GENDER(성별), ROOMSIZE(인실), HASKEY(열쇠 수령 여부), ISACTIVATED(활성화 여부)", required = true) @RequestParam String filterType
+            ) {
         // 입사신청기간에는 수정 불가 - 추후 구현
-        return dormitorySettingDetailService.updateRoomSetting(customUserDetails, roomSettingReqs);
+        return dormitorySettingDetailService.updateRoomSetting(customUserDetails, roomSettingReqs, filterType);
     }
 
     @Operation(summary = "호실 조회", description = "건물 세부 설정 프로세스 중 건물별, 층별로 호실을 조회합니다.")

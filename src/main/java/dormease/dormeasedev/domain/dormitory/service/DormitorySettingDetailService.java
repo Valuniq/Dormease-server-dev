@@ -6,10 +6,13 @@ import dormease.dormeasedev.domain.dormitory.dto.request.RoomSettingReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.FloorAndRoomNumberRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingDetailRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
+import dormease.dormeasedev.domain.dormitory_room_type.domain.DormitoryRoomType;
+import dormease.dormeasedev.domain.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.AddRoomNumberReq;
 import dormease.dormeasedev.domain.room_type.domain.RoomType;
+import dormease.dormeasedev.domain.room_type.domain.repository.RoomTypeRepository;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
@@ -29,7 +32,9 @@ import java.util.stream.Collectors;
 public class DormitorySettingDetailService {
 
     private final RoomRepository roomRepository;
+    private final RoomTypeRepository roomTypeRepository;
     private final DormitoryRepository dormitoryRepository;
+    private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
 
     // 호실 개수 추가
     // 복제 추가할지
@@ -197,6 +202,8 @@ public class DormitorySettingDetailService {
         // 수용인원, 호실 개수 업데이트
         updateDormitorySize(deletedRooms);
         updateRoomCount(deletedRooms);
+        // dormitoryRoomType 업데이트
+        deleteDormitoryRoomTypes(dormitory);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -208,38 +215,27 @@ public class DormitorySettingDetailService {
     // 호실 정보 수정
     // 필터
     @Transactional
-    public ResponseEntity<?> updateRoomSetting(CustomUserDetails customUserDetails, List<RoomSettingReq> roomSettingReqs) {
+    public ResponseEntity<?> updateRoomSetting(CustomUserDetails customUserDetails, List<RoomSettingReq> roomSettingReqs, String filterType) {
         List<Room> updatedRooms = new ArrayList<>();
 
         for (RoomSettingReq roomSettingReq : roomSettingReqs) {
-            Long roomId = roomSettingReq.getId();
+            Long roomId = roomSettingReq.getRoomId();
             Optional<Room> findRoom = roomRepository.findById(roomId);
             DefaultAssert.isTrue(findRoom.isPresent(), "호실 정보가 올바르지 않습니다.");
             Room room = findRoom.get();
 
-            // 입력 유효성 검사
-            validateRoomSetting(room, roomSettingReq);
-
-            // 기존 dormitory의 Gender, roomSize
-            // String existingGender = room.getDormitory().getGender().toString();
-            // Integer existingRoomSize = room.getDormitory().getRoomSize();
-
-            // 기존 dormitory와 다른 Gender 또는 roomSize인 경우
-            // if (!Objects.equals(existingGender, roomSettingReq.getGender()) || !Objects.equals(existingRoomSize, roomSettingReq.getRoomSize())) {
-            //    createOrUpdateDormitory(room, roomSettingReq);
-            //}
-
-            // 적절한 dormitory에 room 할당
-            assignRoomToDormitory(room, roomSettingReq);
-
-            // 호실 정보 업데이트 후 리스트에 추가
+            updateRoomAttribute(room, roomSettingReq, filterType);
             updatedRooms.add(room);
-
         }
 
-        // 수용인원, 호실 개수 업데이트
+        // 필터타입에 따른 null 체크
+        validateRoomAttributes(updatedRooms.get(0).getFloor(), filterType);
+
+        // 수용인원 및 호실 개수 업데이트
         updateDormitorySize(updatedRooms);
-        //updateRoomCount(updatedRooms); activate의 경우에만
+        if ("ISACTIVATED".equals(filterType)) {
+            updateRoomCount(updatedRooms); // 활성화 여부 변경 시에만 실행
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -248,15 +244,118 @@ public class DormitorySettingDetailService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    private void assignRoomToDormitory(Room room, RoomSettingReq roomSettingReq) {
-        Dormitory dormitory = room.getDormitory();
-        // 이름,  GENDER, roomSize 같은 기숙사 조회
-        //Dormitory newDormitory = dormitoryRepository.findBySchoolAndNameAndGenderAndRoomSize(dormitory.getSchool(), dormitory.getName(), Gender.valueOf(roomSettingReq.getGender()), roomSettingReq.getRoomSize());
-        //DefaultAssert.isTrue(newDormitory != null, "해당하는 건물이 없습니다.");
-        // room update
-        //room.updateRoomSetting(newDormitory, roomSettingReq.getRoomSize(), Gender.valueOf(roomSettingReq.getGender()), roomSettingReq.getHasKey());
-        //if (roomSettingReq.getIsActivated() != null) { room.updateIsActivated(roomSettingReq.getIsActivated());}
+    // Room 속성 업데이트
+    private void updateRoomAttribute(Room room, RoomSettingReq roomSettingReq, String filterType) {
+        RoomType roomType = null;
 
+        switch (filterType) {
+            case "GENDER":
+                if (room.getRoomType() == null) {
+                    // 처음 등록: RoomType만 갱신하고, Dormitory와 연결하지 않음
+                    roomType = roomTypeRepository.findTop1ByGender(roomSettingReq.getGender());
+                    room.updateRoomType(roomType);
+                } else {
+                    // 수정: roomSize와 gender로 RoomType을 찾고, DormitoryRoomType을 업데이트
+                    roomType = roomTypeRepository.findByRoomSizeAndGender(room.getRoomType().getRoomSize(), roomSettingReq.getGender());
+                    room.updateRoomType(roomType);
+
+                    // RoomType이 업데이트된 경우만 Dormitory와 연결 처리
+                    updateDormitoryRoomTypes(room.getDormitory(), roomType);
+                }
+                break;
+
+            case "ROOMSIZE":
+                if (room.getRoomType() == null) {
+                    // 처음 등록: RoomType만 갱신하고, Dormitory와 연결하지 않음
+                    roomType = roomTypeRepository.findTop1ByRoomSize(roomSettingReq.getRoomSize());
+                    room.updateRoomType(roomType);
+
+                } else {
+                    // 수정: roomSize와 gender로 RoomType을 찾고, DormitoryRoomType을 업데이트
+                    roomType = roomTypeRepository.findByRoomSizeAndGender(roomSettingReq.getRoomSize(), room.getRoomType().getGender());
+                    room.updateRoomType(roomType);
+
+                    // RoomType이 업데이트된 경우 Dormitory와 연결 처리
+                    updateDormitoryRoomTypes(room.getDormitory(), roomType);
+                }
+                break;
+
+            case "HASKEY":
+                room.updateHasKey(roomSettingReq.getHasKey());
+                break;
+
+            case "ISACTIVATED":
+                room.updateIsActivated(roomSettingReq.getIsActivated());
+                updateDormitoryRoomTypes(room.getDormitory(), room.getRoomType());
+                break;
+
+            default:
+                throw new IllegalArgumentException("잘못된 filterType입니다.");
+        }
+    }
+
+    // Dormitory와 RoomType 연결 및 제거 로직
+    private void updateDormitoryRoomTypes(Dormitory dormitory, RoomType newRoomType) {
+        // 기존 연결된 RoomType들을 가져옴
+        List<RoomType> currentRoomTypes = dormitoryRoomTypeRepository.findByDormitory(dormitory).stream()
+                .map(DormitoryRoomType::getRoomType)
+                .toList();
+
+        // 새로운 RoomType을 Dormitory에 추가
+        if (!currentRoomTypes.contains(newRoomType)) {
+            dormitoryRoomTypeRepository.save(
+                    DormitoryRoomType.builder()
+                            .dormitory(dormitory)
+                            .roomType(newRoomType)
+                            .build()
+            );
+        }
+
+        // 현재 활성화된 방들의 RoomType을 기준으로 연결되지 않은 RoomType 제거
+        List<RoomType> activeRoomTypes = roomRepository.findByDormitoryAndIsActivated(dormitory, true).stream()
+                .map(Room::getRoomType)
+                .distinct()
+                .toList();
+
+        for (RoomType roomType : currentRoomTypes) {
+            if (!activeRoomTypes.contains(roomType)) {
+                DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findByDormitoryAndRoomType(dormitory, roomType);
+                dormitoryRoomTypeRepository.delete(dormitoryRoomType);
+            }
+        }
+    }
+
+    private void deleteDormitoryRoomTypes(Dormitory dormitory) {
+        // 기존 연결된 RoomType들을 가져옴
+        List<RoomType> currentRoomTypes = dormitoryRoomTypeRepository.findByDormitory(dormitory).stream()
+                .map(DormitoryRoomType::getRoomType)
+                .toList();
+
+        // 현재 활성화된 방들의 RoomType을 기준으로 연결되지 않은 RoomType 제거
+        List<RoomType> activeRoomTypes = roomRepository.findByDormitoryAndIsActivated(dormitory, true).stream()
+                .map(Room::getRoomType)
+                .distinct()
+                .toList();
+
+        for (RoomType roomType : currentRoomTypes) {
+            if (!activeRoomTypes.contains(roomType)) {
+                DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findByDormitoryAndRoomType(dormitory, roomType);
+                dormitoryRoomTypeRepository.delete(dormitoryRoomType);
+            }
+        }
+    }
+
+
+    // 속성 값 확인 메서드
+    private void validateRoomAttributes(Integer floor, String filterType) {
+        boolean check = switch (filterType) {
+            case "GENDER" -> !roomRepository.existsByFloorAndRoomType_Gender(floor, Gender.EMPTY);
+            case "ROOMSIZE" -> !roomRepository.existsByFloorAndRoomType_RoomSize(floor, null);
+            case "HASKEY" -> !roomRepository.existsByFloorAndHasKey(floor, null);
+            case "ISACTIVATED" -> true; // 활성화 여부는 따로 확인하지 않음
+            default -> throw new IllegalArgumentException("잘못된 filterType입니다.");
+        };
+        DefaultAssert.isTrue(check, "설정되지 않은 속성값이 있습니다.");
     }
 
     private void updateDormitorySize(List<Room> rooms) {
@@ -287,13 +386,6 @@ public class DormitorySettingDetailService {
         // 입력 값 유효성 검사
         DefaultAssert.isTrue(start < 99 || end < 99 || start > 0 || end > 0, "호실 번호는 1부터 99까지의 값이어야 합니다.");
         DefaultAssert.isTrue(start < end, "시작 호실 번호는 끝 호실 번호보다 작거나 같아야 합니다.");
-    }
-
-    private void validateRoomSetting(Room room, RoomSettingReq roomSettingReq){
-        DefaultAssert.isTrue(room.getId().equals(roomSettingReq.getId()), "호실이 일치하지 않습니다.");
-
-        Gender gender = Gender.valueOf(roomSettingReq.getGender());
-        DefaultAssert.isTrue(gender == Gender.MALE || gender == Gender.FEMALE, "호실의 성별이 지정되어있지 않습니다.");
     }
 
     private Dormitory validDormitoryById(Long dormitoryId) {

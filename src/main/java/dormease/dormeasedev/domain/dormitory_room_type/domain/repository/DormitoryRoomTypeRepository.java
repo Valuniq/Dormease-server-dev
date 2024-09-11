@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.dormitory_room_type.domain.repository;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_room_type.domain.DormitoryRoomType;
+import dormease.dormeasedev.domain.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,4 +16,6 @@ public interface DormitoryRoomTypeRepository extends JpaRepository<DormitoryRoom
     boolean existsByDormitoryAndRoomTypeGender(Dormitory dormitory, Gender gender);
 
     List<DormitoryRoomType> findByDormitoryAndRoomTypeGender(Dormitory dormitory, Gender gender);
+
+    DormitoryRoomType findByDormitoryAndRoomType(Dormitory dormitory, RoomType roomType);
 }

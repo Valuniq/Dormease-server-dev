@@ -62,8 +62,6 @@ public class Room extends BaseEntity {
         this.isActivated = true;
     }
 
-    public void updateRoomNumber(Integer roomNumber) { this.roomNumber = roomNumber; }
-    public void updateFloor(Integer floor) { this.floor = floor; }
     public void updateCurrentPeople(Integer currentPeople) { this.currentPeople = currentPeople; }
 
     // num만큼 room의 currentPeople를 빼거나 더해서 업데이트
@@ -72,9 +70,11 @@ public class Room extends BaseEntity {
         updateCurrentPeople(Math.max(count, 0));
     }
 
-    public void updateRoomSetting(Dormitory dormitory, RoomType roomType, Boolean hasKey) {
-        this.dormitory = dormitory;
+    public void updateRoomType(RoomType roomType) {
         this.roomType = roomType;
+    }
+
+    public void updateHasKey(Boolean hasKey) {
         this.hasKey = hasKey;
     }
 
