@@ -437,19 +437,17 @@ public class PointService {
 
         List<ResidentInfoRes> residentInfoResList = residents.stream()
                 .map(resident -> {
-                    // null 여부 확인
                     String dormitoryName = getDormitoryName(resident);
                     Integer roomNumber = getRoomNumber(resident);
+                    User user = resident.getUser();
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
-                            .name(resident.getUser().getName())
-                            .studentNumber(resident.getUser().getStudentNumber())
-                            .phoneNumber(resident.getUser().getPhoneNumber())
-                            .bonusPoint(resident.getUser().getBonusPoint())
-                            .minusPoint(resident.getUser().getMinusPoint())
-                            // 사생의 호실 미배정 고려, room으로 찾는 게 아니라 입사신청 설정으로 찾기
+                            .name(user.getName())
+                            .studentNumber(user.getStudentNumber())
+                            .phoneNumber(user.getPhoneNumber())
+                            .bonusPoint(user.getBonusPoint())
+                            .minusPoint(user.getMinusPoint())
                             .dormitory(dormitoryName)
-                            // 사생의 호실 미배정 고려 null 허용
                             .room(roomNumber)
                             .build();
                 })
@@ -481,19 +479,17 @@ public class PointService {
 
         List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
                 .map(resident -> {
-                    // null 여부 확인
                     String dormitoryName = getDormitoryName(resident);
                     Integer roomNumber = getRoomNumber(resident);
+                    User user = resident.getUser();
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
-                            .name(resident.getUser().getName())
-                            .studentNumber(resident.getUser().getStudentNumber())
-                            .phoneNumber(resident.getUser().getPhoneNumber())
-                            .bonusPoint(resident.getUser().getBonusPoint())
-                            .minusPoint(resident.getUser().getMinusPoint())
-                            // 사생의 호실 미배정 고려, room으로 찾는 게 아니라 입사신청 설정으로 찾기
+                            .name(user.getName())
+                            .studentNumber(user.getStudentNumber())
+                            .phoneNumber(user.getPhoneNumber())
+                            .bonusPoint(user.getBonusPoint())
+                            .minusPoint(user.getMinusPoint())
                             .dormitory(dormitoryName)
-                            // 사생의 호실 미배정 고려 null 허용
                             .room(roomNumber)
                             .build();
                 })
