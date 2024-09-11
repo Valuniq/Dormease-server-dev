@@ -1,7 +1,6 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
-import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import jakarta.persistence.*;

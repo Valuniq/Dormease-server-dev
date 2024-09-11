@@ -14,7 +14,6 @@ import dormease.dormeasedev.domain.notifications_requestments.notification.dto.r
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.request.WriteNotificationReq;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationDetailWebRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationWebRes;
-import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
@@ -24,6 +23,7 @@ import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
 import dormease.dormeasedev.global.payload.PageInfo;
 import dormease.dormeasedev.global.payload.PageResponse;
+import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

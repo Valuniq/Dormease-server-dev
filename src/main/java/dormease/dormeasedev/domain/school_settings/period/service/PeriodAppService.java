@@ -1,10 +1,10 @@
 package dormease.dormeasedev.domain.school_settings.period.service;
 
+import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.school_settings.period.domain.Period;
 import dormease.dormeasedev.domain.school_settings.period.domain.PeriodType;
 import dormease.dormeasedev.domain.school_settings.period.domain.repository.PeriodRepository;
 import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodDateRes;
-import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;

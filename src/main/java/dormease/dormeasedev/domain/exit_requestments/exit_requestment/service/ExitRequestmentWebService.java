@@ -1,15 +1,15 @@
 package dormease.dormeasedev.domain.exit_requestments.exit_requestment.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.ExitRequestment;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.repository.ExitRequestmentRepository;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.request.DeleteExitRequestmentReq;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.request.ModifyDepositReq;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ExitRequestmentRes;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ExitRequestmentResidentRes;
-import dormease.dormeasedev.domain.users.resident.domain.Resident;
-import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;

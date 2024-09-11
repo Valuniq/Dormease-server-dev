@@ -1,8 +1,6 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
-import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;

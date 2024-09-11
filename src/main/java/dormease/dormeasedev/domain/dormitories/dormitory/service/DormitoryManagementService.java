@@ -2,15 +2,14 @@ package dormease.dormeasedev.domain.dormitories.dormitory.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.AssignedResidentToRoomReq;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.*;
-import dormease.dormeasedev.domain.dormitory.dto.response.*;
+import dormease.dormeasedev.domain.dormitories.room.domain.Room;
+import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
-import dormease.dormeasedev.domain.dormitories.room.domain.Room;
-import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
@@ -23,7 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

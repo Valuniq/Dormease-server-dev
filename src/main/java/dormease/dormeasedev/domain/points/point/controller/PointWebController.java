@@ -4,8 +4,8 @@ import dormease.dormeasedev.domain.points.point.dto.request.AddPointToResidentRe
 import dormease.dormeasedev.domain.points.point.dto.request.DeleteUserPointReq;
 import dormease.dormeasedev.domain.points.point.dto.request.PointListReq;
 import dormease.dormeasedev.domain.points.point.dto.response.PointRes;
-import dormease.dormeasedev.domain.points.point.dto.response.TotalUserPointRes;
 import dormease.dormeasedev.domain.points.point.dto.response.ResidentInfoRes;
+import dormease.dormeasedev.domain.points.point.dto.response.TotalUserPointRes;
 import dormease.dormeasedev.domain.points.point.service.PointService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;

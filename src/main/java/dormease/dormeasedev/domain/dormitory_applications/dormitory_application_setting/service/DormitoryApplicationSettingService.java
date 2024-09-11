@@ -1,8 +1,10 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryReq;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryRoomTypeReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
+import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
+import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
@@ -53,6 +55,7 @@ public class DormitoryApplicationSettingService {
     private final DormitorySettingTermRepository dormitorySettingTermRepository;
     private final MealTicketRepository mealTicketRepository;
     private final DormitoryTermRepository dormitoryTermRepository;
+    private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
 
     private final UserService userService;
     private final DormitoryService dormitoryService;
@@ -75,7 +78,6 @@ public class DormitoryApplicationSettingService {
                 .depositStartDate(createDormitoryApplicationSettingReq.getDepositStartDate())
                 .depositEndDate(createDormitoryApplicationSettingReq.getDepositEndDate())
                 .securityDeposit(createDormitoryApplicationSettingReq.getSecurityDeposit())
-                .applicationStatus(ApplicationStatus.NOW) // 앞으로 사용할 것이기에 NOW
                 .build();
         dormitoryApplicationSettingRepository.save(dormitoryApplicationSetting);
 
@@ -89,15 +91,17 @@ public class DormitoryApplicationSettingService {
             mealTicketRepository.save(mealTicket);
         }
 
-        // DormitoryReq - 기숙사 자체 설정 관련
-        for (DormitoryReq dormitoryReq : createDormitoryApplicationSettingReq.getDormitoryReqList()) {
-            Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryReq.getDormitoryId());
+        // DormitoryRoomTypeReq - 기숙사 자체 설정 관련
+        for (DormitoryRoomTypeReq dormitoryRoomTypeReq : createDormitoryApplicationSettingReq.getDormitoryRoomTypeReqList()) {
+            Optional<DormitoryRoomType> findDormitoryRoomType = dormitoryRoomTypeRepository.findById(dormitoryRoomTypeReq.getDormitoryRoomTypeId());
+            DefaultAssert.isTrue(findDormitoryRoomType.isPresent(), "올바르지 않은 DormitoryRoomTypeId 입니다.");
+            DormitoryRoomType dormitoryRoomType = findDormitoryRoomType.get();
 
-            // DormitorySettingTerm save - 기숙사 : 입사 신청 설정 M:N 관계 중간 테이블
+            // DormitorySettingTerm save - 기숙사_방타입 : 입사 신청 설정 M:N 관계 중간 테이블
             DormitorySettingTerm dormitorySettingTerm = DormitorySettingTerm.builder()
-                    .dormitory(dormitory)
                     .dormitoryApplicationSetting(dormitoryApplicationSetting)
-                    .acceptLimit(dormitoryReq.getAcceptLimit())
+                    .dormitoryRoomType(dormitoryRoomType)
+                    .acceptLimit(dormitoryRoomTypeReq.getAcceptLimit())
                     .build();
             dormitorySettingTermRepository.save(dormitorySettingTerm);
         }
@@ -112,12 +116,17 @@ public class DormitoryApplicationSettingService {
             termRepository.save(term);
 
             for (DormitoryTermReq dormitoryTermReq : termReq.getDormitoryTermReqList()) {
+                Optional<DormitoryRoomType> findDormitoryRoomType = dormitoryRoomTypeRepository.findById(dormitoryTermReq.getDormitoryRoomTypeId());
+                DefaultAssert.isTrue(findDormitoryRoomType.isPresent(), "올바르지 않은 DormitoryRoomTypeId 입니다.");
+                DormitoryRoomType dormitoryRoomType = findDormitoryRoomType.get();
+
+                // 아래 if문 예외 처리는 ui 변경하여 입사신청 안받을 경우 0명 기입 대신 아예 칸을 없애는 방향으로 논의!
 //                if (dormitoryTermReq.getPrice() == 0)
 //                    continue;
-                Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryTermReq.getDormitoryId());
+
                 DormitoryTerm dormitoryTerm = DormitoryTerm.builder()
                         .term(term)
-                        .dormitory(dormitory)
+                        .dormitoryRoomType(dormitoryRoomType)
                         .price(dormitoryTermReq.getPrice())
                         .build();
                 dormitoryTermRepository.save(dormitoryTerm);

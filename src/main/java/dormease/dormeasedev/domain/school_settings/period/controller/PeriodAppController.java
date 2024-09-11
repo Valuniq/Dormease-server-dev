@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.school_settings.period.controller;
 
-import dormease.dormeasedev.domain.school_settings.period.service.PeriodAppService;
 import dormease.dormeasedev.domain.school_settings.period.domain.PeriodType;
+import dormease.dormeasedev.domain.school_settings.period.service.PeriodAppService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;
@@ -15,7 +15,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Period API", description = "APP - 기간 관련 API입니다.")
 @RequiredArgsConstructor

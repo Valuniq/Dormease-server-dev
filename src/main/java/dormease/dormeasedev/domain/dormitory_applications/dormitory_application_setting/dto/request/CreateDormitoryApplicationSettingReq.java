@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryReq;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryRoomTypeReq;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.dto.request.MealTicketReq;
 import dormease.dormeasedev.domain.dormitory_applications.term.dto.request.TermReq;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -46,16 +46,16 @@ public class CreateDormitoryApplicationSettingReq {
     private LocalDate depositEndDate;
 
     // 보증금
-    @Schema(type = "Integer", example = "500000", description= "보증금입니다.")
+    @Schema(type = "Integer", example = "500000", description = "보증금입니다.")
     private Integer securityDeposit;
 
-    @Schema(type = "List<DormitoryReq>", example = "dormitoryReqList", description= "입사 신청 설정에 사용되는 기숙사 정보 리스트입니다.")
-    private List<DormitoryReq> dormitoryReqList = new ArrayList<>(); // dormitory id, 수용인원(Patch. 여기서 저장하는 것인듯)
+    @Schema(type = "List<DormitoryRoomTypeReq>", example = "dormitoryRoomTypeReqList", description = "입사 신청 설정에 사용되는 기숙사 정보 리스트입니다.")
+    private List<DormitoryRoomTypeReq> dormitoryRoomTypeReqList = new ArrayList<>();
 
-    @Schema(type = "List<TermReq>", example = "termReqList", description= "거주 기간 리스트입니다.")
+    @Schema(type = "List<TermReq>", example = "termReqList", description = "거주 기간 리스트입니다.")
     private List<TermReq> termReqList = new ArrayList<>();
 
-    @Schema(type = "List<MealTicketReq>", example = "mealTicketReqList", description= "거주 기간 별 가격 및 입.퇴사 날짜 리스트입니다.")
+    @Schema(type = "List<MealTicketReq>", example = "mealTicketReqList", description = "거주 기간 별 가격 및 입.퇴사 날짜 리스트입니다.")
     private List<MealTicketReq> mealTicketReqList = new ArrayList<>();
 
 }

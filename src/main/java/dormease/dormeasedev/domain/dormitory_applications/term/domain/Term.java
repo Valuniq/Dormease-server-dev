@@ -34,13 +34,10 @@ public class Term extends BaseEntity {
     // 시작 -> 마감일 中 마감일
     private LocalDate endDate;
 
-    // 입사-퇴사 기간 여기 넣을지?
-
-    // 이전 내역인지 구분하는 컬럼
+    // 이전 내역인지 구분하는 컬럼 : x => 기간에 따라 배치로 정리
 
     @Builder
-    public Term(Long id, String termName, DormitoryApplicationSetting dormitoryApplicationSetting, LocalDate startDate, LocalDate endDate) {
-        this.id = id;
+    public Term(String termName, DormitoryApplicationSetting dormitoryApplicationSetting, LocalDate startDate, LocalDate endDate) {
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
         this.termName = termName;
         this.startDate = startDate;
