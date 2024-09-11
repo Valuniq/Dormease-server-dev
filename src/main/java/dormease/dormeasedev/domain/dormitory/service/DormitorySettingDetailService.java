@@ -190,19 +190,9 @@ public class DormitorySettingDetailService {
     @Transactional
     public ResponseEntity<?> deleteRoomsByFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
+        List<Room> deletedRooms = roomRepository.findByDormitoryAndFloor(dormitory, floor);
 
-        List<Room> deletedRooms = new ArrayList<>();
-
-        // 이름 같은 기숙사 가져오기
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
-
-        for (Dormitory sameNameDormitory : sameNameDormitories) {
-            List<Room> dormitoryRooms = roomRepository.findByDormitoryAndFloor(sameNameDormitory, floor);
-            roomRepository.deleteAll(dormitoryRooms);    // 해당 층의 방 모두 삭제
-
-            deletedRooms.addAll(dormitoryRooms);
-        }
+        roomRepository.deleteAll(deletedRooms);    // 해당 층의 방 모두 삭제
 
         // 수용인원, 호실 개수 업데이트
         updateDormitorySize(deletedRooms);
