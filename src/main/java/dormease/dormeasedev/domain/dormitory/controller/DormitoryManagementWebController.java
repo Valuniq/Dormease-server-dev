@@ -44,7 +44,7 @@ public class DormitoryManagementWebController {
         return dormitoryManagementService.registerDormitoryMemo(customUserDetails, dormitoryId, dormitoryMemoReq);
     }
 
-    @Operation(summary = "건물명(인실) 목록 조회", description = "건물 관리 프로세스 중 건물 목록을 인실과 함께 조회합니다.")
+    @Operation(summary = "건물명 목록 조회", description = "건물 관리 프로세스 중 건물 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryManagementListRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -100,12 +100,12 @@ public class DormitoryManagementWebController {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @GetMapping("/rooms/{dormitoryId}/not-assigned")
+    @GetMapping("/rooms/{roomId}/not-assigned")
     public ResponseEntity<?> getNotAssignedResidents(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
+            @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId
     ) {
-        return dormitoryManagementService.getNotAssignedResidents(customUserDetails, dormitoryId);
+        return dormitoryManagementService.getNotAssignedResidents(customUserDetails, roomId);
     }
 
     @Operation(summary = "특정 호실에 배정된 사생 조회", description = "건물 관리 프로세스 중 특정 호실에 배정된 사생 목록을 조회합니다.")

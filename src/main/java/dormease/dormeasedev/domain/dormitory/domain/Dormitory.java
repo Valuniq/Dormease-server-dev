@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.dormitory.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.dormitory.dto.request.DormitoryReq;
+import dormease.dormeasedev.domain.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import jakarta.persistence.*;
@@ -32,12 +33,6 @@ public class Dormitory extends BaseEntity {
 
     private String memo;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
-    // 인실
-    private Integer roomSize;
-
     // 대표 사진
     private String imageUrl;
 
@@ -48,13 +43,11 @@ public class Dormitory extends BaseEntity {
     private Integer roomCount;
 
     @Builder
-    public Dormitory(Long id, School school, String name, String memo, Gender gender, Integer roomSize, String imageUrl, Integer dormitorySize, Integer roomCount) {
+    public Dormitory(Long id, School school, String name, String memo, String imageUrl, Integer dormitorySize, Integer roomCount) {
         this.id = id;
         this.school = school;
         this.name = name;
         this.memo = memo;
-        this.gender = gender;
-        this.roomSize = roomSize;
         this.imageUrl = imageUrl;
         this.dormitorySize = dormitorySize;
         this.roomCount = roomCount;
@@ -76,8 +69,8 @@ public class Dormitory extends BaseEntity {
         this.memo = memo;
     }
 
-    public void updateGenderAndRoomSize(Gender gender, Integer roomSize) {
-        this.gender = gender;
-        this.roomSize = roomSize;
+    public void updateName(String name) {
+        this.name = name;
     }
+
 }

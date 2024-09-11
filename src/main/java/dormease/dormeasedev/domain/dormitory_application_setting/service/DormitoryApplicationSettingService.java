@@ -160,7 +160,7 @@ public class DormitoryApplicationSettingService {
             DormitorySettingTermRes dormitorySettingTermRes = DormitorySettingTermRes.builder()
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
-                    .roomSize(dormitory.getRoomSize())
+                    //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
                     .acceptLimit(dormitorySettingTerm.getAcceptLimit())
                     .build();
             dormitorySettingTermResList.add(dormitorySettingTermRes);

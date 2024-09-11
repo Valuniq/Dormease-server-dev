@@ -43,10 +43,9 @@ public class DormitorySettingWebController {
     })
     @PostMapping("")
     public ResponseEntity<?> registerDormitory(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "Schemas의 RegisterDormitoryReq을 참고해주세요.", required = true) @Valid @RequestPart RegisterDormitoryReq registerDormitoryReq,
-            @Parameter(description = "업로드할 이미지 파일 (Multipart form-data 형식)") @RequestPart MultipartFile image) {
-        return dormitorySettingService.registerDormitory(customUserDetails, registerDormitoryReq, image);
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return dormitorySettingService.registerDormitory(customUserDetails);
     }
 
     @Operation(summary = "건물 목록 조회", description = "건물 설정 프로세스 중 건물 목록을 조회합니다.")
@@ -108,19 +107,6 @@ public class DormitorySettingWebController {
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "Schemas의 UpdateDormitoryNameReq을 참고해주세요.", required = true) @Valid @RequestBody UpdateDormitoryNameReq updateDormitoryNameReq) {
         return dormitorySettingService.updateDormitoryName(customUserDetails, dormitoryId, updateDormitoryNameReq);
-    }
-
-    @Operation(summary = "층 수, 호실 수정", description = "건물 세부 설정 프로세스 중 특정 기숙사의 층 수와 각 층별 호실 개수를 수정합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-    })
-    @PatchMapping("/{dormitoryId}/room")
-    public ResponseEntity<?> updateFloor(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
-            @Parameter(description = "Schemas의 UpdateRoomNumberAndFloorReq을 참고해주세요.", required = true) @Valid @RequestBody UpdateRoomNumberAndFloorReq updateRoomNumberAndFloorReq) {
-        return dormitorySettingDetailService.updateRoomNumberAndFloor(customUserDetails, dormitoryId, updateRoomNumberAndFloorReq);
     }
 
     @Operation(summary = "호실 생성", description = "건물 설정 프로세스 중 특정 기숙사의 층 수를 추가해 호실을 생성합니다.")

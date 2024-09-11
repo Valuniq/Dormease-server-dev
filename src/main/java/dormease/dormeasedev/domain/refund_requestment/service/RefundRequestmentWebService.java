@@ -79,7 +79,7 @@ public class RefundRequestmentWebService {
                     .exitDate(refundRequestment.getExitDate())
                     .createDate(refundRequestment.getCreatedDate().toLocalDate())
                     .dormitoryName(dormitory.getName())
-                    .roomSize(dormitory.getRoomSize())
+                    .roomSize(room.getRoomType().getRoomSize())    // 수정
                     .roomNumber(room.getRoomNumber())
                     .bedNumber(resident.getBedNumber())
                     .build();
