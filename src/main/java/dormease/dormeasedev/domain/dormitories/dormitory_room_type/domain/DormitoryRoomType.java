@@ -28,8 +28,7 @@ public class DormitoryRoomType extends BaseEntity {
     private RoomType roomType;
 
     @Builder
-    public DormitoryRoomType(Long id, Dormitory dormitory, RoomType roomType) {
-        this.id = id;
+    public DormitoryRoomType(Dormitory dormitory, RoomType roomType) {
         this.dormitory = dormitory;
         this.roomType = roomType;
     }

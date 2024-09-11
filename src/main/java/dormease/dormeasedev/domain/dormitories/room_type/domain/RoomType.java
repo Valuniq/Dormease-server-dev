@@ -25,15 +25,8 @@ public class RoomType extends BaseEntity {
     private Integer roomSize;
 
     @Builder
-    public RoomType(Long id, Gender gender, Integer roomSize) {
-        this.id = id;
+    public RoomType(Gender gender, Integer roomSize) {
         this.gender = gender;
         this.roomSize = roomSize;
     }
-
-    // public void updateGenderAndRoomSize(Gender gender, Integer roomSize) {
-    //     this.gender = gender;
-    //    this.roomSize = roomSize;
-    // }
-
 }

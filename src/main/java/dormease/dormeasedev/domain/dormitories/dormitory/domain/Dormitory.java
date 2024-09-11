@@ -38,8 +38,7 @@ public class Dormitory extends BaseEntity {
     private Integer roomCount;
 
     @Builder
-    public Dormitory(Long id, School school, String name, String memo, String imageUrl, Integer dormitorySize, Integer roomCount) {
-        this.id = id;
+    public Dormitory(School school, String name, String memo, String imageUrl, Integer dormitorySize, Integer roomCount) {
         this.school = school;
         this.name = name;
         this.memo = memo;
@@ -50,10 +49,6 @@ public class Dormitory extends BaseEntity {
 
     public void updateImageUrl(String imagePath) {
         this.imageUrl = imagePath;
-    }
-
-    public void updateDormitorySize(Integer dormitorySize) {
-        this.dormitorySize = dormitorySize;
     }
 
     public void updateRoomCount(Integer count) {
