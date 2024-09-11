@@ -9,6 +9,7 @@ import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.AddRoomNumberReq;
+import dormease.dormeasedev.domain.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.user.domain.Gender;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
@@ -139,24 +140,28 @@ public class DormitorySettingDetailService {
     public ResponseEntity<?> getRoomsByDormitoryAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
 
         Dormitory dormitory = validDormitoryById(dormitoryId);
-
-        // 이름 같은 기숙사 가져오기
-        List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
-
         // 해당 기숙사의 층별 호실 가져오기
-        List<Room> roomList = roomRepository.findByDormitoryInAndFloor(sameNameDormitories, floor);
+        List<Room> roomList = roomRepository.findByDormitoryAndFloor(dormitory, floor);
 
         List<RoomSettingRes> roomSettingResList = roomList.stream()
-                .map(room -> RoomSettingRes.builder()
-                        .id(room.getId())
-                        .floor(room.getFloor())
-                        .gender(room.getRoomType().getGender().toString())
-                        .roomNumber(room.getRoomNumber())
-                        .roomSize(room.getRoomType().getRoomSize())
-                        .hasKey(room.getHasKey())
-                        .isActivated(room.getIsActivated())
-                        .build())
+                .map(room -> {
+                    Integer roomSize = null;
+                    Gender gender = Gender.EMPTY;
+                    RoomType roomType = room.getRoomType();
+                    if (roomType != null) {
+                        roomSize = roomType.getRoomSize();
+                        gender = roomType.getGender();
+                    }
+                    return RoomSettingRes.builder()
+                            .id(room.getId())
+                            .floor(room.getFloor())
+                            .gender(gender.toString())
+                            .roomNumber(room.getRoomNumber())
+                            .roomSize(roomSize)
+                            .hasKey(room.getHasKey())
+                            .isActivated(room.getIsActivated())
+                            .build();
+                })
                 .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
                 .collect(Collectors.toList());
 
