@@ -181,20 +181,24 @@ public class ResidentManagementService {
                     Integer bonusPoint = 0;
                     Integer minusPoint = 0;
                     SchoolStatus schoolStatus = null;
+
+                    User user = resident.getUser();
                     // 미회원인지 아닌지 구분
-                    if (resident.getUser() != null) {
-                        studentNumber = resident.getUser().getStudentNumber();
-                        bonusPoint = resident.getUser().getBonusPoint();
-                        minusPoint = resident.getUser().getMinusPoint();
-                        schoolStatus = resident.getUser().getSchoolStatus();
+                    if (user != null) {
+                        studentNumber = user.getStudentNumber();
+                        bonusPoint = user.getBonusPoint();
+                        minusPoint = user.getMinusPoint();
+                        schoolStatus =user.getSchoolStatus();
                     }
+                    Room room = resident.getRoom();
+                    Dormitory dormitory = resident.getDormitory();
                     // 호실 배정이 있으면 건물도 무조건 존재
-                    if (resident.getRoom() != null) {
-                        roomNumber = resident.getRoom().getRoomNumber();
-                        dormitoryName = resident.getDormitory().getName();
-                        roomSize = resident.getRoom().getRoomType().getRoomSize();
-                    } else if (resident.getDormitory() != null) {
-                        dormitoryName = resident.getDormitory().getName();
+                    if (room != null) {
+                        roomNumber = room.getRoomNumber();
+                        dormitoryName = dormitory.getName();
+                        roomSize = room.getRoomType().getRoomSize();
+                    } else if (dormitory != null) {
+                        dormitoryName = dormitory.getName();
                     }
 
                     return ResidentRes.builder()
@@ -262,19 +266,22 @@ public class ResidentManagementService {
                     Integer minusPoint = 0;
                     SchoolStatus schoolStatus = null;
                     // 미회원인지 아닌지 구분
-                    if (resident.getUser() != null) {
-                        studentNumber = resident.getUser().getStudentNumber();
-                        bonusPoint = resident.getUser().getBonusPoint();
-                        minusPoint = resident.getUser().getMinusPoint();
-                        schoolStatus = resident.getUser().getSchoolStatus();
+                    User user = resident.getUser();
+                    if (user != null) {
+                        studentNumber = user.getStudentNumber();
+                        bonusPoint = user.getBonusPoint();
+                        minusPoint = user.getMinusPoint();
+                        schoolStatus = user.getSchoolStatus();
                     }
                     // 호실 배정이 있으면 건물도 무조건 존재
-                    if (resident.getRoom() != null) {
-                        roomNumber = resident.getRoom().getRoomNumber();
-                        dormitoryName = resident.getDormitory().getName();
-                        roomSize = resident.getRoom().getRoomType().getRoomSize();
-                    } else if (resident.getDormitory() != null) {
-                        dormitoryName = resident.getDormitory().getName();
+                    Room room = resident.getRoom();
+                    Dormitory dormitory = resident.getDormitory();
+                    if (room != null) {
+                        roomNumber = room.getRoomNumber();
+                        dormitoryName = dormitory.getName();
+                        roomSize = room.getRoomType().getRoomSize();
+                    } else if (dormitory != null) {
+                        dormitoryName = dormitory.getName();
                     }
 
                     return ResidentRes.builder()
