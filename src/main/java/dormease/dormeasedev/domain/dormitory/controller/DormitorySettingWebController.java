@@ -111,15 +111,28 @@ public class DormitorySettingWebController {
 
     @Operation(summary = "호실 생성", description = "건물 설정 프로세스 중 특정 기숙사의 층 수를 추가해 호실을 생성합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoomSettingRes.class)))}),
             @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @PostMapping("/{dormitoryId}/room")
-    public ResponseEntity<?> registerDormitory(
+    public ResponseEntity<?> registerRooms(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "Schemas의 AddRoomNumberReq을 참고해주세요.", required = true) @Valid @RequestBody AddRoomNumberReq addRoomNumberReq) {
         return dormitorySettingDetailService.addFloorAndRoomNumber(customUserDetails, dormitoryId, addRoomNumberReq);
+    }
+
+    @Operation(summary = "호실 복제", description = "건물 설정 프로세스 중 특정 기숙사의 층에 속한 호실을 복제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoomSettingRes.class)))}),
+            @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+    })
+    @PostMapping("/{dormitoryId}/room/copy")
+    public ResponseEntity<?> copyRooms(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
+            @Parameter(description = "Schemas의 CopyRoomsReq을 참고해주세요.", required = true) @Valid @RequestBody CopyRoomsReq copyRoomsReq) {
+        return dormitorySettingDetailService.copyRoomsByFloor(customUserDetails, dormitoryId, copyRoomsReq);
     }
 
     @Operation(summary = "호실 정보 추가", description = "건물 세부 설정 프로세스 중 필터를 이용하여 호실 정보를 추가합니다.")

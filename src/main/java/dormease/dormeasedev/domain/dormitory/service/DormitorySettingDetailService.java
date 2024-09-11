@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.dormitory.service;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory.domain.repository.DormitoryRepository;
+import dormease.dormeasedev.domain.dormitory.dto.request.CopyRoomsReq;
 import dormease.dormeasedev.domain.dormitory.dto.request.RoomSettingReq;
 import dormease.dormeasedev.domain.dormitory.dto.response.FloorAndRoomNumberRes;
 import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingDetailRes;
@@ -59,32 +60,13 @@ public class DormitorySettingDetailService {
         // RoomCount 업데이트
         dormitory.updateRoomCount(rooms.size());
 
-        List<RoomSettingRes> roomSettingResList = rooms.stream()
-                .map(room -> {
-                    Integer roomSize = null;
-                    Gender gender = Gender.EMPTY;
-                    RoomType roomType = room.getRoomType();
-                    if (roomType != null) {
-                        roomSize = roomType.getRoomSize();
-                        gender = roomType.getGender();
-                    }
-                    return RoomSettingRes.builder()
-                            .id(room.getId())
-                            .floor(room.getFloor())
-                            .gender(gender.toString())
-                            .roomNumber(room.getRoomNumber())
-                            .roomSize(roomSize)
-                            .hasKey(room.getHasKey())
-                            .isActivated(room.getIsActivated())
-                            .build();
-                })
-                .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
-                .collect(Collectors.toList());
+        List<RoomSettingRes> roomSettingResList = makeRoomSettingRes(rooms);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(roomSettingResList)
                 .build();
+
         return ResponseEntity.ok(apiResponse);
     }
 
@@ -106,6 +88,72 @@ public class DormitorySettingDetailService {
         return roomRepository.saveAll(rooms);
 
     }
+
+    // 복제
+    @Transactional
+    public ResponseEntity<?> copyRoomsByFloor(CustomUserDetails customUserDetails, Long dormitoryId, CopyRoomsReq copyRoomsReq) {
+        Dormitory dormitory = validDormitoryById(dormitoryId);
+        DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, copyRoomsReq.getNewFloor()).isEmpty(), "중복된 층이 존재합니다.");
+        // 복제할 호실 리스트 저장
+        List<Room> rooms = roomRepository.findByDormitoryAndFloor(dormitory, copyRoomsReq.getOriginalFloor());
+        // 호실 번호만 변경
+        // 그리고 저장
+        List<Room> copyRooms = rooms.stream()
+                .map(room -> {
+                    Integer extractNumber = extractLastTwoDigits(room.getRoomNumber());
+                    Integer roomNumber = Integer.valueOf(copyRoomsReq.getNewFloor().toString() + formatTwoDigits(extractNumber));
+                    return Room.builder()
+                            .dormitory(room.getDormitory())
+                            .floor(copyRoomsReq.getNewFloor())
+                            .roomNumber(roomNumber)
+                            .roomType(room.getRoomType())
+                            .isActivated(room.getIsActivated())
+                            .hasKey(room.getHasKey())
+                            .currentPeople(0)
+                            .build();
+                })
+                .toList();
+        roomRepository.saveAll(copyRooms);
+
+        // RoomCount 업데이트
+        updateRoomCount(copyRooms);
+        updateDormitorySize(copyRooms);
+
+        List<RoomSettingRes> roomSettingResList = makeRoomSettingRes(copyRooms);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(roomSettingResList)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+
+    }
+
+    private List<RoomSettingRes> makeRoomSettingRes(List<Room> rooms) {
+        return rooms.stream()
+                .map(room -> {
+                    Integer roomSize = null;
+                    Gender gender = Gender.EMPTY;
+                    RoomType roomType = room.getRoomType();
+                    if (roomType != null) {
+                        roomSize = roomType.getRoomSize();
+                        gender = roomType.getGender();
+                    }
+                    return RoomSettingRes.builder()
+                            .id(room.getId())
+                            .floor(room.getFloor())
+                            .gender(gender.toString())
+                            .roomNumber(room.getRoomNumber())
+                            .roomSize(roomSize)
+                            .hasKey(room.getHasKey())
+                            .isActivated(room.getIsActivated())
+                            .build();
+                })
+                .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
+                .collect(Collectors.toList());
+    }
+
 
     // 건물 상세 조회
     public ResponseEntity<?> getDormitoryDetails(CustomUserDetails customUserDetails, Long dormitoryId) {
@@ -153,6 +201,10 @@ public class DormitorySettingDetailService {
         return roomNumber % 100;
     }
 
+    private String formatTwoDigits(int roomNumber) {
+        return String.format("%02d", roomNumber);
+    }
+
     // 건물, 층으로 호실 조회
     public ResponseEntity<?> getRoomsByDormitoryAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
 
@@ -160,27 +212,7 @@ public class DormitorySettingDetailService {
         // 해당 기숙사의 층별 호실 가져오기
         List<Room> roomList = roomRepository.findByDormitoryAndFloor(dormitory, floor);
 
-        List<RoomSettingRes> roomSettingResList = roomList.stream()
-                .map(room -> {
-                    Integer roomSize = null;
-                    Gender gender = Gender.EMPTY;
-                    RoomType roomType = room.getRoomType();
-                    if (roomType != null) {
-                        roomSize = roomType.getRoomSize();
-                        gender = roomType.getGender();
-                    }
-                    return RoomSettingRes.builder()
-                            .id(room.getId())
-                            .floor(room.getFloor())
-                            .gender(gender.toString())
-                            .roomNumber(room.getRoomNumber())
-                            .roomSize(roomSize)
-                            .hasKey(room.getHasKey())
-                            .isActivated(room.getIsActivated())
-                            .build();
-                })
-                .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
-                .collect(Collectors.toList());
+        List<RoomSettingRes> roomSettingResList = makeRoomSettingRes(roomList);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
