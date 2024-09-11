@@ -8,6 +8,7 @@ import dormease.dormeasedev.domain.dormitory.dto.response.*;
 import dormease.dormeasedev.domain.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.term.domain.Term;
 import dormease.dormeasedev.domain.term.domain.repository.TermRepository;
 import dormease.dormeasedev.domain.resident.domain.Resident;
@@ -97,10 +98,15 @@ public class DormitoryManagementService {
         for (Room room : rooms) {
             currentPeopleCount += Optional.ofNullable(room.getCurrentPeople()).orElse(0);
 
-            if (Optional.ofNullable(room.getRoomType() != null ? room.getRoomType().getRoomSize() : 0)
-                    .orElse(0)
-                    .equals(room.getCurrentPeople())) {
-                fullRoomCount += 1;
+            // 방 타입이 null이면 fullRoomCount를 0으로 설정
+            RoomType roomType = room.getRoomType();
+            if (roomType != null) {
+                Integer roomSize = Optional.ofNullable(roomType.getRoomSize()).orElse(0);
+                if (roomSize.equals(room.getCurrentPeople())) {
+                    fullRoomCount += 1;
+                }
+            } else {
+                fullRoomCount = 0;
             }
         }
 
