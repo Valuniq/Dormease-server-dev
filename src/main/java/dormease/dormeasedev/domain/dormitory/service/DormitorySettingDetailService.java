@@ -51,16 +51,28 @@ public class DormitorySettingDetailService {
         List<Room> rooms = generateRoomNumbers(dormitory, floor, start, end);
         DefaultAssert.isTrue(!rooms.isEmpty(), "호실 생성 중 오류가 발생했습니다.");
 
+        // RoomCount 업데이트
+        dormitory.updateRoomCount(rooms.size());
+
         List<RoomSettingRes> roomSettingResList = rooms.stream()
-                .map(room -> RoomSettingRes.builder()
-                        .id(room.getId())
-                        .floor(room.getFloor())
-                        .gender(room.getRoomType().getGender().toString())
-                        .roomNumber(room.getRoomNumber())
-                        .roomSize(room.getRoomType().getRoomSize())
-                        .hasKey(room.getHasKey())
-                        .isActivated(room.getIsActivated())
-                        .build())
+                .map(room -> {
+                    Integer roomSize = null;
+                    Gender gender = Gender.EMPTY;
+                    RoomType roomType = room.getRoomType();
+                    if (roomType != null) {
+                        roomSize = roomType.getRoomSize();
+                        gender = roomType.getGender();
+                    }
+                    return RoomSettingRes.builder()
+                            .id(room.getId())
+                            .floor(room.getFloor())
+                            .gender(gender.toString())
+                            .roomNumber(room.getRoomNumber())
+                            .roomSize(roomSize)
+                            .hasKey(room.getHasKey())
+                            .isActivated(room.getIsActivated())
+                            .build();
+                })
                 .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
                 .collect(Collectors.toList());
 
@@ -237,7 +249,7 @@ public class DormitorySettingDetailService {
 
         // 수용인원, 호실 개수 업데이트
         updateDormitorySize(updatedRooms);
-        updateRoomCount(updatedRooms);
+        //updateRoomCount(updatedRooms); activate의 경우에만
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -258,32 +270,27 @@ public class DormitorySettingDetailService {
     }
 
     private void updateDormitorySize(List<Room> rooms) {
-        Set<Dormitory> dormitoriesToUpdate = new HashSet<>();
+        Dormitory dormitory = rooms.get(0).getDormitory();
+        List<RoomType> roomTypes = rooms.stream()
+                .map(Room::getRoomType)
+                .filter(Objects::nonNull)  // RoomType이 null인 경우 dormitorySize에 반영이 안 되어있으므로 제외
+                .distinct()  // 중복 제거
+                .toList();
 
-        for (Room room : rooms) {
-            Dormitory dormitory = room.getDormitory();
-            dormitoriesToUpdate.add(dormitory);
-        }
-
-        for (Dormitory dormitory : dormitoriesToUpdate) {
-            //Integer roomSize = dormitory.getRoomSize();
-            //Integer dormitorySize = roomRepository.findByDormitoryAndIsActivated(dormitory, true).size();
-            //dormitory.updateDormitorySize(dormitorySize * roomSize);
+        // 전체 기숙사 수용 인원 크기 누적 변수
+        Integer totalDormitorySize = 0;
+        for (RoomType roomType : roomTypes) {
+            Integer roomSize = roomType.getRoomSize();
+            Integer roomCount = roomRepository.countByDormitoryAndIsActivatedAndRoomType(dormitory, true, roomType);
+            totalDormitorySize += (roomCount * roomSize);
+            dormitory.updateDormitorySize(totalDormitorySize);
         }
     }
 
     private void updateRoomCount(List<Room> rooms) {
-        Set<Dormitory> dormitoriesToUpdate = new HashSet<>();
-
-        for (Room room : rooms) {
-            Dormitory dormitory = room.getDormitory();
-            dormitoriesToUpdate.add(dormitory);
-        }
-
-        for (Dormitory dormitory : dormitoriesToUpdate) {
-            Integer dormitorySize = roomRepository.findByDormitoryAndIsActivated(dormitory, true).size();
-            dormitory.updateRoomCount(dormitorySize);
-        }
+        Dormitory dormitory = rooms.get(0).getDormitory();
+        Integer roomCount = roomRepository.countByDormitoryAndIsActivated(dormitory, true);
+        dormitory.updateRoomCount(roomCount);
     }
 
     private static void verifyRoomNumber(Integer start, Integer end) {

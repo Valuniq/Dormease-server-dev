@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.room.domain.repository;
 
 import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.room.domain.Room;
+import dormease.dormeasedev.domain.room_type.domain.RoomType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +28,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     @Query("SELECT MIN(r.roomNumber) FROM Room r WHERE r.dormitory = :dormitory AND r.floor = :floor")
     Integer findMinRoomNumberByDormitoryAndFloor(Dormitory dormitory, Integer floor);
+
+    Integer countByDormitoryAndIsActivated(Dormitory dormitory, boolean b);
+
+    Integer countByDormitoryAndIsActivatedAndRoomType(Dormitory dormitory, boolean b, RoomType roomType);
 }
