@@ -1,6 +1,6 @@
 package dormease.dormeasedev.global.config.security.token;
 
-import dormease.dormeasedev.domain.user.domain.User;
+import dormease.dormeasedev.domain.users.user.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

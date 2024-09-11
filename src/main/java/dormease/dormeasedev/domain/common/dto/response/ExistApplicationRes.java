@@ -1,6 +1,6 @@
 package dormease.dormeasedev.domain.common.dto.response;
 
-import dormease.dormeasedev.domain.user.domain.UserType;
+import dormease.dormeasedev.domain.users.user.domain.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
