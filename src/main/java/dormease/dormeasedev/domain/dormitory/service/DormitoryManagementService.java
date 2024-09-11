@@ -40,6 +40,7 @@ public class DormitoryManagementService {
     private final ResidentRepository residentRepository;
 
     // 건물, 층별 호실 목록 조회
+    // Description: 호실 필터 미설정 시 gender는 EMPTY, roomSize는 null
     public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
@@ -54,13 +55,21 @@ public class DormitoryManagementService {
 
         // 가져온 방들을 처리하여 결과 리스트에 추가
         List<RoomByDormitoryAndFloorRes> rooms = roomList.stream()
-                .map(room -> RoomByDormitoryAndFloorRes.builder()
-                        .id(room.getId())
-                        .roomNumber(room.getRoomNumber())
-                        .roomSize(room.getRoomType().getRoomSize())
-                        .gender(room.getRoomType().getGender().toString())
-                        .currentPeople(room.getCurrentPeople())
-                        .build())
+                .map(room -> {
+                    Integer roomSize = null;
+                    Gender gender = Gender.EMPTY;
+                    if (room.getRoomType() != null) {
+                        roomSize = room.getRoomType().getRoomSize();
+                        gender = room.getRoomType().getGender();
+                    }
+                    return RoomByDormitoryAndFloorRes.builder()
+                            .id(room.getId())
+                            .roomNumber(room.getRoomNumber())
+                            .roomSize(roomSize)
+                            .gender(gender.toString())
+                            .currentPeople(room.getCurrentPeople())
+                            .build();
+                })
                 .sorted(Comparator.comparingInt(RoomByDormitoryAndFloorRes::getRoomNumber))
                 .toList();
 
@@ -88,7 +97,9 @@ public class DormitoryManagementService {
         for (Room room : rooms) {
             currentPeopleCount += Optional.ofNullable(room.getCurrentPeople()).orElse(0);
 
-            if (Optional.ofNullable(room.getRoomType().getRoomSize()).orElse(0).equals(room.getCurrentPeople())) {
+            if (Optional.ofNullable(room.getRoomType() != null ? room.getRoomType().getRoomSize() : 0)
+                    .orElse(0)
+                    .equals(room.getCurrentPeople())) {
                 fullRoomCount += 1;
             }
         }
@@ -256,6 +267,7 @@ public class DormitoryManagementService {
             for (Long residentId : assignedResidentToRoomReq.getResidentIds()) {
                 // 인실 만큼 bedNumber 반복 room과 bedNumber로 사생 찾아서 없으면 해당 bedNumber에 배정
                 for (int i=1; i<=room.getRoomType().getRoomSize(); i++) {
+                    // 건물 설정 - 필터가 완료되어야 사생을 가질 수 있으므로, room.getRoomTYpe()이 null일 경우X
                    if(!residentRepository.existsByRoomAndBedNumber(room, i)) {
                        bedNumberCount = i;
                        break;
