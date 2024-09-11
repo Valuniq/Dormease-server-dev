@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_ter
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -21,19 +22,19 @@ public class DormitorySettingTerm extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dormitory_id")
-    private Dormitory dormitory;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dormitory_application_setting_id")
     private DormitoryApplicationSetting dormitoryApplicationSetting;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dormitory_room_type_id")
+    private DormitoryRoomType dormitoryRoomType;
 
     private Integer acceptLimit;
 
     @Builder
-    public DormitorySettingTerm(Dormitory dormitory, DormitoryApplicationSetting dormitoryApplicationSetting, Integer acceptLimit) {
-        this.dormitory = dormitory;
+    public DormitorySettingTerm(DormitoryApplicationSetting dormitoryApplicationSetting, DormitoryRoomType dormitoryRoomType, Integer acceptLimit) {
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
+        this.dormitoryRoomType = dormitoryRoomType;
         this.acceptLimit = acceptLimit;
     }
 }

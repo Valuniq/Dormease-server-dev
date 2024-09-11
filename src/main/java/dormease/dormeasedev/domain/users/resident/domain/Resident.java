@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.users.resident.domain;
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.roommates.roommate_application.domain.RoommateApplication;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.school.domain.School;
@@ -34,12 +35,8 @@ public class Resident extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dormitory_id")
-    private Dormitory dormitory;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "term_id")
-    private Term term;
+    @JoinColumn(name = "dormitory_term_id")
+    private DormitoryTerm dormitoryTerm;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
@@ -93,11 +90,10 @@ public class Resident extends BaseEntity {
     }
 
     @Builder
-    public Resident(School school, User user, Dormitory dormitory, Term term, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, String name, Gender gender, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
+    public Resident(School school, User user, DormitoryTerm dormitoryTerm, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, String name, Gender gender, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
         this.school = school;
         this.user = user;
-        this.dormitory = dormitory;
-        this.term = term;
+        this.dormitoryTerm = dormitoryTerm;
         this.room = room;
         this.roommateTempApplication = roommateTempApplication;
         this.roommateApplication = roommateApplication;
@@ -110,5 +106,4 @@ public class Resident extends BaseEntity {
 
     public void updateRoom(Room room) { this.room = room; }
     public void updateBedNumber(Integer bedNumber) { this.bedNumber = bedNumber; }
-    public void updateDormitory(Dormitory dormitory) { this.dormitory = dormitory; }
 }
