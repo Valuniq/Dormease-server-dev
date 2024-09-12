@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.controller;
 
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.request.CreateDormitoryApplicationSettingReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.DormitoryRoomTypeRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingHistoryRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.service.DormitoryApplicationSettingService;
@@ -84,9 +85,9 @@ public class DormitoryApplicationSettingWebController {
     }
 
     // Description : 입사 신청 설정 프로세스 中 기숙사(인실/성별) 목록 조회
-    @Operation(summary = "이전 작성 내용 목록 조회", description = "이전 작성 내용 목록을 조회합니다.")
+    @Operation(summary = "입사 신청 설정 프로세스 中 기숙사(인실/성별) 목록 조회", description = "입사 신청 설정 프로세스 中 기숙사(인실/성별) 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FindDormitoryApplicationSettingHistoryRes.class)))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryRoomTypeRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/dormitories")
