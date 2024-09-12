@@ -243,20 +243,14 @@ public class DormitoryApplicationSettingService {
 //    }
 
     // Description : 이전 작성 목록 조회
-    public ResponseEntity<?> findDormitoryApplicationSettingHistory(CustomUserDetails customUserDetails, Integer page) {
+    public ResponseEntity<?> findDormitoryApplicationSettingHistory(CustomUserDetails customUserDetails) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
-        School school = user.getSchool();
+        User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
 
-        PageRequest pageRequest = PageRequest.of(page, 3, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<DormitoryApplicationSetting> dormitoryApplicationSettingPage = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(pageRequest, school, ApplicationStatus.BEFORE);
+        List<DormitoryApplicationSetting> dormitoryApplicationSettingList = dormitoryApplicationSettingRepository.findTop3BySchoolAndApplicationStatusOrderByCreatedDateDesc(school, ApplicationStatus.BEFORE);
 
-        // 비어 있을 시, 빈 리스트 or 예외 던질지 고민
-        DefaultAssert.isTrue(!dormitoryApplicationSettingPage.isEmpty(), "입사 신청 설정 내역이 존재하지 않습니다.");
-
-        List<DormitoryApplicationSetting> dormitoryApplicationSettingList = dormitoryApplicationSettingPage.getContent();
         List<FindDormitoryApplicationSettingHistoryRes> findDormitoryApplicationSettingHistoryResList = new ArrayList<>();
-
         for (DormitoryApplicationSetting dormitoryApplicationSetting : dormitoryApplicationSettingList) {
             FindDormitoryApplicationSettingHistoryRes findDormitoryApplicationSettingHistoryRes = FindDormitoryApplicationSettingHistoryRes.builder()
                     .dormitoryApplicationSettingId(dormitoryApplicationSetting.getId())

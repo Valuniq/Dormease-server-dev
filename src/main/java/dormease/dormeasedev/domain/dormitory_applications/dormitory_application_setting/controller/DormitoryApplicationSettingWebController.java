@@ -78,11 +78,8 @@ public class DormitoryApplicationSettingWebController {
     })
     @GetMapping("/history")
     public ResponseEntity<?> findDormitoryApplicationSettingHistory(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails, // 관리자 id를 통해 학교를 알아내기 위함
-            @Parameter(description = "**Page값 안넣으셔도 됩니다 !!!**", required = true) @RequestParam(value = "page", defaultValue = "0") Integer page
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails // 관리자 id를 통해 학교를 알아내기 위함
     ) {
-        return dormitoryApplicationSettingService.findDormitoryApplicationSettingHistory(customUserDetails, page);
+        return dormitoryApplicationSettingService.findDormitoryApplicationSettingHistory(customUserDetails);
     }
-
-
 }

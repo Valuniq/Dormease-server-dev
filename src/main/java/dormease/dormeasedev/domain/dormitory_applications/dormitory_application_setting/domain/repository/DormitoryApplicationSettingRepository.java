@@ -11,12 +11,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface DormitoryApplicationSettingRepository extends JpaRepository<DormitoryApplicationSetting, Long> {
 
-    Page<DormitoryApplicationSetting> findBySchoolAndApplicationStatus(Pageable pageable, School school, ApplicationStatus applicationStatus);
+    List<DormitoryApplicationSetting> findTop3BySchoolAndApplicationStatusOrderByCreatedDateDesc(School school, ApplicationStatus applicationStatus);
 
     // ApplicationStatus.NOW 전용!! / BEFORE 하면 여러 개 나오기에 안됨
     Optional<DormitoryApplicationSetting> findBySchoolAndApplicationStatus(School school, ApplicationStatus applicationStatus);
