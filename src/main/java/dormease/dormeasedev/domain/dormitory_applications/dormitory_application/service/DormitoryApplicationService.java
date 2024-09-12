@@ -138,8 +138,8 @@ public class DormitoryApplicationService {
                 .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
                 .schoolName(user.getName())
                 .dormitoryName(dormitory.getName())
-                .gender(roomType.getGender())// TODO: 수정 필요
-                .roomSize(roomType.getRoomSize())    // TODO: 수정 필요
+                .gender(roomType.getGender())
+                .roomSize(roomType.getRoomSize())
                 .termName(term.getTermName())
                 .mealTicketCount(mealTicket.getCount())
 //                 null이면 제출 x
@@ -204,13 +204,20 @@ public class DormitoryApplicationService {
         DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
         DefaultAssert.isTrue(dormitoryApplication.getUser().equals(user), "본인의 입사 신청만 조회할 수 있습니다.");
 
-        // 거주 기간
-        Term term = dormitoryApplication.getTerm();
+        // 거주 기간 + 건물(인실/성별)
+        DormitoryTerm dormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
+        if (dormitoryTerm == null) // 아직 배정되지 않았다면?
+            dormitoryTerm = dormitoryApplication.getApplicationDormitoryTerm();
+
+        Term term = dormitoryTerm.getTerm();
+
         // 기숙사
-        Dormitory dormitory = dormitoryApplication.getDormitory();
+        DormitoryRoomType dormitoryRoomType = dormitoryTerm.getDormitoryRoomType();
+        Dormitory dormitory = dormitoryRoomType.getDormitory();
+        RoomType roomType = dormitoryRoomType.getRoomType();
+
         // 입사 신청 설정
         DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplication.getDormitoryApplicationSetting();
-        DormitoryTerm dormitoryTerm = dormitoryTermService.validateDormitoryTermByTermAndDormitory(term, dormitory);
 
         MealTicket mealTicket = dormitoryApplication.getMealTicket();
         Integer mealTicketPrice = mealTicket.getPrice();
@@ -223,8 +230,8 @@ public class DormitoryApplicationService {
                 .dormitoryApplicationSettingTitle(dormitoryApplicationSetting.getTitle())
                 .schoolName(user.getName())
                 .dormitoryName(dormitory.getName())
-                //.gender(dormitory.getGender())// TODO: 수정 필요
-                //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
+                .gender(roomType.getGender())
+                .roomSize(roomType.getRoomSize())
                 .termName(term.getTermName())
                 .mealTicketCount(mealTicket.getCount())
 //                 null이면 제출 x
