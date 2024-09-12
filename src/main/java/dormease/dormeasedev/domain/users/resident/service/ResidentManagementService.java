@@ -2,7 +2,6 @@ package dormease.dormeasedev.domain.users.resident.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
-import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
@@ -12,6 +11,7 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.repository.ExitRequestmentRepository;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
@@ -124,11 +124,15 @@ public class ResidentManagementService {
 
     // 사생 상세 조회 - 기숙사정보
     private ResidentDormitoryInfoRes getResidentDormitoryInfo(Resident resident) {
-        Dormitory dormitory = resident.getDormitory();
+        DormitoryTerm dormitoryTerm = resident.getDormitoryTerm();
+        Term term = dormitoryTerm.getTerm();
+        DormitoryRoomType dormitoryRoomType = dormitoryTerm.getDormitoryRoomType();
+        Dormitory dormitory = dormitoryRoomType.getDormitory();
+
         // 기숙사 정보
         if (dormitory == null) {
             return ResidentDormitoryInfoRes.builder()
-                    .termName(resident.getTerm().getTermName())
+                    .termName(term.getTermName())
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
         } else if (resident.getRoom() == null) {
@@ -136,7 +140,7 @@ public class ResidentManagementService {
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
                     // .roomSize() 호실이 없으면 인실 가져올 수 없음
-                    .termName(resident.getTerm().getTermName())
+                    .termName(term.getTermName())
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
         } else {
@@ -147,7 +151,7 @@ public class ResidentManagementService {
                     .roomSize(resident.getRoom().getRoomType().getRoomSize())
                     .roomNumber(resident.getRoom().getRoomNumber())
                     .bedNumber(resident.getBedNumber())
-                    .termName(resident.getTerm().getTermName())
+                    .termName(term.getTermName())
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .roommateNames(roommateNames)
                     .build();
