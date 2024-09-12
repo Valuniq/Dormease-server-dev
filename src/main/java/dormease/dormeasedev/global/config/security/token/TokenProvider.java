@@ -2,8 +2,8 @@ package dormease.dormeasedev.global.config.security.token;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dormease.dormeasedev.domain.auth.domain.RefreshToken;
-import dormease.dormeasedev.domain.auth.domain.repository.RefreshTokenRepository;
+import dormease.dormeasedev.domain.users.auth.domain.RefreshToken;
+import dormease.dormeasedev.domain.users.auth.domain.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

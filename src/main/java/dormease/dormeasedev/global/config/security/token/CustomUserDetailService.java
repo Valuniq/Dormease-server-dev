@@ -1,7 +1,7 @@
 package dormease.dormeasedev.global.config.security.token;
 
-import dormease.dormeasedev.domain.user.domain.User;
-import dormease.dormeasedev.domain.user.domain.repository.UserRepository;
+import dormease.dormeasedev.domain.users.user.domain.User;
+import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.global.DefaultAssert;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
