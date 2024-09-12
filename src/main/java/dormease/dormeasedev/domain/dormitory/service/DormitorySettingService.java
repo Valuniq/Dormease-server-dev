@@ -185,16 +185,22 @@ public class DormitorySettingService {
     @Transactional
     public ResponseEntity<?> updateDormitoryName(CustomUserDetails customUserDetails, Long dormitoryId, UpdateDormitoryNameReq updateDormitoryNameReq) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
-
         // 이미 존재하는 이름이면 변경 불가
-        DefaultAssert.isTrue(dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), updateDormitoryNameReq.getName()).isEmpty(), "해당 이름의 건물이 이미 존재합니다.");
+        boolean availableName = !dormitoryRepository.existsBySchoolAndName(dormitory.getSchool(), updateDormitoryNameReq.getName());
 
-        // 기숙사 이름 변경
-        dormitory.updateName(updateDormitoryNameReq.getName());
+        String msg = "건물명이 변경되었습니다.";
+        boolean check = true;
+        if (availableName) {
+            // 기숙사 이름 변경
+            dormitory.updateName(updateDormitoryNameReq.getName());
+        } else {
+            msg = "중복된 건물명이 존재합니다.";
+            check = false;
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("건물명이 변경되었습니다.").build())  // 조회 메소드 호출
+                .check(check)
+                .information(Message.builder().message(msg).build())  // 조회 메소드 호출
                 .build();
 
         return ResponseEntity.ok(apiResponse);
