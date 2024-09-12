@@ -9,6 +9,7 @@ import dormease.dormeasedev.domain.dormitory.dto.response.DormitorySettingDetail
 import dormease.dormeasedev.domain.dormitory.dto.response.RoomSettingRes;
 import dormease.dormeasedev.domain.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
+import dormease.dormeasedev.domain.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.room.domain.Room;
 import dormease.dormeasedev.domain.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.dormitory.dto.request.AddRoomNumberReq;
@@ -35,10 +36,10 @@ public class DormitorySettingDetailService {
     private final RoomRepository roomRepository;
     private final RoomTypeRepository roomTypeRepository;
     private final DormitoryRepository dormitoryRepository;
+    private final ResidentRepository residentRepository;
     private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
 
     // 호실 개수 추가
-    // 복제 추가할지
     @Transactional
     public ResponseEntity<?> addFloorAndRoomNumber(CustomUserDetails customUserDetails, Long dormitoryId, AddRoomNumberReq addRoomNumberReq) {
 
@@ -96,8 +97,7 @@ public class DormitorySettingDetailService {
         DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, copyRoomsReq.getNewFloor()).isEmpty(), "중복된 층이 존재합니다.");
         // 복제할 호실 리스트 저장
         List<Room> rooms = roomRepository.findByDormitoryAndFloor(dormitory, copyRoomsReq.getOriginalFloor());
-        // 호실 번호만 변경
-        // 그리고 저장
+        // 호실 번호만 변경해서 저장
         List<Room> copyRooms = rooms.stream()
                 .map(room -> {
                     Integer extractNumber = extractLastTwoDigits(room.getRoomNumber());
@@ -115,7 +115,7 @@ public class DormitorySettingDetailService {
                 .toList();
         roomRepository.saveAll(copyRooms);
 
-        // RoomCount 업데이트
+        // RoomCount, DormitorySize 업데이트
         updateRoomCount(copyRooms);
         updateDormitorySize(copyRooms);
 
@@ -185,6 +185,7 @@ public class DormitorySettingDetailService {
                 .id(dormitoryId)
                 .name(dormitory.getName())
                 .imageUrl(dormitory.getImageUrl())
+                //.isCompleteButtonEnabled(validateRoom())
                 .floorAndRoomNumberRes(floorAndRoomNumberResList)
                 .build();
 
@@ -229,19 +230,32 @@ public class DormitorySettingDetailService {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Room> deletedRooms = roomRepository.findByDormitoryAndFloor(dormitory, floor);
 
-        roomRepository.deleteAll(deletedRooms);    // 해당 층의 방 모두 삭제
+        boolean hasRelatedResidentByFloor = !hasRelatedResidents(dormitory, floor);
+        boolean check = true;
+        String msg = "호실이 삭제되었습니다.";
+        if (hasRelatedResidentByFloor) {
+            check = false;
+            msg = "해당 층에 배정된 사생이 있습니다.";
+        } else {
+            roomRepository.deleteAll(deletedRooms);    // 해당 층의 방 모두 삭제
 
-        // 수용인원, 호실 개수 업데이트
-        updateDormitorySize(deletedRooms);
-        updateRoomCount(deletedRooms);
-        // dormitoryRoomType 업데이트
-        deleteDormitoryRoomTypes(dormitory);
+            // 수용인원, 호실 개수 업데이트
+            updateDormitorySize(deletedRooms);
+            updateRoomCount(deletedRooms);
+            // dormitoryRoomType 업데이트
+            deleteDormitoryRoomTypes(dormitory);
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("호실이 삭제되었습니다.").build()).build();
+                .check(check)
+                .information(Message.builder().message(msg).build()).build();
 
         return ResponseEntity.ok(apiResponse);
+    }
+
+    private boolean hasRelatedResidents(Dormitory dormitory, Integer floor) {
+        List<Room> rooms = roomRepository.findByDormitoryAndFloor(dormitory, floor);
+        return residentRepository.existsByRoomIn(rooms);
     }
 
     // 호실 정보 수정
