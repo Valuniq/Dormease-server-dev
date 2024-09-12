@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryRo
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
+import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
@@ -161,15 +162,19 @@ public class DormitoryApplicationSettingService {
             mealTicketResList.add(mealTicketRes);
         }
 
-        // 기숙사 관련
+        // 기숙사_방타입 관련
         List<DormitorySettingTerm> findDormitorySettingTermList = dormitorySettingTermRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
         List<DormitorySettingTermRes> dormitorySettingTermResList = new ArrayList<>();
         for (DormitorySettingTerm dormitorySettingTerm : findDormitorySettingTermList) {
-            Dormitory dormitory = dormitorySettingTerm.getDormitory();
+            DormitoryRoomType dormitoryRoomType = dormitorySettingTerm.getDormitoryRoomType();
+            Dormitory dormitory = dormitoryRoomType.getDormitory();
+            RoomType roomType = dormitoryRoomType.getRoomType();
+
             DormitorySettingTermRes dormitorySettingTermRes = DormitorySettingTermRes.builder()
-                    .dormitoryId(dormitory.getId())
+                    .dormitoryRoomTypeId(dormitoryRoomType.getId())
                     .dormitoryName(dormitory.getName())
-                    //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
+                    .roomSize(roomType.getRoomSize())
+                    .gender(roomType.getGender())
                     .acceptLimit(dormitorySettingTerm.getAcceptLimit())
                     .build();
             dormitorySettingTermResList.add(dormitorySettingTermRes);
@@ -183,11 +188,13 @@ public class DormitoryApplicationSettingService {
             List<DormitoryTermRes> dormitoryTermResList = new ArrayList<>();
             for (DormitoryTerm dormitoryTerm : dormitoryTermList) {
                 DormitoryTermRes dormitoryTermRes = DormitoryTermRes.builder()
-                        .dormitoryId(dormitoryTerm.getDormitory().getId())
+                        .dormitoryTermId(dormitoryTerm.getId())
+                        .dormitoryRoomTypeId(dormitoryTerm.getDormitoryRoomType().getId())
                         .price(dormitoryTerm.getPrice())
                         .build();
                 dormitoryTermResList.add(dormitoryTermRes);
             }
+
             TermRes termRes = TermRes.builder()
                     .termId(term.getId())
                     .termName(term.getTermName())
