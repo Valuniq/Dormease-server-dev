@@ -1,12 +1,8 @@
 package dormease.dormeasedev.domain.points.point.service;
 
 import dormease.dormeasedev.domain.common.Status;
-import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
-import dormease.dormeasedev.domain.dormitories.room.domain.Room;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.points.point.domain.Point;
 import dormease.dormeasedev.domain.points.point.domain.PointType;
 import dormease.dormeasedev.domain.points.point.domain.repository.PointRepository;

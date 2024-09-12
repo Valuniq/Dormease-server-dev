@@ -11,9 +11,9 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.repository.ExitRequestmentRepository;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
-import dormease.dormeasedev.domain.resident.dto.response.*;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
@@ -56,7 +56,6 @@ public class ResidentManagementService {
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final UserService userService;
     private final ResidentService residentService;
-    private final DormitoryService dormitoryService;
     private final RefundRequestmentRepository refundRequestmentRepository;
     private final ExitRequestmentRepository exitRequestmentRepository;
     private final S3Uploader s3Uploader;
@@ -186,23 +185,31 @@ public class ResidentManagementService {
                     Integer minusPoint = 0;
                     SchoolStatus schoolStatus = null;
 
-                    User user = resident.getUser();
+                    User user = resident.getUser(); // 미배정 사생은 미회원 사생만 존재 가능
+                    Room room = resident.getRoom();
+
                     // 미회원인지 아닌지 구분
                     if (user != null) {
                         studentNumber = user.getStudentNumber();
                         bonusPoint = user.getBonusPoint();
                         minusPoint = user.getMinusPoint();
-                        schoolStatus =user.getSchoolStatus();
-                    }
-                    Room room = resident.getRoom();
-                    Dormitory dormitory = resident.getDormitory();
-                    // 호실 배정이 있으면 건물도 무조건 존재
-                    if (room != null) {
+                        schoolStatus = user.getSchoolStatus();
+                        DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
+                        dormitoryName = dormitoryRoomType.getDormitory().getName();
+                        roomSize = dormitoryRoomType.getRoomType().getRoomSize();
                         roomNumber = room.getRoomNumber();
-                        dormitoryName = dormitory.getName();
-                        roomSize = room.getRoomType().getRoomSize();
-                    } else if (dormitory != null) {
-                        dormitoryName = dormitory.getName();
+
+                    } else {
+                        if (room != null) {
+                            DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
+                            dormitoryName = dormitoryRoomType.getDormitory().getName();
+                            roomSize = dormitoryRoomType.getRoomType().getRoomSize();
+                            roomNumber = room.getRoomNumber();
+                        }
+                        // TODO : 사생 직접 추가 시 건물도 필수로 할지 기획과 논의 후 결정
+//                        else if (dormitory != null) {
+//                            dormitoryName = dormitory.getName();
+//                        }
                     }
 
                     return ResidentRes.builder()
@@ -269,23 +276,32 @@ public class ResidentManagementService {
                     Integer bonusPoint = 0;
                     Integer minusPoint = 0;
                     SchoolStatus schoolStatus = null;
+
+                    User user = resident.getUser(); // 미배정 사생은 미회원 사생만 존재 가능
+                    Room room = resident.getRoom();
+
                     // 미회원인지 아닌지 구분
-                    User user = resident.getUser();
                     if (user != null) {
                         studentNumber = user.getStudentNumber();
                         bonusPoint = user.getBonusPoint();
                         minusPoint = user.getMinusPoint();
                         schoolStatus = user.getSchoolStatus();
-                    }
-                    // 호실 배정이 있으면 건물도 무조건 존재
-                    Room room = resident.getRoom();
-                    Dormitory dormitory = resident.getDormitory();
-                    if (room != null) {
+                        DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
+                        dormitoryName = dormitoryRoomType.getDormitory().getName();
+                        roomSize = dormitoryRoomType.getRoomType().getRoomSize();
                         roomNumber = room.getRoomNumber();
-                        dormitoryName = dormitory.getName();
-                        roomSize = room.getRoomType().getRoomSize();
-                    } else if (dormitory != null) {
-                        dormitoryName = dormitory.getName();
+
+                    } else {
+                        if (room != null) {
+                            DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
+                            dormitoryName = dormitoryRoomType.getDormitory().getName();
+                            roomSize = dormitoryRoomType.getRoomType().getRoomSize();
+                            roomNumber = room.getRoomNumber();
+                        }
+                        // TODO : 사생 직접 추가 시 건물도 필수로 할지 기획과 논의 후 결정
+//                        else if (dormitory != null) {
+//                            dormitoryName = dormitory.getName();
+//                        }
                     }
 
                     return ResidentRes.builder()
