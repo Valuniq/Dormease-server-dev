@@ -105,11 +105,11 @@ public class DormitoryApplication extends BaseEntity {
     }
 
     @Builder
-    public DormitoryApplication(User user, Term term, DormitoryApplicationSetting dormitoryApplicationSetting, DormitoryTerm applicationDormitoryTerm, DormitoryTerm resultDormitoryTerm, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
+    public DormitoryApplication(User user, DormitoryApplicationSetting dormitoryApplicationSetting, DormitoryTerm applicationDormitoryTerm, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
         this.user = user;
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
         this.applicationDormitoryTerm = applicationDormitoryTerm;
-        this.resultDormitoryTerm = resultDormitoryTerm;
+        this.resultDormitoryTerm = null;
         this.mealTicket = mealTicket;
         this.copy = copy;
         this.prioritySelectionCopy = prioritySelectionCopy;

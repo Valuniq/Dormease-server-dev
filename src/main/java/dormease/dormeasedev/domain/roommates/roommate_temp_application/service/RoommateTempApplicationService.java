@@ -1,12 +1,9 @@
 package dormease.dormeasedev.domain.roommates.roommate_temp_application.service;
 
-import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationService;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
-import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import dormease.dormeasedev.domain.roommates.roommate_application.domain.repository.RoommateApplicationRepository;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.repository.RoommateTempApplicationRepository;

@@ -58,11 +58,13 @@ public class DormitoryApplicationService {
     public ResponseEntity<?> dormitoryApplication(CustomUserDetails customUserDetails, DormitoryApplicationReq dormitoryApplicationReq) {
 
         User user = userService.validateUserById(customUserDetails.getId());
-        Term term = termService.validateTermId(dormitoryApplicationReq.getTermId());
-        Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryApplicationReq.getDormitoryId());
+        Optional<DormitoryTerm> findDormitoryTerm = dormitoryTermRepository.findById(dormitoryApplicationReq.getDormitoryTermId());
+        DefaultAssert.isTrue(findDormitoryTerm.isPresent(), "잘못된 거주 기간과 기숙사입니다.");
+        DormitoryTerm dormitoryTerm = findDormitoryTerm.get();
+        Term term = dormitoryTerm.getTerm();
+        Dormitory dormitory = dormitoryTerm.getDormitoryRoomType().getDormitory();
         MealTicket mealTicket = mealTicketService.validateMealTicketById(dormitoryApplicationReq.getMealTicketId());
         DormitoryApplicationSetting dormitoryApplicationSetting = term.getDormitoryApplicationSetting();
-        DormitoryTerm dormitoryTerm = dormitoryTermService.validateDormitoryTermByTermAndDormitory(term, dormitory);
 
         int totalPrice = 0;
         totalPrice += mealTicket.getPrice(); // + 식권
@@ -71,9 +73,8 @@ public class DormitoryApplicationService {
 
         DormitoryApplication dormitoryApplication = DormitoryApplication.builder()
                 .user(user)
-                .term(term)
                 .dormitoryApplicationSetting(dormitoryApplicationSetting)
-                .dormitory(dormitory)
+                .applicationDormitoryTerm(dormitoryTerm) // 신청 건물 및 인실 등의 정보
                 .mealTicket(mealTicket)
                 .copy(dormitoryApplicationReq.getCopy())
                 .prioritySelectionCopy(dormitoryApplicationReq.getPrioritySelectionCopy())

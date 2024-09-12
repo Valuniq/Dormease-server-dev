@@ -8,11 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public class DormitoryApplicationReq {
 
-    @Schema(type = "Long", example = "1", description = "거주 기간 ID")
-    private Long termId;
-
-    @Schema(type = "Long", example = "1", description = "기숙사 ID")
-    private Long dormitoryId;
+    @Schema(type = "Long", example = "1", description= "기숙사(인실 구분)과 거주기간을 연결짓는 테이블의 ID입니다. 가격이 포함되어 있습니다.")
+    private Long dormitoryTermId;
 
     @Schema(type = "Long", example = "1", description = "식권 ID")
     private Long mealTicketId;
@@ -27,7 +24,7 @@ public class DormitoryApplicationReq {
 
     // 흡연 여부
     @Schema(type = "Boolean", example = "true", description = "흡연 여부")
-    private Boolean isSmoking;
+    private Boolean isSmoking; // boolean?
 
     // 비상 연락처
     @Schema(type = "String", example = "010-1234-5678", description = "비상 연락처")
@@ -44,5 +41,4 @@ public class DormitoryApplicationReq {
     // 계좌번호
     @Schema(type = "String", example = "00000000000", description = "계좌 번호")
     private String accountNumber;
-
 }
