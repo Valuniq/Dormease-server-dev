@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryRoomTypeReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
@@ -10,6 +11,7 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.request.CreateDormitoryApplicationSettingReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.DormitoryRoomTypeRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingHistoryRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.DormitorySettingTerm;
@@ -57,6 +59,7 @@ public class DormitoryApplicationSettingService {
     private final MealTicketRepository mealTicketRepository;
     private final DormitoryTermRepository dormitoryTermRepository;
     private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
+    private final DormitoryRepository dormitoryRepository;
 
     private final UserService userService;
     private final DormitoryService dormitoryService;
@@ -264,6 +267,37 @@ public class DormitoryApplicationSettingService {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(findDormitoryApplicationSettingHistoryResList)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 입사 신청 설정 프로세스 中 기숙사(인실/성별) 목록 조회
+    public ResponseEntity<?> findDormitories(CustomUserDetails customUserDetails) {
+
+        User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
+
+        List<Dormitory> findDormitoryList = dormitoryRepository.findBySchool(school);
+        List<DormitoryRoomTypeRes> dormitoryRoomTypeResList = new ArrayList<>();
+        for (Dormitory dormitory : findDormitoryList) {
+
+            List<DormitoryRoomType> findDormitoryRoomTypeList = dormitoryRoomTypeRepository.findByDormitory(dormitory);
+            for (DormitoryRoomType dormitoryRoomType : findDormitoryRoomTypeList) {
+                RoomType roomType = dormitoryRoomType.getRoomType();
+                DormitoryRoomTypeRes dormitoryRoomTypeRes = DormitoryRoomTypeRes.builder()
+                        .dormitoryRoomTypeId(dormitoryRoomType.getId())
+                        .dormitoryName(dormitory.getName())
+                        .roomSize(roomType.getRoomSize())
+                        .gender(roomType.getGender())
+                        .build();
+                dormitoryRoomTypeResList.add(dormitoryRoomTypeRes);
+            }
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryRoomTypeResList)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
