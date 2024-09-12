@@ -20,13 +20,17 @@ public class DormitorySettingDetailRes {
     @Schema(type = "String", example = "https://dormease-s3-bucket.s3.amazonaws.com/014edc6a-48d0-4f11-8379-a4e48ba61402.jpg", description= "건물 이미지 URL입니다.")
     private String imageUrl;
 
+    @Schema(type = "Boolean", example = "true", description= "`완료`버튼의 활성화 여부입니다.")
+    private Boolean isCompleteButtonEnabled;
+
     @Schema(type = "List<FloorAndRoomNumberRes>", example = "FloorAndRoomNumberRes를 확인해주세요.", description= "층 수, 호실의 시작, 끝 번호입니다.")
     private List<FloorAndRoomNumberRes> floorAndRoomNumberRes;
 
     @Builder
-    public DormitorySettingDetailRes(Long id, String name, String imageUrl, List<FloorAndRoomNumberRes> floorAndRoomNumberRes) {
+    public DormitorySettingDetailRes(Long id, String name, String imageUrl, Boolean isCompleteButtonEnabled, List<FloorAndRoomNumberRes> floorAndRoomNumberRes) {
         this.id = id;
         this.name = name;
+        this.isCompleteButtonEnabled = isCompleteButtonEnabled;
         this.imageUrl = imageUrl;
         this.floorAndRoomNumberRes =floorAndRoomNumberRes;
     }

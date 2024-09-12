@@ -185,7 +185,7 @@ public class DormitorySettingDetailService {
                 .id(dormitoryId)
                 .name(dormitory.getName())
                 .imageUrl(dormitory.getImageUrl())
-                //.isCompleteButtonEnabled(validateRoom())
+                .isCompleteButtonEnabled(checkValidateRoom(dormitory))
                 .floorAndRoomNumberRes(floorAndRoomNumberResList)
                 .build();
 
@@ -275,7 +275,7 @@ public class DormitorySettingDetailService {
         }
 
         // 필터타입에 따른 null 체크
-        validateRoomAttributes(updatedRooms.get(0).getFloor(), filterType);
+        validateRoomAttributes(updatedRooms.get(0).getDormitory(), updatedRooms.get(0).getFloor(), filterType);
 
         // 수용인원 및 호실 개수 업데이트
         updateDormitorySize(updatedRooms);
@@ -393,15 +393,26 @@ public class DormitorySettingDetailService {
 
 
     // 속성 값 확인 메서드
-    private void validateRoomAttributes(Integer floor, String filterType) {
+    private void validateRoomAttributes(Dormitory dormitory, Integer floor, String filterType) {
         boolean check = switch (filterType) {
-            case "GENDER" -> !roomRepository.existsByFloorAndRoomType_Gender(floor, Gender.EMPTY);
-            case "ROOMSIZE" -> !roomRepository.existsByFloorAndRoomType_RoomSize(floor, null);
-            case "HASKEY" -> !roomRepository.existsByFloorAndHasKey(floor, null);
+            case "GENDER" -> !roomRepository.existsByDormitoryAndFloorAndRoomType_Gender(dormitory, floor, Gender.EMPTY);
+            case "ROOMSIZE" -> !roomRepository.existsByDormitoryAndFloorAndRoomType_RoomSize(dormitory, floor, null);
+            case "HASKEY" -> !roomRepository.existsByDormitoryAndFloorAndHasKey(dormitory, floor, null);
             case "ISACTIVATED" -> true; // 활성화 여부는 따로 확인하지 않음
             default -> throw new IllegalArgumentException("잘못된 filterType입니다.");
         };
         DefaultAssert.isTrue(check, "설정되지 않은 속성값이 있습니다.");
+    }
+
+    private Boolean checkValidateRoom(Dormitory dormitory) {
+        // 1. 해당 기숙사에 gender가 EMPTY인 방이 있는지 확인
+        boolean hasInvalidGender = roomRepository.existsByDormitoryAndRoomType_Gender(dormitory, Gender.EMPTY);
+        // 2. 해당 기숙사에 RoomSize가 null인 방이 있는지 확인
+        boolean hasInvalidRoomSize = roomRepository.existsByDormitoryAndRoomType_RoomSizeIsNull(dormitory);
+        // 3. 해당 기숙사에 HasKey가 null인 방이 있는지 확인
+        boolean hasInvalidHasKey = roomRepository.existsByDormitoryAndHasKeyIsNull(dormitory);
+        // 위의 조건 중 하나라도 true이면 유효하지 않으므로 false 반환
+        return !(hasInvalidGender || hasInvalidRoomSize || hasInvalidHasKey);
     }
 
     private void updateDormitorySize(List<Room> rooms) {
