@@ -147,7 +147,8 @@ public class DormitorySettingService {
         roomRepository.deleteAll(rooms);
 
         // 입사신청설정에 사용된 적이 있는지 확인
-        boolean isDeletable = !dormitorySettingTermRepository.existsByDormitory(dormitory);
+//        boolean isDeletable = !dormitorySettingTermRepository.existsByDormitory(dormitory);
+        boolean isDeletable = true; // TODO : 임시
         if (isDeletable) {
             if (dormitory.getImageUrl() != null) {
                 s3Uploader.deleteFile(dormitory.getImageUrl());
@@ -162,7 +163,6 @@ public class DormitorySettingService {
             dormitory.updateStatus(Status.DELETE);
         }
 
-
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(Message.builder().message("건물이 삭제되었습니다.").build())
@@ -172,8 +172,8 @@ public class DormitorySettingService {
     }
 
     private boolean hasRelatedResidents(Dormitory dormitory) {
-        // List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
-        return residentRepository.existsByDormitory(dormitory);
+//        return residentRepository.existsByDormitory(dormitory);
+        return true; // TODO : 임시
     }
 
     // 건물명 변경

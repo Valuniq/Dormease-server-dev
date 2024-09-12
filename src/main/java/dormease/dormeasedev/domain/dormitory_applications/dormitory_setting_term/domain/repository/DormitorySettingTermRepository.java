@@ -12,15 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface DormitorySettingTermRepository extends JpaRepository<DormitorySettingTerm, Long> {
-    List<DormitorySettingTerm> findByDormitory(Dormitory dormitory);
 
     List<DormitorySettingTerm> findByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting);
 
 //    List<DormitorySettingTerm> findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(Dormitory dormitory, ApplicationStatus applicationStatus);
 
-    Optional<DormitorySettingTerm> findByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(Dormitory dormitory, ApplicationStatus applicationStatus);
-
-    List<DormitorySettingTerm> findAllByDormitoryAndDormitoryApplicationSetting_ApplicationStatus(Dormitory dormitory, ApplicationStatus applicationStatus);
-
-    boolean existsByDormitory(Dormitory dormitory);
+//    boolean existsByDormitory(Dormitory dormitory);
 }
