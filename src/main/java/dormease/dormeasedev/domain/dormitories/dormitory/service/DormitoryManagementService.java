@@ -5,7 +5,6 @@ import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.Dormi
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.AssignedResidentToRoomReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.*;
-import dormease.dormeasedev.domain.dormitory.dto.response.*;
 import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;

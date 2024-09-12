@@ -2,12 +2,8 @@ package dormease.dormeasedev.domain.dormitories.room.domain.repository;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
-import dormease.dormeasedev.domain.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.room.domain.Room;
-import dormease.dormeasedev.domain.room_type.domain.RoomType;
-import dormease.dormeasedev.domain.user.domain.Gender;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
+import dormease.dormeasedev.domain.users.user.domain.Gender;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

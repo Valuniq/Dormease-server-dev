@@ -1,4 +1,4 @@
-package dormease.dormeasedev.domain.dormitory.dto.request;
+package dormease.dormeasedev.domain.dormitories.dormitory.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
