@@ -1,12 +1,12 @@
 package dormease.dormeasedev.domain.roommates.roommate_application.service;
 
-import dormease.dormeasedev.domain.users.resident.domain.Resident;
-import dormease.dormeasedev.domain.users.resident.service.ResidentService;
 import dormease.dormeasedev.domain.roommates.roommate_application.domain.RoommateApplication;
 import dormease.dormeasedev.domain.roommates.roommate_application.domain.RoommateApplicationResult;
 import dormease.dormeasedev.domain.roommates.roommate_application.domain.repository.RoommateApplicationRepository;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.service.RoommateTempApplicationService;
+import dormease.dormeasedev.domain.users.resident.domain.Resident;
+import dormease.dormeasedev.domain.users.resident.service.ResidentService;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;

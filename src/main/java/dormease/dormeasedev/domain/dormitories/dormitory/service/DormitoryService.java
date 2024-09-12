@@ -9,9 +9,9 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.repository.TermRepository;
+import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.school.service.SchoolService;
-import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;

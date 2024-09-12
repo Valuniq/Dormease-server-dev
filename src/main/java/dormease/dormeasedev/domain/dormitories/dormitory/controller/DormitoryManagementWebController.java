@@ -1,10 +1,9 @@
 package dormease.dormeasedev.domain.dormitories.dormitory.controller;
 
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.*;
-import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryManagementService;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.AssignedResidentToRoomReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryMemoReq;
-import dormease.dormeasedev.domain.dormitory.dto.response.*;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.*;
+import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryManagementService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;

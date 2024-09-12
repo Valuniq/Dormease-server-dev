@@ -2,29 +2,30 @@ package dormease.dormeasedev.domain.dormitories.dormitory.service;
 
 import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitories.room.domain.Room;
-import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
+import dormease.dormeasedev.domain.dormitories.room.domain.Room;
+import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
-import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

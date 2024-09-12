@@ -1,14 +1,11 @@
 package dormease.dormeasedev.domain.dormitories.dormitory.controller;
 
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.AddRoomNumberReq;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.RoomSettingReq;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.UpdateDormitoryNameReq;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingDetailRes;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingListRes;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.RoomSettingRes;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitorySettingDetailService;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitorySettingService;
-import dormease.dormeasedev.domain.dormitory.dto.request.*;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingListRes;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingDetailRes;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.RoomSettingRes;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.*;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;

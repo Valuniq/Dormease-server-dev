@@ -1,15 +1,15 @@
 package dormease.dormeasedev.domain.users.auth.service;
 
+import dormease.dormeasedev.domain.restaurants.restaurant.domain.Restaurant;
+import dormease.dormeasedev.domain.restaurants.restaurant.domain.repository.RestaurantRepository;
+import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.school.service.SchoolService;
 import dormease.dormeasedev.domain.users.auth.domain.RefreshToken;
 import dormease.dormeasedev.domain.users.auth.domain.repository.RefreshTokenRepository;
 import dormease.dormeasedev.domain.users.auth.dto.request.SignInReq;
+import dormease.dormeasedev.domain.users.auth.dto.request.SignUpReq;
 import dormease.dormeasedev.domain.users.auth.dto.response.CheckLoginIdRes;
 import dormease.dormeasedev.domain.users.auth.dto.response.SignInRes;
-import dormease.dormeasedev.domain.users.auth.dto.request.SignUpReq;
-import dormease.dormeasedev.domain.restaurants.restaurant.domain.Restaurant;
-import dormease.dormeasedev.domain.restaurants.restaurant.domain.repository.RestaurantRepository;
-import dormease.dormeasedev.domain.school.service.SchoolService;
-import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;

@@ -1,11 +1,7 @@
 package dormease.dormeasedev.domain.dormitory_applications.term.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor

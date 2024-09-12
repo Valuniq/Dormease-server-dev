@@ -1,18 +1,18 @@
 package dormease.dormeasedev.domain.exit_requestments.refund_requestment.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationService;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
-import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.RefundRequestment;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
+import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.RefundRequestment;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.dto.response.RefundRequestmentRes;
+import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.resident.service.ResidentService;
-import dormease.dormeasedev.domain.dormitories.room.domain.Room;
-import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.service.UserService;

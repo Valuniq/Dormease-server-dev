@@ -2,12 +2,12 @@ package dormease.dormeasedev.domain.notifications_requestments.image.service;
 
 import dormease.dormeasedev.domain.notifications_requestments.image.dto.request.DeleteImageFromS3Req;
 import dormease.dormeasedev.domain.notifications_requestments.image.dto.response.ImageUrlRes;
-import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
