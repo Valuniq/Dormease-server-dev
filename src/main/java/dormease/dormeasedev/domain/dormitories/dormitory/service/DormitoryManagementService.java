@@ -188,7 +188,8 @@ public class DormitoryManagementService {
         Dormitory dormitory = validDormitoryById(room.getDormitory().getId());
 
         Gender gender = room.getRoomType().getGender();
-        List<Resident> residentList = residentRepository.findByDormitoryAndRoomAndGender(dormitory, null, gender);
+//        List<Resident> residentList = residentRepository.findByDormitoryAndRoomAndGender(dormitory, null, gender);
+        List<Resident> residentList = new ArrayList<>(); // TODO : 임시
 
         List<NotOrAssignedResidentRes> notAssignedResidentsResList = new ArrayList<>();
         for (Resident resident : residentList) {

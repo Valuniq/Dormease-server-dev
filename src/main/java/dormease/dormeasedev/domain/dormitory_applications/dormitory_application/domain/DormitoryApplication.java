@@ -1,9 +1,9 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
-import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import dormease.dormeasedev.domain.users.user.domain.User;
@@ -28,16 +28,18 @@ public class DormitoryApplication extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "term_id")
-    private Term term;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dormitory_application_setting_id")
     private DormitoryApplicationSetting dormitoryApplicationSetting;
 
+    // 신청 기숙사_거주 기간
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dormitory_id")
-    private Dormitory dormitory;
+    @JoinColumn(name = "application_dormitory_term_id")
+    private DormitoryTerm applicationDormitoryTerm;
+
+    // 배정 결과 기숙사_거주 기간 (이동 합격의 경우 신청 기숙사와 달라짐)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "result_dormitory_term_id")
+    private DormitoryTerm resultDormitoryTerm;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "meal_ticket_id")
@@ -103,11 +105,11 @@ public class DormitoryApplication extends BaseEntity {
     }
 
     @Builder
-    public DormitoryApplication(User user, Term term, DormitoryApplicationSetting dormitoryApplicationSetting, Dormitory dormitory, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
+    public DormitoryApplication(User user, DormitoryApplicationSetting dormitoryApplicationSetting, DormitoryTerm applicationDormitoryTerm, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
         this.user = user;
-        this.term = term;
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
-        this.dormitory = dormitory;
+        this.applicationDormitoryTerm = applicationDormitoryTerm;
+        this.resultDormitoryTerm = null;
         this.mealTicket = mealTicket;
         this.copy = copy;
         this.prioritySelectionCopy = prioritySelectionCopy;

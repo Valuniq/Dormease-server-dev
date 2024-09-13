@@ -1,5 +1,8 @@
 package dormease.dormeasedev.domain.dormitories.dormitory.controller;
 
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.AddRoomNumberReq;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.RoomSettingReq;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingDetailRes;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.RoomSettingRes;

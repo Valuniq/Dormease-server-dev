@@ -12,11 +12,9 @@ import java.time.LocalDate;
 @Builder
 public class RefundRequestmentRes {
 
-    // TODO : 사생 이름, 학번, 휴대전화, 은행명, 계좌번호, (거주)기간, 퇴사 예정일(퇴실 날짜), 신청날짜, 건물(인실 포함), 호실, 침대번호
-
     @Schema(type = "Long", example = "1", description = "환불 신청 ID")
     private Long refundRequestmentId;
-    
+
     @Schema(type = "String", example = "홍길동", description = "이름")
     private String residentName;
 
