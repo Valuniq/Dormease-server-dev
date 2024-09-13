@@ -28,8 +28,7 @@ public class MealTicket extends BaseEntity {
     private Integer price;
 
     @Builder
-    public MealTicket(Long id, DormitoryApplicationSetting dormitoryApplicationSetting, Integer count, Integer price) {
-        this.id = id;
+    public MealTicket(DormitoryApplicationSetting dormitoryApplicationSetting, Integer count, Integer price) {
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
         this.count = count;
         this.price = price;

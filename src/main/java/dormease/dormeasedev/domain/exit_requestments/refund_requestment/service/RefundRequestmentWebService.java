@@ -1,18 +1,20 @@
 package dormease.dormeasedev.domain.exit_requestments.refund_requestment.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
+import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationService;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
-import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.RefundRequestment;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
+import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.RefundRequestment;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.dto.response.RefundRequestmentRes;
+import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.resident.service.ResidentService;
-import dormease.dormeasedev.domain.dormitories.room.domain.Room;
-import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.service.UserService;
@@ -59,14 +61,15 @@ public class RefundRequestmentWebService {
         List<RefundRequestment> refundRequestmentList = refundRequestmentsBySchool.getContent();
         List<RefundRequestmentRes> refundRequestmentResList = new ArrayList<>();
         for (RefundRequestment refundRequestment : refundRequestmentList) {
-            // TODO : 사생 이름, 학번, 휴대전화, 은행명, 계좌번호, (거주)기간, 퇴사 예정일, 신청날짜, 건물(호실 포함), 호실, 침대번호
             Resident resident = refundRequestment.getResident();
             User user = resident.getUser();
             Room room = resident.getRoom();
 
             DormitoryApplication dormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
-            Term term = dormitoryApplication.getTerm();
-            Dormitory dormitory = dormitoryApplication.getDormitory();
+            DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
+            Term term = resultDormitoryTerm.getTerm();
+            DormitoryRoomType dormitoryRoomType = resultDormitoryTerm.getDormitoryRoomType();
+            Dormitory dormitory = dormitoryRoomType.getDormitory();
 
             RefundRequestmentRes refundRequestmentRes = RefundRequestmentRes.builder()
                     .refundRequestmentId(refundRequestment.getId())
@@ -79,7 +82,7 @@ public class RefundRequestmentWebService {
                     .exitDate(refundRequestment.getExitDate())
                     .createDate(refundRequestment.getCreatedDate().toLocalDate())
                     .dormitoryName(dormitory.getName())
-                    .roomSize(room.getRoomType().getRoomSize())    // 수정
+                    .roomSize(room.getRoomType().getRoomSize())
                     .roomNumber(room.getRoomNumber())
                     .bedNumber(resident.getBedNumber())
                     .build();

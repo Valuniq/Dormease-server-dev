@@ -45,8 +45,7 @@ public class DormitoryApplicationSetting extends BaseEntity {
     private ApplicationStatus applicationStatus;
 
     @Builder
-    public DormitoryApplicationSetting(Long id, School school, String title, LocalDate startDate, LocalDate endDate, LocalDate depositStartDate, LocalDate depositEndDate, Integer securityDeposit, ApplicationStatus applicationStatus) {
-        this.id = id;
+    public DormitoryApplicationSetting(School school, String title, LocalDate startDate, LocalDate endDate, LocalDate depositStartDate, LocalDate depositEndDate, Integer securityDeposit) {
         this.school = school;
         this.title = title;
         this.startDate = startDate;
@@ -54,6 +53,6 @@ public class DormitoryApplicationSetting extends BaseEntity {
         this.depositStartDate = depositStartDate;
         this.depositEndDate = depositEndDate;
         this.securityDeposit = securityDeposit;
-        this.applicationStatus = applicationStatus;
+        this.applicationStatus = ApplicationStatus.READY;
     }
 }

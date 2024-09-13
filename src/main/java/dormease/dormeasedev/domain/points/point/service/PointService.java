@@ -1,23 +1,18 @@
 package dormease.dormeasedev.domain.points.point.service;
 
 import dormease.dormeasedev.domain.common.Status;
-import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
+import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.points.point.domain.Point;
 import dormease.dormeasedev.domain.points.point.domain.PointType;
 import dormease.dormeasedev.domain.points.point.domain.repository.PointRepository;
-import dormease.dormeasedev.domain.point.dto.request.*;
-import dormease.dormeasedev.domain.point.dto.response.*;
 import dormease.dormeasedev.domain.points.point.dto.request.*;
 import dormease.dormeasedev.domain.points.point.dto.response.*;
 import dormease.dormeasedev.domain.points.user_point.domain.UserPoint;
 import dormease.dormeasedev.domain.points.user_point.domain.repository.UserPointRepository;
+import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
-import dormease.dormeasedev.domain.school.domain.School;
-import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
@@ -36,7 +31,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -383,21 +381,36 @@ public class PointService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    private String getDormitoryName(Resident resident) {
-        // 호실 배정 시
-        Room room = resident.getRoom();
-        if (room != null) {
-            Dormitory dormitory = room.getDormitory();
-            return dormitory.getName() + "(" + room.getRoomType().getRoomSize() + "인실)";
-        // 호실 미배정 시
-        } else {
-            Dormitory dormitory = findDormitoryByResident(resident);
-            if (dormitory != null) {
-                return dormitory.getName();
-            }
-        }
-        return null;
-    }
+    // TODO : 확인 필요. 해당 메소드 필요 없다고 생각. 이유는 '미배정 사생은 직접 추가한 사생만 있고', 직접 추가한 사생은 상/벌점이 없기 때문.
+    //  - '미배정 사생은 직접 추가한 사생만 있고' ==> 기획과도 이야기 하여 확정 필요
+//    private String getDormitoryName(Resident resident) {
+//        // 호실 배정 시
+//        Room room = resident.getRoom();
+//        if (room != null) {
+//            Dormitory dormitory = room.getDormitory();
+//            return dormitory.getName() + "(" + room.getRoomType().getRoomSize() + "인실)";
+//        // 호실 미배정 시
+//        } else {
+//            Dormitory dormitory = findDormitoryByResident(resident);
+//            if (dormitory != null) {
+//                return dormitory.getName();
+//            }
+//        }
+//        return null;
+//    }
+
+    //    private Dormitory findDormitoryByResident(Resident resident) {
+//        User user = resident.getUser();
+//        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+//        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "사생의 현재 입사 신청이 존재하지 않습니다.");
+//        DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
+//        return dormitoryApplication.getDormitory();
+//
+////        return dormitoryApplicationRepository.findTop1ByUserAndResultsOrderByCreatedDateDesc(resident.getUser(), DormitoryApplicationResult.PASS)
+////                .map(DormitoryApplication::getTerm)
+////                .map(Term::getDormitory)
+////                .orElse(null);
+//    }
 
     private Integer getRoomNumber(Resident resident) {
         if (resident.getRoom() != null) {
@@ -405,20 +418,6 @@ public class PointService {
         } else {
             return null;
         }
-    }
-
-
-    private Dormitory findDormitoryByResident(Resident resident) {
-        User user = resident.getUser();
-        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
-        DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "사생의 현재 입사 신청이 존재하지 않습니다.");
-        DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
-        return dormitoryApplication.getDormitory();
-
-//        return dormitoryApplicationRepository.findTop1ByUserAndResultsOrderByCreatedDateDesc(resident.getUser(), DormitoryApplicationResult.PASS)
-//                .map(DormitoryApplication::getTerm)
-//                .map(Term::getDormitory)
-//                .orElse(null);
     }
 
     // 전체 사생 대상 조회 및 정렬
@@ -437,10 +436,9 @@ public class PointService {
         // 사생 목록 조회 (페이징 적용)
         // Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
 
-        List<ResidentInfoRes> residentInfoResList = residents.stream()
+        List<ResidentInfoRes> residentInfoResList = residents.getContent().stream()
                 .map(resident -> {
-                    String dormitoryName = getDormitoryName(resident);
-                    Integer roomNumber = getRoomNumber(resident);
+                    DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                     User user = resident.getUser();
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
@@ -449,8 +447,9 @@ public class PointService {
                             .phoneNumber(user.getPhoneNumber())
                             .bonusPoint(user.getBonusPoint())
                             .minusPoint(user.getMinusPoint())
-                            .dormitory(dormitoryName)
-                            .room(roomNumber)
+                            .dormitoryName(dormitoryRoomType.getDormitory().getName())
+                            .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
+                            .room(getRoomNumber(resident))
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -481,8 +480,7 @@ public class PointService {
 
         List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
                 .map(resident -> {
-                    String dormitoryName = getDormitoryName(resident);
-                    Integer roomNumber = getRoomNumber(resident);
+                    DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                     User user = resident.getUser();
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
@@ -491,8 +489,9 @@ public class PointService {
                             .phoneNumber(user.getPhoneNumber())
                             .bonusPoint(user.getBonusPoint())
                             .minusPoint(user.getMinusPoint())
-                            .dormitory(dormitoryName)
-                            .room(roomNumber)
+                            .dormitoryName(dormitoryRoomType.getDormitory().getName())
+                            .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
+                            .room(getRoomNumber(resident))
                             .build();
                 })
                 .collect(Collectors.toList());

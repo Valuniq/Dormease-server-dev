@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public class DormitoryTermReq {
 
-    @Schema(type = "Long", example = "1", description = "기숙사 ID")
-    private Long dormitoryId;
+    @Schema(type = "Long", example = "1", description = "기숙사(인실/성별 구분) ID")
+    private Long dormitoryRoomTypeId;
 
     // 가격
     @Schema(type = "Integer", example = "1300000", description= "가격입니다.")

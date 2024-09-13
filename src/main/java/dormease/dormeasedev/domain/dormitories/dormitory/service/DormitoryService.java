@@ -3,15 +3,17 @@ package dormease.dormeasedev.domain.dormitories.dormitory.service;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.app_dormitory_application.FindDormitoryRes;
+import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
+import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.repository.TermRepository;
+import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.school.service.SchoolService;
-import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.DefaultAssert;
@@ -55,12 +57,15 @@ public class DormitoryService {
         for (DormitoryTerm dormitoryTerm : dormitoryTermList) {
             if (dormitoryTerm.getPrice() == 0)
                 continue;
-            Dormitory dormitory = dormitoryTerm.getDormitory();
+
+            DormitoryRoomType dormitoryRoomType = dormitoryTerm.getDormitoryRoomType();
+            Dormitory dormitory = dormitoryRoomType.getDormitory();
+            RoomType roomType = dormitoryRoomType.getRoomType();
             FindDormitoryRes findDormitoryRes = FindDormitoryRes.builder()
-                    .dormitoryId(dormitory.getId())
-                    .dormitoryName(dormitory.getName())
-                    //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
+                    .dormitoryTermId(dormitoryTerm.getId())
                     .imageUrl(dormitory.getImageUrl())
+                    .dormitoryName(dormitory.getName())
+                    .roomSize(roomType.getRoomSize())
                     .price(dormitoryTerm.getPrice())
                     .termName(term.getTermName())
                     .build();

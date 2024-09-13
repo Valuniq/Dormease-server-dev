@@ -2,8 +2,8 @@ package dormease.dormeasedev.domain.dormitory_applications.dormitory_application
 
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
-import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodDateRes;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodDateRes;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;

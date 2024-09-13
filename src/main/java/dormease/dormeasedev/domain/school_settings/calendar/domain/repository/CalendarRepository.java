@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.school_settings.calendar.domain.repository;
 
-import dormease.dormeasedev.domain.school_settings.calendar.domain.Calendar;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.school_settings.calendar.domain.Calendar;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

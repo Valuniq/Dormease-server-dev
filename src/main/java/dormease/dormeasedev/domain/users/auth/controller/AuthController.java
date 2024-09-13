@@ -1,9 +1,9 @@
 package dormease.dormeasedev.domain.users.auth.controller;
 
 import dormease.dormeasedev.domain.users.auth.dto.request.SignInReq;
+import dormease.dormeasedev.domain.users.auth.dto.request.SignUpReq;
 import dormease.dormeasedev.domain.users.auth.dto.response.CheckLoginIdRes;
 import dormease.dormeasedev.domain.users.auth.dto.response.SignInRes;
-import dormease.dormeasedev.domain.users.auth.dto.request.SignUpReq;
 import dormease.dormeasedev.domain.users.auth.service.AuthService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;

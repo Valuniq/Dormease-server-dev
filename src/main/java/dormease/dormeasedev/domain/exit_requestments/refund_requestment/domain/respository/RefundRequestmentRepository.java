@@ -1,8 +1,8 @@
 package dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository;
 
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.RefundRequestment;
-import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

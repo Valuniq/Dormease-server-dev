@@ -2,8 +2,8 @@ package dormease.dormeasedev.domain.dormitory_applications.dormitory_term.servic
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
-import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
+import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import dormease.dormeasedev.global.DefaultAssert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,9 +26,9 @@ public class DormitoryTermService {
         DefaultAssert.isTrue(findDormitoryTerm.isPresent(), "존재하지 않는 id 입니다.");
         return findDormitoryTerm.get();
     }
-    public DormitoryTerm validateDormitoryTermByTermAndDormitory(Term term, Dormitory dormitory) {
-        Optional<DormitoryTerm> findDormitoryTerm = dormitoryTermRepository.findByTermAndDormitory(term, dormitory);
-        DefaultAssert.isTrue(findDormitoryTerm.isPresent(), "연관되지 않은 거주기간과 기숙사 정보입니다.");
-        return findDormitoryTerm.get();
-    }
+//    public DormitoryTerm validateDormitoryTermByTermAndDormitory(Term term, Dormitory dormitory) {
+//        Optional<DormitoryTerm> findDormitoryTerm = dormitoryTermRepository.findByTermAndDormitory(term, dormitory);
+//        DefaultAssert.isTrue(findDormitoryTerm.isPresent(), "연관되지 않은 거주기간과 기숙사 정보입니다.");
+//        return findDormitoryTerm.get();
+//    }
 }

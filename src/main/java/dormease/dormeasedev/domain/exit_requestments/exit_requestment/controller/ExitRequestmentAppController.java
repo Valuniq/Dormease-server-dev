@@ -1,8 +1,8 @@
 package dormease.dormeasedev.domain.exit_requestments.exit_requestment.controller;
 
-import dormease.dormeasedev.domain.exit_requestments.exit_requestment.service.ExitRequestmentAppService;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.request.ExitRequestmentReq;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ResidentInfoForExitRes;
+import dormease.dormeasedev.domain.exit_requestments.exit_requestment.service.ExitRequestmentAppService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import dormease.dormeasedev.global.payload.ErrorResponse;
 import dormease.dormeasedev.global.payload.Message;

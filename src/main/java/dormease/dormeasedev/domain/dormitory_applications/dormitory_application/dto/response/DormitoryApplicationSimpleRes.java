@@ -19,9 +19,7 @@ public class DormitoryApplicationSimpleRes {
     @Schema(type = "String", example = "2024학년도 1학기 1차 정기 신청", description = "입사 신청 설정 제목")
     private String dormitoryApplicationSettingTitle;
 
-    @Schema(type = "local date", example = "2024-01-01", description = "입사 신청 설정 등록일")
+    @Schema(type = "local date", example = "2024-01-01", description = "입사 신청 제출일")
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate createdDate;
-
-
 }
