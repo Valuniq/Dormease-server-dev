@@ -4,7 +4,7 @@ import dormease.dormeasedev.domain.notifications_requestments.requestment.domain
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.Requestment;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.repository.RequestmentRepository;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.WriteRequestmentReq;
-import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailRes;
+import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailUserRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
@@ -141,7 +141,7 @@ public class RequestmentAppService {
         User requestmentUser = requestment.getUser();
         Boolean myRequestment = user.equals(requestmentUser);
 
-        RequestmentDetailRes requestmentDetailRes = RequestmentDetailRes.builder()
+        RequestmentDetailUserRes requestmentDetailUserRes = RequestmentDetailUserRes.builder()
                 .requestmentId(requestmentId)
                 .myRequestment(myRequestment)
                 .title(requestment.getTitle())
@@ -155,7 +155,7 @@ public class RequestmentAppService {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(requestmentDetailRes)
+                .information(requestmentDetailUserRes)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
@@ -191,6 +191,4 @@ public class RequestmentAppService {
         DefaultAssert.isTrue(findRequestment.isPresent(), "올바르지 않은 요청사항 ID입니다.");
         return findRequestment.get();
     }
-
-
 }

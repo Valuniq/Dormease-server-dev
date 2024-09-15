@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface RequestmentRepository extends JpaRepository<Requestment, Long> {
 
+    // APP
     Page<Requestment> findRequestmentsByUser_SchoolAndVisibility(School school, Boolean visibility, Pageable pageable);
 
     Optional<Requestment> findByIdAndUser_School(Long requestmentId, School school);
@@ -20,4 +21,8 @@ public interface RequestmentRepository extends JpaRepository<Requestment, Long> 
     Optional<Requestment> findByIdAndUser(Long requestmentId, User user);
 
     Page<Requestment> findRequestmentsByUser(User user, Pageable pageable);
+
+    // WEB
+    Page<Requestment> findRequestmentsByUser_School(School school, Pageable pageable);
+
 }

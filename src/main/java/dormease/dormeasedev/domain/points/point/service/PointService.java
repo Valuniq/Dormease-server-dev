@@ -315,8 +315,13 @@ public class PointService {
                 minus += point.getScore();
         }
         userPointRepository.deleteAll(userPoints);
-        user.updateBonusPoint(user.getBonusPoint() + bonus);
-        user.updateMinusPoint(user.getMinusPoint() + minus);
+
+        Integer bonusPoint = user.getBonusPoint();
+        DefaultAssert.isTrue(bonusPoint < bonus, "상점은 0점 미만이 될 수 없습니다.");
+        Integer minusPoint = user.getMinusPoint();
+        DefaultAssert.isTrue(minusPoint < minus, "벌점은 0점 미만이 될 수 없습니다.");
+        user.updateBonusPoint(bonusPoint - bonus);
+        user.updateMinusPoint(minusPoint - minus);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

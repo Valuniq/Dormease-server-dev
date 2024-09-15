@@ -36,6 +36,10 @@ public class Requestment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Progression progression;
 
+    public void updateProgression(Progression progression) {
+        this.progression = progression;
+    }
+
     @Builder
     public Requestment(Long id, User user, String title, String content, Boolean consentDuringAbsence, Boolean visibility, Progression progression) {
         this.user = user;

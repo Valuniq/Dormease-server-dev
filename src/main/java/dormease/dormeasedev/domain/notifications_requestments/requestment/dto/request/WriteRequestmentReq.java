@@ -21,5 +21,4 @@ public class WriteRequestmentReq {
 
     @Schema(type = "String", example = "true", description = "공개 여부")
     private Boolean visibility;
-
 }
