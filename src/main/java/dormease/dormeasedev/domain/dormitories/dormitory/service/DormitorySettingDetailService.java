@@ -238,7 +238,7 @@ public class DormitorySettingDetailService {
         DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, floor).isEmpty(), "중복된 층이 존재합니다.");
 
         List<Room> rooms = generateRooms(dormitory, floor, createRoomSettingReqs);
-        DefaultAssert.isTrue(!rooms.isEmpty(), "호실 생성 중 오류가 발생했습니다.");
+        DefaultAssert.isTrue(checkValidateRoom(dormitory, floor), "설정되지 않은 속성이 있습니다.");
         // RoomCount 업데이트
         dormitory.updateRoomCount(rooms.size());
     }
@@ -408,17 +408,17 @@ public class DormitorySettingDetailService {
         DefaultAssert.isTrue(check, "설정되지 않은 속성값이 있습니다.");
     }
 
-    // 각 층별 복제 버튼 활성화 여부 확인
-    //private Boolean checkValidateRoom(Dormitory dormitory, Integer floor) {
+    // 각 층별 호실의 null값 여부 확인
+    private Boolean checkValidateRoom(Dormitory dormitory, Integer floor) {
         // 1. 해당 기숙사의 해당 층에 RoomType null인 방이 있는지 확인
-    //    boolean hasInvalidRoomType = roomRepository.existsByDormitoryAndFloorAndRoomType(dormitory, floor, null);
+        boolean hasInvalidRoomType = roomRepository.existsByDormitoryAndFloorAndRoomType(dormitory, floor, null);
         // 2. 해당 기숙사의 해당 층에 isActivated가 null인 방이 있는지 확인
-    //    boolean hasInvalidIsActivated = roomRepository.existsByDormitoryAndFloorAndIsActivated(dormitory, floor, null);
+        boolean hasInvalidIsActivated = roomRepository.existsByDormitoryAndFloorAndIsActivated(dormitory, floor, null);
         // 3. 해당 기숙사의 해당 층에 HasKey가 null인 방이 있는지 확인
-    //    boolean hasInvalidHasKey = roomRepository.existsByDormitoryAndFloorAndHasKeyIsNull(dormitory, floor);
+        boolean hasInvalidHasKey = roomRepository.existsByDormitoryAndFloorAndHasKeyIsNull(dormitory, floor);
         // 위의 조건 중 하나라도 true이면 유효하지 않으므로 false 반환
-    //    return !(hasInvalidRoomType || hasInvalidIsActivated || hasInvalidHasKey);
-    //}
+        return !(hasInvalidRoomType || hasInvalidIsActivated || hasInvalidHasKey);
+    }
 
     private void updateDormitorySize(List<Room> rooms) {
         Dormitory dormitory = rooms.get(0).getDormitory();
