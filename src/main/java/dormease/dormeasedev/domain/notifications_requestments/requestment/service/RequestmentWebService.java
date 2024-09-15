@@ -35,7 +35,7 @@ public class RequestmentWebService {
     private final RequestmentRepository requestmentRepository;
 
     // Description : 요청사항 목록 조회 (무한 스크롤)
-    public ResponseEntity<?> findRequestments(CustomUserDetails customUserDetails, Integer page) {
+    public PageResponse findRequestments(CustomUserDetails customUserDetails, Integer page) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
@@ -59,18 +59,11 @@ public class RequestmentWebService {
         }
 
         PageInfo pageInfo = PageInfo.toPageInfo(pageable, requestmentPage);
-        PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, requestmentResList);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(requestmentResList)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
+        return PageResponse.toPageResponse(pageInfo, requestmentResList);
     }
 
     // Description : 요청사항 상세 조회
-    public ResponseEntity<?> findRequestment(CustomUserDetails customUserDetails, Long requestmentId) {
+    public RequestmentDetailAdminRes findRequestment(CustomUserDetails customUserDetails, Long requestmentId) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
@@ -78,7 +71,7 @@ public class RequestmentWebService {
 
         User requestmentUser = requestment.getUser();
 
-        RequestmentDetailAdminRes requestmentDetailAdminRes = RequestmentDetailAdminRes.builder()
+        return RequestmentDetailAdminRes.builder()
                 .requestmentId(requestmentId)
                 .title(requestment.getTitle())
                 .content(requestment.getContent())
@@ -88,13 +81,6 @@ public class RequestmentWebService {
                 .visibility(requestment.getVisibility())
                 .progression(requestment.getProgression())
                 .build();
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(requestmentDetailAdminRes)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
     }
 
     @Transactional

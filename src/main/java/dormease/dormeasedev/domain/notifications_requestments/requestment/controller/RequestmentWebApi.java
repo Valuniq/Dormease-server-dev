@@ -40,7 +40,7 @@ public interface RequestmentWebApi {
             )
     })
     @GetMapping
-    ResponseEntity<?> findRequestments(
+    ResponseEntity<dormease.dormeasedev.global.payload.ApiResponse> findRequestments(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "요청사항 목록을 페이지 별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     );
@@ -57,7 +57,7 @@ public interface RequestmentWebApi {
             )
     })
     @GetMapping("/{requestmentId}")
-    ResponseEntity<?> findRequestment(
+    ResponseEntity<dormease.dormeasedev.global.payload.ApiResponse> findRequestment(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "요청사항의 id를 입력해주세요.", required = true) @PathVariable(value = "requestmentId") Long requestmentId
     );
@@ -65,7 +65,7 @@ public interface RequestmentWebApi {
     @Operation(summary = "요청사항 검토 상태 변경 API", description = "요청사항 검토 상태를 변경합니다.")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200", description = "요청사항 검토 상태 변경 성공",
+                    responseCode = "204", description = "요청사항 검토 상태 변경 성공",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}
             ),
             @ApiResponse(

@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.notifications_requestments.requestment.contr
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.ModifyProgressionReq;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.service.RequestmentWebService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.payload.ApiResponse;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,20 +19,28 @@ public class RequestmentWebController implements RequestmentWebApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<?> findRequestments(
+    public ResponseEntity<ApiResponse> findRequestments(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return requestmentWebService.findRequestments(customUserDetails, page - 1);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(requestmentWebService.findRequestments(customUserDetails, page - 1))
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     @Override
     @GetMapping("/{requestmentId}")
-    public ResponseEntity<?> findRequestment(
+    public ResponseEntity<ApiResponse> findRequestment(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("requestmentId") Long requestmentId
     ) {
-        return requestmentWebService.findRequestment(customUserDetails, requestmentId);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(requestmentWebService.findRequestment(customUserDetails, requestmentId))
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     @Override
