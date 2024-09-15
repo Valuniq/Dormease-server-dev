@@ -20,8 +20,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     List<Room> findByDormitoryAndFloorAndIsActivated(Dormitory dormitory, Integer floor, boolean b);
 
-    List<Room> findByDormitoryInAndFloor(List<Dormitory> sameNameDormitories, Integer floor);
-
     @Query("SELECT MAX(r.roomNumber) FROM Room r WHERE r.dormitory = :dormitory AND r.floor = :floor")
     Integer findMaxRoomNumberByDormitoryAndFloor(Dormitory dormitory, Integer floor);
 
@@ -43,4 +41,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     boolean existsByDormitoryAndRoomType_RoomSizeIsNull(Dormitory dormitory);
 
     boolean existsByDormitoryAndHasKeyIsNull(Dormitory dormitory);
+
+    void deleteByDormitory(Dormitory dormitory);
 }

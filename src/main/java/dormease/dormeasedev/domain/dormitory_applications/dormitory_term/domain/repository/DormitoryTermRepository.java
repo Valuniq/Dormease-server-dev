@@ -16,4 +16,7 @@ public interface DormitoryTermRepository extends JpaRepository<DormitoryTerm, Lo
 
     List<DormitoryTerm> findByDormitoryRoomType(DormitoryRoomType dormitoryRoomType);
 
+    List<DormitoryTerm> findByDormitoryRoomTypeIn(List<DormitoryRoomType> dormitoryRoomTypes);
+
+    boolean existsByDormitoryRoomTypeIn(List<DormitoryRoomType> dormitoryRoomTypes);
 }
