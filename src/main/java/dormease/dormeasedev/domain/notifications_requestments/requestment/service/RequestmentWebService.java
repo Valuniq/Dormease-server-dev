@@ -9,7 +9,6 @@ import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ApiResponse;
 import dormease.dormeasedev.global.payload.PageInfo;
 import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,12 +82,23 @@ public class RequestmentWebService {
     }
 
     @Transactional
-    public void modifyProgression(CustomUserDetails customUserDetails, Long requestmentId, ModifyProgressionReq modifyProgressionReq) {
+    public void modifyRequestmentProgression(CustomUserDetails customUserDetails, Long requestmentId, ModifyProgressionReq modifyProgressionReq) {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
         Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school);
 
         requestment.updateProgression(modifyProgressionReq.getProgression());
+    }
+
+    // TODO : 모든 delete는 soft delete 고민
+    @Transactional
+    public void deleteRequestment(CustomUserDetails customUserDetails, Long requestmentId) {
+
+        User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
+        Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school);
+
+        requestmentRepository.delete(requestment);
     }
 }

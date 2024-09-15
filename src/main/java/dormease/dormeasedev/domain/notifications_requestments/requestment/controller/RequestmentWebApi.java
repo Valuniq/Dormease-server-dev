@@ -66,7 +66,7 @@ public interface RequestmentWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204", description = "요청사항 검토 상태 변경 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}
             ),
             @ApiResponse(
                     responseCode = "400", description = "요청사항 검토 상태 변경 실패",
@@ -74,9 +74,26 @@ public interface RequestmentWebApi {
             )
     })
     @PutMapping("/{requestmentId}")
-    ResponseEntity<?> modifyProgression(
+    ResponseEntity<?> modifyRequestmentProgression(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "요청사항의 id를 입력해주세요.", required = true) @PathVariable(value = "requestmentId") Long requestmentId,
             @Parameter(description = "Schemas의 ModifyProgressionReq를 참고해주세요.", required = true) @RequestBody ModifyProgressionReq modifyProgressionReq
+    );
+
+    @Operation(summary = "요청사항 삭제 API", description = "요청사항을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204", description = "요청사항 삭제 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "요청사항 삭제 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}
+            )
+    })
+    @DeleteMapping("/{requestmentId}")
+    ResponseEntity<?> deleteRequestment(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "요청사항의 id를 입력해주세요.", required = true) @PathVariable(value = "requestmentId") Long requestmentId
     );
 }

@@ -45,12 +45,22 @@ public class RequestmentWebController implements RequestmentWebApi {
 
     @Override
     @PutMapping("/{requestmentId}")
-    public ResponseEntity<?> modifyProgression(
+    public ResponseEntity<?> modifyRequestmentProgression(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("requestmentId") Long requestmentId,
             @RequestBody ModifyProgressionReq modifyProgressionReq
     ) {
-        requestmentWebService.modifyProgression(customUserDetails, requestmentId, modifyProgressionReq);
+        requestmentWebService.modifyRequestmentProgression(customUserDetails, requestmentId, modifyProgressionReq);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @DeleteMapping("/{requestmentId}")
+    public ResponseEntity<?> deleteRequestment(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable("requestmentId") Long requestmentId
+    ) {
+        requestmentWebService.deleteRequestment(customUserDetails, requestmentId);
         return ResponseEntity.noContent().build();
     }
 }
