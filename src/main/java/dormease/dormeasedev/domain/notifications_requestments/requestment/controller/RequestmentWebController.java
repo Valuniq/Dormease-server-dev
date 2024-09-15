@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.notifications_requestments.requestment.controller;
 
+import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.ModifyProgressionReq;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.service.RequestmentWebService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
 import jakarta.validation.constraints.Positive;
@@ -31,5 +32,16 @@ public class RequestmentWebController implements RequestmentWebApi {
             @PathVariable("requestmentId") Long requestmentId
     ) {
         return requestmentWebService.findRequestment(customUserDetails, requestmentId);
+    }
+
+    @Override
+    @PutMapping("/{requestmentId}")
+    public ResponseEntity<?> modifyProgression(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable("requestmentId") Long requestmentId,
+            @RequestBody ModifyProgressionReq modifyProgressionReq
+    ) {
+        requestmentWebService.modifyProgression(customUserDetails, requestmentId, modifyProgressionReq);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.notifications_requestments.requestment.servi
 
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.Requestment;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.repository.RequestmentRepository;
+import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.ModifyProgressionReq;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailAdminRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.domain.school.domain.School;
@@ -94,5 +95,15 @@ public class RequestmentWebService {
                 .build();
 
         return ResponseEntity.ok(apiResponse);
+    }
+
+    @Transactional
+    public void modifyProgression(CustomUserDetails customUserDetails, Long requestmentId, ModifyProgressionReq modifyProgressionReq) {
+
+        User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
+        Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school);
+
+        requestment.updateProgression(modifyProgressionReq.getProgression());
     }
 }
