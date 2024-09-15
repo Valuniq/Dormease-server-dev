@@ -11,12 +11,12 @@ import java.time.LocalDate;
 @Setter
 @Getter
 @Builder
-public class RequestmentDetailRes {
+public class RequestmentDetailUserRes {
 
-    // TODO : 본인이 작성한 것인지 여부
     @Schema(type = "Long", example = "1", description = "요청사항 ID")
     private Long requestmentId;
 
+    // TODO : 본인이 작성한 요창사항인지
     @Schema(type = "Boolean", example = "true", description = "본인이 작성한 요청사항인지")
     private Boolean myRequestment;
 
