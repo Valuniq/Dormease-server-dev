@@ -1,7 +1,6 @@
 package dormease.dormeasedev.domain.dormitories.dormitory.controller;
 
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.AddRoomNumberReq;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.RoomSettingReq;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.UpdateRoomSettingReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.UpdateDormitoryNameReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingDetailRes;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingListRes;
@@ -23,6 +22,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -112,17 +112,19 @@ public class DormitorySettingWebController {
         return dormitorySettingService.updateDormitoryName(customUserDetails, dormitoryId, updateDormitoryNameReq);
     }
 
-    @Operation(summary = "호실 생성", description = "건물 설정 프로세스 중 특정 기숙사의 층 수를 추가해 호실을 생성합니다.")
+    @Operation(summary = "호실 저장", description = "건물 설정 프로세스 중 특정 기숙사 특정 층의 호실을 저장합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoomSettingRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "201", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+            @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PostMapping("/{dormitoryId}/room")
+    @PostMapping("/{dormitoryId}/{floor}/room")
     public ResponseEntity<?> registerRooms(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
-            @Parameter(description = "Schemas의 AddRoomNumberReq을 참고해주세요.", required = true) @Valid @RequestBody AddRoomNumberReq addRoomNumberReq) {
-        return dormitorySettingDetailService.addFloorAndRoomNumber(customUserDetails, dormitoryId, addRoomNumberReq);
+            @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @PathVariable Integer floor,
+            @Parameter(description = "Schemas의 CreateRoomSettingReq을 참고해주세요.", required = true) @Valid @RequestBody List<CreateRoomSettingReq> createRoomSettingReqs) {
+        dormitorySettingDetailService.saveRoomSetting(dormitoryId, floor, createRoomSettingReqs);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "호실 복제", description = "건물 설정 프로세스 중 특정 기숙사의 층에 속한 호실을 복제합니다.")
@@ -146,11 +148,11 @@ public class DormitorySettingWebController {
     @PostMapping("/room/setting")
     public ResponseEntity<?> updateRoomSetting(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "Schemas의 RoomSettingReq을 참고해주세요.", required = true) @RequestBody List<RoomSettingReq> roomSettingReqs,
+            @Parameter(description = "Schemas의 RoomSettingReq을 참고해주세요.", required = true) @RequestBody List<UpdateRoomSettingReq> updateRoomSettingReqs,
             @Parameter(description = "저장할 속성값의 종류입니다. GENDER(성별), ROOMSIZE(인실), HASKEY(열쇠 수령 여부), ISACTIVATED(활성화 여부)", required = true) @RequestParam String filterType
             ) {
         // 입사신청기간에는 수정 불가 - 추후 구현
-        return dormitorySettingDetailService.updateRoomSetting(customUserDetails, roomSettingReqs, filterType);
+        return dormitorySettingDetailService.updateRoomSetting(customUserDetails, updateRoomSettingReqs, filterType);
     }
 
     @Operation(summary = "호실 조회", description = "건물 세부 설정 프로세스 중 건물별, 층별로 호실을 조회합니다.")

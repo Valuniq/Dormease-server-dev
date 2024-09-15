@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class RoomSettingReq {
+public class UpdateRoomSettingReq {
 
     @NotNull
     @Schema(type = "Long", example = "1", description = "호실의 고유 id입니다.")

@@ -2,9 +2,9 @@ package dormease.dormeasedev.domain.dormitories.dormitory.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.AddRoomNumberReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.CopyRoomsReq;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.RoomSettingReq;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.CreateRoomSettingReq;
+import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.UpdateRoomSettingReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingDetailRes;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.FloorAndRoomNumberRes;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.RoomSettingRes;
@@ -39,56 +39,29 @@ public class DormitorySettingDetailService {
     private final ResidentRepository residentRepository;
     private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
 
-    // 호실 개수 추가
-    @Transactional
-    public ResponseEntity<?> addFloorAndRoomNumber(CustomUserDetails customUserDetails, Long dormitoryId, AddRoomNumberReq addRoomNumberReq) {
-
-        Dormitory dormitory = validDormitoryById(dormitoryId);
-
-        Integer floor = addRoomNumberReq.getFloor();
-        Integer start = addRoomNumberReq.getStartRoomNumber();
-        Integer end = addRoomNumberReq.getEndRoomNumber();
-
+    // 호실 생성
+    //@Transactional
+    //public ResponseEntity<?> addFloorAndRoomNumber(CustomUserDetails customUserDetails, Long dormitoryId, AddRoomNumberReq addRoomNumberReq) {
+    //    Dormitory dormitory = validDormitoryById(dormitoryId);
+    //    Integer floor = addRoomNumberReq.getFloor();
+    //    Integer start = addRoomNumberReq.getStartRoomNumber();
+    //    Integer end = addRoomNumberReq.getEndRoomNumber();
         // 이미 해당 층이 존재하면 예외처리
-        DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, floor).isEmpty(), "중복된 층이 존재합니다.");
-
+    //    DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, floor).isEmpty(), "중복된 층이 존재합니다.");
         // 유효성 검사
-        verifyRoomNumber(start, end);
-
-        List<Room> rooms = generateRoomNumbers(dormitory, floor, start, end);
-        DefaultAssert.isTrue(!rooms.isEmpty(), "호실 생성 중 오류가 발생했습니다.");
-
+    //    verifyRoomNumber(start, end);
+    //    List<Room> rooms = generateRoomNumbers(dormitory, floor, start, end);
+    //    DefaultAssert.isTrue(!rooms.isEmpty(), "호실 생성 중 오류가 발생했습니다.");
         // RoomCount 업데이트
-        dormitory.updateRoomCount(rooms.size());
+    //    dormitory.updateRoomCount(rooms.size());
+    //    List<RoomSettingRes> roomSettingResList = makeRoomSettingRes(rooms);
+    //    ApiResponse apiResponse = ApiResponse.builder()
+    //            .check(true)
+    //            .information(roomSettingResList)
+    //            .build();
 
-        List<RoomSettingRes> roomSettingResList = makeRoomSettingRes(rooms);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(roomSettingResList)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
-    }
-
-
-    private List<Room> generateRoomNumbers(Dormitory dormitory, int floor, int startRoomNumber, int endRoomNumber) {
-        List<Room> rooms = new ArrayList<>();
-        for (int roomNumber = startRoomNumber; roomNumber <= endRoomNumber; roomNumber++) {
-            int roomNumberInt = Integer.parseInt(floor + String.format("%02d", roomNumber));
-            Room room = Room.builder()
-                    .dormitory(dormitory)
-                    .floor(floor)
-                    .currentPeople(0)
-                    .roomNumber(roomNumberInt)
-                    .isActivated(true)
-                    .build();
-            rooms.add(room);
-        }
-        // 생성한 호실 한번에 저장
-        return roomRepository.saveAll(rooms);
-
-    }
+    //    return ResponseEntity.ok(apiResponse);
+    //}
 
     // 복제
     @Transactional
@@ -258,19 +231,51 @@ public class DormitorySettingDetailService {
         return residentRepository.existsByRoomIn(rooms);
     }
 
+    // 호실 생성
+    @Transactional
+    public void saveRoomSetting(Long dormitoryId, Integer floor, List<CreateRoomSettingReq> createRoomSettingReqs) {
+        Dormitory dormitory = validDormitoryById(dormitoryId);
+        // 이미 해당 층이 존재하면 예외처리
+        DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, floor).isEmpty(), "중복된 층이 존재합니다.");
+
+        List<Room> rooms = generateRooms(dormitory, floor, createRoomSettingReqs);
+        DefaultAssert.isTrue(!rooms.isEmpty(), "호실 생성 중 오류가 발생했습니다.");
+        // RoomCount 업데이트
+        dormitory.updateRoomCount(rooms.size());
+    }
+
+    private List<Room> generateRooms(Dormitory dormitory, int floor, List<CreateRoomSettingReq> createRoomSettingReqs) {
+        List<Room> rooms = new ArrayList<>();
+        for (CreateRoomSettingReq req : createRoomSettingReqs) {
+            RoomType roomType = roomTypeRepository.findByRoomSizeAndGender(req.getRoomSize(), req.getGender());
+            Room room = Room.builder()
+                    .dormitory(dormitory)
+                    .floor(floor)
+                    .roomNumber(req.getRoomNumber())
+                    .roomType(roomType)
+                    .hasKey(req.getHasKey())
+                    .currentPeople(0)
+                    .isActivated(req.getIsActivated())
+                    .build();
+            rooms.add(room);
+        }
+        // 생성한 호실 한번에 저장
+        return roomRepository.saveAll(rooms);
+    }
+
     // 호실 정보 수정
     // 필터
     @Transactional
-    public ResponseEntity<?> updateRoomSetting(CustomUserDetails customUserDetails, List<RoomSettingReq> roomSettingReqs, String filterType) {
+    public ResponseEntity<?> updateRoomSetting(CustomUserDetails customUserDetails, List<UpdateRoomSettingReq> updateRoomSettingReqs, String filterType) {
         List<Room> updatedRooms = new ArrayList<>();
 
-        for (RoomSettingReq roomSettingReq : roomSettingReqs) {
-            Long roomId = roomSettingReq.getRoomId();
+        for (UpdateRoomSettingReq updateRoomSettingReq : updateRoomSettingReqs) {
+            Long roomId = updateRoomSettingReq.getRoomId();
             Optional<Room> findRoom = roomRepository.findById(roomId);
             DefaultAssert.isTrue(findRoom.isPresent(), "호실 정보가 올바르지 않습니다.");
             Room room = findRoom.get();
 
-            updateRoomAttribute(room, roomSettingReq, filterType);
+            updateRoomAttribute(room, updateRoomSettingReq, filterType);
             updatedRooms.add(room);
         }
 
@@ -291,18 +296,18 @@ public class DormitorySettingDetailService {
     }
 
     // Room 속성 업데이트
-    private void updateRoomAttribute(Room room, RoomSettingReq roomSettingReq, String filterType) {
+    private void updateRoomAttribute(Room room, UpdateRoomSettingReq updateRoomSettingReq, String filterType) {
         RoomType roomType = null;
 
         switch (filterType) {
             case "GENDER":
                 if (room.getRoomType() == null) {
                     // 처음 등록: RoomType만 갱신하고, Dormitory와 연결하지 않음
-                    roomType = roomTypeRepository.findTop1ByGender(roomSettingReq.getGender());
+                    roomType = roomTypeRepository.findTop1ByGender(updateRoomSettingReq.getGender());
                     room.updateRoomType(roomType);
                 } else {
                     // 수정: roomSize와 gender로 RoomType을 찾고, DormitoryRoomType을 업데이트
-                    roomType = roomTypeRepository.findByRoomSizeAndGender(room.getRoomType().getRoomSize(), roomSettingReq.getGender());
+                    roomType = roomTypeRepository.findByRoomSizeAndGender(room.getRoomType().getRoomSize(), updateRoomSettingReq.getGender());
                     room.updateRoomType(roomType);
 
                     // RoomType이 업데이트된 경우만 Dormitory와 연결 처리
@@ -313,12 +318,12 @@ public class DormitorySettingDetailService {
             case "ROOMSIZE":
                 if (room.getRoomType() == null) {
                     // 처음 등록: RoomType만 갱신하고, Dormitory와 연결하지 않음
-                    roomType = roomTypeRepository.findTop1ByRoomSize(roomSettingReq.getRoomSize());
+                    roomType = roomTypeRepository.findTop1ByRoomSize(updateRoomSettingReq.getRoomSize());
                     room.updateRoomType(roomType);
 
                 } else {
                     // 수정: roomSize와 gender로 RoomType을 찾고, DormitoryRoomType을 업데이트
-                    roomType = roomTypeRepository.findByRoomSizeAndGender(roomSettingReq.getRoomSize(), room.getRoomType().getGender());
+                    roomType = roomTypeRepository.findByRoomSizeAndGender(updateRoomSettingReq.getRoomSize(), room.getRoomType().getGender());
                     room.updateRoomType(roomType);
 
                     // RoomType이 업데이트된 경우 Dormitory와 연결 처리
@@ -327,11 +332,11 @@ public class DormitorySettingDetailService {
                 break;
 
             case "HASKEY":
-                room.updateHasKey(roomSettingReq.getHasKey());
+                room.updateHasKey(updateRoomSettingReq.getHasKey());
                 break;
 
             case "ISACTIVATED":
-                room.updateIsActivated(roomSettingReq.getIsActivated());
+                room.updateIsActivated(updateRoomSettingReq.getIsActivated());
                 updateDormitoryRoomTypes(room.getDormitory(), room.getRoomType());
                 break;
 
