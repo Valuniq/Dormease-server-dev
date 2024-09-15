@@ -175,6 +175,7 @@ public class DormitorySettingDetailService {
                             .floor(floor)
                             .startRoomNumber(min)
                             .endRoomNumber(max)
+                            .isCopyButtonEnabled(checkValidateRoom(dormitory, floor))
                             .build()
             );
         }
@@ -185,7 +186,6 @@ public class DormitorySettingDetailService {
                 .id(dormitoryId)
                 .name(dormitory.getName())
                 .imageUrl(dormitory.getImageUrl())
-                .isCompleteButtonEnabled(checkValidateRoom(dormitory))
                 .floorAndRoomNumberRes(floorAndRoomNumberResList)
                 .build();
 
@@ -404,15 +404,16 @@ public class DormitorySettingDetailService {
         DefaultAssert.isTrue(check, "설정되지 않은 속성값이 있습니다.");
     }
 
-    private Boolean checkValidateRoom(Dormitory dormitory) {
-        // 1. 해당 기숙사에 gender가 EMPTY인 방이 있는지 확인
-        boolean hasInvalidGender = roomRepository.existsByDormitoryAndRoomType_Gender(dormitory, Gender.EMPTY);
-        // 2. 해당 기숙사에 RoomSize가 null인 방이 있는지 확인
-        boolean hasInvalidRoomSize = roomRepository.existsByDormitoryAndRoomType_RoomSizeIsNull(dormitory);
-        // 3. 해당 기숙사에 HasKey가 null인 방이 있는지 확인
-        boolean hasInvalidHasKey = roomRepository.existsByDormitoryAndHasKeyIsNull(dormitory);
+    // 각 층별 복제 버튼 활성화 여부 확인
+    private Boolean checkValidateRoom(Dormitory dormitory, Integer floor) {
+        // 1. 해당 기숙사의 해당 층에 RoomType null인 방이 있는지 확인
+        boolean hasInvalidRoomType = roomRepository.existsByDormitoryAndFloorAndRoomType(dormitory, floor, null);
+        // 2. 해당 기숙사의 해당 층에 isActivated가 null인 방이 있는지 확인
+        boolean hasInvalidIsActivated = roomRepository.existsByDormitoryAndFloorAndIsActivated(dormitory, floor, null);
+        // 3. 해당 기숙사의 해당 층에 HasKey가 null인 방이 있는지 확인
+        boolean hasInvalidHasKey = roomRepository.existsByDormitoryAndFloorAndHasKeyIsNull(dormitory, floor);
         // 위의 조건 중 하나라도 true이면 유효하지 않으므로 false 반환
-        return !(hasInvalidGender || hasInvalidRoomSize || hasInvalidHasKey);
+        return !(hasInvalidRoomType || hasInvalidIsActivated || hasInvalidHasKey);
     }
 
     private void updateDormitorySize(List<Room> rooms) {

@@ -36,11 +36,11 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     boolean existsByDormitoryAndFloorAndHasKey(Dormitory dormitory, Integer floor, Boolean haskey);
 
-    boolean existsByDormitoryAndRoomType_Gender(Dormitory dormitory, Gender gender);
-
-    boolean existsByDormitoryAndRoomType_RoomSizeIsNull(Dormitory dormitory);
-
-    boolean existsByDormitoryAndHasKeyIsNull(Dormitory dormitory);
-
     void deleteByDormitory(Dormitory dormitory);
+
+    boolean existsByDormitoryAndFloorAndRoomType(Dormitory dormitory, Integer floor, RoomType roomType);
+
+    boolean existsByDormitoryAndFloorAndIsActivated(Dormitory dormitory, Integer floor, Boolean b);
+
+    boolean existsByDormitoryAndFloorAndHasKeyIsNull(Dormitory dormitory, Integer floor);
 }
