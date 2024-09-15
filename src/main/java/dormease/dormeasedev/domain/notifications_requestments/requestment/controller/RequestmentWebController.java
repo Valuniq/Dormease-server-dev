@@ -6,10 +6,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,8 +19,17 @@ public class RequestmentWebController implements RequestmentWebApi {
     @GetMapping
     public ResponseEntity<?> findRequestments(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            Integer page
+            @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
         return requestmentWebService.findRequestments(customUserDetails, page - 1);
+    }
+
+    @Override
+    @GetMapping("/{requestmentId}")
+    public ResponseEntity<?> findRequestment(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable("requestmentId") Long requestmentId
+    ) {
+        return requestmentWebService.findRequestment(customUserDetails, requestmentId);
     }
 }

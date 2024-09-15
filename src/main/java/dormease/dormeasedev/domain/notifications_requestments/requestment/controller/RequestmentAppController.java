@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.notifications_requestments.requestment.controller;
 
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.WriteRequestmentReq;
-import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailRes;
+import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailUserRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.service.RequestmentAppService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
@@ -76,7 +76,7 @@ public class RequestmentAppController {
     // Description : 요청사항 상세 조회
     @Operation(summary = "요청사항 상세 조회" , description = "요청사항 상세 정보를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "요청사항 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RequestmentDetailRes.class))}),
+            @ApiResponse(responseCode = "200", description = "요청사항 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RequestmentDetailUserRes.class))}),
             @ApiResponse(responseCode = "400", description = "요청사항 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
     @GetMapping("/{requestmentId}")

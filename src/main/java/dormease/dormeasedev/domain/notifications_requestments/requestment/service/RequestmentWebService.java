@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.notifications_requestments.requestment.servi
 
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.Requestment;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.repository.RequestmentRepository;
+import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailAdminRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
@@ -28,6 +29,7 @@ import java.util.List;
 public class RequestmentWebService {
 
     private final UserService userService;
+    private final RequestmentAppService requestmentAppService;
 
     private final RequestmentRepository requestmentRepository;
 
@@ -61,6 +63,34 @@ public class RequestmentWebService {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(requestmentResList)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 요청사항 상세 조회
+    public ResponseEntity<?> findRequestment(CustomUserDetails customUserDetails, Long requestmentId) {
+
+        User admin = userService.validateUserById(customUserDetails.getId());
+        School school = admin.getSchool();
+        Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school); // 본인 학교 요청사항만 조회 가능
+
+        User requestmentUser = requestment.getUser();
+
+        RequestmentDetailAdminRes requestmentDetailAdminRes = RequestmentDetailAdminRes.builder()
+                .requestmentId(requestmentId)
+                .title(requestment.getTitle())
+                .content(requestment.getContent())
+                .writer(requestmentUser.getName())
+                .createdDate(requestment.getCreatedDate().toLocalDate())
+                .consentDuringAbsence(requestment.getConsentDuringAbsence())
+                .visibility(requestment.getVisibility())
+                .progression(requestment.getProgression())
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(requestmentDetailAdminRes)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
