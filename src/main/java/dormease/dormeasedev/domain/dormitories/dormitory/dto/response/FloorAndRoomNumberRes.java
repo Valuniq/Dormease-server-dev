@@ -18,14 +18,10 @@ public class FloorAndRoomNumberRes {
     @Schema(type = "Integer", example = "199", description= "호실의 끝 번호입니다.")
     private Integer endRoomNumber;
 
-    @Schema(type = "Boolean", example = "true", description= "`복제`버튼의 활성화 여부입니다.")
-    private Boolean isCopyButtonEnabled;
-
     @Builder
-    public FloorAndRoomNumberRes(Integer floor, Integer startRoomNumber, Integer endRoomNumber, boolean isCopyButtonEnabled) {
+    public FloorAndRoomNumberRes(Integer floor, Integer startRoomNumber, Integer endRoomNumber) {
         this.floor = floor;
         this.startRoomNumber = startRoomNumber;
         this.endRoomNumber = endRoomNumber;
-        this.isCopyButtonEnabled = isCopyButtonEnabled;
     }
 }

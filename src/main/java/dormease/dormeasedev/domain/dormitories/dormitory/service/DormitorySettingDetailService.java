@@ -148,7 +148,6 @@ public class DormitorySettingDetailService {
                             .floor(floor)
                             .startRoomNumber(min)
                             .endRoomNumber(max)
-                            .isCopyButtonEnabled(checkValidateRoom(dormitory, floor))
                             .build()
             );
         }
@@ -410,16 +409,16 @@ public class DormitorySettingDetailService {
     }
 
     // 각 층별 복제 버튼 활성화 여부 확인
-    private Boolean checkValidateRoom(Dormitory dormitory, Integer floor) {
+    //private Boolean checkValidateRoom(Dormitory dormitory, Integer floor) {
         // 1. 해당 기숙사의 해당 층에 RoomType null인 방이 있는지 확인
-        boolean hasInvalidRoomType = roomRepository.existsByDormitoryAndFloorAndRoomType(dormitory, floor, null);
+    //    boolean hasInvalidRoomType = roomRepository.existsByDormitoryAndFloorAndRoomType(dormitory, floor, null);
         // 2. 해당 기숙사의 해당 층에 isActivated가 null인 방이 있는지 확인
-        boolean hasInvalidIsActivated = roomRepository.existsByDormitoryAndFloorAndIsActivated(dormitory, floor, null);
+    //    boolean hasInvalidIsActivated = roomRepository.existsByDormitoryAndFloorAndIsActivated(dormitory, floor, null);
         // 3. 해당 기숙사의 해당 층에 HasKey가 null인 방이 있는지 확인
-        boolean hasInvalidHasKey = roomRepository.existsByDormitoryAndFloorAndHasKeyIsNull(dormitory, floor);
+    //    boolean hasInvalidHasKey = roomRepository.existsByDormitoryAndFloorAndHasKeyIsNull(dormitory, floor);
         // 위의 조건 중 하나라도 true이면 유효하지 않으므로 false 반환
-        return !(hasInvalidRoomType || hasInvalidIsActivated || hasInvalidHasKey);
-    }
+    //    return !(hasInvalidRoomType || hasInvalidIsActivated || hasInvalidHasKey);
+    //}
 
     private void updateDormitorySize(List<Room> rooms) {
         Dormitory dormitory = rooms.get(0).getDormitory();
@@ -445,11 +444,6 @@ public class DormitorySettingDetailService {
         dormitory.updateRoomCount(roomCount);
     }
 
-    private static void verifyRoomNumber(Integer start, Integer end) {
-        // 입력 값 유효성 검사
-        DefaultAssert.isTrue(start < 99 || end < 99 || start > 0 || end > 0, "호실 번호는 1부터 99까지의 값이어야 합니다.");
-        DefaultAssert.isTrue(start < end, "시작 호실 번호는 끝 호실 번호보다 작거나 같아야 합니다.");
-    }
 
     private Dormitory validDormitoryById(Long dormitoryId) {
         Optional<Dormitory> findDormitory = dormitoryRepository.findById(dormitoryId);
