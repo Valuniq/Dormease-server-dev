@@ -11,7 +11,4 @@ public interface RoomTypeRepository extends JpaRepository<RoomType, Long> {
 
     RoomType findByRoomSizeAndGender(Integer roomSize, Gender gender);
 
-    RoomType findTop1ByGender(Gender gender);
-
-    RoomType findTop1ByRoomSize(Integer roomSize);
 }
