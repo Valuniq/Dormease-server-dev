@@ -140,19 +140,21 @@ public class DormitorySettingWebController {
         return dormitorySettingDetailService.copyRoomsByFloor(customUserDetails, dormitoryId, copyRoomsReq);
     }
 
-    @Operation(summary = "호실 정보 추가", description = "건물 세부 설정 프로세스 중 필터를 이용하여 호실 정보를 추가합니다.")
+    @Operation(summary = "호실 정보 수정", description = "건물 세부 설정 프로세스 중 필터를 이용하여 호실 정보를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @PostMapping("/room/setting")
+    @PutMapping("/{dormitoryId}/{floor}/room")
     public ResponseEntity<?> updateRoomSetting(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @Parameter(description = "Schemas의 RoomSettingReq을 참고해주세요.", required = true) @RequestBody List<UpdateRoomSettingReq> updateRoomSettingReqs,
-            @Parameter(description = "저장할 속성값의 종류입니다. GENDER(성별), ROOMSIZE(인실), HASKEY(열쇠 수령 여부), ISACTIVATED(활성화 여부)", required = true) @RequestParam String filterType
-            ) {
+            @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
+            @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @PathVariable Integer floor,
+            @Parameter(description = "Schemas의 UpdateRoomSettingReq을 참고해주세요.", required = true) @RequestBody List<UpdateRoomSettingReq> updateRoomSettingReqs
+    ) {
         // 입사신청기간에는 수정 불가 - 추후 구현
-        return dormitorySettingDetailService.updateRoomSetting(customUserDetails, updateRoomSettingReqs, filterType);
+        dormitorySettingDetailService.updateRoomSetting(dormitoryId, floor, updateRoomSettingReqs);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "호실 조회", description = "건물 세부 설정 프로세스 중 건물별, 층별로 호실을 조회합니다.")

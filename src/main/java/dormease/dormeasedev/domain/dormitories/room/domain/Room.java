@@ -62,15 +62,10 @@ public class Room extends BaseEntity {
         updateCurrentPeople(Math.max(count, 0));
     }
 
-    public void updateRoomType(RoomType roomType) {
+    public void updateRoomAttributes(RoomType roomType, Boolean hasKey, Boolean isActivated) {
         this.roomType = roomType;
-    }
-
-    public void updateHasKey(Boolean hasKey) {
         this.hasKey = hasKey;
-    }
-
-    public void updateIsActivated(Boolean isActivated) {
         this.isActivated = isActivated;
     }
+
 }
