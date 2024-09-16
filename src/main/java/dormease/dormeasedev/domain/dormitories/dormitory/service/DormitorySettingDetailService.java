@@ -147,7 +147,7 @@ public class DormitorySettingDetailService {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Room> deletedRooms = roomRepository.findByDormitoryAndFloor(dormitory, floor);
 
-        boolean hasRelatedResidentByFloor = !hasRelatedResidents(dormitory, floor);
+        boolean hasRelatedResidentByFloor = hasRelatedResidents(dormitory, floor);
         boolean check = true;
         String msg = "호실이 삭제되었습니다.";
         if (hasRelatedResidentByFloor) {
