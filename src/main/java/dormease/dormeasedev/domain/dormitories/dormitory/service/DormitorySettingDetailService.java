@@ -237,8 +237,19 @@ public class DormitorySettingDetailService {
         // 이미 해당 층이 존재하면 예외처리
         DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, floor).isEmpty(), "중복된 층이 존재합니다.");
 
+        // createRoomSettinRoomReqs에 null있는지 확인
+        boolean hasNullFields = createRoomSettingReqs.stream()
+                .anyMatch(room ->
+                                room.getGender() == null ||
+                                room.getRoomSize() == null ||
+                                room.getHasKey() == null ||
+                                room.getIsActivated() == null
+                );
+        DefaultAssert.isTrue(!hasNullFields, "설정되지 않은 속성이 있습니다.");
+
         List<Room> rooms = generateRooms(dormitory, floor, createRoomSettingReqs);
-        DefaultAssert.isTrue(checkValidateRoom(dormitory, floor), "설정되지 않은 속성이 있습니다.");
+        // DefaultAssert.isTrue(checkValidateRoom(dormitory, floor), "설정되지 않은 속성이 있습니다.");
+
         // RoomCount, DormitorySize 업데이트
         updateRoomCount(dormitory, rooms);
         updateDormitorySize(dormitory, rooms);
@@ -271,6 +282,15 @@ public class DormitorySettingDetailService {
     public void updateRoomSetting(Long dormitoryId, Integer floor, List<UpdateRoomSettingReq> updateRoomSettingReqs) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Room> updatedRooms = new ArrayList<>();
+        // updateRoomSettingReqs에 null있는지 확인
+        boolean hasNullFields = updateRoomSettingReqs.stream()
+                .anyMatch(room ->
+                        room.getGender() == null ||
+                        room.getRoomSize() == null ||
+                        room.getHasKey() == null ||
+                        room.getIsActivated() == null
+        );
+        DefaultAssert.isTrue(!hasNullFields, "설정되지 않은 속성이 있습니다.");
 
         for (UpdateRoomSettingReq updateRoomSettingReq : updateRoomSettingReqs) {
             Long roomId = updateRoomSettingReq.getRoomId();
@@ -283,8 +303,8 @@ public class DormitorySettingDetailService {
             room.updateRoomAttributes(roomType, updateRoomSettingReq.getHasKey(), updateRoomSettingReq.getIsActivated());
             updatedRooms.add(room);
         }
-        // null 체크
-        checkValidateRoom(dormitory, floor);
+        //checkValidateRoom(dormitory, floor);
+
         // 수용인원 및 호실 개수 업데이트
         updateDormitorySize(dormitory, updatedRooms);
         updateRoomCount(dormitory, updatedRooms);
