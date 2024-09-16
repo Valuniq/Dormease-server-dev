@@ -1,4 +1,4 @@
-package dormease.dormeasedev.global.config.security.token;
+package dormease.dormeasedev.global.security;
 
 import dormease.dormeasedev.domain.users.user.domain.User;
 import lombok.Builder;

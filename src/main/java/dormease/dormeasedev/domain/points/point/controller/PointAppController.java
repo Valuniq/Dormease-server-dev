@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.points.point.controller;
 import dormease.dormeasedev.domain.points.point.dto.response.UserPointAppRes;
 import dormease.dormeasedev.domain.points.point.dto.response.UserPointHistoryAppRes;
 import dormease.dormeasedev.domain.points.point.service.PointService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

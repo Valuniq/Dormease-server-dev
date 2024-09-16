@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.dormitory_applications.meal_ticket.controlle
 
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.dto.response.MealTicketRes;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.service.MealTicketService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

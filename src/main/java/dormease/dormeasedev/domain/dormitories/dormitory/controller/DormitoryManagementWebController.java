@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryMe
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.*;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryManagementService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

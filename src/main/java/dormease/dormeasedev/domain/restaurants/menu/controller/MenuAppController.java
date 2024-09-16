@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.restaurants.menu.controller;
 import dormease.dormeasedev.domain.restaurants.menu.dto.request.FindMenuReq;
 import dormease.dormeasedev.domain.restaurants.menu.dto.response.MenuRes;
 import dormease.dormeasedev.domain.restaurants.menu.service.MenuAppService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

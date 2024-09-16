@@ -1,7 +1,7 @@
-package dormease.dormeasedev.global.config.security.filter;
+package dormease.dormeasedev.global.security.filter;
 
-import dormease.dormeasedev.global.config.security.token.CustomUserDetailService;
-import dormease.dormeasedev.global.config.security.token.TokenProvider;
+import dormease.dormeasedev.global.security.CustomUserDetailService;
+import dormease.dormeasedev.global.security.jwt.TokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

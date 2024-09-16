@@ -15,7 +15,7 @@ import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
 import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;

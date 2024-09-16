@@ -9,7 +9,7 @@ import dormease.dormeasedev.domain.users.user.dto.response.DeleteUserInfoRes;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.PageInfo;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.dormitory_applications.term.controller;
 
 import dormease.dormeasedev.domain.dormitory_applications.term.dto.response.TermNameRes;
 import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

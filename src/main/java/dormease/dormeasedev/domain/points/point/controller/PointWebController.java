@@ -9,7 +9,7 @@ import dormease.dormeasedev.domain.points.point.dto.response.TotalUserPointRes;
 import dormease.dormeasedev.domain.points.point.service.PointService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

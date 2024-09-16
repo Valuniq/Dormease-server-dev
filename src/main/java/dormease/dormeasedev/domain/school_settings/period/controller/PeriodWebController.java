@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.school_settings.period.dto.request.PeriodReq;
 import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodRes;
 import dormease.dormeasedev.domain.school_settings.period.service.PeriodWebService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

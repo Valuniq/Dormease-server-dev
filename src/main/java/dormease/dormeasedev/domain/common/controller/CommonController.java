@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.common.controller;
 
 import dormease.dormeasedev.domain.common.dto.response.ExistApplicationRes;
 import dormease.dormeasedev.domain.common.service.CommonService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.school_settings.calendar.dto.response.Calenda
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarRes;
 import dormease.dormeasedev.domain.school_settings.calendar.service.CalendarService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

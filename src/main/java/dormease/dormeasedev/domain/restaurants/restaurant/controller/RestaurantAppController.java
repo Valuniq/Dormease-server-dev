@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.restaurants.restaurant.controller;
 
 import dormease.dormeasedev.domain.restaurants.restaurant.dto.response.RestaurantNameRes;
 import dormease.dormeasedev.domain.restaurants.restaurant.service.RestaurantService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
