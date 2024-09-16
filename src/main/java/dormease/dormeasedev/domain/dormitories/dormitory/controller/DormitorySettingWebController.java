@@ -8,12 +8,7 @@ import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.RoomSettin
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitorySettingDetailService;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitorySettingService;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.*;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageResponse;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,7 +71,7 @@ public class DormitorySettingWebController {
     public ResponseEntity<?> getDormitoryDetail(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId) {
-        dormease.dormeasedev.global.payload.ApiResponse apiResponse = dormease.dormeasedev.global.payload.ApiResponse.builder()
+        dormease.dormeasedev.global.common.ApiResponse apiResponse = dormease.dormeasedev.global.common.ApiResponse.builder()
                 .check(true)
                 .information(dormitorySettingDetailService.getDormitoryDetails(customUserDetails, dormitoryId))
                 .build();
@@ -124,7 +119,7 @@ public class DormitorySettingWebController {
     @Operation(summary = "호실 저장", description = "건물 설정 프로세스 중 특정 기숙사 특정 층의 호실을 저장합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
-            @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping("/{dormitoryId}/{floor}/room")
     public ResponseEntity<?> registerRooms(
@@ -138,9 +133,7 @@ public class DormitorySettingWebController {
 
     @Operation(summary = "호실 복제", description = "건물 설정 프로세스 중 특정 기숙사의 층에 속한 호실을 복제합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoomSettingRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "201", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
             @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping("/{dormitoryId}/room/copy")
@@ -154,8 +147,8 @@ public class DormitorySettingWebController {
 
     @Operation(summary = "호실 정보 수정", description = "건물 세부 설정 프로세스 중 필터를 이용하여 호실 정보를 수정합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+            @ApiResponse(responseCode = "204", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PutMapping("/{dormitoryId}/{floor}/room")
     public ResponseEntity<?> updateRoomSetting(
@@ -171,8 +164,7 @@ public class DormitorySettingWebController {
 
     @Operation(summary = "호실 조회", description = "건물 세부 설정 프로세스 중 건물별, 층별로 호실을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "0", description = "조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoomSettingRes.class)))}),
-            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
+            @ApiResponse(responseCode = "200", description = "조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoomSettingRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{dormitoryId}/{floor}/room")
@@ -181,7 +173,7 @@ public class DormitorySettingWebController {
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @PathVariable Integer floor
             ) {
-        dormease.dormeasedev.global.payload.ApiResponse apiResponse = dormease.dormeasedev.global.payload.ApiResponse.builder()
+        dormease.dormeasedev.global.common.ApiResponse apiResponse = dormease.dormeasedev.global.common.ApiResponse.builder()
                 .check(true)
                 .information(dormitorySettingDetailService.getRoomsByDormitoryAndFloor(customUserDetails, dormitoryId, floor))
                 .build();
