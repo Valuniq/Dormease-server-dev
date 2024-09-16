@@ -2,10 +2,10 @@ package dormease.dormeasedev.domain.exit_requestments.refund_requestment.control
 
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.dto.response.RefundRequestmentRes;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.service.RefundRequestmentWebService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageResponse;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.common.PageResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -32,7 +32,7 @@ public class RefundRequestmentWebController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "환불 신청 사생 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RefundRequestmentRes.class)))}),
             @ApiResponse(responseCode = "200", description = "환불 신청 사생 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
-            @ApiResponse(responseCode = "400", description = "환불 신청 사생 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "환불 신청 사생 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping
     public ResponseEntity<?> findResidents(
@@ -46,7 +46,7 @@ public class RefundRequestmentWebController {
     @Operation(summary = "환불 요청 완료 처리 (삭제)", description = "환불 요청 완료 처리(삭제)합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "환불 완료 사생 처리(삭제) 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "환불 완료 사생 처리(삭제) 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "환불 완료 사생 처리(삭제) 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @DeleteMapping("/{refundRequestmentId}")
     public ResponseEntity<?> deleteRefundRequestment(

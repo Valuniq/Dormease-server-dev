@@ -1,8 +1,7 @@
-package dormease.dormeasedev.global.config.security;
+package dormease.dormeasedev.global.security;
 
-import dormease.dormeasedev.global.config.security.filter.JwtAuthenticationFilter;
-import dormease.dormeasedev.global.config.security.handler.JwtAccessDeniedHandler;
-import dormease.dormeasedev.global.config.security.handler.JwtAuthenticationEntryPoint;
+import dormease.dormeasedev.global.security.filter.JwtAuthenticationFilter;
+import dormease.dormeasedev.global.security.handler.JwtAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;

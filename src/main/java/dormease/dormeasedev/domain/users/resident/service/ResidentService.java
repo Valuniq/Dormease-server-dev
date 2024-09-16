@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.users.resident.service;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
-import dormease.dormeasedev.global.DefaultAssert;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

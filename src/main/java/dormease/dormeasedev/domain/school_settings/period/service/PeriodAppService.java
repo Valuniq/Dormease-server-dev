@@ -7,9 +7,9 @@ import dormease.dormeasedev.domain.school_settings.period.domain.repository.Peri
 import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodDateRes;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
-import dormease.dormeasedev.global.DefaultAssert;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ApiResponse;
+import dormease.dormeasedev.global.common.ApiResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

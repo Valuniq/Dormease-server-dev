@@ -2,8 +2,8 @@ package dormease.dormeasedev.domain.notifications_requestments.requestment.contr
 
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.ModifyProgressionReq;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.service.RequestmentWebService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ApiResponse;
+import dormease.dormeasedev.global.common.ApiResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

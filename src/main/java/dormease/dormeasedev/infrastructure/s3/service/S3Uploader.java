@@ -5,8 +5,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import dormease.dormeasedev.global.error.DefaultException;
-import dormease.dormeasedev.global.payload.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -29,7 +27,7 @@ public class S3Uploader {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String uploadImage(MultipartFile file) {
+    public String uploadImage(MultipartFile file) throws IOException {
         String originalFileName = file.getOriginalFilename();
         String saveFileName = createSaveFileName(originalFileName);
 
@@ -41,7 +39,8 @@ public class S3Uploader {
             // S3에 업로드
             amazonS3.putObject(new PutObjectRequest(bucket, saveFileName, inputStream, metadata));
         } catch (IOException e) {
-            throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+            throw new IOException("파일 업로드에 실패했습니다.", e);
+//            throw new DefaultException(ErrorCode.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
 
         return getFullPath(saveFileName);

@@ -3,8 +3,8 @@ package dormease.dormeasedev.domain.points.point.controller;
 import dormease.dormeasedev.domain.points.point.dto.response.UserPointAppRes;
 import dormease.dormeasedev.domain.points.point.dto.response.UserPointHistoryAppRes;
 import dormease.dormeasedev.domain.points.point.service.PointService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -33,7 +33,7 @@ public class PointAppController {
     @Operation(summary = "상벌점 점수 조회", description = "마이페이지에서 사용자의 상/벌점 각각의 총합을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserPointAppRes.class))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("")
     public ResponseEntity<?> getUserPoint(
@@ -46,7 +46,7 @@ public class PointAppController {
     @Operation(summary = "상벌점 내역 조회", description = "마이페이지에서 type에 따라 사용자의 상/벌점 내역을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserPointHistoryAppRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{type}")
     public ResponseEntity<?> getUserPointHistory(

@@ -1,4 +1,4 @@
-package dormease.dormeasedev.global.config.security;
+package dormease.dormeasedev.global.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

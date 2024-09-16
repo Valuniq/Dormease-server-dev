@@ -17,12 +17,12 @@ import dormease.dormeasedev.domain.notifications_requestments.notification.dto.r
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
-import dormease.dormeasedev.global.DefaultAssert;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ApiResponse;
-import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageInfo;
-import dormease.dormeasedev.global.payload.PageResponse;
+import dormease.dormeasedev.global.common.ApiResponse;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.common.PageInfo;
+import dormease.dormeasedev.global.common.PageResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +91,7 @@ public class NotificationWebService {
 
     // Description : 공지사항(FAQ) 작성
     @Transactional
-    public ResponseEntity<?> writeNotification(CustomUserDetails customUserDetails, WriteNotificationReq writeNotificationReq, List<MultipartFile> multipartFiles) {
+    public ResponseEntity<?> writeNotification(CustomUserDetails customUserDetails, WriteNotificationReq writeNotificationReq, List<MultipartFile> multipartFiles) throws IOException {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
@@ -168,7 +169,7 @@ public class NotificationWebService {
 
     // Description : 공지사항(FAQ) 수정
     @Transactional
-    public ResponseEntity<?> modifyNotification(CustomUserDetails customUserDetails, ModifyNotificationReq modifyNotificationReq, List<MultipartFile> multipartFiles) {
+    public ResponseEntity<?> modifyNotification(CustomUserDetails customUserDetails, ModifyNotificationReq modifyNotificationReq, List<MultipartFile> multipartFiles) throws IOException {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         School school = admin.getSchool();
@@ -236,7 +237,7 @@ public class NotificationWebService {
     }
 
     // Description : 파일 업로드 함수
-    public void uploadFiles(Notification notification, List<MultipartFile> multipartFiles) {
+    public void uploadFiles(Notification notification, List<MultipartFile> multipartFiles) throws IOException {
 
         for (MultipartFile multipartFile : multipartFiles) {
             String fileUrl;

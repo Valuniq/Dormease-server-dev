@@ -13,10 +13,10 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
-import dormease.dormeasedev.global.DefaultAssert;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ApiResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.common.ApiResponse;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -115,7 +116,7 @@ public class DormitorySettingService {
 
     // [건물 설정] 건물 사진 추가 및 변경
     @Transactional
-    public ResponseEntity<?> updateDormitoryImage(CustomUserDetails customUserDetails, Long dormitoryId, MultipartFile image) {
+    public ResponseEntity<?> updateDormitoryImage(CustomUserDetails customUserDetails, Long dormitoryId, MultipartFile image) throws IOException {
         User user = userService.validateUserById(customUserDetails.getId());
         Dormitory dormitory = validDormitoryById(dormitoryId);
 

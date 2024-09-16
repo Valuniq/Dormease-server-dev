@@ -4,10 +4,10 @@ import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.re
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailUserRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.service.RequestmentAppService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageResponse;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.common.PageResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -33,7 +33,7 @@ public class RequestmentAppController {
     @Operation(summary = "요청사항 작성" , description = "요청사항을 작성합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "요청사항 작성 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "요청사항 작성 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "요청사항 작성 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> writeRequestment(
@@ -48,7 +48,7 @@ public class RequestmentAppController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "요청사항 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RequestmentRes.class)))}),
             @ApiResponse(responseCode = "200", description = "요청사항 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
-            @ApiResponse(responseCode = "400", description = "요청사항 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "요청사항 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping
     public ResponseEntity<?> findRequestments(
@@ -63,7 +63,7 @@ public class RequestmentAppController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "내 요청사항 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RequestmentRes.class)))}),
             @ApiResponse(responseCode = "200", description = "내 요청사항 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
-            @ApiResponse(responseCode = "400", description = "내 요청사항 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "내 요청사항 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/my")
     public ResponseEntity<?> findMyRequestments(
@@ -77,7 +77,7 @@ public class RequestmentAppController {
     @Operation(summary = "요청사항 상세 조회" , description = "요청사항 상세 정보를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "요청사항 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RequestmentDetailUserRes.class))}),
-            @ApiResponse(responseCode = "400", description = "요청사항 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "요청사항 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{requestmentId}")
     public ResponseEntity<?> findRequestmentDetail(
@@ -91,7 +91,7 @@ public class RequestmentAppController {
     @Operation(summary = "요청사항 삭제" , description = "요청사항을 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "요청사항 삭제 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "요청사항 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "요청사항 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @DeleteMapping("/{requestmentId}")
     public ResponseEntity<?> deleteRequestment(

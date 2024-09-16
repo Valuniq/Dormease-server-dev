@@ -3,9 +3,9 @@ package dormease.dormeasedev.domain.exit_requestments.exit_requestment.controlle
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.request.ExitRequestmentReq;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ResidentInfoForExitRes;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.service.ExitRequestmentAppService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,7 +31,7 @@ public class ExitRequestmentAppController {
     @Operation(summary = "퇴사 확인서를 위한 사생 정보 조회", description = "퇴사 확인서를 위한 사생 정보를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "퇴사 확인서를 위한 사생 정보 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ResidentInfoForExitRes.class))}),
-            @ApiResponse(responseCode = "400", description = "퇴사 확인서를 위한 사생 정보 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "퇴사 확인서를 위한 사생 정보 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping
     public ResponseEntity<?> findInfoForExitRequestment(
@@ -44,7 +44,7 @@ public class ExitRequestmentAppController {
     @Operation(summary = "퇴사 확인서 제출", description = "퇴사 확인서를 제출.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "퇴사 확인서 제출 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "퇴사 확인서 제출 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "퇴사 확인서 제출 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> submitExitRequestment(

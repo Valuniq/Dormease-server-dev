@@ -1,6 +1,6 @@
 package dormease.dormeasedev.domain.points.point.dto.response;
 
-import dormease.dormeasedev.global.payload.PageInfo;
+import dormease.dormeasedev.global.common.PageInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,8 +1,8 @@
-package dormease.dormeasedev.global.config.security.token;
+package dormease.dormeasedev.global.security;
 
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
-import dormease.dormeasedev.global.DefaultAssert;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

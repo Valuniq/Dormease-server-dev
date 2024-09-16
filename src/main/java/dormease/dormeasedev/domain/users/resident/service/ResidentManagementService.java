@@ -23,12 +23,12 @@ import dormease.dormeasedev.domain.users.user.domain.SchoolStatus;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.service.UserService;
-import dormease.dormeasedev.global.DefaultAssert;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ApiResponse;
-import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageInfo;
-import dormease.dormeasedev.global.payload.PageResponse;
+import dormease.dormeasedev.global.common.ApiResponse;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.common.PageInfo;
+import dormease.dormeasedev.global.common.PageResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -372,7 +373,7 @@ public class ResidentManagementService {
     // Description : copy, prioritySelectionCopy는 변경 없을 시 보내지 말 것
     @Transactional
     public ResponseEntity<?> updateResidentPrivateInfo(CustomUserDetails customUserDetails, Long residentId,
-                                                       Optional<MultipartFile> copy, Optional<MultipartFile>  prioritySelectionCopy, ResidentPrivateInfoReq residentPrivateInfoReq) {
+                                                       Optional<MultipartFile> copy, Optional<MultipartFile>  prioritySelectionCopy, ResidentPrivateInfoReq residentPrivateInfoReq) throws IOException {
         User admin = userService.validateUserById(customUserDetails.getId());
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
@@ -402,7 +403,7 @@ public class ResidentManagementService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    private void uploadCopyFile(DormitoryApplication dormitoryApplication, MultipartFile file) {
+    private void uploadCopyFile(DormitoryApplication dormitoryApplication, MultipartFile file) throws IOException {
         String originalFile = dormitoryApplication.getCopy().split("amazonaws.com/")[1];
         s3Uploader.deleteFile(originalFile);
 
@@ -410,7 +411,7 @@ public class ResidentManagementService {
         dormitoryApplication.updateCopy(imageUrl);
     }
 
-    private void uploadPrioritySelectionCopyFile(DormitoryApplication dormitoryApplication, MultipartFile file) {
+    private void uploadPrioritySelectionCopyFile(DormitoryApplication dormitoryApplication, MultipartFile file) throws IOException {
         String originalFile = dormitoryApplication.getPrioritySelectionCopy().split("amazonaws.com/")[1];
         s3Uploader.deleteFile(originalFile);
 

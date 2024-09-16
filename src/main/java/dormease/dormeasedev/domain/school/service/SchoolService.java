@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.school.service;
 
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.school.domain.repository.SchoolRepository;
-import dormease.dormeasedev.global.DefaultAssert;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
