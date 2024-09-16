@@ -241,12 +241,15 @@ public class DormitorySettingDetailService {
         DefaultAssert.isTrue(checkValidateRoom(dormitory, floor), "설정되지 않은 속성이 있습니다.");
         // RoomCount 업데이트
         dormitory.updateRoomCount(rooms.size());
+        updateDormitorySize(rooms);
     }
 
     private List<Room> generateRooms(Dormitory dormitory, int floor, List<CreateRoomSettingReq> createRoomSettingReqs) {
         List<Room> rooms = new ArrayList<>();
         for (CreateRoomSettingReq req : createRoomSettingReqs) {
             RoomType roomType = roomTypeRepository.findByRoomSizeAndGender(req.getRoomSize(), req.getGender());
+            // dormitory, roomType으로 dormitoryRoomType 연결
+            updateDormitoryRoomTypes(dormitory, roomType);
             Room room = Room.builder()
                     .dormitory(dormitory)
                     .floor(floor)
@@ -344,7 +347,7 @@ public class DormitorySettingDetailService {
         }
     }
 
-    // Dormitory와 RoomType 연결 및 제거 로직
+    // Dormitory와 RoomType 연결 로직
     private void updateDormitoryRoomTypes(Dormitory dormitory, RoomType newRoomType) {
         // 기존 연결된 RoomType들을 가져옴
         List<RoomType> currentRoomTypes = dormitoryRoomTypeRepository.findByDormitory(dormitory).stream()
@@ -359,19 +362,6 @@ public class DormitorySettingDetailService {
                             .roomType(newRoomType)
                             .build()
             );
-        }
-
-        // 현재 활성화된 방들의 RoomType을 기준으로 연결되지 않은 RoomType 제거
-        List<RoomType> activeRoomTypes = roomRepository.findByDormitoryAndIsActivated(dormitory, true).stream()
-                .map(Room::getRoomType)
-                .distinct()
-                .toList();
-
-        for (RoomType roomType : currentRoomTypes) {
-            if (!activeRoomTypes.contains(roomType)) {
-                DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findByDormitoryAndRoomType(dormitory, roomType);
-                dormitoryRoomTypeRepository.delete(dormitoryRoomType);
-            }
         }
     }
 
@@ -424,7 +414,6 @@ public class DormitorySettingDetailService {
         Dormitory dormitory = rooms.get(0).getDormitory();
         List<RoomType> roomTypes = rooms.stream()
                 .map(Room::getRoomType)
-                .filter(Objects::nonNull)  // RoomType이 null인 경우 dormitorySize에 반영이 안 되어있으므로 제외
                 .distinct()  // 중복 제거
                 .toList();
 
@@ -434,8 +423,8 @@ public class DormitorySettingDetailService {
             Integer roomSize = roomType.getRoomSize();
             Integer roomCount = roomRepository.countByDormitoryAndIsActivatedAndRoomType(dormitory, true, roomType);
             totalDormitorySize += (roomCount * roomSize);
-            dormitory.updateDormitorySize(totalDormitorySize);
         }
+        dormitory.updateDormitorySize(totalDormitorySize);
     }
 
     private void updateRoomCount(List<Room> rooms) {
