@@ -64,7 +64,7 @@ public interface RequestmentWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204", description = "요청사항 검토 상태 변경 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}
             ),
             @ApiResponse(
                     responseCode = "400", description = "요청사항 검토 상태 변경 실패",
@@ -82,7 +82,7 @@ public interface RequestmentWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204", description = "요청사항 삭제 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}
             ),
             @ApiResponse(
                     responseCode = "400", description = "요청사항 삭제 실패",
