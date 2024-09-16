@@ -71,7 +71,11 @@ public class DormitorySettingWebController {
     public ResponseEntity<?> getDormitoryDetail(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId) {
-        return dormitorySettingDetailService.getDormitoryDetails(customUserDetails, dormitoryId);
+        dormease.dormeasedev.global.payload.ApiResponse apiResponse = dormease.dormeasedev.global.payload.ApiResponse.builder()
+                .check(true)
+                .information(dormitorySettingDetailService.getDormitoryDetails(customUserDetails, dormitoryId))
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     @Operation(summary = "건물 사진 변경", description = "건물 설정 프로세스 중 건물을 추가합니다.")
@@ -137,7 +141,8 @@ public class DormitorySettingWebController {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "Schemas의 CopyRoomsReq을 참고해주세요.", required = true) @Valid @RequestBody CopyRoomsReq copyRoomsReq) {
-        return dormitorySettingDetailService.copyRoomsByFloor(customUserDetails, dormitoryId, copyRoomsReq);
+        dormitorySettingDetailService.copyRoomsByFloor(customUserDetails, dormitoryId, copyRoomsReq);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "호실 정보 수정", description = "건물 세부 설정 프로세스 중 필터를 이용하여 호실 정보를 수정합니다.")
@@ -169,7 +174,12 @@ public class DormitorySettingWebController {
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "건물의 층 수를 입력해주세요.", required = true) @PathVariable Integer floor
             ) {
-        return dormitorySettingDetailService.getRoomsByDormitoryAndFloor(customUserDetails, dormitoryId, floor);
+        dormease.dormeasedev.global.payload.ApiResponse apiResponse = dormease.dormeasedev.global.payload.ApiResponse.builder()
+                .check(true)
+                .information(dormitorySettingDetailService.getRoomsByDormitoryAndFloor(customUserDetails, dormitoryId, floor))
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 
     @Operation(summary = "호실 삭제", description = "건물 세부 설정 프로세스 중 특정 층의 호실을 삭제합니다.")
