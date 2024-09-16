@@ -1,12 +1,11 @@
-package dormease.dormeasedev.global.error;
+package dormease.dormeasedev.global.exception;
 
-import dormease.dormeasedev.global.payload.ErrorCode;
 import lombok.Getter;
 
 @Getter
 public class DefaultException extends RuntimeException{
 
-    private ErrorCode errorCode;
+    private final ErrorCode errorCode;
 
     public DefaultException(ErrorCode errorCode) {
         super(errorCode.getMessage());

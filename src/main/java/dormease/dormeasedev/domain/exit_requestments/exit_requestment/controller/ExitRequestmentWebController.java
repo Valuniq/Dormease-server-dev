@@ -5,10 +5,10 @@ import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.reques
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ExitRequestmentRes;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ExitRequestmentResidentRes;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.service.ExitRequestmentWebService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageResponse;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.common.PageResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -36,7 +36,7 @@ public class ExitRequestmentWebController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "퇴사 신청 사생 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExitRequestmentResidentRes.class)))}),
             @ApiResponse(responseCode = "200", description = "퇴사 신청 사생 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
-            @ApiResponse(responseCode = "400", description = "퇴사 신청 사생 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "퇴사 신청 사생 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/residents")
     public ResponseEntity<?> findResidents(
@@ -50,7 +50,7 @@ public class ExitRequestmentWebController {
     @Operation(summary = "퇴사 신청 상세 조회", description = "퇴사 신청을 상세 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "퇴사 신청 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExitRequestmentRes.class))}),
-            @ApiResponse(responseCode = "400", description = "퇴사 신청 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "퇴사 신청 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{exitRequestmentId}")
     public ResponseEntity<?> findExitRequestment(
@@ -63,7 +63,7 @@ public class ExitRequestmentWebController {
     @Operation(summary = "보증금 환급 상태 변경", description = "보증금 환급 상태를 변경합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "보증금 환급 상태 변경 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "보증금 환급 상태 변경 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "보증금 환급 상태 변경 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PatchMapping("/securityDeposit")
     public ResponseEntity<?> modifySecurityDeposit(
@@ -76,7 +76,7 @@ public class ExitRequestmentWebController {
     @Operation(summary = "퇴사 신청서 삭제", description = "퇴사 신청서를 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "퇴사 신청서 삭제 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "퇴사 신청서 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "퇴사 신청서 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @DeleteMapping
     public ResponseEntity<?> deleteExitRequestment(

@@ -3,8 +3,8 @@ package dormease.dormeasedev.domain.restaurants.menu.controller;
 import dormease.dormeasedev.domain.restaurants.menu.dto.request.FindMenuReq;
 import dormease.dormeasedev.domain.restaurants.menu.dto.response.MenuRes;
 import dormease.dormeasedev.domain.restaurants.menu.service.MenuAppService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +33,7 @@ public class MenuAppController {
     @Operation(summary = "식당 + 날짜로 메뉴 목록 조회", description = "식당 + 날짜로 메뉴 목록을 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "메뉴 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = MenuRes.class))}),
-            @ApiResponse(responseCode = "400", description = "메뉴 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "메뉴 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping
     public ResponseEntity<?> findMenuList(

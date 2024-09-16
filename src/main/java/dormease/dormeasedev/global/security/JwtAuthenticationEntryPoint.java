@@ -1,4 +1,4 @@
-package dormease.dormeasedev.global.config.security.handler;
+package dormease.dormeasedev.global.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

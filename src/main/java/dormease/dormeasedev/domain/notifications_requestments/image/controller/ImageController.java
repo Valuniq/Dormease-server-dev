@@ -3,9 +3,9 @@ package dormease.dormeasedev.domain.notifications_requestments.image.controller;
 import dormease.dormeasedev.domain.notifications_requestments.image.dto.request.DeleteImageFromS3Req;
 import dormease.dormeasedev.domain.notifications_requestments.image.dto.response.ImageUrlRes;
 import dormease.dormeasedev.domain.notifications_requestments.image.service.ImageService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,6 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @Tag(name = "Images API", description = "WEB - 공지사항(FAQ) image 관련 API입니다.")
 @RequiredArgsConstructor
 @RestController
@@ -31,13 +33,13 @@ public class ImageController {
     @Operation(summary = "공지사항(FAQ) 이미지 url 반환" , description = "공지사항(FAQ) 이미지 url을 반환합니다. (텍스트 에디터 이미지 첨부 버튼 클릭 시 사용)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 이미지 url을 반환 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ImageUrlRes.class))}),
-            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 이미지 url을 반환 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 이미지 url을 반환 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> uploadImageToS3(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "업로드할 이미지 파일 (Multipart form-data 형식)") @RequestPart(value = "image") MultipartFile multipartFile
-    ) {
+    ) throws IOException {
         return imageService.uploadImageToS3(customUserDetails, multipartFile);
     }
 
@@ -45,7 +47,7 @@ public class ImageController {
     @Operation(summary = "공지사항(FAQ) 이미지 url 삭제" , description = "공지사항(FAQ) 이미지 url을 삭제합니다. (텍스트 에디터 이미지 첨부 후 이탈 시 사용)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 이미지 url을 반환 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 이미지 url을 반환 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 이미지 url을 반환 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @DeleteMapping
     public ResponseEntity<?> deleteImageFromS3(

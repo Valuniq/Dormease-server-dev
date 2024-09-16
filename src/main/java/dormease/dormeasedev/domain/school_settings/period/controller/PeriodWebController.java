@@ -4,9 +4,9 @@ import dormease.dormeasedev.domain.school_settings.period.domain.PeriodType;
 import dormease.dormeasedev.domain.school_settings.period.dto.request.PeriodReq;
 import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodRes;
 import dormease.dormeasedev.domain.school_settings.period.service.PeriodWebService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,7 +31,7 @@ public class PeriodWebController {
     @Operation(summary = "신청 기간 등록 / 수정", description = "타입에 맞는 신청 기간을 등록 / 수정합니다. 같은 타입의 **기존 신청 기간이 존재하는 경우 날짜만 변경합니다**.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "신청 기간 등록 / 수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "신청 기간 등록 / 수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "신청 기간 등록 / 수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> registerPeriod(
@@ -45,7 +45,7 @@ public class PeriodWebController {
     @Operation(summary = "신청 기간 조회", description = "타입에 맞는 신청 기간을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "신청 기간 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PeriodRes.class))}),
-            @ApiResponse(responseCode = "400", description = "신청 기간 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "신청 기간 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("{periodType}")
     public ResponseEntity<?> findPeriod(

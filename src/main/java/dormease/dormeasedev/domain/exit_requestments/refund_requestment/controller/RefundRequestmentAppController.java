@@ -2,9 +2,9 @@ package dormease.dormeasedev.domain.exit_requestments.refund_requestment.control
 
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.dto.request.RefundRequestmentReq;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.service.RefundRequestmentAppService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,7 +32,7 @@ public class RefundRequestmentAppController {
     @Operation(summary = "환불 신청", description = "환불 신청을 합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "환불 신청 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "환불 신청 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "환불 신청 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> requestRefund(

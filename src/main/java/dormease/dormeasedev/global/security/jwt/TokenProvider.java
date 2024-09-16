@@ -1,4 +1,4 @@
-package dormease.dormeasedev.global.config.security.token;
+package dormease.dormeasedev.global.security.jwt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

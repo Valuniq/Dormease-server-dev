@@ -10,10 +10,10 @@ import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.RoomSettin
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
-import dormease.dormeasedev.global.DefaultAssert;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ApiResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.common.ApiResponse;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

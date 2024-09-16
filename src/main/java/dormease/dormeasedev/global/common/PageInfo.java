@@ -1,4 +1,4 @@
-package dormease.dormeasedev.global.payload;
+package dormease.dormeasedev.global.common;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

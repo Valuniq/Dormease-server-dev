@@ -4,9 +4,9 @@ import dormease.dormeasedev.domain.school_settings.calendar.dto.request.Calendar
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarDetailRes;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarRes;
 import dormease.dormeasedev.domain.school_settings.calendar.service.CalendarService;
-import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -33,7 +33,7 @@ public class CalendarWebController {
     @Operation(summary = "일정 등록", description = "일정을 등록합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "등록 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "등록 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "등록 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping("")
     public ResponseEntity<?> registerCalendar(
@@ -46,7 +46,7 @@ public class CalendarWebController {
     @Operation(summary = "일정 조회", description = "일정을 년도(Year)와 월(Month)로 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CalendarRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("")
     public ResponseEntity<?> getCalendarsByYearAndMonth(
@@ -60,7 +60,7 @@ public class CalendarWebController {
     @Operation(summary = "일정 상세 조회", description = "일정을 상세 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CalendarDetailRes.class))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{calendarId}")
     public ResponseEntity<?> getCalendarDetail(
@@ -73,7 +73,7 @@ public class CalendarWebController {
     @Operation(summary = "일정 수정", description = "일정을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PutMapping("/{calendarId}")
     public ResponseEntity<?> updateCalendarDetail(
@@ -87,7 +87,7 @@ public class CalendarWebController {
     @Operation(summary = "일정 삭제", description = "일정을 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "삭제 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @DeleteMapping("/{calendarId}")
     public ResponseEntity<?> deleteCalendarDetail(

@@ -1,4 +1,4 @@
-package dormease.dormeasedev.global.config;
+package dormease.dormeasedev.infrastructure.s3;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
