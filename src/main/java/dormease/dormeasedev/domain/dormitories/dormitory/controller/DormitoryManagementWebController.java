@@ -4,9 +4,9 @@ import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.AssignedRes
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.*;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryManagementService;
+import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -34,7 +34,7 @@ public class DormitoryManagementWebController {
     @Operation(summary = "메모 저장", description = "건물별로 메모를 저장합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PutMapping("/{dormitoryId}/memo")
     public ResponseEntity<?> registerDormitoryMemo(
@@ -47,7 +47,7 @@ public class DormitoryManagementWebController {
     @Operation(summary = "건물명 목록 조회", description = "건물 관리 프로세스 중 건물 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryManagementListRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("")
     public ResponseEntity<?> getDormitoriesByRoomSize(
@@ -58,7 +58,7 @@ public class DormitoryManagementWebController {
     @Operation(summary = "층 수 목록 조회", description = "건물 관리 프로세스 중 건물별 층 수를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FloorByDormitoryRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{dormitoryId}/floor")
     public ResponseEntity<?> getFloorsByDormitory(
@@ -71,7 +71,7 @@ public class DormitoryManagementWebController {
     @Operation(summary = "호실 목록 조회", description = "건물 관리 프로세스 중 건물, 층별 호실 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoomByDormitoryAndFloorRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{dormitoryId}/{floor}")
     public ResponseEntity<?> getFloorsByDormitory(
@@ -85,7 +85,7 @@ public class DormitoryManagementWebController {
     @Operation(summary = "건물 정보 조회", description = "건물 관리 프로세스 중 건물의 정보를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryManagementDetailRes.class))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{dormitoryId}")
     public ResponseEntity<?> getDormitoryInfo(
@@ -98,7 +98,7 @@ public class DormitoryManagementWebController {
     @Operation(summary = "미배정 사생 조회", description = "수기 방배정 시 호실 미배정 사생 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentRes.class))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/rooms/{roomId}/not-assigned")
     public ResponseEntity<?> getNotAssignedResidents(
@@ -111,7 +111,7 @@ public class DormitoryManagementWebController {
     @Operation(summary = "특정 호실에 배정된 사생 조회", description = "건물 관리 프로세스 중 특정 호실에 배정된 사생 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotOrAssignedResidentRes.class))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/rooms/{roomId}/assigned")
     public ResponseEntity<?> getAssignedResidents(
@@ -124,7 +124,7 @@ public class DormitoryManagementWebController {
     @Operation(summary = "수기 방배정", description = "건물 관리 프로세스 중 미배정 사생을 대상으로 호실을 배정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PutMapping("/rooms/manual")
     public ResponseEntity<?> assignedResidentsToRooms(

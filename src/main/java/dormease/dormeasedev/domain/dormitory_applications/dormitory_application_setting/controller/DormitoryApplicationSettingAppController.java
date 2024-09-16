@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.dormitory_applications.dormitory_application
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.service.DormitoryApplicationSettingAppService;
 import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodDateRes;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,7 +29,7 @@ public class DormitoryApplicationSettingAppController {
     @Operation(summary = "입사 신청 기간 조회", description = "입사 신청 기간인지 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PeriodDateRes.class))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping
     public ResponseEntity<?> validateDormitoryApplicationPeriod(

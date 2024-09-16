@@ -8,9 +8,9 @@ import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.re
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
+import dormease.dormeasedev.global.common.PageInfo;
+import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.PageInfo;
-import dormease.dormeasedev.global.payload.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

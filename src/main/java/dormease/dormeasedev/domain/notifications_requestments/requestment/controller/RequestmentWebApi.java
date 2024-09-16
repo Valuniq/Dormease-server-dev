@@ -3,10 +3,9 @@ package dormease.dormeasedev.domain.notifications_requestments.requestment.contr
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.ModifyProgressionReq;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailAdminRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
+import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageResponse;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -15,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,11 +34,11 @@ public interface RequestmentWebApi {
             ),
             @ApiResponse(
                     responseCode = "400", description = "요청사항 목록 조회 실패",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
     @GetMapping
-    ResponseEntity<dormease.dormeasedev.global.payload.ApiResponse> findRequestments(
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findRequestments(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "요청사항 목록을 페이지 별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     );
@@ -53,11 +51,11 @@ public interface RequestmentWebApi {
             ),
             @ApiResponse(
                     responseCode = "400", description = "요청사항 목록 조회 실패",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
     @GetMapping("/{requestmentId}")
-    ResponseEntity<dormease.dormeasedev.global.payload.ApiResponse> findRequestment(
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findRequestment(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "요청사항의 id를 입력해주세요.", required = true) @PathVariable(value = "requestmentId") Long requestmentId
     );
@@ -70,7 +68,7 @@ public interface RequestmentWebApi {
             ),
             @ApiResponse(
                     responseCode = "400", description = "요청사항 검토 상태 변경 실패",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
     @PutMapping("/{requestmentId}")
@@ -88,7 +86,7 @@ public interface RequestmentWebApi {
             ),
             @ApiResponse(
                     responseCode = "400", description = "요청사항 삭제 실패",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
     @DeleteMapping("/{requestmentId}")

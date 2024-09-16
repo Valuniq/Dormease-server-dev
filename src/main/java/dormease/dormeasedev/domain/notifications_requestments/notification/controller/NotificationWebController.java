@@ -6,10 +6,10 @@ import dormease.dormeasedev.domain.notifications_requestments.notification.dto.r
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationDetailWebRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationWebRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.service.NotificationWebService;
+import dormease.dormeasedev.global.common.Message;
+import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
-import dormease.dormeasedev.global.payload.PageResponse;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -25,6 +25,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "Notifications API", description = "WEB - 공지사항(FAQ) 관련 API입니다.")
@@ -40,7 +41,7 @@ public class NotificationWebController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "0", description = "공지사항(FAQ) 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = NotificationWebRes.class)))}),
             @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 목록 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PageResponse.class))}),
-            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{notificationType}")
     public ResponseEntity<?> findNotifications(
@@ -55,14 +56,14 @@ public class NotificationWebController {
     @Operation(summary = "공지사항(FAQ) 작성" , description = "공지사항(FAQ)를 작성합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "공지사항(FAQ) 작성 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 작성 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 작성 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> writeNotification(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "Schemas의 WriteNotificataionReq을 참고해주세요.", required = true) @RequestPart("writeNotificationReq") WriteNotificationReq writeNotificationReq,
             @Parameter(description = "업로드할 이미지 파일 목록 (Multipart form-data 형식).")@RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles
-    ) {
+    ) throws IOException {
         return notificationWebService.writeNotification(customUserDetails, writeNotificationReq, multipartFiles);
     }
 
@@ -70,7 +71,7 @@ public class NotificationWebController {
     @Operation(summary = "공지사항(FAQ) 상세 조회" , description = "공지사항(FAQ)을 상세 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 상세 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = NotificationDetailWebRes.class))}),
-            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 상세 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/notification/{notificationId}")
     public ResponseEntity<?> findNotification(
@@ -84,14 +85,14 @@ public class NotificationWebController {
     @Operation(summary = "공지사항(FAQ) 수정" , description = "공지사항(FAQ)을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PatchMapping
     public ResponseEntity<?> modifyNotification(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "Schemas의 ModifyNotificationReq을 참고해주세요.") @RequestPart("modifyNotificationReq") ModifyNotificationReq modifyNotificationReq,
             @Parameter(description = "업로드할 이미지 파일 목록 (Multipart form-data 형식).") @RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles
-    ) {
+    ) throws IOException {
         return notificationWebService.modifyNotification(customUserDetails, modifyNotificationReq, multipartFiles);
     }
 
@@ -99,7 +100,7 @@ public class NotificationWebController {
     @Operation(summary = "공지사항(FAQ) 삭제", description = "공지사항(FAQ)을 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "공지사항(FAQ) 삭제 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @DeleteMapping("/notification/{notificationId}")
     public ResponseEntity<?> deleteNotification(

@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.dormitories.dormitory.controller;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.app_dormitory_application.FindDormitoryRes;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,7 +31,7 @@ public class DormitoryAppController {
     @Operation(summary = "건물 목록 조회", description = "입사 신청 단계 중 학교, 거주 기간, 성별 별 건물 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FindDormitoryRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{termId}")
     public ResponseEntity<?> findDormitories(

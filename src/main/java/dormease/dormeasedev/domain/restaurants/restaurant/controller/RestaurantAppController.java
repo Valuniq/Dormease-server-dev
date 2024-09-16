@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.restaurants.restaurant.controller;
 import dormease.dormeasedev.domain.restaurants.restaurant.dto.response.RestaurantNameRes;
 import dormease.dormeasedev.domain.restaurants.restaurant.service.RestaurantService;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,7 +31,7 @@ public class RestaurantAppController {
     @Operation(summary = "식당 목록 조회", description = "식당 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "식당 목록 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RestaurantNameRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "식당 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "식당 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping
     public ResponseEntity<?> findRestaurantList(

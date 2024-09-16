@@ -3,9 +3,9 @@ package dormease.dormeasedev.domain.roommates.roommate_temp_application.controll
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.dto.response.ExistRoommateTempApplicationRes;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.dto.response.RoommateTempApplicationMemberRes;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.service.RoommateTempApplicationService;
+import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,7 +31,7 @@ public class RoommateTempApplicationAppController {
     @Operation(summary = "룸메이트 임시 신청(그룹 생성) 여부 + 방장 여부 조회", description = "룸메이트 임시 신청 여부 + 방장 여부를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "룸메이트 임시 신청 여부 + 방장 여부 조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExistRoommateTempApplicationRes.class))}),
-            @ApiResponse(responseCode = "400", description = "룸메이트 임시 신청 여부 + 방장 여부 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "룸메이트 임시 신청 여부 + 방장 여부 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/existAndMaster")
     public ResponseEntity<?> existRoommateTempApplication(
@@ -44,7 +44,7 @@ public class RoommateTempApplicationAppController {
     @Operation(summary = "그룹 생성 (코드 발급)", description = "룸메이트 그룹을 생성합니다. (코드 발급)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "그룹 생성 (코드 발급) 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "그룹 생성 (코드 발급) 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "그룹 생성 (코드 발급) 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> createRoommateTempApplication(
@@ -57,7 +57,7 @@ public class RoommateTempApplicationAppController {
     @Operation(summary = "그룹 삭제", description = "룸메이트 그룹을 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "그룹 삭제 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "그룹 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "그룹 삭제 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @DeleteMapping
     public ResponseEntity<?> deleteRoommateTempApplication(
@@ -71,7 +71,7 @@ public class RoommateTempApplicationAppController {
     @Operation(summary = "코드 입력 (그룹 참가)", description = "코드를 입력합니다. (그룹 참가)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "코드 입력 (그룹 참가) 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "코드 입력 (그룹 참가) 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "코드 입력 (그룹 참가) 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PatchMapping("/{code}")
     public ResponseEntity<?> joinRoommateTempApplication(
@@ -85,7 +85,7 @@ public class RoommateTempApplicationAppController {
     @Operation(summary = "그룹 나가기", description = "그룹에서 나갑니다. (방장 x)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "그룹 나가기 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "그룹 나가기 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "그룹 나가기 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PatchMapping("/out")
     public ResponseEntity<?> outOfRoommateTempApplication(
@@ -98,7 +98,7 @@ public class RoommateTempApplicationAppController {
     @Operation(summary = "그룹원 조회", description = "그룹원을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "그룹원 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = RoommateTempApplicationMemberRes.class)))}),
-            @ApiResponse(responseCode = "400", description = "그룹원 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "그룹원 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/members")
     public ResponseEntity<?> findRoommateTempApplicationMembers(

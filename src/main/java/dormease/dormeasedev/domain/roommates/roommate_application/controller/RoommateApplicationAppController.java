@@ -1,9 +1,9 @@
 package dormease.dormeasedev.domain.roommates.roommate_application.controller;
 
 import dormease.dormeasedev.domain.roommates.roommate_application.service.RoommateApplicationService;
+import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ErrorResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.exception.ExceptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +30,7 @@ public class RoommateApplicationAppController {
     @Operation(summary = "룸메이트 신청", description = "룸메이트 신청을 진행합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "룸메이트 신청 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "룸메이트 신청 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "400", description = "룸메이트 신청 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping
     public ResponseEntity<?> applyRoommateTempApplication(

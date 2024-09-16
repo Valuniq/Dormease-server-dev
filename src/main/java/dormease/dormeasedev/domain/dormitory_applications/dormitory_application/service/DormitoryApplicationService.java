@@ -25,10 +25,10 @@ import dormease.dormeasedev.domain.dormitory_applications.term.service.TermServi
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
-import dormease.dormeasedev.global.DefaultAssert;
+import dormease.dormeasedev.global.common.ApiResponse;
+import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ApiResponse;
-import dormease.dormeasedev.global.payload.Message;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

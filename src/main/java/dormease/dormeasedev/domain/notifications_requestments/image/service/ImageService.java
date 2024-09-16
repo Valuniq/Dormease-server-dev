@@ -4,9 +4,9 @@ import dormease.dormeasedev.domain.notifications_requestments.image.dto.request.
 import dormease.dormeasedev.domain.notifications_requestments.image.dto.response.ImageUrlRes;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
+import dormease.dormeasedev.global.common.ApiResponse;
+import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.config.security.token.CustomUserDetails;
-import dormease.dormeasedev.global.payload.ApiResponse;
-import dormease.dormeasedev.global.payload.Message;
 import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class ImageService {
     private final S3Uploader s3Uploader;
     private final UserService userService;
 
-    public ResponseEntity<?> uploadImageToS3(CustomUserDetails customUserDetails, MultipartFile multipartFile) {
+    public ResponseEntity<?> uploadImageToS3(CustomUserDetails customUserDetails, MultipartFile multipartFile) throws IOException {
 
         User admin = userService.validateUserById(customUserDetails.getId());
         String imageUrl = uploadImage(multipartFile);
@@ -54,7 +55,7 @@ public class ImageService {
     }
 
     // Description : 단일 이미지 업로드 함수 (S3에 업로드, image 테이블에 저장 x) (텍스트 에디터 이미지 첨부 버튼)
-    public String uploadImage(MultipartFile multipartFile) {
+    public String uploadImage(MultipartFile multipartFile) throws IOException {
 
         if (multipartFile.isEmpty())
             return null;

@@ -1,10 +1,8 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_term.service;
 
-import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
-import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
-import dormease.dormeasedev.global.DefaultAssert;
+import dormease.dormeasedev.global.exception.DefaultAssert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
