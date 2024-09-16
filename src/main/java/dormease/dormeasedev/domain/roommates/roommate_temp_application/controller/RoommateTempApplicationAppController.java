@@ -4,8 +4,8 @@ import dormease.dormeasedev.domain.roommates.roommate_temp_application.dto.respo
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.dto.response.RoommateTempApplicationMemberRes;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.service.RoommateTempApplicationService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

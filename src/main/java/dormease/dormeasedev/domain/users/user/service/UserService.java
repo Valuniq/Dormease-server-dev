@@ -4,6 +4,8 @@ import dormease.dormeasedev.domain.restaurants.restaurant.domain.Restaurant;
 import dormease.dormeasedev.domain.restaurants.restaurant.domain.repository.RestaurantRepository;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.auth.domain.repository.RefreshTokenRepository;
+import dormease.dormeasedev.domain.users.student.domain.Student;
+import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.dto.request.*;
@@ -11,8 +13,8 @@ import dormease.dormeasedev.domain.users.user.dto.response.FindLoginIdRes;
 import dormease.dormeasedev.domain.users.user.dto.response.FindMyInfoRes;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +31,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final RestaurantRepository restaurantRepository;
+    private final StudentRepository studentRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -38,12 +41,14 @@ public class UserService {
         DefaultAssert.isTrue(findLoginIdReq.isCertification(), "인증번호가 잘못 입력되었습니다.");
 
         User user = validateUserById(customUserDetails.getId());
+        Student student = studentRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
 
         String reqName = findLoginIdReq.getName();
         String reqPhoneNumber = findLoginIdReq.getPhoneNumber();
 
         DefaultAssert.isTrue(user.getName().equals(reqName), "이름이 일치하지 않습니다.");
-        DefaultAssert.isTrue(user.getPhoneNumber().equals(reqPhoneNumber), "전화번호가 일치하지 않습니다.");
+        DefaultAssert.isTrue(student.getPhoneNumber().equals(reqPhoneNumber), "전화번호가 일치하지 않습니다.");
 
         FindLoginIdRes findLoginIdRes = FindLoginIdRes.builder()
                 .loginId(user.getLoginId())
@@ -82,11 +87,12 @@ public class UserService {
         if (user.getUserType().getValue().equals("ROLE_BLACKLIST"))
             isBlackList = true;
 
-
+        Student student = studentRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
         FindMyInfoRes findMyInfoRes = FindMyInfoRes.builder()
                 .loginId(user.getLoginId())
-                .studentNumber(user.getStudentNumber())
-                .phoneNumber(user.getPhoneNumber())
+                .studentNumber(student.getStudentNumber())
+                .phoneNumber(student.getPhoneNumber())
                 .isBlackList(isBlackList)
                 .build();
 
@@ -106,7 +112,10 @@ public class UserService {
         School school = user.getSchool();
         validateUserByStudentNumber(school, modifyStudentNumberReq.getStudentNumber());
 
-        user.updateStudentNumber(modifyStudentNumberReq.getStudentNumber());
+        Student student = studentRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
+
+        student.updateStudentNumber(modifyStudentNumberReq.getStudentNumber());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -136,7 +145,9 @@ public class UserService {
     public ResponseEntity<?> modifyPhoneNumber(CustomUserDetails customUserDetails, ModifyPhoneNumberReq modifyPhoneNumberReq) {
 
         User user = validateUserById(customUserDetails.getId());
-        user.updatePhoneNumber(modifyPhoneNumberReq.getPhoneNumber());
+        Student student = studentRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
+        student.updatePhoneNumber(modifyPhoneNumberReq.getPhoneNumber());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

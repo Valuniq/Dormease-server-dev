@@ -31,10 +31,9 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Transactional
     public UserDetails loadUserById(Long id) {
-        Optional<User> findUser = userRepository.findById(id);
-        DefaultAssert.isOptionalPresent(findUser);
-
-        User user = findUser.get();
+//        Optional<User> findUser = userRepository.findById(id);
+        User user = DefaultAssert.isOptionalPresent(userRepository.findById(id), "잘못된 회원 id입니다.");
+//        User user = findUser.get();
 
         return CustomUserDetails.create(user);
     }

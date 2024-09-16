@@ -7,8 +7,8 @@ import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.respon
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.service.ExitRequestmentWebService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

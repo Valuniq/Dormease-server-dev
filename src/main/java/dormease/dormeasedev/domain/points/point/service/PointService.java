@@ -13,6 +13,8 @@ import dormease.dormeasedev.domain.points.user_point.domain.repository.UserPoint
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.users.student.domain.Student;
+import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
@@ -20,8 +22,8 @@ import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageInfo;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
+import dormease.dormeasedev.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,14 +49,17 @@ public class PointService {
     private final PointRepository pointRepository;
     private final UserPointRepository userPointRepository;
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
+    private final StudentRepository studentRepository;
 
     // Description: [APP] 상벌점 관련 기능
     // 회원 상벌점 조회
     public ResponseEntity<?> getUserPointTotal(CustomUserDetails customUserDetails) {
-        User user = validUserById(customUserDetails.getId());
+        Student student = studentRepository.findById(customUserDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
+
         UserPointAppRes userPointAppRes = UserPointAppRes.builder()
-                .bonusPoint(user.getBonusPoint())
-                .minusPoint(user.getMinusPoint())
+                .bonusPoint(student.getBonusPoint())
+                .minusPoint(student.getMinusPoint())
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -220,6 +225,8 @@ public class PointService {
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
+        Student student = studentRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
         int bonus = 0;
         int minus = 0;
 
@@ -238,8 +245,8 @@ public class PointService {
                 minus += point.getScore();
         }
 
-        user.updateBonusPoint(user.getBonusPoint() + bonus);
-        user.updateMinusPoint(user.getMinusPoint() + minus);
+        student.updateBonusPoint(student.getBonusPoint() + bonus);
+        student.updateMinusPoint(student.getMinusPoint() + minus);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
