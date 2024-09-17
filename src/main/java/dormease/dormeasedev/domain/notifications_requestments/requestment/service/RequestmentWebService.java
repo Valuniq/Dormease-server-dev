@@ -44,12 +44,12 @@ public class RequestmentWebService {
         List<Requestment> requestmentList = requestmentPage.getContent();
         List<RequestmentRes> requestmentResList = new ArrayList<>();
         for (Requestment requestment : requestmentList) {
-            User student = requestment.getUser();
+            User user = requestment.getStudent().getUser();
 
             RequestmentRes requestmentRes = RequestmentRes.builder()
                     .requestmentId(requestment.getId())
                     .title(requestment.getTitle())
-                    .writer(student.getName())
+                    .writer(user.getName())
                     .createdDate(requestment.getCreatedDate().toLocalDate())
                     .progression(requestment.getProgression())
                     .build();
@@ -67,7 +67,7 @@ public class RequestmentWebService {
         School school = admin.getSchool();
         Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school); // 본인 학교 요청사항만 조회 가능
 
-        User requestmentUser = requestment.getUser();
+        User requestmentUser = requestment.getStudent().getUser();
 
         return RequestmentDetailAdminRes.builder()
                 .requestmentId(requestmentId)

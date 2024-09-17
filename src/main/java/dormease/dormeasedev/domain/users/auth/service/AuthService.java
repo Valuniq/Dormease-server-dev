@@ -13,7 +13,6 @@ import dormease.dormeasedev.domain.users.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
-import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.exception.DefaultAssert;

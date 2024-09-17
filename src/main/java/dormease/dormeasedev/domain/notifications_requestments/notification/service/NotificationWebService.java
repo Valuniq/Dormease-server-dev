@@ -15,7 +15,6 @@ import dormease.dormeasedev.domain.notifications_requestments.notification.dto.r
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationDetailWebRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationWebRes;
 import dormease.dormeasedev.domain.school.domain.School;
-import dormease.dormeasedev.domain.users.admin.domain.Admin;
 import dormease.dormeasedev.domain.users.admin.domain.repository.AdminRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;

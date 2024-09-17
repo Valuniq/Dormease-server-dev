@@ -4,8 +4,6 @@ import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.notifications_requestments.file.domain.File;
 import dormease.dormeasedev.domain.notifications_requestments.image.domain.Image;
 import dormease.dormeasedev.domain.school.domain.School;
-import dormease.dormeasedev.domain.users.admin.domain.Admin;
-import dormease.dormeasedev.domain.users.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

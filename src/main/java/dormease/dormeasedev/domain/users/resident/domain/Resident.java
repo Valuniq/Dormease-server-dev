@@ -6,8 +6,8 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.
 import dormease.dormeasedev.domain.roommates.roommate_application.domain.RoommateApplication;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
-import dormease.dormeasedev.domain.users.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,8 +29,8 @@ public class Resident extends BaseEntity {
     private School school;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "student_id")
+    private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dormitory_term_id")
@@ -88,9 +88,9 @@ public class Resident extends BaseEntity {
     }
 
     @Builder
-    public Resident(School school, User user, DormitoryTerm dormitoryTerm, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, String name, Gender gender, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
+    public Resident(School school, Student student, DormitoryTerm dormitoryTerm, Room room, RoommateTempApplication roommateTempApplication, RoommateApplication roommateApplication, String name, Gender gender, Integer bedNumber, Boolean isRoommateApplied, Boolean hasKey) {
         this.school = school;
-        this.user = user;
+        this.student = student;
         this.dormitoryTerm = dormitoryTerm;
         this.room = room;
         this.roommateTempApplication = roommateTempApplication;

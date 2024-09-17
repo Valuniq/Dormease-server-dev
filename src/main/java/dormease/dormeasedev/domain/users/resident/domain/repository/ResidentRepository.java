@@ -4,7 +4,7 @@ import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
-import dormease.dormeasedev.domain.users.user.domain.User;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,7 +31,9 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
             ")")
     Page<Resident> searchResidentsByKeyword(School school, String keyword, Pageable pageable);
 
-    Optional<Resident> findByUser(User user);
+    Optional<Resident> findByStudent(Student student);
+
+    boolean existsByStudent(Student student);
 
     List<Resident> findByRoommateTempApplication(RoommateTempApplication roommateTempApplication);
 
@@ -42,8 +44,10 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
 
 //    List<Resident> findByDormitoryAndRoom(Dormitory dormitory, Room room);
 
-    @Query("SELECT r FROM Resident r WHERE r.user IN :users")
-    Page<Resident> findResidentsByUsers(@Param("users") List<User> users, Pageable pageable);
+//    @Query("SELECT r FROM Resident r WHERE r.user IN :users")
+//    Page<Resident> findResidentsByUsers(@Param("users") List<User> users, Pageable pageable);
+    @Query("SELECT r FROM Resident r WHERE r.student IN :users")
+    Page<Resident> findResidentsByStudents(@Param("students") List<Student> students, Pageable pageable);
 
 //    boolean existsByDormitory(Dormitory dormitory);
 

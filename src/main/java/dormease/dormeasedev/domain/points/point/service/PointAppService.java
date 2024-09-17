@@ -1,13 +1,10 @@
 package dormease.dormeasedev.domain.points.point.service;
 
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.points.point.domain.PointType;
-import dormease.dormeasedev.domain.points.point.domain.repository.PointRepository;
 import dormease.dormeasedev.domain.points.point.dto.response.UserPointAppRes;
 import dormease.dormeasedev.domain.points.point.dto.response.UserPointHistoryAppRes;
 import dormease.dormeasedev.domain.points.user_point.domain.UserPoint;
 import dormease.dormeasedev.domain.points.user_point.domain.repository.UserPointRepository;
-import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;

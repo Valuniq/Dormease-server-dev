@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.users.blacklist.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
-import dormease.dormeasedev.domain.users.user.domain.User;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,16 +19,15 @@ public class BlackList extends BaseEntity {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "student_id")
+    private Student student;
 
     // 블랙리스트 등록 사유
     private String content;
 
     @Builder
-    public BlackList(Long id, User user, String content) {
-        this.id = id;
-        this.user = user;
+    public BlackList(Student student, String content) {
+        this.student = student;
         this.content = content;
     }
 

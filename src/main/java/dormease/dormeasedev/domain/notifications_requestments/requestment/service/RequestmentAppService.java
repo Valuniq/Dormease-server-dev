@@ -1,14 +1,16 @@
 package dormease.dormeasedev.domain.notifications_requestments.requestment.service;
 
-import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.Progression;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.Requestment;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.repository.RequestmentRepository;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.WriteRequestmentReq;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailUserRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.users.student.domain.Student;
+import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
-import dormease.dormeasedev.domain.users.user.domain.UserType;
+import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
@@ -35,6 +37,9 @@ import java.util.Optional;
 public class RequestmentAppService {
 
     private final RequestmentRepository requestmentRepository;
+    private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
+    private final ResidentRepository residentRepository;
 
     private final UserService userService;
 
@@ -42,23 +47,30 @@ public class RequestmentAppService {
     @Transactional
     public ResponseEntity<?> writeRequestment(UserDetailsImpl userDetailsImpl, WriteRequestmentReq writeRequestmentReq) {
 
-        User user = userService.validateUserById(userDetailsImpl.getUserId());
-        DefaultAssert.isTrue(user.getUserType().equals(UserType.RESIDENT), "사생만 요청사항을 작성할 수 있습니다.");
+        User user = userRepository.getReferenceById(userDetailsImpl.getUserId());
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다."));
+
+        if (!residentRepository.existsByStudent(student))
+            throw new IllegalArgumentException("사생만 요청사항을 작성할 수 있습니다.");
 
         Requestment requestment = Requestment.builder()
-                .user(user)
+                .student(student)
                 .title(writeRequestmentReq.getTitle())
                 .content(writeRequestmentReq.getContent())
                 .consentDuringAbsence(writeRequestmentReq.getConsentDuringAbsence()) // 부재중 방문 동의 여부
                 .visibility(writeRequestmentReq.getVisibility()) // 공개 여부
-                .progression(Progression.IN_REVIEW) // 검토 중
                 .build();
 
         requestmentRepository.save(requestment);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(Message.builder().message("요청사항 작성이 완료되었습니다.").build())
+                .information(
+                        Message.builder()
+                                .message("요청사항 작성이 완료되었습니다.")
+                                .build()
+                )
                 .build();
 
         return ResponseEntity.ok(apiResponse);
@@ -71,17 +83,17 @@ public class RequestmentAppService {
         School school = user.getSchool();
 
         Pageable pageable = PageRequest.of(page, 8, Sort.by(Sort.Direction.DESC, "createdDate")); // 최신순.. 기능 정의서에는 날짜순이라는데 걍 최신으로 함
-        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByUser_SchoolAndVisibility(school, true, pageable);
+        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByStudent_User_SchoolAndVisibility(school, true, pageable);
 
         List<Requestment> requestmentList = requestmentPage.getContent();
         List<RequestmentRes> requestmentResList = new ArrayList<>();
         for (Requestment requestment : requestmentList) {
-            User student = requestment.getUser();
+            User requestmentUser = requestment.getStudent().getUser();
 
             RequestmentRes requestmentRes = RequestmentRes.builder()
                     .requestmentId(requestment.getId())
                     .title(requestment.getTitle())
-                    .writer(student.getName())
+                    .writer(requestmentUser.getName())
                     .createdDate(requestment.getCreatedDate().toLocalDate())
                     .progression(requestment.getProgression())
                     .build();
@@ -138,7 +150,7 @@ public class RequestmentAppService {
         School school = user.getSchool();
         Requestment requestment = validateRequestmentByIdAndSchool(requestmentId, school);
 
-        User requestmentUser = requestment.getUser();
+        User requestmentUser = requestment.getStudent().getUser();
         Boolean myRequestment = user.equals(requestmentUser);
 
         RequestmentDetailUserRes requestmentDetailUserRes = RequestmentDetailUserRes.builder()
