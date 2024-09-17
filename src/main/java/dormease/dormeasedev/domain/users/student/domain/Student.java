@@ -1,12 +1,12 @@
 package dormease.dormeasedev.domain.users.student.domain;
 
+import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.SchoolStatus;
 import dormease.dormeasedev.domain.users.user.domain.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -14,13 +14,21 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-@SuperBuilder
-public class Student extends User {
+public class Student extends BaseEntity {
 
     /**
      *  TODO : 생각할 점
      *   - Address String 하나로 저장할지? / 시,군,구 등 구분할지
      */
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "student_id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     // Student
     private String phoneNumber;
@@ -68,5 +76,21 @@ public class Student extends User {
 
     public void updateMinusPoint(Integer minusPoint) {
         this.minusPoint = minusPoint;
+    }
+
+    @Builder
+    public Student(User user, String phoneNumber, String studentNumber, Gender gender, SchoolStatus schoolStatus, String address, String major, Integer schoolYear, Double grade) {
+        this.user = user;
+        this.phoneNumber = phoneNumber;
+        this.studentNumber = studentNumber;
+        this.gender = gender;
+        this.alarmSetting = true;
+        this.bonusPoint = 0;
+        this.minusPoint = 0;
+        this.schoolStatus = schoolStatus;
+        this.address = address;
+        this.major = major;
+        this.schoolYear = schoolYear;
+        this.grade = grade;
     }
 }

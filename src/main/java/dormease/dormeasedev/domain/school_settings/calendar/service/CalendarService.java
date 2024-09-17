@@ -34,7 +34,7 @@ public class CalendarService {
     // 컬러는 디폴트 값 회색
     @Transactional
     public ResponseEntity<?> registerCalendar(UserDetailsImpl userDetailsImpl, CalendarReq calendarReq) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Color color = selectDefaultColor(calendarReq);
         LocalDate endDate = selectDefaultEndDate(calendarReq);
         Calendar calendar = Calendar.builder()
@@ -57,7 +57,7 @@ public class CalendarService {
 
     // 일정 조회(년도 및 월별)
     public ResponseEntity<?> getCalendarsBySchoolAndYearAndMonth(UserDetailsImpl userDetailsImpl, int year, int month) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         // 시작일로 정렬
         List<Calendar> calendars = calendarRepository.findBySchoolAndYearAndMonth(admin.getSchool(), year, month);
 
@@ -80,7 +80,7 @@ public class CalendarService {
 
     // 일정 상세 조회
     public ResponseEntity<?> getCalendarDetail(UserDetailsImpl userDetailsImpl, Long calendarId) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
@@ -103,7 +103,7 @@ public class CalendarService {
     // 일정 수정
     @Transactional
     public ResponseEntity<?> updateCalendar(UserDetailsImpl userDetailsImpl, Long calendarId, CalendarReq calendarReq) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
@@ -134,7 +134,7 @@ public class CalendarService {
     // 일정 삭제
     @Transactional
     public ResponseEntity<?> deleteCalendar(UserDetailsImpl userDetailsImpl, Long calendarId) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 

@@ -52,7 +52,7 @@ public class RefundRequestmentWebService {
     // Description : 환불 신청 사생 목록 조회
     public ResponseEntity<?> findResidents(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         Pageable pageable = PageRequest.of(page, 13, Sort.by(Sort.Direction.DESC, "createdDate"));
@@ -104,7 +104,7 @@ public class RefundRequestmentWebService {
     @Transactional
     public ResponseEntity<?> deleteRefundRequestment(UserDetailsImpl userDetailsImpl, Long refundRequestmentId) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         RefundRequestment refundRequestment = validateRefundRequestmentById(refundRequestmentId);
@@ -114,7 +114,7 @@ public class RefundRequestmentWebService {
 
         // 삭제 시, refund_requestment-data.sql 삭제 + resident 삭제(user의 userType = USER 로 변경)
         refundRequestmentRepository.delete(refundRequestment);
-        user.updateUserType(UserType.USER);
+        user.updateUserType(UserType.STUDENT);
         residentRepository.delete(resident);
 
         ApiResponse apiResponse = ApiResponse.builder()

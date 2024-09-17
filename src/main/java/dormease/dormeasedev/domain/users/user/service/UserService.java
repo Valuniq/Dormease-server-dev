@@ -40,7 +40,7 @@ public class UserService {
 
         DefaultAssert.isTrue(findLoginIdReq.isCertification(), "인증번호가 잘못 입력되었습니다.");
 
-        User user = validateUserById(userDetailsImpl.getId());
+        User user = validateUserById(userDetailsImpl.getUserId());
         Student student = studentRepository.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
 
@@ -66,7 +66,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> modifyPassword(UserDetailsImpl userDetailsImpl, FindPasswordReq findPasswordReq) {
 
-        User user = validateUserById(userDetailsImpl.getId());
+        User user = validateUserById(userDetailsImpl.getUserId());
         DefaultAssert.isTrue(user.getLoginId().equals(findPasswordReq.getLoginId()), "아이디가 일치하지 않습니다.");
 
         user.updatePassword(passwordEncoder.encode(findPasswordReq.getPassword()));
@@ -82,7 +82,7 @@ public class UserService {
     // Description : 내 정보 조회
     public ResponseEntity<?> findMyInfo(UserDetailsImpl userDetailsImpl) {
 
-        User user = validateUserById(userDetailsImpl.getId());
+        User user = validateUserById(userDetailsImpl.getUserId());
         boolean isBlackList = false;
         if (user.getUserType().getValue().equals("ROLE_BLACKLIST"))
             isBlackList = true;
@@ -108,7 +108,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> modifyStudentNumber(UserDetailsImpl userDetailsImpl, ModifyStudentNumberReq modifyStudentNumberReq) {
 
-        User user = validateUserById(userDetailsImpl.getId());
+        User user = validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
         validateUserByStudentNumber(school, modifyStudentNumberReq.getStudentNumber());
 
@@ -129,7 +129,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> resetPasswordInMyPage(UserDetailsImpl userDetailsImpl, ResetPasswordReq resetPasswordReq) {
 
-        User user = validateUserById(userDetailsImpl.getId());
+        User user = validateUserById(userDetailsImpl.getUserId());
         user.updatePassword(passwordEncoder.encode(resetPasswordReq.getPassword()));
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -144,7 +144,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> modifyPhoneNumber(UserDetailsImpl userDetailsImpl, ModifyPhoneNumberReq modifyPhoneNumberReq) {
 
-        User user = validateUserById(userDetailsImpl.getId());
+        User user = validateUserById(userDetailsImpl.getUserId());
         Student student = studentRepository.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
         student.updatePhoneNumber(modifyPhoneNumberReq.getPhoneNumber());
@@ -161,7 +161,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> modifyRepresentativeRestaurant(UserDetailsImpl userDetailsImpl, Long restaurantId) {
 
-        User user = validateUserById(userDetailsImpl.getId());
+        User user = validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
         Optional<Restaurant> findRestaurant = restaurantRepository.findBySchoolAndId(school, restaurantId);
         DefaultAssert.isTrue(findRestaurant.isPresent(), "존재하지 않는 식당 id입니다.");

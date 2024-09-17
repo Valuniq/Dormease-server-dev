@@ -30,7 +30,7 @@ public class PeriodAppService {
     // Description : 신청 기간 검증
     public ResponseEntity<?> validatePeriod(UserDetailsImpl userDetailsImpl, PeriodType periodType) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         // 기간 검증

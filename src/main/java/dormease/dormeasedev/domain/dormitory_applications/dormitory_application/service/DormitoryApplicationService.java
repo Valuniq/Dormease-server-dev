@@ -59,7 +59,7 @@ public class DormitoryApplicationService {
     @Transactional
     public ResponseEntity<?> dormitoryApplication(UserDetailsImpl userDetailsImpl, DormitoryApplicationReq dormitoryApplicationReq) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Optional<DormitoryTerm> findDormitoryTerm = dormitoryTermRepository.findById(dormitoryApplicationReq.getDormitoryTermId());
         DefaultAssert.isTrue(findDormitoryTerm.isPresent(), "잘못된 거주 기간과 기숙사입니다.");
         DormitoryTerm dormitoryTerm = findDormitoryTerm.get();
@@ -104,7 +104,7 @@ public class DormitoryApplicationService {
     public ResponseEntity<?> findMyDormitoryApplication(UserDetailsImpl userDetailsImpl) {
 
         // 회원, 학교
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         // 입사 신청
@@ -167,7 +167,7 @@ public class DormitoryApplicationService {
     // Description : 이전 입사 신청 내역 목록 조회 (이번 입사 신청 내역 제외)
     public ResponseEntity<?> findMyDormitoryApplicationHistory(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         List<DormitoryApplicationSimpleRes> dormitoryApplicationSimpleResList = new ArrayList<>();
@@ -196,7 +196,7 @@ public class DormitoryApplicationService {
     // Description : 입사 신청 상세 조회
     public ResponseEntity<?> findDormitoryApplication(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationId) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findById(dormitoryApplicationId);
@@ -261,7 +261,7 @@ public class DormitoryApplicationService {
     @Transactional
     public ResponseEntity<?> acceptMovePass(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
         DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "현재 입사 신청 내역이 존재하지 않습니다.");
         DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
@@ -280,7 +280,7 @@ public class DormitoryApplicationService {
     @Transactional
     public ResponseEntity<?> rejectMovePass(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
         DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "현재 입사 신청 내역이 존재하지 않습니다.");
         DormitoryApplication dormitoryApplication = findDormitoryApplication.get();

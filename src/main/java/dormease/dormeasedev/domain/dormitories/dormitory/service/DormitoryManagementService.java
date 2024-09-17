@@ -128,7 +128,7 @@ public class DormitoryManagementService {
 
     // 학교별 건물 목록 조회(건물명)
     public ResponseEntity<?> getDormitoriesByRoomSize(UserDetailsImpl userDetailsImpl) {
-        User user = validUserById(userDetailsImpl.getId());
+        User user = validUserById(userDetailsImpl.getUserId());
 
         List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
         List<DormitoryManagementListRes> dormitoryManagementListRes = dormitories.stream()

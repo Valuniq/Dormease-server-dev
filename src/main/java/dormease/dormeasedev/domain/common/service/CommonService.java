@@ -37,7 +37,7 @@ public class CommonService {
     // Description : 입사 / 룸메이트 / 퇴사 신청 여부
     public ResponseEntity<?> checkApplication(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
         Resident resident = residentService.validateResidentByUser(user);
 

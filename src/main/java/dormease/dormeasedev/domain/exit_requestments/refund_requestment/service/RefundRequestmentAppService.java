@@ -31,7 +31,7 @@ public class RefundRequestmentAppService {
     public ResponseEntity<?> requestRefund(UserDetailsImpl userDetailsImpl, RefundRequestmentReq refundRequestmentReq) {
 
         // 신청 버튼 클릭 시 이미 신청 여부 반환
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
 
         DefaultAssert.isTrue(!refundRequestmentRepository.existsByResident(resident), "이미 환불 신청 하였습니다.");

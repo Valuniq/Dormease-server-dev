@@ -35,7 +35,7 @@ public class RequestmentWebService {
     // Description : 요청사항 목록 조회 (무한 스크롤)
     public PageResponse findRequestments(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         Pageable pageable = PageRequest.of(page, 13, Sort.by(Sort.Direction.DESC, "createdDate"));
@@ -63,7 +63,7 @@ public class RequestmentWebService {
     // Description : 요청사항 상세 조회
     public RequestmentDetailAdminRes findRequestment(UserDetailsImpl userDetailsImpl, Long requestmentId) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
         Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school); // 본인 학교 요청사항만 조회 가능
 
@@ -84,7 +84,7 @@ public class RequestmentWebService {
     @Transactional
     public void modifyRequestmentProgression(UserDetailsImpl userDetailsImpl, Long requestmentId, ModifyProgressionReq modifyProgressionReq) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
         Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school);
 
@@ -95,7 +95,7 @@ public class RequestmentWebService {
     @Transactional
     public void deleteRequestment(UserDetailsImpl userDetailsImpl, Long requestmentId) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
         Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school);
 

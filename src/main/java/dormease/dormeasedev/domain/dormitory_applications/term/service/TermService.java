@@ -38,7 +38,7 @@ public class TermService {
     // Description : 거주 기간 목록 조회
     public ResponseEntity<?> findTerms(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW);

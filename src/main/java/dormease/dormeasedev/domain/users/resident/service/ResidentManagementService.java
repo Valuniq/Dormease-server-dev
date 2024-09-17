@@ -63,7 +63,7 @@ public class ResidentManagementService {
 
     // 사생 상세 조회
     public ResponseEntity<?> getResidentDetailInfo(UserDetailsImpl userDetailsImpl, Long residentId) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
 
@@ -174,7 +174,7 @@ public class ResidentManagementService {
     // Description : 기본(sortBy: Name / isAscending: true)
     // TODO : 설정한 퇴사 날짜 자정이 되기 10분 전에 해당 기간의 사생 데이터는 삭제
     public ResponseEntity<?> getResidents(UserDetailsImpl userDetailsImpl, String sortBy, Boolean isAscending, Integer page) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Pageable pageable = PageRequest.of(page, 25);
         // 사생 목록 조회 (페이징 적용)
         Page<Resident> residents = residentRepository.findBySchool(admin.getSchool(), pageable);
@@ -265,7 +265,7 @@ public class ResidentManagementService {
     // 검색 및 정렬
     // Description : 기본(sortBy: Name / isAscending: true)
     public ResponseEntity<?> getSearchResidents(UserDetailsImpl userDetailsImpl, String keyword, String sortBy, Boolean isAscending, Integer page) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         String cleanedKeyword = keyword.trim().toLowerCase();;
 
         Pageable pageable = PageRequest.of(page, 25);
@@ -373,7 +373,7 @@ public class ResidentManagementService {
     @Transactional
     public ResponseEntity<?> updateResidentPrivateInfo(UserDetailsImpl userDetailsImpl, Long residentId,
                                                        Optional<MultipartFile> copy, Optional<MultipartFile>  prioritySelectionCopy, ResidentPrivateInfoReq residentPrivateInfoReq) throws IOException {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
 
@@ -428,7 +428,7 @@ public class ResidentManagementService {
     // 사생의 성별에 맞는 건물 조회
     // 빈 자리가 없는 건물은 드롭다운 메뉴에 뜨지 않음
     public ResponseEntity<?> getDormitoriesByGender(UserDetailsImpl userDetailsImpl, Long residentId) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
         // resident가 속한 학교의 기숙사 리스트
@@ -492,7 +492,7 @@ public class ResidentManagementService {
     // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 기숙사 -> 거주기간 순서(예정))
     // @Transactional
     // public ResponseEntity<?> reassignResidentToDormitory(UserDetailsImpl userDetailsImpl, Long residentId, Long dormitoryId) {
-    //     User admin = userService.validateUserById(userDetailsImpl.getId());
+    //     User admin = userService.validateUserById(userDetailsImpl.getUserId());
     //     Resident resident = residentService.validateResidentById(residentId);
     //     DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
 
@@ -532,7 +532,7 @@ public class ResidentManagementService {
     }
 
     private ResponseEntity<?> processResidentExit(UserDetailsImpl userDetailsImpl, Long residentId, UserType userType, String message) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
         User user = resident.getUser();

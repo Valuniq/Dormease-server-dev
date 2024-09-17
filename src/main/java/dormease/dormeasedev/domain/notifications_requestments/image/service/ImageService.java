@@ -27,7 +27,7 @@ public class ImageService {
 
     public ResponseEntity<?> uploadImageToS3(UserDetailsImpl userDetailsImpl, MultipartFile multipartFile) throws IOException {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         String imageUrl = uploadImage(multipartFile);
         ImageUrlRes imageUrlRes = ImageUrlRes.builder()
                 .imageUrl(imageUrl)
@@ -43,7 +43,7 @@ public class ImageService {
 
     public ResponseEntity<?> deleteImageFromS3(UserDetailsImpl userDetailsImpl, DeleteImageFromS3Req deleteImageFromS3Req) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         deleteImages(deleteImageFromS3Req);
 
         ApiResponse apiResponse = ApiResponse.builder()

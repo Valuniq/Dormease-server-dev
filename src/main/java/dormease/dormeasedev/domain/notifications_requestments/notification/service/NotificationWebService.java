@@ -57,7 +57,7 @@ public class NotificationWebService {
     // Description : 공지사항(FAQ) 목록 조회
     public ResponseEntity<?> findNotifications(UserDetailsImpl userDetailsImpl, NotificationType notificationType, Integer page) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         Pageable pageable = PageRequest.of(page, 23, Sort.by(Sort.Order.desc("pinned"), Sort.Order.desc("createdDate")));
@@ -93,7 +93,7 @@ public class NotificationWebService {
     @Transactional
     public ResponseEntity<?> writeNotification(UserDetailsImpl userDetailsImpl, WriteNotificationReq writeNotificationReq, List<MultipartFile> multipartFiles) throws IOException {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         Notification notification = Notification.builder()
@@ -122,7 +122,7 @@ public class NotificationWebService {
     // Description : 공지사항(FAQ) 상세 조회
     public ResponseEntity<?> findNotification(UserDetailsImpl userDetailsImpl, Long notificationId) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Notification notification = validateById(notificationId);
 
         DefaultAssert.isTrue(admin.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 조회할 수 있습니다.");
@@ -171,7 +171,7 @@ public class NotificationWebService {
     @Transactional
     public ResponseEntity<?> modifyNotification(UserDetailsImpl userDetailsImpl, ModifyNotificationReq modifyNotificationReq, List<MultipartFile> multipartFiles) throws IOException {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
         Notification notification = validateById(modifyNotificationReq.getNotificationId());
 
@@ -210,7 +210,7 @@ public class NotificationWebService {
     @Transactional
     public ResponseEntity<?> deleteNotification(UserDetailsImpl userDetailsImpl, Long notificationId) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
         Notification notification = validateById(notificationId);
 

@@ -32,7 +32,7 @@ public class MenuAppService {
 
     public ResponseEntity<?> findMenuList(UserDetailsImpl userDetailsImpl, FindMenuReq findMenuReq) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Optional<Restaurant> findRestaurant = restaurantRepository.findById(findMenuReq.getRestaurantId());
         DefaultAssert.isTrue(findRestaurant.isPresent(), "존재하지 않는 식당 id입니다.");
         Restaurant restaurant = findRestaurant.get();

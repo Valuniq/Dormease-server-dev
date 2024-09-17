@@ -36,7 +36,7 @@ public class BlackListService {
 
     // 블랙리스트 목록 조회
     public ResponseEntity<?> getBlackListUsers(UserDetailsImpl userDetailsImpl, Integer page) {
-        User admin = validUserById(userDetailsImpl.getId());
+        User admin = validUserById(userDetailsImpl.getUserId());
         // 목록 조회 및 페이징
         Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<User> blackListedUsersPage = userRepository.findBySchoolAndUserType(admin.getSchool(), UserType.BLACKLIST, pageable);

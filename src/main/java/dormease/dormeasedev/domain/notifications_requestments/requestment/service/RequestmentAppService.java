@@ -42,7 +42,7 @@ public class RequestmentAppService {
     @Transactional
     public ResponseEntity<?> writeRequestment(UserDetailsImpl userDetailsImpl, WriteRequestmentReq writeRequestmentReq) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         DefaultAssert.isTrue(user.getUserType().equals(UserType.RESIDENT), "사생만 요청사항을 작성할 수 있습니다.");
 
         Requestment requestment = Requestment.builder()
@@ -67,7 +67,7 @@ public class RequestmentAppService {
     // Description : 요청사항 목록 조회
     public ResponseEntity<?> findRequestments(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         Pageable pageable = PageRequest.of(page, 8, Sort.by(Sort.Direction.DESC, "createdDate")); // 최신순.. 기능 정의서에는 날짜순이라는데 걍 최신으로 함
@@ -102,7 +102,7 @@ public class RequestmentAppService {
     // Description : 내 요청사항 목록 조회
     public ResponseEntity<?> findMyRequestments(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
 
         Pageable pageable = PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByUser(user, pageable);
@@ -134,7 +134,7 @@ public class RequestmentAppService {
     // Description : 요청사항 상세 조회
     public ResponseEntity<?> findRequestmentDetail(UserDetailsImpl userDetailsImpl, Long requestmentId) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
         Requestment requestment = validateRequestmentByIdAndSchool(requestmentId, school);
 
@@ -165,7 +165,7 @@ public class RequestmentAppService {
     @Transactional
     public ResponseEntity<?> deleteRequestment(UserDetailsImpl userDetailsImpl, Long requestmentId) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Requestment requestment = validateRequestmentByIdAndUser(requestmentId, user);
 
         requestmentRepository.delete(requestment);

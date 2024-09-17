@@ -34,7 +34,7 @@ public class MealTicketService {
     // Description : 식권 목록 조회 (for 입사 신청(app))
     public ResponseEntity<?> findMealTicketList(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW);

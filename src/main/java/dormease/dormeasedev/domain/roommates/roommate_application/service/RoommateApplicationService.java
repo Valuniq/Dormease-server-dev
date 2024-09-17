@@ -34,7 +34,7 @@ public class RoommateApplicationService {
     @Transactional
     public ResponseEntity<?> applyRoommateTempApplication(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
 
         RoommateTempApplication roommateTempApplication = roommateTempApplicationService.validateRoommateTempApplicationByResident(resident);

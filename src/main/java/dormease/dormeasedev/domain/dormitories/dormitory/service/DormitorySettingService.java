@@ -46,7 +46,7 @@ public class DormitorySettingService {
     // [건물 설정] 건물 추가
     @Transactional
     public ResponseEntity<?> registerDormitory(UserDetailsImpl userDetailsImpl) {
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         // 건물 개수 검증
         checkDormitoryLimit(admin);
 
@@ -88,7 +88,7 @@ public class DormitorySettingService {
 
     // [건물 설정] 건물 목록 조회
     public ResponseEntity<?> getDormitoriesBySchool(UserDetailsImpl userDetailsImpl) {
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         // 학교별 건물 조회
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolOrderByCreatedDateAsc(user.getSchool());
         List<DormitorySettingListRes> dormitorySettingListRes = dormitories.stream()
@@ -112,7 +112,7 @@ public class DormitorySettingService {
     // [건물 설정] 건물 사진 추가 및 변경
     @Transactional
     public ResponseEntity<?> updateDormitoryImage(UserDetailsImpl userDetailsImpl, Long dormitoryId, MultipartFile image) throws IOException {
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
         // 기존 이미지 삭제

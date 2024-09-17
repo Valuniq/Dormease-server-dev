@@ -48,7 +48,7 @@ public class NotificationAppService {
     // Description : 공지사항(FAQ) 목록 조회
     public ResponseEntity<?> findNotifications(UserDetailsImpl userDetailsImpl, NotificationType notificationType, Integer page) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         Pageable pageable = PageRequest.of(page, 15, Sort.by(Sort.Order.desc("pinned"), Sort.Order.desc("createdDate")));
@@ -80,7 +80,7 @@ public class NotificationAppService {
     // Description : 공지사항(FAQ) 상세 조회
     public ResponseEntity<?> findNotification(UserDetailsImpl userDetailsImpl, Long notificationId) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Notification notification = notificationWebService.validateById(notificationId);
 
         DefaultAssert.isTrue(user.getSchool().equals(notification.getSchool()), "해당 학생의 학교만 조회할 수 있습니다.");
@@ -125,7 +125,7 @@ public class NotificationAppService {
     // Description : 메인 페이지 공지사항 조회 - 상단핀 고정된 제일 최근 공지사항
     public ResponseEntity<?> findMainNotification(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         Optional<Notification> findNotification = notificationRepository.findTopBySchoolAndNotificationTypeAndPinnedOrderByCreatedDateDesc(school, NotificationType.ANNOUNCEMENT, true);

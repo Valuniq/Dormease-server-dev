@@ -24,7 +24,7 @@ public class DormitoryApplicationSettingAppService {
 
     public ResponseEntity<?> validateDormitoryApplicationPeriod(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         boolean isPeriod = dormitoryApplicationSettingRepository.existsBySchoolAndApplicationStatus(school, ApplicationStatus.NOW);

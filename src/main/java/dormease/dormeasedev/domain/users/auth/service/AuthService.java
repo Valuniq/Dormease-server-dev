@@ -58,21 +58,20 @@ public class AuthService {
         DefaultAssert.isTrue(findRestaurant.isPresent(), "대표 식당으로 지정할 식당이 해당 학교에 존재하지 않습니다.");
         Restaurant restaurant = findRestaurant.get();
 
-        Student student = Student.builder()
-                // User
+        User user = User.builder()
                 .school(school)
                 .restaurant(restaurant)
                 .loginId(signUpReq.getLoginId())
                 .password(passwordEncoder.encode(signUpReq.getPassword()))
                 .name(signUpReq.getName())
-                .userType(UserType.USER) // 관리자는 직접 만들어 줄 것이기 떄문
-                // Student
+                .build();
+        User saveUser = userRepository.save(user);
+
+        Student student = Student.builder()
+                .user(saveUser)
                 .phoneNumber(signUpReq.getPhoneNumber())
                 .studentNumber(signUpReq.getStudentNumber())
                 .gender(signUpReq.getGender())
-                .alarmSetting(true)
-                .bonusPoint(0)
-                .minusPoint(0)
                 /**
                  *  TODO : MSI 연동
                  *      .schoolStatus()
@@ -82,7 +81,6 @@ public class AuthService {
                  *      .grade()
                  */
                 .build();
-
         studentRepository.save(student);
     }
 

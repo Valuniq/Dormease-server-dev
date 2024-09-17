@@ -67,7 +67,7 @@ public class DormitoryApplicationSettingService {
     @Transactional
     public ResponseEntity<?> createDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl, CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         // 입사 신청 설정 save
@@ -145,7 +145,7 @@ public class DormitoryApplicationSettingService {
     public ResponseEntity<?> findDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId) {
 
         DormitoryApplicationSetting dormitoryApplicationSetting = validateDormitoryApplicationSettingById(dormitoryApplicationSettingId);
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         DefaultAssert.isTrue(dormitoryApplicationSetting.getSchool().equals(school), "다른 학교의 입사 신청 설정을 조회할 수 없습니다.");
@@ -232,7 +232,7 @@ public class DormitoryApplicationSettingService {
 //    public ResponseEntity<?> modifyDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl, CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq, Long dormitoryApplicationSettingId) {
 //
 //        DormitoryApplicationSetting dormitoryApplicationSetting = validateDormitoryApplicationSettingById(dormitoryApplicationSettingId);
-//        User user = userService.validateUserById(userDetailsImpl.getId());
+//        User user = userService.validateUserById(userDetailsImpl.getUserId());
 //        School school = user.getSchool();
 //
 //        // ------------------------------------------
@@ -245,7 +245,7 @@ public class DormitoryApplicationSettingService {
     // Description : 이전 작성 목록 조회
     public ResponseEntity<?> findDormitoryApplicationSettingHistory(UserDetailsImpl userDetailsImpl) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         List<DormitoryApplicationSetting> dormitoryApplicationSettingList = dormitoryApplicationSettingRepository.findTop3BySchoolAndApplicationStatusOrderByCreatedDateDesc(school, ApplicationStatus.BEFORE);
@@ -272,7 +272,7 @@ public class DormitoryApplicationSettingService {
     // Description : 입사 신청 설정 프로세스 中 기숙사(인실/성별) 목록 조회
     public ResponseEntity<?> findDormitories(UserDetailsImpl userDetailsImpl) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         List<Dormitory> findDormitoryList = dormitoryRepository.findBySchool(school);

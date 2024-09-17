@@ -48,7 +48,7 @@ public class DormitoryService {
     // Description : APP - 입사 신청 중 기숙사 목록 조회 (본인 학교, 성별, 거주 기간에 따른 조회)
     public ResponseEntity<?> findDormitories(UserDetailsImpl userDetailsImpl, Long termId) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         Term term = termService.validateTermId(termId);

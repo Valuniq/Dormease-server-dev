@@ -32,7 +32,7 @@ public class ExitRequestmentAppService {
     // Description : 퇴사 확인서를 위한 사생 정보 조회
     public ResponseEntity<?> findInfoForExitRequestment(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
         Room room = resident.getRoom();
         Dormitory dormitory = room.getDormitory();
@@ -62,7 +62,7 @@ public class ExitRequestmentAppService {
     @Transactional
     public ResponseEntity<?> submitExitRequestment(UserDetailsImpl userDetailsImpl, ExitRequestmentReq exitRequestmentReq) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
         DefaultAssert.isTrue(!exitRequestmentRepository.existsByResident(resident), "이미 퇴사 확인서를 제출하였습니다.");
 

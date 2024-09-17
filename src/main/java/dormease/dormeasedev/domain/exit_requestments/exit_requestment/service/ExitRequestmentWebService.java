@@ -43,7 +43,7 @@ public class ExitRequestmentWebService {
     // Description : 퇴사 신청 사생 목록 조회
     public ResponseEntity<?> findResidents(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         Pageable pageable = PageRequest.of(page, 23, Sort.by(Sort.Direction.DESC, "createdDate"));

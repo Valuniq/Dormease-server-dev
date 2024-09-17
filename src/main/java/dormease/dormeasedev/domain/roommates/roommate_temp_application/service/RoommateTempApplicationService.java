@@ -44,7 +44,7 @@ public class RoommateTempApplicationService {
     // Description : 룸메이트 임시 신청 여부 + 방장 여부 조회
     public ResponseEntity<?> existRoommateTempApplication(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
 
         RoommateTempApplication roommateTempApplication = resident.getRoommateTempApplication();
@@ -73,7 +73,7 @@ public class RoommateTempApplicationService {
     @Transactional
     public ResponseEntity<?> createRoommateTempApplication(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
 
 //        DefaultAssert.isTrue(!roommateTempApplicationRepository.existsByRoommateMasterId(resident.getId()), "이미 그룹을 생성하였습니다.");
@@ -109,7 +109,7 @@ public class RoommateTempApplicationService {
     @Transactional
     public ResponseEntity<?> deleteRoommateTempApplication(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
 
         RoommateTempApplication roommateTempApplication = validateRoommateTempApplicationByResident(resident);
@@ -131,7 +131,7 @@ public class RoommateTempApplicationService {
     public ResponseEntity<?> joinRoommateTempApplication(UserDetailsImpl userDetailsImpl, String code) {
 
         // 본인
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
 
         DefaultAssert.isTrue(resident.getRoommateApplication() == null, "이미 소속된 그룹이 존재합니다.");
@@ -170,7 +170,7 @@ public class RoommateTempApplicationService {
     public ResponseEntity<?> outOfRoommateTempApplication(UserDetailsImpl userDetailsImpl) {
 
         // 본인
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
 
         RoommateTempApplication roommateTempApplication = resident.getRoommateTempApplication();
@@ -187,7 +187,7 @@ public class RoommateTempApplicationService {
     // Description : 그룹원 조회
     public ResponseEntity<?> findRoommateTempApplicationMembers(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
 
         RoommateTempApplication roommateTempApplication = resident.getRoommateTempApplication();

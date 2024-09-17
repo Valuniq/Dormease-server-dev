@@ -27,7 +27,7 @@ public class RestaurantService {
 
     public ResponseEntity<?> findRestaurantList(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(userDetailsImpl.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         List<Restaurant> restaurantList = restaurantRepository.findAllBySchool(school);

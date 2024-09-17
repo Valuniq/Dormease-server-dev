@@ -5,16 +5,15 @@ import dormease.dormeasedev.domain.restaurants.restaurant.domain.Restaurant;
 import dormease.dormeasedev.domain.school.domain.School;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Inheritance(strategy = InheritanceType.JOINED)
 @Entity
 @Getter
-@SuperBuilder
-public abstract class User extends BaseEntity {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,5 +50,15 @@ public abstract class User extends BaseEntity {
 
     public void updateRestaurant(Restaurant restaurant) {
         this.restaurant = restaurant;
+    }
+
+    @Builder
+    public User(School school, Restaurant restaurant, String loginId, String password, String name) {
+        this.school = school;
+        this.restaurant = restaurant;
+        this.loginId = loginId;
+        this.password = password;
+        this.name = name;
+        this.userType = UserType.STUDENT;
     }
 }
