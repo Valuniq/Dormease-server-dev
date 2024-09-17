@@ -15,7 +15,10 @@ import dormease.dormeasedev.domain.notifications_requestments.notification.dto.r
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationDetailWebRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationWebRes;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.users.admin.domain.Admin;
+import dormease.dormeasedev.domain.users.admin.domain.repository.AdminRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
+import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
@@ -49,6 +52,8 @@ public class NotificationWebService {
     private final NotificationRepository notificationRepository;
     private final ImageRepository imageRepository;
     private final FileRepository fileRepository;
+    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
 
     private final UserService userService;
 
@@ -56,9 +61,8 @@ public class NotificationWebService {
 
     // Description : 공지사항(FAQ) 목록 조회
     public ResponseEntity<?> findNotifications(UserDetailsImpl userDetailsImpl, NotificationType notificationType, Integer page) {
-
-        User admin = userService.validateUserById(userDetailsImpl.getUserId());
-        School school = admin.getSchool();
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = user.getSchool();
 
         Pageable pageable = PageRequest.of(page, 23, Sort.by(Sort.Order.desc("pinned"), Sort.Order.desc("createdDate")));
         Page<Notification> notificationPage = notificationRepository.findNotificationsBySchoolAndNotificationType(school, notificationType, pageable);
@@ -71,7 +75,7 @@ public class NotificationWebService {
                     .notificationId(notification.getId())
                     .pinned(notification.getPinned())
                     .title(notification.getTitle())
-                    .writer(notification.getUser().getName())
+                    .writer(notification.getWriter())
                     .createdDate(notification.getCreatedDate().toLocalDate())
                     .existFile(existFile)
                     .build();
@@ -91,14 +95,14 @@ public class NotificationWebService {
 
     // Description : 공지사항(FAQ) 작성
     @Transactional
-    public ResponseEntity<?> writeNotification(UserDetailsImpl userDetailsImpl, WriteNotificationReq writeNotificationReq, List<MultipartFile> multipartFiles) throws IOException {
-
-        User admin = userService.validateUserById(userDetailsImpl.getUserId());
-        School school = admin.getSchool();
+    public Long writeNotification(UserDetailsImpl userDetailsImpl, WriteNotificationReq writeNotificationReq, List<MultipartFile> multipartFiles) throws IOException {
+        User user = userRepository.findById(userDetailsImpl.getUserId())
+                .orElseThrow(IllegalArgumentException::new);
+        School school = user.getSchool();
 
         Notification notification = Notification.builder()
                 .school(school)
-                .user(admin)
+                .writer(user.getName())
                 .notificationType(writeNotificationReq.getNotificationType())
                 .title(writeNotificationReq.getTitle())
                 .pinned(writeNotificationReq.getPinned())
@@ -111,21 +115,16 @@ public class NotificationWebService {
         if (multipartFiles != null)
             uploadFiles(notification, multipartFiles);
 
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("공지사항(FAQ) 등록이 완료되었습니다.").build())
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
+        return notification.getId();
     }
 
     // Description : 공지사항(FAQ) 상세 조회
     public ResponseEntity<?> findNotification(UserDetailsImpl userDetailsImpl, Long notificationId) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Notification notification = validateById(notificationId);
 
-        DefaultAssert.isTrue(admin.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 조회할 수 있습니다.");
+        DefaultAssert.isTrue(user.getSchool().equals(notification.getSchool()), "해당 관리자의 학교만 조회할 수 있습니다.");
 
         List<Image> imageList = imageRepository.findByNotification(notification);
         List<ImageRes> imageResList = new ArrayList<>();
@@ -151,7 +150,7 @@ public class NotificationWebService {
         NotificationDetailWebRes notificationDetailWebRes = NotificationDetailWebRes.builder()
                 .pinned(notification.getPinned())
                 .title(notification.getTitle())
-                .writer(notification.getUser().getName())
+                .writer(notification.getWriter())
                 .createdDate(notification.getCreatedDate().toLocalDate())
                 .modifiedDate(notification.getModifiedDate().toLocalDate())
                 .content(notification.getContent())

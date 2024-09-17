@@ -4,6 +4,7 @@ import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.notifications_requestments.file.domain.File;
 import dormease.dormeasedev.domain.notifications_requestments.image.domain.Image;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.users.admin.domain.Admin;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,9 +29,7 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "school_id")
     private School school;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String writer;
 
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
@@ -50,9 +49,9 @@ public class Notification extends BaseEntity {
     List<File> files = new ArrayList<>();
 
     @Builder
-    public Notification(School school, User user, NotificationType notificationType, String title, Boolean pinned, String content) {
+    public Notification(School school, String writer, NotificationType notificationType, String title, Boolean pinned, String content) {
         this.school = school;
-        this.user = user;
+        this.writer = writer;
         this.notificationType = notificationType;
         this.title = title;
         this.pinned = pinned;

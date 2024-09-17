@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 @Tag(name = "Notifications API", description = "WEB - 공지사항(FAQ) 관련 API입니다.")
@@ -64,7 +65,8 @@ public class NotificationWebController {
             @Parameter(description = "Schemas의 WriteNotificataionReq을 참고해주세요.", required = true) @RequestPart("writeNotificationReq") WriteNotificationReq writeNotificationReq,
             @Parameter(description = "업로드할 이미지 파일 목록 (Multipart form-data 형식).")@RequestPart(value = "files", required = false) List<MultipartFile> multipartFiles
     ) throws IOException {
-        return notificationWebService.writeNotification(userDetailsImpl, writeNotificationReq, multipartFiles);
+        Long notificationId = notificationWebService.writeNotification(userDetailsImpl, writeNotificationReq, multipartFiles);
+        return ResponseEntity.created(URI.create("/api/v1/web/notifications/notification/" + notificationId)).build();
     }
 
     // Description : 공지사항(FAQ) 상세 조회

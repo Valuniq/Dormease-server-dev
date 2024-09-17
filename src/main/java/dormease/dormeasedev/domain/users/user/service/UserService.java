@@ -183,9 +183,8 @@ public class UserService {
 
     // Description : 유효성 검증 함수
     public User validateUserById(Long userId) {
-        Optional<User> findUser = userRepository.findById(userId);
-        DefaultAssert.isTrue(findUser.isPresent(), "유저 정보가 올바르지 않습니다.");
-        return findUser.get();
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 정보가 올바르지 않습니다."));
     }
 
     // Description : 학번 수정 위함 - 학번 중복되면 안되므로
