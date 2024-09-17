@@ -18,9 +18,9 @@ import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.response.*;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.SchoolStatus;
 import dormease.dormeasedev.domain.users.user.domain.User;
-import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
@@ -63,9 +63,9 @@ public class ResidentManagementService {
 
     // 사생 상세 조회
     public ResponseEntity<?> getResidentDetailInfo(UserDetailsImpl userDetailsImpl, Long residentId) {
-        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
-        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
+        DefaultAssert.isTrue(adminUser.getSchool().equals(resident.getSchool()), "관리자와 사생의 학교가 일치하지 않습니다.");
 
         ResidentPrivateInfoRes residentPrivateInfoRes = getResidentPrivateInfo(resident);
         ResidentDormitoryInfoRes residentDormitoryInfoRes = getResidentDormitoryInfo(resident);
@@ -84,34 +84,35 @@ public class ResidentManagementService {
 
     // 사생 상세 조회 - 개인정보
     private ResidentPrivateInfoRes getResidentPrivateInfo(Resident resident) {
-        User user = resident.getUser();
+        Student student = resident.getStudent();
+//        User user = student.getUser();
         // 미회원 사생 고려
-        if (user == null) {
+        if (student == null) {
             return ResidentPrivateInfoRes.builder()
                     .residentId(resident.getId())
                     .name(resident.getName())
                     .gender(resident.getGender())
                     .build();
         } else {
-            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatusAndDormitoryApplicationResult(user, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatusAndDormitoryApplicationResult(student, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
             return ResidentPrivateInfoRes.builder()
                     .residentId(resident.getId())
                     .name(resident.getName())
-                    .major(user.getMajor())
-                    .schoolYear(user.getSchoolYear())
-                    .studentNumber(user.getStudentNumber())
-                    .schoolStatus(user.getSchoolStatus())
+                    .major(student.getMajor())
+                    .schoolYear(student.getSchoolYear())
+                    .studentNumber(student.getStudentNumber())
+                    .schoolStatus(student.getSchoolStatus())
                     .gender(resident.getGender())
-                    .phoneNumber(user.getPhoneNumber())
-                    .address(user.getAddress())
+                    .phoneNumber(student.getPhoneNumber())
+                    .address(student.getAddress())
                     .copy(dormitoryApplication.getCopy())
                     .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy())
                     .mealTicketCount(dormitoryApplication.getMealTicket().getCount())
                     .isSmoking(dormitoryApplication.getIsSmoking())
                     .dormitoryPayment(dormitoryApplication.getDormitoryPayment())
                     .hasKey(resident.getHasKey())
-                    .bonusPoint(user.getBonusPoint())
-                    .minusPoint(user.getMinusPoint())
+                    .bonusPoint(student.getBonusPoint())
+                    .minusPoint(student.getMinusPoint())
                     .personalInfoConsent(true)
                     .thirdPartyConsent(true)
                     .bankName(dormitoryApplication.getBankName())
@@ -174,10 +175,10 @@ public class ResidentManagementService {
     // Description : 기본(sortBy: Name / isAscending: true)
     // TODO : 설정한 퇴사 날짜 자정이 되기 10분 전에 해당 기간의 사생 데이터는 삭제
     public ResponseEntity<?> getResidents(UserDetailsImpl userDetailsImpl, String sortBy, Boolean isAscending, Integer page) {
-        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         Pageable pageable = PageRequest.of(page, 25);
         // 사생 목록 조회 (페이징 적용)
-        Page<Resident> residents = residentRepository.findBySchool(admin.getSchool(), pageable);
+        Page<Resident> residents = residentRepository.findBySchool(adminUser.getSchool(), pageable);
 
         // Description: 변경사항에 맞춰 로직 수정
         List<ResidentRes> residentResList = residents.getContent().stream()
@@ -190,15 +191,16 @@ public class ResidentManagementService {
                     Integer minusPoint = 0;
                     SchoolStatus schoolStatus = null;
 
-                    User user = resident.getUser(); // 미배정 사생은 미회원 사생만 존재 가능
+                    Student student = resident.getStudent();
+//                    User user = resident.getUser(); // 미배정 사생은 미회원 사생만 존재 가능
                     Room room = resident.getRoom();
 
                     // 미회원인지 아닌지 구분
-                    if (user != null) {
-                        studentNumber = user.getStudentNumber();
-                        bonusPoint = user.getBonusPoint();
-                        minusPoint = user.getMinusPoint();
-                        schoolStatus = user.getSchoolStatus();
+                    if (student != null) {
+                        studentNumber = student.getStudentNumber();
+                        bonusPoint = student.getBonusPoint();
+                        minusPoint = student.getMinusPoint();
+                        schoolStatus = student.getSchoolStatus();
                         DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                         dormitoryName = dormitoryRoomType.getDormitory().getName();
                         roomSize = dormitoryRoomType.getRoomType().getRoomSize();
@@ -282,15 +284,16 @@ public class ResidentManagementService {
                     Integer minusPoint = 0;
                     SchoolStatus schoolStatus = null;
 
-                    User user = resident.getUser(); // 미배정 사생은 미회원 사생만 존재 가능
+                    Student student = resident.getStudent();
+//                    User user = resident.getUser(); // 미배정 사생은 미회원 사생만 존재 가능
                     Room room = resident.getRoom();
 
                     // 미회원인지 아닌지 구분
-                    if (user != null) {
-                        studentNumber = user.getStudentNumber();
-                        bonusPoint = user.getBonusPoint();
-                        minusPoint = user.getMinusPoint();
-                        schoolStatus = user.getSchoolStatus();
+                    if (student != null) {
+                        studentNumber = student.getStudentNumber();
+                        bonusPoint = student.getBonusPoint();
+                        minusPoint = student.getMinusPoint();
+                        schoolStatus = student.getSchoolStatus();
                         DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                         dormitoryName = dormitoryRoomType.getDormitory().getName();
                         roomSize = dormitoryRoomType.getRoomType().getRoomSize();
@@ -383,9 +386,9 @@ public class ResidentManagementService {
         String accountNumber = residentPrivateInfoReq.getAccountNumber();
         Boolean dormitoryPayment = residentPrivateInfoReq.getDormitoryPayment();
         // 미회원 사생 고려
-        if (resident.getUser() != null) {
+        if (resident.getStudent() != null) {
             // user가 있으면 입사신청을 했을 것이므로
-            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatusAndDormitoryApplicationResult(resident.getUser(), ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatusAndDormitoryApplicationResult(resident.getStudent(), ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
             if (copy.isPresent()) {
                 uploadCopyFile(dormitoryApplication, copy.get());
             } else if (prioritySelectionCopy.isPresent()) {
@@ -523,19 +526,19 @@ public class ResidentManagementService {
 
     @Transactional
     public ResponseEntity<?> deleteResident(UserDetailsImpl userDetailsImpl, Long residentId) {
-        return processResidentExit(userDetailsImpl, residentId, UserType.USER, "퇴사 처리되었습니다.");
+        return processResidentExit(userDetailsImpl, residentId, "퇴사 처리되었습니다.");
     }
 
     @Transactional
     public ResponseEntity<?> addBlackList(UserDetailsImpl userDetailsImpl, Long residentId) {
-        return processResidentExit(userDetailsImpl, residentId, UserType.BLACKLIST, "블랙리스트로 추가되었습니다.");
+        return processResidentExit(userDetailsImpl, residentId, "블랙리스트로 추가되었습니다.");
     }
 
-    private ResponseEntity<?> processResidentExit(UserDetailsImpl userDetailsImpl, Long residentId, UserType userType, String message) {
-        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+    private ResponseEntity<?> processResidentExit(UserDetailsImpl userDetailsImpl, Long residentId, String message) {
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
-        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
-        User user = resident.getUser();
+        DefaultAssert.isTrue(adminUser.getSchool().equals(resident.getSchool()), "관리자와 사생의 학교가 일치하지 않습니다.");
+        Student student = resident.getStudent();
 
         // 환불 신청서 존재하면 예외
         DefaultAssert.isTrue(!refundRequestmentRepository.existsByResident(resident), "아직 해당 사생의 환불 신청서가 존재합니다.");
@@ -550,9 +553,9 @@ public class ResidentManagementService {
 
         // 사생 데이터 삭제
         residentRepository.delete(resident);
-        if (user != null) {
-            user.updateUserType(userType);
-            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatusAndDormitoryApplicationResult(user, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+        if (student != null) {
+//            user.updateUserType(userType);
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatusAndDormitoryApplicationResult(student, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
             // 입사신청 상태 변경
             if (dormitoryApplication != null) {
                 dormitoryApplication.updateApplicationStatus(ApplicationStatus.BEFORE);

@@ -10,6 +10,7 @@ import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.respon
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ExitRequestmentResidentRes;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
@@ -53,14 +54,15 @@ public class ExitRequestmentWebService {
         List<ExitRequestmentResidentRes> exitRequestmentResidentResList = new ArrayList<>();
         for (ExitRequestment exitRequestment : exitRequestmentList) {
             Resident resident = exitRequestment.getResident();
-            User user = resident.getUser();
+            Student student = resident.getStudent();
+            User user = student.getUser();
             Room room = resident.getRoom();
             Dormitory dormitory = room.getDormitory();
 
             ExitRequestmentResidentRes exitRequestmentResidentRes = ExitRequestmentResidentRes.builder()
                     .exitRequestmentId(exitRequestment.getId())
                     .residentName(user.getName())
-                    .studentNumber(user.getStudentNumber())
+                    .studentNumber(student.getStudentNumber())
                     .dormitoryName(dormitory.getName())
                     .roomSize(room.getRoomType().getRoomSize())    // 수정
                     .roomNumber(room.getRoomNumber())
@@ -88,7 +90,8 @@ public class ExitRequestmentWebService {
 
         ExitRequestment exitRequestment = validateExitRequestmentById(exitRequestmentId);
         Resident resident = exitRequestment.getResident();
-        User user = resident.getUser();
+        Student student = resident.getStudent();
+        User user = student.getUser();
 
         Room room = resident.getRoom();
         Dormitory dormitory = room.getDormitory();
@@ -96,10 +99,10 @@ public class ExitRequestmentWebService {
         ExitRequestmentRes exitRequestmentRes = ExitRequestmentRes.builder()
                 .exitRequestmentId(exitRequestmentId)
                 .residentName(user.getName())
-                .major(user.getMajor())
-                .studentNumber(user.getStudentNumber())
-                .schoolYear(user.getSchoolYear())
-                .phoneNumber(user.getPhoneNumber())
+                .major(student.getMajor())
+                .studentNumber(student.getStudentNumber())
+                .schoolYear(student.getSchoolYear())
+                .phoneNumber(student.getPhoneNumber())
                 .dormitoryName(dormitory.getName())
                 //.roomSize(dormitory.getRoomSize())    // TODO: 수정 필요
                 .securityDepositReturnStatus(exitRequestment.getSecurityDepositReturnStatus())

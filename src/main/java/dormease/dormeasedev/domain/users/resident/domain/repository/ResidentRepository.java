@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.Ro
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.student.domain.Student;
+import dormease.dormeasedev.domain.users.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -48,6 +49,8 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
 //    Page<Resident> findResidentsByUsers(@Param("users") List<User> users, Pageable pageable);
     @Query("SELECT r FROM Resident r WHERE r.student IN :users")
     Page<Resident> findResidentsByStudents(@Param("students") List<Student> students, Pageable pageable);
+
+    Optional<Resident> findByStudent_User(User user);
 
 //    boolean existsByDormitory(Dormitory dormitory);
 

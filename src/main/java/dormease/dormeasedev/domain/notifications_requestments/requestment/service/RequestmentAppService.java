@@ -115,9 +115,11 @@ public class RequestmentAppService {
     public ResponseEntity<?> findMyRequestments(UserDetailsImpl userDetailsImpl, Integer page) {
 
         User user = userService.validateUserById(userDetailsImpl.getUserId());
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(IllegalArgumentException::new);
 
         Pageable pageable = PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByUser(user, pageable);
+        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByStudent(student, pageable);
 
         List<Requestment> requestmentList = requestmentPage.getContent();
         List<RequestmentRes> requestmentResList = new ArrayList<>();
@@ -178,7 +180,9 @@ public class RequestmentAppService {
     public ResponseEntity<?> deleteRequestment(UserDetailsImpl userDetailsImpl, Long requestmentId) {
 
         User user = userService.validateUserById(userDetailsImpl.getUserId());
-        Requestment requestment = validateRequestmentByIdAndUser(requestmentId, user);
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(IllegalArgumentException::new);
+        Requestment requestment = validateRequestmentByIdAndUser(requestmentId, student);
 
         requestmentRepository.delete(requestment);
 
@@ -198,8 +202,8 @@ public class RequestmentAppService {
         return findRequestment.get();
     }
 
-    private Requestment validateRequestmentByIdAndUser(Long requestmentId, User user) {
-        Optional<Requestment> findRequestment = requestmentRepository.findByIdAndUser(requestmentId, user);
+    private Requestment validateRequestmentByIdAndUser(Long requestmentId, Student student) {
+        Optional<Requestment> findRequestment = requestmentRepository.findByIdAndStudent(requestmentId, student);
         DefaultAssert.isTrue(findRequestment.isPresent(), "올바르지 않은 요청사항 ID입니다.");
         return findRequestment.get();
     }

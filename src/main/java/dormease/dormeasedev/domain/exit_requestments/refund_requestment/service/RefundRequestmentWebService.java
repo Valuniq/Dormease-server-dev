@@ -15,6 +15,7 @@ import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.resident.service.ResidentService;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.service.UserService;
@@ -52,8 +53,8 @@ public class RefundRequestmentWebService {
     // Description : 환불 신청 사생 목록 조회
     public ResponseEntity<?> findResidents(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User admin = userService.validateUserById(userDetailsImpl.getUserId());
-        School school = admin.getSchool();
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
 
         Pageable pageable = PageRequest.of(page, 13, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<RefundRequestment> refundRequestmentsBySchool = refundRequestmentRepository.findRefundRequestmentsByResident_User_School(school, pageable);
@@ -62,7 +63,8 @@ public class RefundRequestmentWebService {
         List<RefundRequestmentRes> refundRequestmentResList = new ArrayList<>();
         for (RefundRequestment refundRequestment : refundRequestmentList) {
             Resident resident = refundRequestment.getResident();
-            User user = resident.getUser();
+            Student student = resident.getStudent();
+            User user = student.getUser();
             Room room = resident.getRoom();
 
             DormitoryApplication dormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
@@ -74,8 +76,8 @@ public class RefundRequestmentWebService {
             RefundRequestmentRes refundRequestmentRes = RefundRequestmentRes.builder()
                     .refundRequestmentId(refundRequestment.getId())
                     .residentName(user.getName())
-                    .studentNumber(user.getStudentNumber())
-                    .phoneNumber(user.getPhoneNumber())
+                    .studentNumber(student.getStudentNumber())
+                    .phoneNumber(student.getPhoneNumber())
                     .bankName(refundRequestment.getBankName())
                     .accountNumber(refundRequestment.getAccountNumber())
                     .termName(term.getTermName())
@@ -109,7 +111,8 @@ public class RefundRequestmentWebService {
 
         RefundRequestment refundRequestment = validateRefundRequestmentById(refundRequestmentId);
         Resident resident = refundRequestment.getResident();
-        User user = resident.getUser();
+        Student student = resident.getStudent();
+        User user = student.getUser();
         DefaultAssert.isTrue(user.getSchool().equals(school), "본인이 소속된 학교의 환불 요청만 처리할 수 있습니다.");
 
         // 삭제 시, refund_requestment-data.sql 삭제 + resident 삭제(user의 userType = USER 로 변경)
