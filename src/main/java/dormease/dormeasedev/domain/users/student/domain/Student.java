@@ -27,10 +27,10 @@ public class Student extends User {
 
     private String studentNumber;
 
-    private Boolean alarmSetting;
-
     @Enumerated(EnumType.STRING)
     private Gender gender;
+
+    private Boolean alarmSetting;
 
     // 상점
     private Integer bonusPoint;
