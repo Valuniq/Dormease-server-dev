@@ -51,12 +51,11 @@ public class PointWebService {
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final StudentRepository studentRepository;
 
-    // Description: [WEB] 상벌점 관련 기능
-    // 상벌점 리스트 내역 조회
+    // Description: 상벌점 리스트 내역 조회
     public ResponseEntity<?> getPointList(UserDetailsImpl userDetailsImpl) {
-        User admin = validUserById(userDetailsImpl.getUserId());
+        User adminUser = validUserById(userDetailsImpl.getUserId());
 
-        List<Point> points = pointRepository.findBySchoolAndStatus(admin.getSchool(), Status.ACTIVE);
+        List<Point> points = pointRepository.findBySchoolAndStatus(adminUser.getSchool(), Status.ACTIVE);
         List<PointRes> pointResList = points.stream()
                 .map(point -> PointRes.builder()
                         .pointId(point.getId())
@@ -73,11 +72,11 @@ public class PointWebService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // 상벌점 리스트 내역 등록
+    // Description: 상벌점 리스트 내역 등록
     @Transactional
     public ResponseEntity<?> registerPointList(UserDetailsImpl userDetailsImpl, PointListReq pointListReqs) {
-        User admin = validUserById(userDetailsImpl.getUserId());
-        School school = admin.getSchool();
+        User adminUser = validUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
 
         List<BonusPointManagementReq> bonusPointList = pointListReqs.getBonusPointList();
         List<MinusPointManagementReq> minusPointList = pointListReqs.getMinusPointList();
@@ -155,18 +154,22 @@ public class PointWebService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // 상벌점 리스트 내역 삭제
+    // Description: 상벌점 리스트 내역 삭제
     @Transactional
     public ResponseEntity<?> deletePoint(UserDetailsImpl userDetailsImpl, Long pointId) {
-        User admin = validUserById(userDetailsImpl.getUserId());
+        User adminUser = validUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
         Point point = validPointById(pointId);
+        DefaultAssert.isTrue(!school.equals(point.getSchool()), "본인의 학교만 삭제할 수 있습니다.");
 
         // 삭제해도 사용자의 상벌점 내역 조회 가능, 따라서 회원 상벌점 내역에 해당 내역이 있다면 soft delete
         // 아니라면 hard delete
         List<UserPoint> userPoints = userPointRepository.findByPoint(point);
         if (userPoints.isEmpty()) {
             pointRepository.delete(point);
-        } else { point.updateStatus(Status.DELETE); }
+        } else {
+            point.updateStatus(Status.DELETE);
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -177,11 +180,10 @@ public class PointWebService {
 
 
     // Description : 상벌점 내역 중 사생 관련 기능
-
     // 상벌점 부여
     @Transactional
     public ResponseEntity<?> addUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs) {
-        User admin = validUserById(userDetailsImpl.getUserId());
+        User adminUser = validUserById(userDetailsImpl.getUserId());
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
@@ -195,7 +197,7 @@ public class PointWebService {
             DefaultAssert.isTrue(point.getStatus().equals(Status.ACTIVE), "삭제된 상벌점 내역은 부여할 수 없습니다.");
 
             UserPoint userPoint = UserPoint.builder()
-                    .user(user)
+                    .student(student)
                     .point(point)
                     .build();
             userPointRepository.save(userPoint);
@@ -242,16 +244,16 @@ public class PointWebService {
 //        return ResponseEntity.ok(apiResponse);
     }
 
-    private void updatePoint(User user, Set<PointType> pointTypes) {
-        List<UserPoint> userPoints = userPointRepository.findByUser(user);
+    private void updatePoint(Student student, Set<PointType> pointTypes) {
+        List<UserPoint> userPoints = userPointRepository.findByStudent(student);
         DefaultAssert.isTrue(!userPoints.isEmpty(), "상/벌점이 부여되지 않았습니다.");
 
         for (PointType pointType : pointTypes) {
             Integer totalPoint = calculateTotalPoint(userPoints, pointType);
             if (pointType == PointType.BONUS) {
-                user.updateBonusPoint(totalPoint);
+                student.updateBonusPoint(totalPoint);
             } else {
-                user.updateMinusPoint(totalPoint);
+                student.updateMinusPoint(totalPoint);
             }
         }
     }
@@ -266,7 +268,7 @@ public class PointWebService {
     // 상벌점 내역 삭제
     @Transactional
     public  ResponseEntity<?> deleteUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, List<DeleteUserPointReq> deleteUserPointReqs) {
-        User admin = validUserById(userDetailsImpl.getUserId());
+        User adminUser = validUserById(userDetailsImpl.getUserId());
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
@@ -286,12 +288,14 @@ public class PointWebService {
         }
         userPointRepository.deleteAll(userPoints);
 
-        Integer bonusPoint = user.getBonusPoint();
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(IllegalArgumentException::new);
+        Integer bonusPoint = student.getBonusPoint();
         DefaultAssert.isTrue(bonusPoint < bonus, "상점은 0점 미만이 될 수 없습니다.");
-        Integer minusPoint = user.getMinusPoint();
+        Integer minusPoint = student.getMinusPoint();
         DefaultAssert.isTrue(minusPoint < minus, "벌점은 0점 미만이 될 수 없습니다.");
-        user.updateBonusPoint(bonusPoint - bonus);
-        user.updateMinusPoint(minusPoint - minus);
+        student.updateBonusPoint(bonusPoint - bonus);
+        student.updateMinusPoint(minusPoint - minus);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -320,13 +324,16 @@ public class PointWebService {
 
     // 상벌점 내역 조회
     public ResponseEntity<?> getUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, Integer page) {
-        User admin = validUserById(userDetailsImpl.getUserId());
+        User adminUser = validUserById(userDetailsImpl.getUserId());
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(IllegalArgumentException::new);
+
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdDate"));
         // 사생 목록 조회 (페이징 적용)
-        Page<UserPoint> userPoints = userPointRepository.findUserPointsByUser(user, pageable);
+        Page<UserPoint> userPoints = userPointRepository.findUserPointsByStudent(student, pageable);
         List<UserPointDetailRes> userPointDetailRes = userPoints.stream()
                 .map(userPoint -> UserPointDetailRes.builder()
                         .userPointId(userPoint.getId())
@@ -342,8 +349,8 @@ public class PointWebService {
         TotalUserPointRes totalUserPointRes = TotalUserPointRes.builder()
                 .pageInfo(pageInfo)
                 .userPointDetailRes(userPointDetailRes)
-                .bonusPoint(user.getBonusPoint())
-                .minusPoint(user.getMinusPoint())
+                .bonusPoint(student.getBonusPoint())
+                .minusPoint(student.getMinusPoint())
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -396,12 +403,12 @@ public class PointWebService {
     // 미회원 사생 배제 필요
     // Description: 기본 정렬 (sortBy: name, isAscending: true)
     public ResponseEntity<?> getResidents(UserDetailsImpl userDetailsImpl, String sortBy, Boolean isAscending, Integer page) {
-        User admin = validUserById(userDetailsImpl.getUserId());
+        User adminUser = validUserById(userDetailsImpl.getUserId());
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
 
         // userType이 RESIDENT인 user를 찾아서 사생 리스트 만들기
-        List<User> users = userRepository.findBySchoolAndUserType(admin.getSchool(), UserType.RESIDENT);
+        List<User> users = userRepository.findBySchoolAndUserType(adminUser.getSchool(), UserType.RESIDENT);
         // user를 가지고 있는 resident 찾기 (페이징 적용)
         Page<Resident> residents = residentRepository.findResidentsByUsers(users, pageable);
 
@@ -412,13 +419,15 @@ public class PointWebService {
                 .map(resident -> {
                     DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                     User user = resident.getUser();
+                    Student student = studentRepository.findByUser(user)
+                            .orElseThrow(IllegalArgumentException::new);
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
                             .name(user.getName())
-                            .studentNumber(user.getStudentNumber())
-                            .phoneNumber(user.getPhoneNumber())
-                            .bonusPoint(user.getBonusPoint())
-                            .minusPoint(user.getMinusPoint())
+                            .studentNumber(student.getStudentNumber())
+                            .phoneNumber(student.getPhoneNumber())
+                            .bonusPoint(student.getBonusPoint())
+                            .minusPoint(student.getMinusPoint())
                             .dormitoryName(dormitoryRoomType.getDormitory().getName())
                             .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
                             .room(getRoomNumber(resident))
@@ -440,13 +449,13 @@ public class PointWebService {
     // 검색된 사생 대상 조회 및 정렬
     // Description: 기본 정렬 (sortBy: name, isAscending: true)
     public ResponseEntity<?> getSearchResidents(UserDetailsImpl userDetailsImpl, String keyword, String sortBy, Boolean isAscending, Integer page) {
-        User admin = validUserById(userDetailsImpl.getUserId());
+        User adminUser = validUserById(userDetailsImpl.getUserId());
         String cleanedKeyword = keyword.trim().toLowerCase();;
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
 
         /// userType이 RESIDENT인 user를 keyword로 검색 사생 리스트 만들기
-        List<User> users = userRepository.searchUsersByKeyword(admin.getSchool(), cleanedKeyword, UserType.RESIDENT);
+        List<User> users = userRepository.searchUsersByKeyword(adminUser.getSchool(), cleanedKeyword, UserType.RESIDENT);
         // user를 가지고 있는 resident 찾기 (페이징 적용)
         Page<Resident> residents = residentRepository.findResidentsByUsers(users, pageable);
 
@@ -454,13 +463,15 @@ public class PointWebService {
                 .map(resident -> {
                     DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                     User user = resident.getUser();
+                    Student student = studentRepository.findByUser(user)
+                            .orElseThrow(IllegalArgumentException::new);
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
                             .name(user.getName())
-                            .studentNumber(user.getStudentNumber())
-                            .phoneNumber(user.getPhoneNumber())
-                            .bonusPoint(user.getBonusPoint())
-                            .minusPoint(user.getMinusPoint())
+                            .studentNumber(student.getStudentNumber())
+                            .phoneNumber(student.getPhoneNumber())
+                            .bonusPoint(student.getBonusPoint())
+                            .minusPoint(student.getMinusPoint())
                             .dormitoryName(dormitoryRoomType.getDormitory().getName())
                             .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
                             .room(getRoomNumber(resident))

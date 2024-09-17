@@ -14,9 +14,11 @@ import java.util.List;
 
 @Repository
 public interface UserPointRepository extends JpaRepository<UserPoint, Long> {
-    List<UserPoint> findByUser(User user);
+//    List<UserPoint> findByUser(User user);
+    List<UserPoint> findByStudent(Student student);
 
-    Page<UserPoint> findUserPointsByUser(User user, Pageable pageable);
+//    Page<UserPoint> findUserPointsByUser(User user, Pageable pageable);
+    Page<UserPoint> findUserPointsByStudent(Student student, Pageable pageable);
 
     List<UserPoint> findByPoint(Point point);
 
