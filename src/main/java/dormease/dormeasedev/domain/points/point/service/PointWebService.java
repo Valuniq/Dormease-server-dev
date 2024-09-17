@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class PointService {
+public class PointWebService {
 
     private final UserRepository userRepository;
     private final ResidentRepository residentRepository;
@@ -50,46 +50,6 @@ public class PointService {
     private final UserPointRepository userPointRepository;
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final StudentRepository studentRepository;
-
-    // Description: [APP] 상벌점 관련 기능
-    // 회원 상벌점 조회
-    public ResponseEntity<?> getUserPointTotal(UserDetailsImpl userDetailsImpl) {
-        Student student = studentRepository.findById(userDetailsImpl.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
-
-        UserPointAppRes userPointAppRes = UserPointAppRes.builder()
-                .bonusPoint(student.getBonusPoint())
-                .minusPoint(student.getMinusPoint())
-                .build();
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(userPointAppRes)
-                .build();
-        return  ResponseEntity.ok(apiResponse);
-    }
-
-    // 회원 상점/벌점 내역 조회
-    public ResponseEntity<?> getUserPointHistory(UserDetailsImpl userDetailsImpl, String type) {
-        User user = validUserById(userDetailsImpl.getUserId());
-        List<UserPoint> userPoints = userPointRepository.findUserPointsByUserAndPoint_pointTypeOrderByCreatedDateDesc(user, PointType.valueOf(type));
-
-        List<UserPointHistoryAppRes> userPointHistoryAppResList = userPoints.stream()
-                .map(userPoint -> UserPointHistoryAppRes.builder()
-                        .userPointId(userPoint.getId())
-                        .createdDate(userPoint.getCreatedDate().toLocalDate())
-                        .content(userPoint.getPoint().getContent())
-                        .score(userPoint.getPoint().getScore())
-                        .build())
-                .toList();
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(userPointHistoryAppResList)
-                .build();
-        return ResponseEntity.ok(apiResponse);
-    }
-
 
     // Description: [WEB] 상벌점 관련 기능
     // 상벌점 리스트 내역 조회

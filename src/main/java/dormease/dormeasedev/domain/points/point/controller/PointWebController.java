@@ -6,7 +6,7 @@ import dormease.dormeasedev.domain.points.point.dto.request.PointListReq;
 import dormease.dormeasedev.domain.points.point.dto.response.PointRes;
 import dormease.dormeasedev.domain.points.point.dto.response.ResidentInfoRes;
 import dormease.dormeasedev.domain.points.point.dto.response.TotalUserPointRes;
-import dormease.dormeasedev.domain.points.point.service.PointService;
+import dormease.dormeasedev.domain.points.point.service.PointWebService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
@@ -34,7 +34,7 @@ import java.util.List;
 @RequestMapping("/api/v1/web/points")
 public class PointWebController {
 
-    private final PointService pointService;
+    private final PointWebService pointService;
 
     @Operation(summary = "상벌점 내역 조회", description = "상벌점 관리 프로세스 중 관리자가 등록한 상벌점 내역을 목록으로 조회합니다.")
     @ApiResponses(value = {

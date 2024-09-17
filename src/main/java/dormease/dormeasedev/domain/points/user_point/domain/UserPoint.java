@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.points.user_point.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.points.point.domain.Point;
-import dormease.dormeasedev.domain.users.user.domain.User;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,13 +24,12 @@ public class UserPoint extends BaseEntity {
     private Point point;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "student_id")
+    private Student student;
 
     @Builder
-    public UserPoint(Long id, Point point, User user) {
-        this.id = id;
+    public UserPoint(Point point, Student student) {
         this.point = point;
-        this.user = user;
+        this.student = student;
     }
 }
