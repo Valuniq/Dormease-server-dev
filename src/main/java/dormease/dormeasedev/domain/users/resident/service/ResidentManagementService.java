@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.users.resident.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
+import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
