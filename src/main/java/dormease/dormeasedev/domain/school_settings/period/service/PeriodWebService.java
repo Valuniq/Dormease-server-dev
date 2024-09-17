@@ -11,7 +11,7 @@ import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -31,9 +31,9 @@ public class PeriodWebService {
 
     // Description : 퇴사 / 환불 / 룸메이트 신청 기간 등록 / 수정
     @Transactional
-    public ResponseEntity<?> registerPeriod(CustomUserDetails customUserDetails, PeriodReq periodReq) {
+    public ResponseEntity<?> registerPeriod(UserDetailsImpl userDetailsImpl, PeriodReq periodReq) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         School school = user.getSchool();
 
         // TODO : 기간 테이블 요소들 관리 어떻게?
@@ -66,9 +66,9 @@ public class PeriodWebService {
     }
 
     // Description : 퇴사 / 환불 / 룸메이트 신청 기간 조회
-    public ResponseEntity<?> findPeriod(CustomUserDetails customUserDetails, PeriodType periodType) {
+    public ResponseEntity<?> findPeriod(UserDetailsImpl userDetailsImpl, PeriodType periodType) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         School school = user.getSchool();
 
         Period period = validatePeriodBySchoolAndPeriodType(school, periodType);

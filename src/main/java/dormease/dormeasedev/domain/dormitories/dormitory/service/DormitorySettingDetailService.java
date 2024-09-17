@@ -13,7 +13,7 @@ import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class DormitorySettingDetailService {
 
     // 호실 개수 추가
     @Transactional
-    public ResponseEntity<?> addFloorAndRoomNumber(CustomUserDetails customUserDetails, Long dormitoryId, AddRoomNumberReq addRoomNumberReq) {
+    public ResponseEntity<?> addFloorAndRoomNumber(UserDetailsImpl userDetailsImpl, Long dormitoryId, AddRoomNumberReq addRoomNumberReq) {
 
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
@@ -88,7 +88,7 @@ public class DormitorySettingDetailService {
     }
 
     // 건물 상세 조회
-    public ResponseEntity<?> getDormitoryDetails(CustomUserDetails customUserDetails, Long dormitoryId) {
+    public ResponseEntity<?> getDormitoryDetails(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Dormitory> sameNameDormitories = dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), dormitory.getName());
 
@@ -143,7 +143,7 @@ public class DormitorySettingDetailService {
     }
 
     // 건물, 층으로 호실 조회
-    public ResponseEntity<?> getRoomsByDormitoryAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
+    public ResponseEntity<?> getRoomsByDormitoryAndFloor(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer floor) {
 
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
@@ -178,7 +178,7 @@ public class DormitorySettingDetailService {
     // 호실 삭제
     // 해당 층 가져와서 deleteAll
     @Transactional
-    public ResponseEntity<?> deleteRoomsByFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
+    public ResponseEntity<?> deleteRoomsByFloor(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
         List<Room> deletedRooms = new ArrayList<>();
@@ -208,7 +208,7 @@ public class DormitorySettingDetailService {
     // 호실 정보 수정
     // 필터
     @Transactional
-    public ResponseEntity<?> updateRoomSetting(CustomUserDetails customUserDetails, List<RoomSettingReq> roomSettingReqs) {
+    public ResponseEntity<?> updateRoomSetting(UserDetailsImpl userDetailsImpl, List<RoomSettingReq> roomSettingReqs) {
         List<Room> updatedRooms = new ArrayList<>();
 
         for (RoomSettingReq roomSettingReq : roomSettingReqs) {

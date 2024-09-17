@@ -14,7 +14,7 @@ import dormease.dormeasedev.domain.users.resident.service.ResidentService;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,9 +35,9 @@ public class CommonService {
     private final RoommateTempApplicationService roommateTempApplicationService;
 
     // Description : 입사 / 룸메이트 / 퇴사 신청 여부
-    public ResponseEntity<?> checkApplication(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> checkApplication(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         School school = user.getSchool();
         Resident resident = residentService.validateResidentByUser(user);
 

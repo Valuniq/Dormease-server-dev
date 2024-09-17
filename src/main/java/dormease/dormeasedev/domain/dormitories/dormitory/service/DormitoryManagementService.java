@@ -16,7 +16,7 @@ import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class DormitoryManagementService {
 
     // 건물, 층별 호실 목록 조회
     // Description: 호실 필터 미설정 시 gender는 EMPTY, roomSize는 null
-    public ResponseEntity<?> getRoomsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
+    public ResponseEntity<?> getRoomsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
         List<Room> roomList = new ArrayList<>();
@@ -82,7 +82,7 @@ public class DormitoryManagementService {
 
     // 건물 정보 조회
     // TODO: 오류 안나게 null 처리(인실, 방 개수, 총 인원 등)
-    public ResponseEntity<?> getDormitoryInfo(CustomUserDetails customUserDetails, Long dormitoryId) {
+    public ResponseEntity<?> getDormitoryInfo(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         // 건물명, 메모, 이미지는 dormitory에서 가져오기
         // DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
@@ -127,8 +127,8 @@ public class DormitoryManagementService {
     }
 
     // 학교별 건물 목록 조회(건물명)
-    public ResponseEntity<?> getDormitoriesByRoomSize(CustomUserDetails customUserDetails) {
-        User user = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getDormitoriesByRoomSize(UserDetailsImpl userDetailsImpl) {
+        User user = validUserById(userDetailsImpl.getId());
 
         List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
         List<DormitoryManagementListRes> dormitoryManagementListRes = dormitories.stream()
@@ -148,7 +148,7 @@ public class DormitoryManagementService {
     }
 
     // 건물별 층 수 목록 조회
-    public ResponseEntity<?> getFloorsByDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
+    public ResponseEntity<?> getFloorsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         // Set<Integer> uniqueFloorNumbers = new HashSet<>();
 
@@ -183,7 +183,7 @@ public class DormitoryManagementService {
 
     // 배정된 호실이 없는 사생 목록 조회
     // TODO: 입사신청을 하지않은 호실 미배정 사생의 조회가 가능한지?
-    public ResponseEntity<?> getNotAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {    // roomId 받아야함
+    public ResponseEntity<?> getNotAssignedResidents(UserDetailsImpl userDetailsImpl, Long roomId) {    // roomId 받아야함
         Room room = validRoomById(roomId);
         Dormitory dormitory = validDormitoryById(room.getDormitory().getId());
 
@@ -221,7 +221,7 @@ public class DormitoryManagementService {
     }
 
     // 해당 호실에 거주하는 사생 조회
-    public ResponseEntity<?> getAssignedResidents(CustomUserDetails customUserDetails, Long roomId) {
+    public ResponseEntity<?> getAssignedResidents(UserDetailsImpl userDetailsImpl, Long roomId) {
         Room room = validRoomById(roomId);
         List<Resident> assignedResidents = residentRepository.findByRoom(room);
         List<NotOrAssignedResidentRes> assignedResidentRes = assignedResidents.stream()
@@ -254,7 +254,7 @@ public class DormitoryManagementService {
 
     // 수기 방배정(배정 취소 및 배정 가능)
     @Transactional
-    public ResponseEntity<?> assignedResidentsToRoom(CustomUserDetails customUserDetails, List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
+    public ResponseEntity<?> assignedResidentsToRoom(UserDetailsImpl userDetailsImpl, List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
         // 리스트 사이즈만큼 반복
         for (AssignedResidentToRoomReq assignedResidentToRoomReq : assignedResidentToRoomReqList) {
             Room room = validRoomById(assignedResidentToRoomReq.getRoomId());
@@ -302,7 +302,7 @@ public class DormitoryManagementService {
 
     // 건물별 메모 저장
     @Transactional
-    public ResponseEntity<?> registerDormitoryMemo(CustomUserDetails customUserDetails, Long dormitoryId, DormitoryMemoReq dormitoryMemoReq) {
+    public ResponseEntity<?> registerDormitoryMemo(UserDetailsImpl userDetailsImpl, Long dormitoryId, DormitoryMemoReq dormitoryMemoReq) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         dormitory.updateMemo(dormitoryMemoReq.getMemo());
 

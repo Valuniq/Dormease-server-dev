@@ -6,11 +6,13 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum UserType {
-    ADMIN("ROLE_ADMIN"),
-    USER("ROLE_USER"),
-    BLACKLIST("ROLE_BLACKLIST"),
-    RESIDENT("RESIDENT");
+    ADMIN("ROLE_ADMIN", "관리자"),
+    USER("ROLE_STUDENT", "일반 회원"),
+    BLACKLIST("ROLE_BLACKLIST", "블랙리스트"),
+    RESIDENT("RESIDENT", "사생")
+    ;
 
-    private String value;
+    String key;
+    String value;
 }
 

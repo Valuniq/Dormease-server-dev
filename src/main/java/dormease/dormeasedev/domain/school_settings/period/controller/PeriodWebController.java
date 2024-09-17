@@ -6,7 +6,7 @@ import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodRes
 import dormease.dormeasedev.domain.school_settings.period.service.PeriodWebService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,10 +35,10 @@ public class PeriodWebController {
     })
     @PostMapping
     public ResponseEntity<?> registerPeriod(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 PeriodReq를 참고해주세요.", required = true) @RequestBody PeriodReq periodReq
     ) {
-        return periodWebService.registerPeriod(customUserDetails, periodReq);
+        return periodWebService.registerPeriod(userDetailsImpl, periodReq);
     }
 
     // Description : 신청 기간 조회
@@ -49,9 +49,9 @@ public class PeriodWebController {
     })
     @GetMapping("{periodType}")
     public ResponseEntity<?> findPeriod(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "조회할 기간의 타입을 입력해주세요. LEAVE(퇴사) / REFUND(환불) / ROOMMATE(룸메이트) 中 1.", required = true) @PathVariable(value = "periodType") PeriodType periodType
             ) {
-        return periodWebService.findPeriod(customUserDetails, periodType);
+        return periodWebService.findPeriod(userDetailsImpl, periodType);
     }
 }

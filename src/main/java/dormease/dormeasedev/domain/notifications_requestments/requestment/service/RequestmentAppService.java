@@ -15,7 +15,7 @@ import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageInfo;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,9 +40,9 @@ public class RequestmentAppService {
 
     // Description : 요청사항 작성
     @Transactional
-    public ResponseEntity<?> writeRequestment(CustomUserDetails customUserDetails, WriteRequestmentReq writeRequestmentReq) {
+    public ResponseEntity<?> writeRequestment(UserDetailsImpl userDetailsImpl, WriteRequestmentReq writeRequestmentReq) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         DefaultAssert.isTrue(user.getUserType().equals(UserType.RESIDENT), "사생만 요청사항을 작성할 수 있습니다.");
 
         Requestment requestment = Requestment.builder()
@@ -65,9 +65,9 @@ public class RequestmentAppService {
     }
 
     // Description : 요청사항 목록 조회
-    public ResponseEntity<?> findRequestments(CustomUserDetails customUserDetails, Integer page) {
+    public ResponseEntity<?> findRequestments(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         School school = user.getSchool();
 
         Pageable pageable = PageRequest.of(page, 8, Sort.by(Sort.Direction.DESC, "createdDate")); // 최신순.. 기능 정의서에는 날짜순이라는데 걍 최신으로 함
@@ -100,9 +100,9 @@ public class RequestmentAppService {
     }
 
     // Description : 내 요청사항 목록 조회
-    public ResponseEntity<?> findMyRequestments(CustomUserDetails customUserDetails, Integer page) {
+    public ResponseEntity<?> findMyRequestments(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
 
         Pageable pageable = PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByUser(user, pageable);
@@ -132,9 +132,9 @@ public class RequestmentAppService {
     }
 
     // Description : 요청사항 상세 조회
-    public ResponseEntity<?> findRequestmentDetail(CustomUserDetails customUserDetails, Long requestmentId) {
+    public ResponseEntity<?> findRequestmentDetail(UserDetailsImpl userDetailsImpl, Long requestmentId) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         School school = user.getSchool();
         Requestment requestment = validateRequestmentByIdAndSchool(requestmentId, school);
 
@@ -163,9 +163,9 @@ public class RequestmentAppService {
 
     // Description : 요청사항 삭제
     @Transactional
-    public ResponseEntity<?> deleteRequestment(CustomUserDetails customUserDetails, Long requestmentId) {
+    public ResponseEntity<?> deleteRequestment(UserDetailsImpl userDetailsImpl, Long requestmentId) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         Requestment requestment = validateRequestmentByIdAndUser(requestmentId, user);
 
         requestmentRepository.delete(requestment);

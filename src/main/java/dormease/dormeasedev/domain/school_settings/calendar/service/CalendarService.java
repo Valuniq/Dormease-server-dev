@@ -11,7 +11,7 @@ import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,8 +33,8 @@ public class CalendarService {
     // 종료일자 없으면 시작일자를 종료일자로 등록
     // 컬러는 디폴트 값 회색
     @Transactional
-    public ResponseEntity<?> registerCalendar(CustomUserDetails customUserDetails, CalendarReq calendarReq) {
-        User admin = userService.validateUserById(customUserDetails.getId());
+    public ResponseEntity<?> registerCalendar(UserDetailsImpl userDetailsImpl, CalendarReq calendarReq) {
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         Color color = selectDefaultColor(calendarReq);
         LocalDate endDate = selectDefaultEndDate(calendarReq);
         Calendar calendar = Calendar.builder()
@@ -56,8 +56,8 @@ public class CalendarService {
     }
 
     // 일정 조회(년도 및 월별)
-    public ResponseEntity<?> getCalendarsBySchoolAndYearAndMonth(CustomUserDetails customUserDetails, int year, int month) {
-        User admin = userService.validateUserById(customUserDetails.getId());
+    public ResponseEntity<?> getCalendarsBySchoolAndYearAndMonth(UserDetailsImpl userDetailsImpl, int year, int month) {
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         // 시작일로 정렬
         List<Calendar> calendars = calendarRepository.findBySchoolAndYearAndMonth(admin.getSchool(), year, month);
 
@@ -79,8 +79,8 @@ public class CalendarService {
     }
 
     // 일정 상세 조회
-    public ResponseEntity<?> getCalendarDetail(CustomUserDetails customUserDetails, Long calendarId) {
-        User admin = userService.validateUserById(customUserDetails.getId());
+    public ResponseEntity<?> getCalendarDetail(UserDetailsImpl userDetailsImpl, Long calendarId) {
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
@@ -102,8 +102,8 @@ public class CalendarService {
 
     // 일정 수정
     @Transactional
-    public ResponseEntity<?> updateCalendar(CustomUserDetails customUserDetails, Long calendarId, CalendarReq calendarReq) {
-        User admin = userService.validateUserById(customUserDetails.getId());
+    public ResponseEntity<?> updateCalendar(UserDetailsImpl userDetailsImpl, Long calendarId, CalendarReq calendarReq) {
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
@@ -133,8 +133,8 @@ public class CalendarService {
 
     // 일정 삭제
     @Transactional
-    public ResponseEntity<?> deleteCalendar(CustomUserDetails customUserDetails, Long calendarId) {
-        User admin = userService.validateUserById(customUserDetails.getId());
+    public ResponseEntity<?> deleteCalendar(UserDetailsImpl userDetailsImpl, Long calendarId) {
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 

@@ -11,7 +11,7 @@ import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,9 +32,9 @@ public class RoommateApplicationService {
 
     // Description : 룸메이트 신청
     @Transactional
-    public ResponseEntity<?> applyRoommateTempApplication(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> applyRoommateTempApplication(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         Resident resident = residentService.validateResidentByUser(user);
 
         RoommateTempApplication roommateTempApplication = roommateTempApplicationService.validateRoommateTempApplicationByResident(resident);

@@ -10,7 +10,7 @@ import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.PageInfo;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,8 +34,8 @@ public class UserManagementService {
     // TODO: admin user 분리 시 변경사항 적용
     // 전체 회원 조회 및 정렬
     // Description: 기본(sortBy: createdDate / isAscending: false)
-    public ResponseEntity<?> getActiveUsers(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getActiveUsers(UserDetailsImpl userDetailsImpl, String sortBy, Boolean isAscending, Integer page) {
+        User admin = validUserById(userDetailsImpl.getId());
 
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
         Page<User> pagedUsers = userRepository.findBySchoolAndStatusAndUserTypeNot(admin.getSchool(), Status.ACTIVE, UserType.ADMIN, pageable);
@@ -66,8 +66,8 @@ public class UserManagementService {
     // 검색 회원 조회 및 정렬
     // Description: 기본(sortBy: createdDate / isAscending: false)
     // TODO: admin user 분리 시 변경사항 반영
-    public ResponseEntity<?> getSearchActiveUsers(CustomUserDetails customUserDetails, String keyword, String sortBy, Boolean isAscending, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getSearchActiveUsers(UserDetailsImpl userDetailsImpl, String keyword, String sortBy, Boolean isAscending, Integer page) {
+        User admin = validUserById(userDetailsImpl.getId());
         // 공백 제거
         String cleanedKeyword = keyword.trim().toLowerCase();;
         // 검색 결과 조회 및 페이징
@@ -101,8 +101,8 @@ public class UserManagementService {
     // 탈퇴 회원 목록 조회
     // 회원 탈퇴 시 이름, 학번, 전화번호, 상점, 벌점, 탈퇴날짜만 남길 것
     // 추후 재가입 시 학번 같으면 상/벌점 연결?
-    public ResponseEntity<?> getDeleteUserBySchool(CustomUserDetails customUserDetails,Integer page) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getDeleteUserBySchool(UserDetailsImpl userDetailsImpl,Integer page) {
+        User admin = validUserById(userDetailsImpl.getId());
         Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
 
         Page<User> users = userRepository.findBySchoolAndStatusAndUserTypeNot(admin.getSchool(), Status.DELETE, UserType.ADMIN, pageable);
@@ -129,8 +129,8 @@ public class UserManagementService {
     }
 
     // 검색
-    public ResponseEntity<?> searchDeleteUsers(CustomUserDetails customUserDetails, String keyword, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> searchDeleteUsers(UserDetailsImpl userDetailsImpl, String keyword, Integer page) {
+        User admin = validUserById(userDetailsImpl.getId());
         // 공백 제거
         String cleanedKeyword = keyword.trim();
         // 검색 결과 조회 및 페이징

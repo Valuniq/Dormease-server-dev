@@ -11,7 +11,7 @@ import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,9 +32,9 @@ public class MealTicketService {
     private final UserService userService;
 
     // Description : 식권 목록 조회 (for 입사 신청(app))
-    public ResponseEntity<?> findMealTicketList(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> findMealTicketList(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         School school = user.getSchool();
 
         Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW);

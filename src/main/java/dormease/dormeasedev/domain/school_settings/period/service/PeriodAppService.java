@@ -9,7 +9,7 @@ import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,9 +28,9 @@ public class PeriodAppService {
     private final UserService userService;
 
     // Description : 신청 기간 검증
-    public ResponseEntity<?> validatePeriod(CustomUserDetails customUserDetails, PeriodType periodType) {
+    public ResponseEntity<?> validatePeriod(UserDetailsImpl userDetailsImpl, PeriodType periodType) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         School school = user.getSchool();
 
         // 기간 검증

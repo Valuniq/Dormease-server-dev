@@ -10,7 +10,7 @@ import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.PageInfo;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,9 +33,9 @@ public class RequestmentWebService {
     private final RequestmentRepository requestmentRepository;
 
     // Description : 요청사항 목록 조회 (무한 스크롤)
-    public PageResponse findRequestments(CustomUserDetails customUserDetails, Integer page) {
+    public PageResponse findRequestments(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         School school = admin.getSchool();
 
         Pageable pageable = PageRequest.of(page, 13, Sort.by(Sort.Direction.DESC, "createdDate"));
@@ -61,9 +61,9 @@ public class RequestmentWebService {
     }
 
     // Description : 요청사항 상세 조회
-    public RequestmentDetailAdminRes findRequestment(CustomUserDetails customUserDetails, Long requestmentId) {
+    public RequestmentDetailAdminRes findRequestment(UserDetailsImpl userDetailsImpl, Long requestmentId) {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         School school = admin.getSchool();
         Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school); // 본인 학교 요청사항만 조회 가능
 
@@ -82,9 +82,9 @@ public class RequestmentWebService {
     }
 
     @Transactional
-    public void modifyRequestmentProgression(CustomUserDetails customUserDetails, Long requestmentId, ModifyProgressionReq modifyProgressionReq) {
+    public void modifyRequestmentProgression(UserDetailsImpl userDetailsImpl, Long requestmentId, ModifyProgressionReq modifyProgressionReq) {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         School school = admin.getSchool();
         Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school);
 
@@ -93,9 +93,9 @@ public class RequestmentWebService {
 
     // TODO : 모든 delete는 soft delete 고민
     @Transactional
-    public void deleteRequestment(CustomUserDetails customUserDetails, Long requestmentId) {
+    public void deleteRequestment(UserDetailsImpl userDetailsImpl, Long requestmentId) {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         School school = admin.getSchool();
         Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school);
 

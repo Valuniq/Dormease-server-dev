@@ -23,7 +23,7 @@ import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageInfo;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,9 +50,9 @@ public class RefundRequestmentWebService {
     private final DormitoryApplicationService dormitoryApplicationService;
 
     // Description : 환불 신청 사생 목록 조회
-    public ResponseEntity<?> findResidents(CustomUserDetails customUserDetails, Integer page) {
+    public ResponseEntity<?> findResidents(UserDetailsImpl userDetailsImpl, Integer page) {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         School school = admin.getSchool();
 
         Pageable pageable = PageRequest.of(page, 13, Sort.by(Sort.Direction.DESC, "createdDate"));
@@ -102,9 +102,9 @@ public class RefundRequestmentWebService {
 
     // Description : 환불 신청한 사생 처리(삭제)
     @Transactional
-    public ResponseEntity<?> deleteRefundRequestment(CustomUserDetails customUserDetails, Long refundRequestmentId) {
+    public ResponseEntity<?> deleteRefundRequestment(UserDetailsImpl userDetailsImpl, Long refundRequestmentId) {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getId());
         School school = admin.getSchool();
 
         RefundRequestment refundRequestment = validateRefundRequestmentById(refundRequestmentId);

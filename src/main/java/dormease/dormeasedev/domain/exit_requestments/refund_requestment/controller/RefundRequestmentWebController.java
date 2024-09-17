@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.exit_requestments.refund_requestment.service.
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -36,10 +36,10 @@ public class RefundRequestmentWebController {
     })
     @GetMapping
     public ResponseEntity<?> findResidents(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "환불 신청 사생 목록을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return refundRequestmentWebService.findResidents(customUserDetails, page - 1);
+        return refundRequestmentWebService.findResidents(userDetailsImpl, page - 1);
     }
 
     // Description : 환불 신청한 사생 처리(삭제)
@@ -50,9 +50,9 @@ public class RefundRequestmentWebController {
     })
     @DeleteMapping("/{refundRequestmentId}")
     public ResponseEntity<?> deleteRefundRequestment(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "처리(삭제)할 사생의 ID를 입력해주세요.", required = true) @PathVariable(value = "refundRequestmentId") Long refundRequestmentId
     ) {
-        return refundRequestmentWebService.deleteRefundRequestment(customUserDetails, refundRequestmentId);
+        return refundRequestmentWebService.deleteRefundRequestment(userDetailsImpl, refundRequestmentId);
     }
 }

@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.respon
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.service.ExitRequestmentAppService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,9 +35,9 @@ public class ExitRequestmentAppController {
     })
     @GetMapping
     public ResponseEntity<?> findInfoForExitRequestment(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return exitRequestmentAppService.findInfoForExitRequestment(customUserDetails);
+        return exitRequestmentAppService.findInfoForExitRequestment(userDetailsImpl);
     }
 
     // Description : 퇴사 확인서 제출
@@ -48,10 +48,10 @@ public class ExitRequestmentAppController {
     })
     @PostMapping
     public ResponseEntity<?> submitExitRequestment(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 ExitRequestmentReq를 참고해주세요.", required = true) @Valid @RequestBody ExitRequestmentReq exitRequestmentReq
     ) {
-        return exitRequestmentAppService.submitExitRequestment(customUserDetails, exitRequestmentReq);
+        return exitRequestmentAppService.submitExitRequestment(userDetailsImpl, exitRequestmentReq);
     }
 
 }

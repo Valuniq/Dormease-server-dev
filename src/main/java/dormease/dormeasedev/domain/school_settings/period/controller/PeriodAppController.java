@@ -4,7 +4,7 @@ import dormease.dormeasedev.domain.school_settings.period.domain.PeriodType;
 import dormease.dormeasedev.domain.school_settings.period.service.PeriodAppService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,10 +36,10 @@ public class PeriodAppController {
     })
     @GetMapping("/{periodType}")
     public ResponseEntity<?> validatePeriod(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "기간 타입을 입력해주세요. LEAVE(퇴사) / REFUND(환불) / ROOMMATE(룸메이트) 中 1", required = true) @PathVariable(value = "periodType") PeriodType periodType
     ) {
-        return periodAppService.validatePeriod(customUserDetails,periodType);
+        return periodAppService.validatePeriod(userDetailsImpl,periodType);
     }
 
 

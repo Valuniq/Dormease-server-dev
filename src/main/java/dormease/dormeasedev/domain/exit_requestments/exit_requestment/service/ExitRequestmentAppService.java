@@ -13,7 +13,7 @@ import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,9 +30,9 @@ public class ExitRequestmentAppService {
     private final ResidentService residentService;
 
     // Description : 퇴사 확인서를 위한 사생 정보 조회
-    public ResponseEntity<?> findInfoForExitRequestment(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> findInfoForExitRequestment(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         Resident resident = residentService.validateResidentByUser(user);
         Room room = resident.getRoom();
         Dormitory dormitory = room.getDormitory();
@@ -60,9 +60,9 @@ public class ExitRequestmentAppService {
 
     // Description : 퇴사 확인서 제출
     @Transactional
-    public ResponseEntity<?> submitExitRequestment(CustomUserDetails customUserDetails, ExitRequestmentReq exitRequestmentReq) {
+    public ResponseEntity<?> submitExitRequestment(UserDetailsImpl userDetailsImpl, ExitRequestmentReq exitRequestmentReq) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         Resident resident = residentService.validateResidentByUser(user);
         DefaultAssert.isTrue(!exitRequestmentRepository.existsByResident(resident), "이미 퇴사 확인서를 제출하였습니다.");
 

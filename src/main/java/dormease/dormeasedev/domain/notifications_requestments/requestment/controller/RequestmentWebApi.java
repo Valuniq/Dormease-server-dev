@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.re
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -39,7 +39,7 @@ public interface RequestmentWebApi {
     })
     @GetMapping
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findRequestments(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "요청사항 목록을 페이지 별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     );
 
@@ -56,7 +56,7 @@ public interface RequestmentWebApi {
     })
     @GetMapping("/{requestmentId}")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findRequestment(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "요청사항의 id를 입력해주세요.", required = true) @PathVariable(value = "requestmentId") Long requestmentId
     );
 
@@ -73,7 +73,7 @@ public interface RequestmentWebApi {
     })
     @PutMapping("/{requestmentId}")
     ResponseEntity<?> modifyRequestmentProgression(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "요청사항의 id를 입력해주세요.", required = true) @PathVariable(value = "requestmentId") Long requestmentId,
             @Parameter(description = "Schemas의 ModifyProgressionReq를 참고해주세요.", required = true) @RequestBody ModifyProgressionReq modifyProgressionReq
     );
@@ -91,7 +91,7 @@ public interface RequestmentWebApi {
     })
     @DeleteMapping("/{requestmentId}")
     ResponseEntity<?> deleteRequestment(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "요청사항의 id를 입력해주세요.", required = true) @PathVariable(value = "requestmentId") Long requestmentId
     );
 }

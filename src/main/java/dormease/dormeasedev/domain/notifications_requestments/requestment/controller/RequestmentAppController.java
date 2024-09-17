@@ -7,7 +7,7 @@ import dormease.dormeasedev.domain.notifications_requestments.requestment.servic
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -37,10 +37,10 @@ public class RequestmentAppController {
     })
     @PostMapping
     public ResponseEntity<?> writeRequestment(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 WriteRequestmentReq을 참고해주세요.", required = true) @RequestBody WriteRequestmentReq writeRequestmentReq
     ) {
-        return requestmentAppService.writeRequestment(customUserDetails, writeRequestmentReq);
+        return requestmentAppService.writeRequestment(userDetailsImpl, writeRequestmentReq);
     }
 
     // Description : 요청사항 목록 조회
@@ -52,10 +52,10 @@ public class RequestmentAppController {
     })
     @GetMapping
     public ResponseEntity<?> findRequestments(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "요청사항 목록을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return requestmentAppService.findRequestments(customUserDetails, page - 1);
+        return requestmentAppService.findRequestments(userDetailsImpl, page - 1);
     }
 
     // Description : 내 요청사항 목록 조회
@@ -67,10 +67,10 @@ public class RequestmentAppController {
     })
     @GetMapping("/my")
     public ResponseEntity<?> findMyRequestments(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "요청사항 목록을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return requestmentAppService.findMyRequestments(customUserDetails, page - 1);
+        return requestmentAppService.findMyRequestments(userDetailsImpl, page - 1);
     }
 
     // Description : 요청사항 상세 조회
@@ -81,10 +81,10 @@ public class RequestmentAppController {
     })
     @GetMapping("/{requestmentId}")
     public ResponseEntity<?> findRequestmentDetail(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "요청사항 id를 입력해주세요.", required = true) @PathVariable Long requestmentId
     ) {
-        return requestmentAppService.findRequestmentDetail(customUserDetails, requestmentId);
+        return requestmentAppService.findRequestmentDetail(userDetailsImpl, requestmentId);
     }
 
     // Description : 요청사항 삭제
@@ -95,10 +95,10 @@ public class RequestmentAppController {
     })
     @DeleteMapping("/{requestmentId}")
     public ResponseEntity<?> deleteRequestment(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "요청사항 id를 입력해주세요.", required = true) @PathVariable Long requestmentId
     ) {
-        return requestmentAppService.deleteRequestment(customUserDetails, requestmentId);
+        return requestmentAppService.deleteRequestment(userDetailsImpl, requestmentId);
     }
 
 }

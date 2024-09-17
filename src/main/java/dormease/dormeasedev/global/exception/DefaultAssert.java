@@ -2,8 +2,6 @@ package dormease.dormeasedev.global.exception;
 
 import org.springframework.util.Assert;
 
-import java.util.Optional;
-
 public class DefaultAssert extends Assert {
 
     public static void isTrue(boolean value){

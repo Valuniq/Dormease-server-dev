@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.dormitory_applications.term.controller;
 import dormease.dormeasedev.domain.dormitory_applications.term.dto.response.TermNameRes;
 import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -34,8 +34,8 @@ public class TermAppController {
     })
     @GetMapping
     public ResponseEntity<?> findTerms(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return termService.findTerms(customUserDetails);
+        return termService.findTerms(userDetailsImpl);
     }
 }

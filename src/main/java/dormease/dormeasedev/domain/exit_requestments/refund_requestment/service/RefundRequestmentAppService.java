@@ -10,7 +10,7 @@ import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,10 +28,10 @@ public class RefundRequestmentAppService {
 
     // Description : 환불 신청
     @Transactional
-    public ResponseEntity<?> requestRefund(CustomUserDetails customUserDetails, RefundRequestmentReq refundRequestmentReq) {
+    public ResponseEntity<?> requestRefund(UserDetailsImpl userDetailsImpl, RefundRequestmentReq refundRequestmentReq) {
 
         // 신청 버튼 클릭 시 이미 신청 여부 반환
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getId());
         Resident resident = residentService.validateResidentByUser(user);
 
         DefaultAssert.isTrue(!refundRequestmentRepository.existsByResident(resident), "이미 환불 신청 하였습니다.");

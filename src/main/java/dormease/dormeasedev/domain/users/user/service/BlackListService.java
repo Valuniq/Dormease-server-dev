@@ -12,7 +12,7 @@ import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageInfo;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,8 +35,8 @@ public class BlackListService {
     private final BlackListRepository blackListRepository;
 
     // 블랙리스트 목록 조회
-    public ResponseEntity<?> getBlackListUsers(CustomUserDetails customUserDetails, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getBlackListUsers(UserDetailsImpl userDetailsImpl, Integer page) {
+        User admin = validUserById(userDetailsImpl.getId());
         // 목록 조회 및 페이징
         Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<User> blackListedUsersPage = userRepository.findBySchoolAndUserType(admin.getSchool(), UserType.BLACKLIST, pageable);
@@ -70,7 +70,7 @@ public class BlackListService {
 
     // 블랙리스트 사유 작성
     @Transactional
-    public ResponseEntity<?> registerBlackListContent(CustomUserDetails customUserDetails, List<BlackListContentReq> blackListContentReqList) {
+    public ResponseEntity<?> registerBlackListContent(UserDetailsImpl userDetailsImpl, List<BlackListContentReq> blackListContentReqList) {
         for (BlackListContentReq blackListContentReq : blackListContentReqList) {
             BlackList blackList = validBlackListById(blackListContentReq.getBlacklistId());
             blackList.updateContent(blackListContentReq.getContent());
@@ -85,7 +85,7 @@ public class BlackListService {
 
     // 블랙리스트 삭제
     @Transactional
-    public ResponseEntity<?> deleteBlackList(CustomUserDetails customUserDetails, Long blackListId) {
+    public ResponseEntity<?> deleteBlackList(UserDetailsImpl userDetailsImpl, Long blackListId) {
         BlackList blackList = validBlackListById(blackListId);
         User user = blackList.getUser();
         // user 블랙리스트 해제

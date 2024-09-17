@@ -23,7 +23,7 @@ import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageInfo;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,8 +53,8 @@ public class PointService {
 
     // Description: [APP] 상벌점 관련 기능
     // 회원 상벌점 조회
-    public ResponseEntity<?> getUserPointTotal(CustomUserDetails customUserDetails) {
-        Student student = studentRepository.findById(customUserDetails.getId())
+    public ResponseEntity<?> getUserPointTotal(UserDetailsImpl userDetailsImpl) {
+        Student student = studentRepository.findById(userDetailsImpl.getId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
 
         UserPointAppRes userPointAppRes = UserPointAppRes.builder()
@@ -70,8 +70,8 @@ public class PointService {
     }
 
     // 회원 상점/벌점 내역 조회
-    public ResponseEntity<?> getUserPointHistory(CustomUserDetails customUserDetails, String type) {
-        User user = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getUserPointHistory(UserDetailsImpl userDetailsImpl, String type) {
+        User user = validUserById(userDetailsImpl.getId());
         List<UserPoint> userPoints = userPointRepository.findUserPointsByUserAndPoint_pointTypeOrderByCreatedDateDesc(user, PointType.valueOf(type));
 
         List<UserPointHistoryAppRes> userPointHistoryAppResList = userPoints.stream()
@@ -93,8 +93,8 @@ public class PointService {
 
     // Description: [WEB] 상벌점 관련 기능
     // 상벌점 리스트 내역 조회
-    public ResponseEntity<?> getPointList(CustomUserDetails customUserDetails) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getPointList(UserDetailsImpl userDetailsImpl) {
+        User admin = validUserById(userDetailsImpl.getId());
 
         List<Point> points = pointRepository.findBySchoolAndStatus(admin.getSchool(), Status.ACTIVE);
         List<PointRes> pointResList = points.stream()
@@ -115,8 +115,8 @@ public class PointService {
 
     // 상벌점 리스트 내역 등록
     @Transactional
-    public ResponseEntity<?> registerPointList(CustomUserDetails customUserDetails, PointListReq pointListReqs) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> registerPointList(UserDetailsImpl userDetailsImpl, PointListReq pointListReqs) {
+        User admin = validUserById(userDetailsImpl.getId());
         School school = admin.getSchool();
 
         List<BonusPointManagementReq> bonusPointList = pointListReqs.getBonusPointList();
@@ -197,8 +197,8 @@ public class PointService {
 
     // 상벌점 리스트 내역 삭제
     @Transactional
-    public ResponseEntity<?> deletePoint(CustomUserDetails customUserDetails, Long pointId) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> deletePoint(UserDetailsImpl userDetailsImpl, Long pointId) {
+        User admin = validUserById(userDetailsImpl.getId());
         Point point = validPointById(pointId);
 
         // 삭제해도 사용자의 상벌점 내역 조회 가능, 따라서 회원 상벌점 내역에 해당 내역이 있다면 soft delete
@@ -220,8 +220,8 @@ public class PointService {
 
     // 상벌점 부여
     @Transactional
-    public ResponseEntity<?> addUserPoints(CustomUserDetails customUserDetails, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> addUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs) {
+        User admin = validUserById(userDetailsImpl.getId());
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
@@ -305,8 +305,8 @@ public class PointService {
 
     // 상벌점 내역 삭제
     @Transactional
-    public  ResponseEntity<?> deleteUserPoints(CustomUserDetails customUserDetails, Long residentId, List<DeleteUserPointReq> deleteUserPointReqs) {
-        User admin = validUserById(customUserDetails.getId());
+    public  ResponseEntity<?> deleteUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, List<DeleteUserPointReq> deleteUserPointReqs) {
+        User admin = validUserById(userDetailsImpl.getId());
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
@@ -359,8 +359,8 @@ public class PointService {
     }
 
     // 상벌점 내역 조회
-    public ResponseEntity<?> getUserPoints(CustomUserDetails customUserDetails, Long residentId, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, Integer page) {
+        User admin = validUserById(userDetailsImpl.getId());
         Resident resident = validResidentById(residentId);
 
         User user = resident.getUser();
@@ -435,8 +435,8 @@ public class PointService {
     // 전체 사생 대상 조회 및 정렬
     // 미회원 사생 배제 필요
     // Description: 기본 정렬 (sortBy: name, isAscending: true)
-    public ResponseEntity<?> getResidents(CustomUserDetails customUserDetails, String sortBy, Boolean isAscending, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getResidents(UserDetailsImpl userDetailsImpl, String sortBy, Boolean isAscending, Integer page) {
+        User admin = validUserById(userDetailsImpl.getId());
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
 
@@ -479,8 +479,8 @@ public class PointService {
 
     // 검색된 사생 대상 조회 및 정렬
     // Description: 기본 정렬 (sortBy: name, isAscending: true)
-    public ResponseEntity<?> getSearchResidents(CustomUserDetails customUserDetails, String keyword, String sortBy, Boolean isAscending, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
+    public ResponseEntity<?> getSearchResidents(UserDetailsImpl userDetailsImpl, String keyword, String sortBy, Boolean isAscending, Integer page) {
+        User admin = validUserById(userDetailsImpl.getId());
         String cleanedKeyword = keyword.trim().toLowerCase();;
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);

@@ -6,7 +6,7 @@ import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.*;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryManagementService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -38,10 +38,10 @@ public class DormitoryManagementWebController {
     })
     @PutMapping("/{dormitoryId}/memo")
     public ResponseEntity<?> registerDormitoryMemo(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "Schemas의 DormitoryMemoReq을 참고해주세요.", required = true) @Valid @RequestBody DormitoryMemoReq dormitoryMemoReq) {
-        return dormitoryManagementService.registerDormitoryMemo(customUserDetails, dormitoryId, dormitoryMemoReq);
+        return dormitoryManagementService.registerDormitoryMemo(userDetailsImpl, dormitoryId, dormitoryMemoReq);
     }
 
     @Operation(summary = "건물명 목록 조회", description = "건물 관리 프로세스 중 건물 목록을 조회합니다.")
@@ -51,8 +51,8 @@ public class DormitoryManagementWebController {
     })
     @GetMapping("")
     public ResponseEntity<?> getDormitoriesByRoomSize(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return dormitoryManagementService.getDormitoriesByRoomSize(customUserDetails);
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {
+        return dormitoryManagementService.getDormitoriesByRoomSize(userDetailsImpl);
     }
 
     @Operation(summary = "층 수 목록 조회", description = "건물 관리 프로세스 중 건물별 층 수를 조회합니다.")
@@ -62,10 +62,10 @@ public class DormitoryManagementWebController {
     })
     @GetMapping("/{dormitoryId}/floor")
     public ResponseEntity<?> getFloorsByDormitory(
-        @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+        @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
         @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
         ) {
-        return dormitoryManagementService.getFloorsByDormitory(customUserDetails, dormitoryId);
+        return dormitoryManagementService.getFloorsByDormitory(userDetailsImpl, dormitoryId);
     }
 
     @Operation(summary = "호실 목록 조회", description = "건물 관리 프로세스 중 건물, 층별 호실 목록을 조회합니다.")
@@ -75,11 +75,11 @@ public class DormitoryManagementWebController {
     })
     @GetMapping("/{dormitoryId}/{floor}")
     public ResponseEntity<?> getFloorsByDormitory(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "floor를 입력해주세요.", required = true) @PathVariable Integer floor
     ) {
-        return dormitoryManagementService.getRoomsByDormitory(customUserDetails, dormitoryId, floor);
+        return dormitoryManagementService.getRoomsByDormitory(userDetailsImpl, dormitoryId, floor);
     }
 
     @Operation(summary = "건물 정보 조회", description = "건물 관리 프로세스 중 건물의 정보를 조회합니다.")
@@ -89,10 +89,10 @@ public class DormitoryManagementWebController {
     })
     @GetMapping("/{dormitoryId}")
     public ResponseEntity<?> getDormitoryInfo(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
             ) {
-        return dormitoryManagementService.getDormitoryInfo(customUserDetails, dormitoryId);
+        return dormitoryManagementService.getDormitoryInfo(userDetailsImpl, dormitoryId);
     }
 
     @Operation(summary = "미배정 사생 조회", description = "수기 방배정 시 호실 미배정 사생 목록을 조회합니다.")
@@ -102,10 +102,10 @@ public class DormitoryManagementWebController {
     })
     @GetMapping("/rooms/{roomId}/not-assigned")
     public ResponseEntity<?> getNotAssignedResidents(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId
     ) {
-        return dormitoryManagementService.getNotAssignedResidents(customUserDetails, roomId);
+        return dormitoryManagementService.getNotAssignedResidents(userDetailsImpl, roomId);
     }
 
     @Operation(summary = "특정 호실에 배정된 사생 조회", description = "건물 관리 프로세스 중 특정 호실에 배정된 사생 목록을 조회합니다.")
@@ -115,10 +115,10 @@ public class DormitoryManagementWebController {
     })
     @GetMapping("/rooms/{roomId}/assigned")
     public ResponseEntity<?> getAssignedResidents(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId
     ) {
-        return dormitoryManagementService.getAssignedResidents(customUserDetails, roomId);
+        return dormitoryManagementService.getAssignedResidents(userDetailsImpl, roomId);
     }
 
     @Operation(summary = "수기 방배정", description = "건물 관리 프로세스 중 미배정 사생을 대상으로 호실을 배정합니다.")
@@ -128,10 +128,10 @@ public class DormitoryManagementWebController {
     })
     @PutMapping("/rooms/manual")
     public ResponseEntity<?> assignedResidentsToRooms(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 AssignedResidentToRoomReq을 참고해주세요.", required = true) @Valid @RequestBody List<AssignedResidentToRoomReq> assignedResidentToRoomReq
             ) {
-        return dormitoryManagementService.assignedResidentsToRoom(customUserDetails, assignedResidentToRoomReq);
+        return dormitoryManagementService.assignedResidentsToRoom(userDetailsImpl, assignedResidentToRoomReq);
     }
 }
 

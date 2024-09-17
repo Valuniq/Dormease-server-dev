@@ -14,7 +14,7 @@ import dormease.dormeasedev.domain.users.user.dto.response.FindMyInfoRes;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,11 +36,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     // Description : 아이디 찾기
-    public ResponseEntity<?> findLoginId(CustomUserDetails customUserDetails, FindLoginIdReq findLoginIdReq) {
+    public ResponseEntity<?> findLoginId(UserDetailsImpl userDetailsImpl, FindLoginIdReq findLoginIdReq) {
 
         DefaultAssert.isTrue(findLoginIdReq.isCertification(), "인증번호가 잘못 입력되었습니다.");
 
-        User user = validateUserById(customUserDetails.getId());
+        User user = validateUserById(userDetailsImpl.getId());
         Student student = studentRepository.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
 
@@ -64,9 +64,9 @@ public class UserService {
 
     // Description : 비밀번호 재설정
     @Transactional
-    public ResponseEntity<?> modifyPassword(CustomUserDetails customUserDetails, FindPasswordReq findPasswordReq) {
+    public ResponseEntity<?> modifyPassword(UserDetailsImpl userDetailsImpl, FindPasswordReq findPasswordReq) {
 
-        User user = validateUserById(customUserDetails.getId());
+        User user = validateUserById(userDetailsImpl.getId());
         DefaultAssert.isTrue(user.getLoginId().equals(findPasswordReq.getLoginId()), "아이디가 일치하지 않습니다.");
 
         user.updatePassword(passwordEncoder.encode(findPasswordReq.getPassword()));
@@ -80,9 +80,9 @@ public class UserService {
     }
 
     // Description : 내 정보 조회
-    public ResponseEntity<?> findMyInfo(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> findMyInfo(UserDetailsImpl userDetailsImpl) {
 
-        User user = validateUserById(customUserDetails.getId());
+        User user = validateUserById(userDetailsImpl.getId());
         boolean isBlackList = false;
         if (user.getUserType().getValue().equals("ROLE_BLACKLIST"))
             isBlackList = true;
@@ -106,9 +106,9 @@ public class UserService {
 
     // Description : 학번(수험번호) 수정
     @Transactional
-    public ResponseEntity<?> modifyStudentNumber(CustomUserDetails customUserDetails, ModifyStudentNumberReq modifyStudentNumberReq) {
+    public ResponseEntity<?> modifyStudentNumber(UserDetailsImpl userDetailsImpl, ModifyStudentNumberReq modifyStudentNumberReq) {
 
-        User user = validateUserById(customUserDetails.getId());
+        User user = validateUserById(userDetailsImpl.getId());
         School school = user.getSchool();
         validateUserByStudentNumber(school, modifyStudentNumberReq.getStudentNumber());
 
@@ -127,9 +127,9 @@ public class UserService {
 
     // Description : 비밀번호 재설정 - 마이페이지
     @Transactional
-    public ResponseEntity<?> resetPasswordInMyPage(CustomUserDetails customUserDetails, ResetPasswordReq resetPasswordReq) {
+    public ResponseEntity<?> resetPasswordInMyPage(UserDetailsImpl userDetailsImpl, ResetPasswordReq resetPasswordReq) {
 
-        User user = validateUserById(customUserDetails.getId());
+        User user = validateUserById(userDetailsImpl.getId());
         user.updatePassword(passwordEncoder.encode(resetPasswordReq.getPassword()));
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -142,9 +142,9 @@ public class UserService {
 
     // Description : 전화번호 재설정
     @Transactional
-    public ResponseEntity<?> modifyPhoneNumber(CustomUserDetails customUserDetails, ModifyPhoneNumberReq modifyPhoneNumberReq) {
+    public ResponseEntity<?> modifyPhoneNumber(UserDetailsImpl userDetailsImpl, ModifyPhoneNumberReq modifyPhoneNumberReq) {
 
-        User user = validateUserById(customUserDetails.getId());
+        User user = validateUserById(userDetailsImpl.getId());
         Student student = studentRepository.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
         student.updatePhoneNumber(modifyPhoneNumberReq.getPhoneNumber());
@@ -159,9 +159,9 @@ public class UserService {
 
     // Description : 대표 식당 변경
     @Transactional
-    public ResponseEntity<?> modifyRepresentativeRestaurant(CustomUserDetails customUserDetails, Long restaurantId) {
+    public ResponseEntity<?> modifyRepresentativeRestaurant(UserDetailsImpl userDetailsImpl, Long restaurantId) {
 
-        User user = validateUserById(customUserDetails.getId());
+        User user = validateUserById(userDetailsImpl.getId());
         School school = user.getSchool();
         Optional<Restaurant> findRestaurant = restaurantRepository.findBySchoolAndId(school, restaurantId);
         DefaultAssert.isTrue(findRestaurant.isPresent(), "존재하지 않는 식당 id입니다.");

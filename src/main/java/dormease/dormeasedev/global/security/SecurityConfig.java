@@ -1,57 +1,84 @@
 package dormease.dormeasedev.global.security;
 
-import dormease.dormeasedev.global.security.filter.JwtAuthenticationFilter;
-import dormease.dormeasedev.global.security.handler.JwtAccessDeniedHandler;
+import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
+import dormease.dormeasedev.global.security.filter.JwtAuthenticationProcessingFilter;
+import dormease.dormeasedev.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 // https://colabear754.tistory.com/171 참고함
-@EnableMethodSecurity
-//@EnableWebSecurity
 @RequiredArgsConstructor
+@EnableWebSecurity
+@EnableMethodSecurity
 @Configuration
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;	// JwtAuthenticationFilter 주입
+    private final UserDetailsServiceImpl userDetailsService;
+    private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/v3/**", "/api/v1/auth/**"};	// sign-up, sign-in 추가
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private static final String[] WHITE_LIST = {
+            "/swagger", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
+            "/api/v1/auth/**", "/api/v1/auth/password", "/api/v1/auth/reissue",
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(CsrfConfigurer<HttpSecurity>::disable)
-                .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))	// H2 콘솔 사용을 위한 설정
-                .exceptionHandling(exception -> {
-                    exception.authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-                            .accessDeniedHandler(new JwtAccessDeniedHandler());
-                })
-                .authorizeHttpRequests(requests ->
-                        requests.requestMatchers(allowedUrls)
-                                .permitAll()	// requestMatchers의 인자로 전달된 url은 모두에게 허용
-                                .requestMatchers(PathRequest.toH2Console())
-                                .permitAll()	// H2 콘솔 접속은 모두에게 허용
-//                                .requestMatchers("/api/v1/web/**").hasRole("ADMIN")
-                                .anyRequest().authenticated()	// 그 외의 모든 요청은 인증 필요
+        http
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(new AuthenticationEntryPointImpl()))
+
+                .authorizeHttpRequests(authorize -> authorize
+                                .requestMatchers("/auth/logout").authenticated()
+//                                .requestMatchers(NEED_TOKEN).hasAnyRole("ADMIN", "MEMBER")
+                                .requestMatchers(WHITE_LIST).permitAll()
+                                .anyRequest().authenticated()
                 )
-                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))	// 세션을 사용하지 않으므로 STATELESS 설정
-                .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class)	// 추가
-                .build();
+
+                .addFilterBefore(jwtAuthenticationProcessingFilter(), LogoutFilter.class)
+        ;
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() throws Exception {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return daoAuthenticationProvider;
+    }
+
+    @Bean
+    public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter(){
+        return new JwtAuthenticationProcessingFilter(jwtTokenProvider, userRepository);
     }
 }
 

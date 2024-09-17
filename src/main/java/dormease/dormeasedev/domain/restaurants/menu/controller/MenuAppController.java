@@ -4,7 +4,7 @@ import dormease.dormeasedev.domain.restaurants.menu.dto.request.FindMenuReq;
 import dormease.dormeasedev.domain.restaurants.menu.dto.response.MenuRes;
 import dormease.dormeasedev.domain.restaurants.menu.service.MenuAppService;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,9 +37,9 @@ public class MenuAppController {
     })
     @GetMapping
     public ResponseEntity<?> findMenuList(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 FindMenuReq를 참고해주세요.", required = true) @Valid @RequestBody FindMenuReq findMenuReq
     ) {
-        return menuAppService.findMenuList(customUserDetails, findMenuReq);
+        return menuAppService.findMenuList(userDetailsImpl, findMenuReq);
     }
 }

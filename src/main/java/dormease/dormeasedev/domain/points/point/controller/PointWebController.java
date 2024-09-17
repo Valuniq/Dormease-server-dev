@@ -10,7 +10,7 @@ import dormease.dormeasedev.domain.points.point.service.PointService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -43,9 +43,9 @@ public class PointWebController {
     })
     @GetMapping("/detail")
     public ResponseEntity<?> getPoints(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return pointService.getPointList(customUserDetails);
+        return pointService.getPointList(userDetailsImpl);
     }
 
     @Operation(summary = "상벌점 내역 등록", description = "상벌점 관리 프로세스 중 관리자가 상벌점 내역을 등록합니다.")
@@ -55,10 +55,10 @@ public class PointWebController {
     })
     @PostMapping
     public ResponseEntity<?> registerPoints(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 PointListReq을 참고해주세요.", required = true) @Valid @RequestBody PointListReq pointListReq
             ) {
-        return pointService.registerPointList(customUserDetails, pointListReq);
+        return pointService.registerPointList(userDetailsImpl, pointListReq);
     }
 
     @Operation(summary = "상벌점 내역 삭제", description = "상벌점 관리 프로세스 중 관리자가 등록한 상벌점 내역을 삭제합니다.")
@@ -68,10 +68,10 @@ public class PointWebController {
     })
     @DeleteMapping("/detail/{pointId}")
     public ResponseEntity<?> deletePoint(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "point id를 입력해주세요.", required = true) @PathVariable Long pointId
     ) {
-        return pointService.deletePoint(customUserDetails, pointId);
+        return pointService.deletePoint(userDetailsImpl, pointId);
     }
 
     @Operation(summary = "상벌점 부여", description = "상벌점 관리 프로세스 중 사생에게 상벌점을 부여합니다.")
@@ -81,11 +81,11 @@ public class PointWebController {
     })
     @PostMapping("/{residentId}")
     public ResponseEntity<?> addPointsToResident(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
             @Parameter(description = "Schemas의 AddPointToResidentReq을 참고해주세요.", required = true) @Valid @RequestBody List<AddPointToResidentReq> addPointToResidentReqList
     ) {
-        return pointService.addUserPoints(customUserDetails, residentId, addPointToResidentReqList);
+        return pointService.addUserPoints(userDetailsImpl, residentId, addPointToResidentReqList);
     }
 
     @Operation(summary = "상벌점 내역 조회", description = "상벌점 관리 프로세스 중 사생의 상벌점 내역을 조회합니다.")
@@ -95,12 +95,12 @@ public class PointWebController {
     })
     @GetMapping("/{residentId}")
     public ResponseEntity<?> getResidentsPoints(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
             @Parameter(description = "상벌점 내역을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
 
     ) {
-        return pointService.getUserPoints(customUserDetails, residentId, page - 1);
+        return pointService.getUserPoints(userDetailsImpl, residentId, page - 1);
     }
 
     @Operation(summary = "상벌점 내역 삭제", description = "상벌점 관리 프로세스 중 사생의 상벌점 내역을 삭제합니다.")
@@ -110,11 +110,11 @@ public class PointWebController {
     })
     @DeleteMapping("/{residentId}")
     public ResponseEntity<?> deleteResidentsPoints(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
             @Parameter(description = "Schemas의 DeleteUserPointReq을 참고해주세요.", required = true) @Valid @RequestBody List<DeleteUserPointReq> deleteUserPointReqs
     ) {
-        return pointService.deleteUserPoints(customUserDetails, residentId, deleteUserPointReqs);
+        return pointService.deleteUserPoints(userDetailsImpl, residentId, deleteUserPointReqs);
     }
 
     @Operation(summary = "사생 목록 조회 및 정렬", description = "상벌점 관리 프로세스 중 사생을 조회 또는 정렬하여 조회합니다.")
@@ -125,13 +125,13 @@ public class PointWebController {
     })
     @GetMapping("")
     public ResponseEntity<?> getResidents(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "bonusPoint, minusPoint 중 정렬 기준을 입력해주세요. 미입력 시 기본 정렬은 이름 순으로 정렬됩니다.", required = true) @RequestParam(value = "sortBy", defaultValue = "name") String sortBy,
             @Parameter(description = "오름차순/내림차순 기준을 입력해주세요. 미입력 시 기본 정렬은 오름차순으로 정렬됩니다.", required = true) @RequestParam(value = "isAscending", defaultValue = "true") Boolean isAscending,
             @Parameter(description = "사생을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
 
     ) {
-        return pointService.getResidents(customUserDetails, sortBy, isAscending, page - 1);
+        return pointService.getResidents(userDetailsImpl, sortBy, isAscending, page - 1);
     }
 
     @Operation(summary = "사생 검색 및 정렬", description = "상벌점 관리 프로세스 중 사생을 학번 또는 이름으로 검색 또는 정렬하여 검색합니다.")
@@ -142,13 +142,13 @@ public class PointWebController {
     })
     @GetMapping("/search")
     public ResponseEntity<?> searchResidentsByKeyword(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam String keyword,
             @Parameter(description = "bonusPoint, minusPoint 중 정렬 기준을 입력해주세요. 미입력 시 정렬은 이름 순으로 정렬됩니다.", required = true) @RequestParam(value = "sortBy", defaultValue = "name") String sortBy,
             @Parameter(description = "오름차순/내림차순 기준을 입력해주세요. 미입력 시 기본 정렬은 오름차순으로 정렬됩니다.", required = true) @RequestParam(value = "isAscending", defaultValue = "true") Boolean isAscending,
             @Parameter(description = "사생을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
 
     ) {
-        return pointService.getSearchResidents(customUserDetails, keyword, sortBy, isAscending, page - 1);
+        return pointService.getSearchResidents(userDetailsImpl, keyword, sortBy, isAscending, page - 1);
     }
 }

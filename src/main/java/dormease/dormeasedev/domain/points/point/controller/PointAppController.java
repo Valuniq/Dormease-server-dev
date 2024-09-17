@@ -4,7 +4,7 @@ import dormease.dormeasedev.domain.points.point.dto.response.UserPointAppRes;
 import dormease.dormeasedev.domain.points.point.dto.response.UserPointHistoryAppRes;
 import dormease.dormeasedev.domain.points.point.service.PointService;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -37,9 +37,9 @@ public class PointAppController {
     })
     @GetMapping("")
     public ResponseEntity<?> getUserPoint(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return pointService.getUserPointTotal(customUserDetails);
+        return pointService.getUserPointTotal(userDetailsImpl);
     }
 
     // 상벌점 내역 조회
@@ -50,10 +50,10 @@ public class PointAppController {
     })
     @GetMapping("/{type}")
     public ResponseEntity<?> getUserPointHistory(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "상점/벌점에 따라 BONUS, MINUS을 입력해주세요.", required = true) @PathVariable String type
     ) {
-        return pointService.getUserPointHistory(customUserDetails, type);
+        return pointService.getUserPointHistory(userDetailsImpl, type);
     }
 
 }

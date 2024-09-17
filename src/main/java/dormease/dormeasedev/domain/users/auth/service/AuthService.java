@@ -17,8 +17,8 @@ import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
-import dormease.dormeasedev.global.security.CustomUserDetails;
-import dormease.dormeasedev.global.security.jwt.TokenProvider;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
+import dormease.dormeasedev.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,7 +37,7 @@ public class AuthService {
     private final RestaurantRepository restaurantRepository;
 
     private final PasswordEncoder passwordEncoder;
-    private final TokenProvider tokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
     private final UserService userService;
     private final SchoolService schoolService;
@@ -111,9 +111,9 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity<?> signout(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> signout(UserDetailsImpl userDetailsImpl) {
 
-        Optional<RefreshToken> findRefreshToken = refreshTokenRepository.findByLoginId(customUserDetails.getLoginId());
+        Optional<RefreshToken> findRefreshToken = refreshTokenRepository.findByLoginId(userDetailsImpl.getLoginId());
         DefaultAssert.isTrue(findRefreshToken.isPresent(), "이미 로그아웃 되었습니다");
 
         refreshTokenRepository.delete(findRefreshToken.get());

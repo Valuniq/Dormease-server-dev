@@ -7,7 +7,7 @@ import dormease.dormeasedev.domain.users.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.users.auth.service.AuthService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -60,9 +60,9 @@ public class AuthController {
     })
     @PostMapping(value = "/sign-out")
     public ResponseEntity<?> signout(
-            @Parameter(description = "Accesstoken을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Accesstoken을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return authService.signout(customUserDetails);
+        return authService.signout(userDetailsImpl);
     }
 
     @Operation(summary = "로그인 아이디 중복 체크", description = "로그인 아이디가 중복인지 검사합니다.")

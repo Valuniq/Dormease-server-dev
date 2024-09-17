@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.dormitory_applications.dormitory_application
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.service.DormitoryApplicationSettingAppService;
 import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodDateRes;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,9 +33,9 @@ public class DormitoryApplicationSettingAppController {
     })
     @GetMapping
     public ResponseEntity<?> validateDormitoryApplicationPeriod(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return dormitoryApplicationSettingAppService.validateDormitoryApplicationPeriod(customUserDetails);
+        return dormitoryApplicationSettingAppService.validateDormitoryApplicationPeriod(userDetailsImpl);
     }
 
 

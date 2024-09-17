@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.notifications_requestments.image.dto.response
 import dormease.dormeasedev.domain.notifications_requestments.image.service.ImageService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,10 +37,10 @@ public class ImageController {
     })
     @PostMapping
     public ResponseEntity<?> uploadImageToS3(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "업로드할 이미지 파일 (Multipart form-data 형식)") @RequestPart(value = "image") MultipartFile multipartFile
     ) throws IOException {
-        return imageService.uploadImageToS3(customUserDetails, multipartFile);
+        return imageService.uploadImageToS3(userDetailsImpl, multipartFile);
     }
 
     // Description : 텍스트 에디터 작성 중 이탈 시 s3에서 삭제
@@ -51,9 +51,9 @@ public class ImageController {
     })
     @DeleteMapping
     public ResponseEntity<?> deleteImageFromS3(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "삭제할 이미지 url 목록을 입력해주세요.") @RequestBody DeleteImageFromS3Req deleteImageFromS3Req
     ) {
-        return imageService.deleteImageFromS3(customUserDetails, deleteImageFromS3Req);
+        return imageService.deleteImageFromS3(userDetailsImpl, deleteImageFromS3Req);
     }
 }
