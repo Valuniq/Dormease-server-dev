@@ -7,8 +7,8 @@ import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.respon
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.service.ExitRequestmentWebService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -40,10 +40,10 @@ public class ExitRequestmentWebController {
     })
     @GetMapping("/residents")
     public ResponseEntity<?> findResidents(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = " 퇴사 신청 사생 목록을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return exitRequestmentWebService.findResidents(customUserDetails, page - 1);
+        return exitRequestmentWebService.findResidents(userDetailsImpl, page - 1);
     }
 
     // Description : 퇴사 신청서 조회

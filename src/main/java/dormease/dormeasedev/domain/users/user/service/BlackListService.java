@@ -1,18 +1,21 @@
 package dormease.dormeasedev.domain.users.user.service;
 
+import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.blacklist.domain.BlackList;
 import dormease.dormeasedev.domain.users.blacklist.domain.repository.BlackListRepository;
 import dormease.dormeasedev.domain.users.blacklist.dto.request.BlackListContentReq;
+import dormease.dormeasedev.domain.users.student.domain.Student;
+import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
-import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.dto.response.BlackListUserInfoRes;
+import dormease.dormeasedev.domain.users.user.exception.InvalidSchoolAuthorityException;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageInfo;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,31 +35,39 @@ import java.util.stream.Collectors;
 public class BlackListService {
 
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
     private final BlackListRepository blackListRepository;
 
-    // 블랙리스트 목록 조회
-    public ResponseEntity<?> getBlackListUsers(CustomUserDetails customUserDetails, Integer page) {
-        User admin = validUserById(customUserDetails.getId());
-        // 목록 조회 및 페이징
-        Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<User> blackListedUsersPage = userRepository.findBySchoolAndUserType(admin.getSchool(), UserType.BLACKLIST, pageable);
+    private final UserService userService;
 
-        List<BlackListUserInfoRes> blackListUserInfoRes = blackListedUsersPage.getContent().stream()
-                .map(user -> {
-                    BlackList blackList = blackListRepository.findByUser(user);
+    // 블랙리스트 목록 조회
+    public ResponseEntity<?> getBlackListUsers(UserDetailsImpl userDetailsImpl, Integer page) {
+        User adminUser = validUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
+
+        Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Page<BlackList> blackListPage = blackListRepository.findByStudent_User_School(school, pageable);
+
+        // 목록 조회 및 페이징
+//        Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
+//        Page<User> blackListedUsersPage = userRepository.findBySchoolAndUserType(admin.getSchool(), UserType.BLACKLIST, pageable);
+
+        List<BlackListUserInfoRes> blackListUserInfoRes = blackListPage.getContent().stream()
+                .map(blackList -> {
+                    Student student = blackList.getStudent();
                     return BlackListUserInfoRes.builder()
                             .id(blackList.getId())
-                            .name(user.getName())
-                            .studentNumber(user.getStudentNumber())
-                            .phoneNumber(user.getPhoneNumber())
-                            .minusPoint(user.getMinusPoint())
+                            .name(student.getUser().getName())
+                            .studentNumber(student.getStudentNumber())
+                            .phoneNumber(student.getPhoneNumber())
+                            .minusPoint(student.getMinusPoint())
                             .content(blackList.getContent())
                             .createdAt(blackList.getCreatedDate().toLocalDate())
                             .build();
                 })
                 .collect(Collectors.toList());
 
-        PageInfo pageInfo = PageInfo.toPageInfo(pageable, blackListedUsersPage);
+        PageInfo pageInfo = PageInfo.toPageInfo(pageable, blackListPage);
         PageResponse pageResponse = PageResponse.toPageResponse(pageInfo, blackListUserInfoRes);
 
         // ApiResponse 객체 생성 및 반환
@@ -70,7 +81,7 @@ public class BlackListService {
 
     // 블랙리스트 사유 작성
     @Transactional
-    public ResponseEntity<?> registerBlackListContent(CustomUserDetails customUserDetails, List<BlackListContentReq> blackListContentReqList) {
+    public ResponseEntity<?> registerBlackListContent(UserDetailsImpl userDetailsImpl, List<BlackListContentReq> blackListContentReqList) {
         for (BlackListContentReq blackListContentReq : blackListContentReqList) {
             BlackList blackList = validBlackListById(blackListContentReq.getBlacklistId());
             blackList.updateContent(blackListContentReq.getContent());
@@ -85,11 +96,13 @@ public class BlackListService {
 
     // 블랙리스트 삭제
     @Transactional
-    public ResponseEntity<?> deleteBlackList(CustomUserDetails customUserDetails, Long blackListId) {
+    public ResponseEntity<?> deleteBlackList(UserDetailsImpl userDetailsImpl, Long blackListId) {
         BlackList blackList = validBlackListById(blackListId);
-        User user = blackList.getUser();
-        // user 블랙리스트 해제
-        user.updateUserType(UserType.USER);
+        User user = blackList.getStudent().getUser();
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
+        if (!adminUser.getSchool().equals(user.getSchool()))
+            throw new InvalidSchoolAuthorityException();
+
         // 블랙리스트 데이터 삭제
         blackListRepository.delete(blackList);
 

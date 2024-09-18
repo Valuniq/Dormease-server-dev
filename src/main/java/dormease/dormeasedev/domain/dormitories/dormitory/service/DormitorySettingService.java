@@ -15,8 +15,8 @@ import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,8 +45,8 @@ public class DormitorySettingService {
 
     // [건물 설정] 건물 추가
     @Transactional
-    public ResponseEntity<?> registerDormitory(CustomUserDetails customUserDetails) {
-        User admin = userService.validateUserById(customUserDetails.getId());
+    public ResponseEntity<?> registerDormitory(UserDetailsImpl userDetailsImpl) {
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         // 건물 개수 검증
         checkDormitoryLimit(admin);
 
@@ -87,8 +87,8 @@ public class DormitorySettingService {
     }
 
     // [건물 설정] 건물 목록 조회
-    public ResponseEntity<?> getDormitoriesBySchool(CustomUserDetails customUserDetails) {
-        User user = userService.validateUserById(customUserDetails.getId());
+    public ResponseEntity<?> getDormitoriesBySchool(UserDetailsImpl userDetailsImpl) {
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         // 학교별 건물 조회
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolOrderByCreatedDateAsc(user.getSchool());
         List<DormitorySettingListRes> dormitorySettingListRes = dormitories.stream()
@@ -116,8 +116,8 @@ public class DormitorySettingService {
 
     // [건물 설정] 건물 사진 추가 및 변경
     @Transactional
-    public ResponseEntity<?> updateDormitoryImage(CustomUserDetails customUserDetails, Long dormitoryId, MultipartFile image) throws IOException {
-        User user = userService.validateUserById(customUserDetails.getId());
+    public ResponseEntity<?> updateDormitoryImage(UserDetailsImpl userDetailsImpl, Long dormitoryId, MultipartFile image) throws IOException {
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
         // 기존 이미지 삭제
@@ -144,7 +144,7 @@ public class DormitorySettingService {
     // 건물 삭제
     // (해당 건물에 배정된 사생이 있을 시, 입사신청설정에 사용된 경우 삭제 불가)
     @Transactional
-    public ResponseEntity<?> deleteDormitory(CustomUserDetails customUserDetails, Long dormitoryId) {
+    public ResponseEntity<?> deleteDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
         // DormitoryRoomType 및 관련된 DormitoryTerm 조회
@@ -185,7 +185,7 @@ public class DormitorySettingService {
 
     // 건물명 변경
     @Transactional
-    public ResponseEntity<?> updateDormitoryName(CustomUserDetails customUserDetails, Long dormitoryId, UpdateDormitoryNameReq updateDormitoryNameReq) {
+    public ResponseEntity<?> updateDormitoryName(UserDetailsImpl userDetailsImpl, Long dormitoryId, UpdateDormitoryNameReq updateDormitoryNameReq) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         // 이미 존재하는 이름이면 변경 불가
         boolean availableName = !dormitoryRepository.existsBySchoolAndName(dormitory.getSchool(), updateDormitoryNameReq.getName());

@@ -34,8 +34,8 @@ import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -65,9 +65,9 @@ public class DormitoryApplicationSettingService {
     //  - 입사 신청 설정으로 저장 필요
     //      - 그 과정에서 Req 참고하여 알맞은 Entity에 저장하는 과정 필요
     @Transactional
-    public ResponseEntity<?> createDormitoryApplicationSetting(CustomUserDetails customUserDetails, CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq) {
+    public ResponseEntity<?> createDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl, CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         // 입사 신청 설정 save
@@ -142,10 +142,10 @@ public class DormitoryApplicationSettingService {
     }
 
     // Description : 입사 신청 설정 조회
-    public ResponseEntity<?> findDormitoryApplicationSetting(CustomUserDetails customUserDetails, Long dormitoryApplicationSettingId) {
+    public ResponseEntity<?> findDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId) {
 
         DormitoryApplicationSetting dormitoryApplicationSetting = validateDormitoryApplicationSettingById(dormitoryApplicationSettingId);
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         DefaultAssert.isTrue(dormitoryApplicationSetting.getSchool().equals(school), "다른 학교의 입사 신청 설정을 조회할 수 없습니다.");
@@ -229,10 +229,10 @@ public class DormitoryApplicationSettingService {
     }
 
 //    // Description : 입사 신청 설정 수정 - 변경 사항만 req 받아서 변경 ?
-//    public ResponseEntity<?> modifyDormitoryApplicationSetting(CustomUserDetails customUserDetails, CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq, Long dormitoryApplicationSettingId) {
+//    public ResponseEntity<?> modifyDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl, CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq, Long dormitoryApplicationSettingId) {
 //
 //        DormitoryApplicationSetting dormitoryApplicationSetting = validateDormitoryApplicationSettingById(dormitoryApplicationSettingId);
-//        User user = userService.validateUserById(customUserDetails.getId());
+//        User user = userService.validateUserById(userDetailsImpl.getUserId());
 //        School school = user.getSchool();
 //
 //        // ------------------------------------------
@@ -243,9 +243,9 @@ public class DormitoryApplicationSettingService {
 //    }
 
     // Description : 이전 작성 목록 조회
-    public ResponseEntity<?> findDormitoryApplicationSettingHistory(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> findDormitoryApplicationSettingHistory(UserDetailsImpl userDetailsImpl) {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         List<DormitoryApplicationSetting> dormitoryApplicationSettingList = dormitoryApplicationSettingRepository.findTop3BySchoolAndApplicationStatusOrderByCreatedDateDesc(school, ApplicationStatus.BEFORE);
@@ -270,9 +270,9 @@ public class DormitoryApplicationSettingService {
     }
 
     // Description : 입사 신청 설정 프로세스 中 기숙사(인실/성별) 목록 조회
-    public ResponseEntity<?> findDormitories(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> findDormitories(UserDetailsImpl userDetailsImpl) {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         List<Dormitory> findDormitoryList = dormitoryRepository.findBySchool(school);

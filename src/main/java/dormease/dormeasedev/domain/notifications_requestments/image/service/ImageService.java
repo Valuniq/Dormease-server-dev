@@ -6,7 +6,7 @@ import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import dormease.dormeasedev.infrastructure.s3.service.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +25,9 @@ public class ImageService {
     private final S3Uploader s3Uploader;
     private final UserService userService;
 
-    public ResponseEntity<?> uploadImageToS3(CustomUserDetails customUserDetails, MultipartFile multipartFile) throws IOException {
+    public ResponseEntity<?> uploadImageToS3(UserDetailsImpl userDetailsImpl, MultipartFile multipartFile) throws IOException {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         String imageUrl = uploadImage(multipartFile);
         ImageUrlRes imageUrlRes = ImageUrlRes.builder()
                 .imageUrl(imageUrl)
@@ -41,9 +41,9 @@ public class ImageService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    public ResponseEntity<?> deleteImageFromS3(CustomUserDetails customUserDetails, DeleteImageFromS3Req deleteImageFromS3Req) {
+    public ResponseEntity<?> deleteImageFromS3(UserDetailsImpl userDetailsImpl, DeleteImageFromS3Req deleteImageFromS3Req) {
 
-        User admin = userService.validateUserById(customUserDetails.getId());
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
         deleteImages(deleteImageFromS3Req);
 
         ApiResponse apiResponse = ApiResponse.builder()

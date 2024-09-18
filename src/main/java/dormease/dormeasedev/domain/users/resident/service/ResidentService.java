@@ -20,7 +20,7 @@ public class ResidentService {
 
     // Description : 유효성 검증 함수
     public Resident validateResidentByUser(User user) {
-        Optional<Resident> findResident = residentRepository.findByUser(user);
+        Optional<Resident> findResident = residentRepository.findByStudent_User(user);
         DefaultAssert.isTrue(findResident.isPresent(), "해당 유저는 사생이 아닙니다.");
         return findResident.get();
     }

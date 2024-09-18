@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.notifications_requestments.requestment.domai
 
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.Requestment;
 import dormease.dormeasedev.domain.school.domain.School;
-import dormease.dormeasedev.domain.users.user.domain.User;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,15 +14,15 @@ import java.util.Optional;
 public interface RequestmentRepository extends JpaRepository<Requestment, Long> {
 
     // APP
-    Page<Requestment> findRequestmentsByUser_SchoolAndVisibility(School school, Boolean visibility, Pageable pageable);
+    Page<Requestment> findRequestmentsByStudent_User_SchoolAndVisibility(School school, Boolean visibility, Pageable pageable);
 
-    Optional<Requestment> findByIdAndUser_School(Long requestmentId, School school);
+    Optional<Requestment> findByIdAndStudent_User_School(Long requestmentId, School school);
 
-    Optional<Requestment> findByIdAndUser(Long requestmentId, User user);
+    Optional<Requestment> findByIdAndStudent(Long requestmentId, Student student);
 
-    Page<Requestment> findRequestmentsByUser(User user, Pageable pageable);
+    Page<Requestment> findRequestmentsByStudent(Student student, Pageable pageable);
 
     // WEB
-    Page<Requestment> findRequestmentsByUser_School(School school, Pageable pageable);
+    Page<Requestment> findRequestmentsByStudent_User_School(School school, Pageable pageable);
 
 }

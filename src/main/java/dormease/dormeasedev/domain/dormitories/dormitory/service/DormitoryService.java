@@ -17,8 +17,8 @@ import dormease.dormeasedev.domain.school.service.SchoolService;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -46,9 +46,9 @@ public class DormitoryService {
     // TODO : 거주 기간을 포함한 시작일 -> 마감일 존재하는 것들은 @Scheduled를 통해 기간 지나면 삭제하는 방안 생각
     
     // Description : APP - 입사 신청 중 기숙사 목록 조회 (본인 학교, 성별, 거주 기간에 따른 조회)
-    public ResponseEntity<?> findDormitories(CustomUserDetails customUserDetails, Long termId) {
+    public ResponseEntity<?> findDormitories(UserDetailsImpl userDetailsImpl, Long termId) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         Term term = termService.validateTermId(termId);

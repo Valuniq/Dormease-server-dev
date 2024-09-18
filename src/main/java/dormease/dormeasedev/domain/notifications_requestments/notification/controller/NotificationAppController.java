@@ -6,8 +6,8 @@ import dormease.dormeasedev.domain.notifications_requestments.notification.dto.r
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationMainRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.service.NotificationAppService;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -39,11 +39,11 @@ public class NotificationAppController {
     })
     @GetMapping("/{notificationType}")
     public ResponseEntity<?> findNotifications(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Notification Type을 입력해주세요. ANNOUNCEMENT(공지사항) / FAQ 中 1입니다.", required = true) @PathVariable(value = "notificationType") NotificationType notificationType,
             @Parameter(description = " 퇴사 신청 사생 목록을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return notificationAppService.findNotifications(customUserDetails, notificationType, page - 1);
+        return notificationAppService.findNotifications(userDetailsImpl, notificationType, page - 1);
     }
 
     // Description : 공지사항(FAQ) 상세 조회
@@ -54,10 +54,10 @@ public class NotificationAppController {
     })
     @GetMapping("/notification/{notificationId}")
     public ResponseEntity<?> findNotification(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Notification ID을 입력해주세요.", required = true) @PathVariable(value = "notificationId") Long notificationId
     ) {
-        return notificationAppService.findNotification(customUserDetails, notificationId);
+        return notificationAppService.findNotification(userDetailsImpl, notificationId);
     }
 
     // Description : 메인 페이지 공지사항 조회 - 상단핀 고정된 제일 최근 공지사항
@@ -68,8 +68,8 @@ public class NotificationAppController {
     })
     @GetMapping
     public ResponseEntity<?> findMainNotification(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return notificationAppService.findMainNotification(customUserDetails);
+        return notificationAppService.findMainNotification(userDetailsImpl);
     }
 }

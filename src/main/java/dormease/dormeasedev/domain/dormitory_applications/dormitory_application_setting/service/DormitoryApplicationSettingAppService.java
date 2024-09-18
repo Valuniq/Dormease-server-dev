@@ -7,7 +7,7 @@ import dormease.dormeasedev.domain.school_settings.period.dto.response.PeriodDat
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,9 +22,9 @@ public class DormitoryApplicationSettingAppService {
 
     private final UserService userService;
 
-    public ResponseEntity<?> validateDormitoryApplicationPeriod(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> validateDormitoryApplicationPeriod(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         boolean isPeriod = dormitoryApplicationSettingRepository.existsBySchoolAndApplicationStatus(school, ApplicationStatus.NOW);

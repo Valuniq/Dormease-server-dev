@@ -2,40 +2,23 @@ package dormease.dormeasedev.global.security;
 
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
-import dormease.dormeasedev.global.exception.DefaultAssert;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @RequiredArgsConstructor
 @Service
-public class CustomUserDetailService implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
-
         User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("유저 정보를 찾을 수 없습니다.")
-                );
+                .orElseThrow(() -> new UsernameNotFoundException("해당 아이디로 유저를 찾을 수 없습니다: " + loginId));
 
-        return CustomUserDetails.create(user);
-    }
-
-    @Transactional
-    public UserDetails loadUserById(Long id) {
-        Optional<User> findUser = userRepository.findById(id);
-        DefaultAssert.isOptionalPresent(findUser);
-
-        User user = findUser.get();
-
-        return CustomUserDetails.create(user);
+        return UserDetailsImpl.of(user);
     }
 }

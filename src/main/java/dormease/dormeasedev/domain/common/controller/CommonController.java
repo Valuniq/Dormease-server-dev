@@ -2,8 +2,8 @@ package dormease.dormeasedev.domain.common.controller;
 
 import dormease.dormeasedev.domain.common.dto.response.ExistApplicationRes;
 import dormease.dormeasedev.domain.common.service.CommonService;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,9 +34,9 @@ public class CommonController {
     })
     @GetMapping
     public ResponseEntity<?> checkApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return commonService.checkApplication(customUserDetails);
+        return commonService.checkApplication(userDetailsImpl);
     }
 
 

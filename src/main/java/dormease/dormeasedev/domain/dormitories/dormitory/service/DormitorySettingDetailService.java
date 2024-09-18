@@ -18,8 +18,8 @@ import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepo
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class DormitorySettingDetailService {
 
     // 복제
     @Transactional
-    public void copyRoomsByFloor(CustomUserDetails customUserDetails, Long dormitoryId, CopyRoomsReq copyRoomsReq) {
+    public void copyRoomsByFloor(UserDetailsImpl userDetailsImpl, Long dormitoryId, CopyRoomsReq copyRoomsReq) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         DefaultAssert.isTrue(roomRepository.findByDormitoryAndFloor(dormitory, copyRoomsReq.getNewFloor()).isEmpty(), "중복된 층이 존재합니다.");
         // 복제할 호실 리스트 저장
@@ -70,7 +70,7 @@ public class DormitorySettingDetailService {
     }
 
     // 건물 상세 조회
-    public DormitorySettingDetailRes getDormitoryDetails(CustomUserDetails customUserDetails, Long dormitoryId) {
+    public DormitorySettingDetailRes getDormitoryDetails(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
         List<Integer> floorNumbers = roomRepository.findByDormitory(dormitory).stream()
@@ -113,7 +113,7 @@ public class DormitorySettingDetailService {
     }
 
     // 건물, 층으로 호실 조회
-    public List<RoomSettingRes> getRoomsByDormitoryAndFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
+    public List<RoomSettingRes> getRoomsByDormitoryAndFloor(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         // 해당 기숙사의 층별 호실 가져오기
         List<Room> roomList = roomRepository.findByDormitoryAndFloor(dormitory, floor);
@@ -143,7 +143,7 @@ public class DormitorySettingDetailService {
     // 호실 삭제
     // 해당 층 가져와서 deleteAll
     @Transactional
-    public ResponseEntity<?> deleteRoomsByFloor(CustomUserDetails customUserDetails, Long dormitoryId, Integer floor) {
+    public ResponseEntity<?> deleteRoomsByFloor(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Room> deletedRooms = roomRepository.findByDormitoryAndFloor(dormitory, floor);
 

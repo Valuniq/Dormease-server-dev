@@ -9,8 +9,8 @@ import dormease.dormeasedev.domain.restaurants.restaurant.domain.repository.Rest
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.DefaultAssert;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,9 +30,9 @@ public class MenuAppService {
 
     private final UserService userService;
 
-    public ResponseEntity<?> findMenuList(CustomUserDetails customUserDetails, FindMenuReq findMenuReq) {
+    public ResponseEntity<?> findMenuList(UserDetailsImpl userDetailsImpl, FindMenuReq findMenuReq) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         Optional<Restaurant> findRestaurant = restaurantRepository.findById(findMenuReq.getRestaurantId());
         DefaultAssert.isTrue(findRestaurant.isPresent(), "존재하지 않는 식당 id입니다.");
         Restaurant restaurant = findRestaurant.get();

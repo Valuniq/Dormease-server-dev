@@ -6,8 +6,8 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.service.DormitoryApplicationSettingService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -37,10 +37,10 @@ public class DormitoryApplicationSettingWebController {
     })
     @PostMapping
     public ResponseEntity<?> createDormitoryApplicationSetting(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails, // 관리자 id를 통해 학교를 알아내기 위함
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl, // 관리자 id를 통해 학교를 알아내기 위함
             @Parameter(description = "Schemas의 CreateDormitoryApplicationSettingReq를 참고해주세요.", required = true) @Valid @RequestBody CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq
             ) {
-        return dormitoryApplicationSettingService.createDormitoryApplicationSetting(customUserDetails, createDormitoryApplicationSettingReq);
+        return dormitoryApplicationSettingService.createDormitoryApplicationSetting(userDetailsImpl, createDormitoryApplicationSettingReq);
     }
 
     @Operation(summary = "입사 신청 설정 조회", description = "입사 신청 설정을 조회합니다.")
@@ -50,10 +50,10 @@ public class DormitoryApplicationSettingWebController {
     })
     @GetMapping("/{dormitoryApplicationSettingId}")
     public ResponseEntity<?> findDormitoryApplicationSetting(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails, // 관리자 id를 통해 학교를 알아내기 위함
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl, // 관리자 id를 통해 학교를 알아내기 위함
             @Parameter(description = "입사 신청 설정 id를 입력해주세요.", required = true) @PathVariable Long dormitoryApplicationSettingId
     ) {
-        return dormitoryApplicationSettingService.findDormitoryApplicationSetting(customUserDetails, dormitoryApplicationSettingId);
+        return dormitoryApplicationSettingService.findDormitoryApplicationSetting(userDetailsImpl, dormitoryApplicationSettingId);
     }
 
 //    @Operation(summary = "입사 신청 설정 수정", description = "입사 신청 설정을 수정합니다.")
@@ -63,12 +63,12 @@ public class DormitoryApplicationSettingWebController {
 //    })
 //    @PatchMapping("/{dormitoryApplicationSettingId}")
 //    public ResponseEntity<?> modifyDormitoryApplicationSetting(
-//            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails, // 관리자 id를 통해 학교를 알아내기 위함
+//            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl, // 관리자 id를 통해 학교를 알아내기 위함
 //            @Parameter(description = "Schemas의 CreateDormitoryApplicationSettingReq를 참고해주세요.", required = true) @RequestBody CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq,
 //            @Parameter(description = "입사 신청 설정 id를 입력해주세요.", required = true) @PathVariable Long dormitoryApplicationSettingId
 //
 //    ) {
-//        return dormitoryApplicationSettingService.modifyDormitoryApplicationSetting(customUserDetails, createDormitoryApplicationSettingReq, dormitoryApplicationSettingId);
+//        return dormitoryApplicationSettingService.modifyDormitoryApplicationSetting(userDetailsImpl, createDormitoryApplicationSettingReq, dormitoryApplicationSettingId);
 //    }
 
     // Description : 이전 작성 내용 목록 조회
@@ -79,9 +79,9 @@ public class DormitoryApplicationSettingWebController {
     })
     @GetMapping("/history")
     public ResponseEntity<?> findDormitoryApplicationSettingHistory(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails // 관리자 id를 통해 학교를 알아내기 위함
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl // 관리자 id를 통해 학교를 알아내기 위함
     ) {
-        return dormitoryApplicationSettingService.findDormitoryApplicationSettingHistory(customUserDetails);
+        return dormitoryApplicationSettingService.findDormitoryApplicationSettingHistory(userDetailsImpl);
     }
 
     // Description : 입사 신청 설정 프로세스 中 기숙사(인실/성별) 목록 조회
@@ -92,8 +92,8 @@ public class DormitoryApplicationSettingWebController {
     })
     @GetMapping("/dormitories")
     public ResponseEntity<?> findDormitories(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return dormitoryApplicationSettingService.findDormitories(customUserDetails);
+        return dormitoryApplicationSettingService.findDormitories(userDetailsImpl);
     }
 }

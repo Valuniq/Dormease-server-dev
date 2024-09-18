@@ -2,8 +2,8 @@ package dormease.dormeasedev.domain.dormitory_applications.meal_ticket.controlle
 
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.dto.response.MealTicketRes;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.service.MealTicketService;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -35,9 +35,9 @@ public class MealTicketAppController {
     })
     @GetMapping
     public ResponseEntity<?> findMealTicketList(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return mealTicketService.findMealTicketList(customUserDetails);
+        return mealTicketService.findMealTicketList(userDetailsImpl);
     }
 
 }

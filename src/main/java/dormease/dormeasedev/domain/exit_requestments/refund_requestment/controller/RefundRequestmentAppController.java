@@ -3,8 +3,8 @@ package dormease.dormeasedev.domain.exit_requestments.refund_requestment.control
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.dto.request.RefundRequestmentReq;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.service.RefundRequestmentAppService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,10 +36,10 @@ public class RefundRequestmentAppController {
     })
     @PostMapping
     public ResponseEntity<?> requestRefund(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 RefundRequestmentReq을 참고해주세요.", required = true) @RequestBody RefundRequestmentReq refundRequestmentReq
 
     ) {
-        return refundRequestmentAppService.requestRefund(customUserDetails, refundRequestmentReq);
+        return refundRequestmentAppService.requestRefund(userDetailsImpl, refundRequestmentReq);
     }
 }

@@ -7,8 +7,8 @@ import dormease.dormeasedev.domain.users.resident.dto.response.ResidentRes;
 import dormease.dormeasedev.domain.users.resident.service.ResidentManagementService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -43,13 +43,13 @@ public class ResidentWebController {
     })
     @GetMapping("")
     public ResponseEntity<?> getResidents(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "bonusPoint, minusPoint, dormitory, gender중 정렬 기준을 입력해주세요. 미입력 시 기본 정렬은 이름 순으로 정렬됩니다.", required = true) @RequestParam(value = "sortBy", defaultValue = "name") String sortBy,
             @Parameter(description = "오름차순/내림차순 기준을 입력해주세요. 미입력 시 기본 정렬은 오름차순으로 정렬됩니다.", required = true) @RequestParam(value = "isAscending", defaultValue = "true") Boolean isAscending,
             @Parameter(description = "사생을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
 
     ) {
-        return residentManagementService.getResidents(customUserDetails, sortBy, isAscending, page - 1);
+        return residentManagementService.getResidents(userDetailsImpl, sortBy, isAscending, page - 1);
     }
 
     @Operation(summary = "사생 검색 및 정렬", description = "사생 관리 프로세스 중 사생을 학번 또는 이름으로 검색 또는 정렬하여 검색합니다.")
@@ -60,14 +60,14 @@ public class ResidentWebController {
     })
     @GetMapping("/search")
     public ResponseEntity<?> searchResidentsByKeyword(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam String keyword,
             @Parameter(description = "bonusPoint, minusPoint, dormitory, gender 중 정렬 기준을 입력해주세요. 미입력 시 정렬은 이름 순으로 정렬됩니다.", required = true) @RequestParam(value = "sortBy", defaultValue = "name") String sortBy,
             @Parameter(description = "오름차순/내림차순 기준을 입력해주세요. 미입력 시 기본 정렬은 오름차순으로 정렬됩니다.", required = true) @RequestParam(value = "isAscending", defaultValue = "true") Boolean isAscending,
             @Parameter(description = "사생을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
 
     ) {
-        return residentManagementService.getSearchResidents(customUserDetails, keyword, sortBy, isAscending, page - 1);
+        return residentManagementService.getSearchResidents(userDetailsImpl, keyword, sortBy, isAscending, page - 1);
     }
 
 
@@ -78,10 +78,10 @@ public class ResidentWebController {
     })
     @GetMapping("/{residentId}")
     public ResponseEntity<?> getResidentInfo(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
     ) {
-        return residentManagementService.getResidentDetailInfo(customUserDetails, residentId);
+        return residentManagementService.getResidentDetailInfo(userDetailsImpl, residentId);
     }
 
 
@@ -93,13 +93,13 @@ public class ResidentWebController {
     })
     @PutMapping("/{residentId}")
     public ResponseEntity<?> updateResidentPrivateInfo(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
             @Parameter(description = "form-data 형식의 Multipart-file을 입력해주세요. 등본 파일입니다.") @RequestPart Optional<MultipartFile> copy,
             @Parameter(description = "form-data 형식의 Multipart-file을 입력해주세요. 우선선발증빙서류 파일입니다.") @RequestPart Optional<MultipartFile> prioritySelectionCopy,
             @Parameter(description = "ResidentPrivateInfoReq Schema를 확인해주세요", required = true) @RequestPart ResidentPrivateInfoReq residentPrivateInfoReq
     ) throws IOException {
-        return residentManagementService.updateResidentPrivateInfo(customUserDetails, residentId, copy, prioritySelectionCopy, residentPrivateInfoReq);
+        return residentManagementService.updateResidentPrivateInfo(userDetailsImpl, residentId, copy, prioritySelectionCopy, residentPrivateInfoReq);
     }
 
     @Operation(summary = "사생 성별에 맞는 기숙사 조회", description = "사생의 기숙사 정보 중 성별에 맞는 기숙사 정보를 조회합니다.")
@@ -109,10 +109,10 @@ public class ResidentWebController {
     })
     @GetMapping("/{residentId}/dormitory")
     public ResponseEntity<?> getDormitoriesAssignResident(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
     ) {
-        return residentManagementService.getDormitoriesByGender(customUserDetails, residentId);
+        return residentManagementService.getDormitoriesByGender(userDetailsImpl, residentId);
     }
 
     // @Operation(summary = "사생 건물 재배치", description = "사생 정보 수정 중 사생의 배정된 건물을 재배치합니다.")
@@ -122,11 +122,11 @@ public class ResidentWebController {
     // })
     // @PatchMapping("/{residentId}/dormitory/{dormitoryId}")
     // public ResponseEntity<?> reassignedResident(
-    //         @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+    //         @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
     //         @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
     //         @Parameter(description = "기숙사의 id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
     // ) {
-    //     return residentManagementService.reassignResidentToDormitory(customUserDetails, residentId, dormitoryId);
+    //     return residentManagementService.reassignResidentToDormitory(userDetailsImpl, residentId, dormitoryId);
     // }
 
     @Operation(summary = "사생 퇴사 처리", description = "사생 관리 프로세스 중 특정 사생을 퇴사 처리합니다.")
@@ -136,10 +136,10 @@ public class ResidentWebController {
     })
     @DeleteMapping("/{residentId}")
     public ResponseEntity<?> deleteResident (
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
     ) {
-        return residentManagementService.deleteResident(customUserDetails, residentId);
+        return residentManagementService.deleteResident(userDetailsImpl, residentId);
     }
 
     @Operation(summary = "사생 블랙리스트 처리", description = "사생 관리 프로세스 중 특정 사생을 블랙리스트 처리합니다.")
@@ -149,10 +149,10 @@ public class ResidentWebController {
     })
     @DeleteMapping("/{residentId}/blackList")
     public ResponseEntity<?> addBlackList (
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
     ) {
-        return residentManagementService.addBlackList(customUserDetails, residentId);
+        return residentManagementService.addBlackList(userDetailsImpl, residentId);
     }
 
 }

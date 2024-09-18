@@ -8,8 +8,8 @@ import dormease.dormeasedev.domain.users.user.service.BlackListService;
 import dormease.dormeasedev.domain.users.user.service.UserManagementService;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -44,13 +44,13 @@ public class UserManagementWebController {
     })
     @GetMapping("")
     public ResponseEntity<?> getActiveUsers(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "bonusPoint, minusPoint, createdDate 중 정렬 기준을 입력해주세요. 미입력 시 정렬은 생성일자 순으로 정렬됩니다.", required = true) @RequestParam(value = "sortBy", defaultValue = "createdDate") String sortBy,
             @Parameter(description = "오름차순/내림차순 기준을 입력해주세요. 미입력 시 기본 정렬은 내림차순으로 정렬됩니다.", required = true) @RequestParam(value = "isAscending", defaultValue = "false") Boolean isAscending,
             @Parameter(description = "회원을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
 
     ) {
-        return userManagementService.getActiveUsers(customUserDetails, sortBy, isAscending, page - 1);
+        return userManagementService.getActiveUsers(userDetailsImpl, sortBy, isAscending, page - 1);
     }
 
     @Operation(summary = "회원 검색", description = "회원 관리 프로세스 중 회원을 학번 또는 이름으로 검색합니다.")
@@ -61,14 +61,14 @@ public class UserManagementWebController {
     })
     @GetMapping("/search")
     public ResponseEntity<?> searchActiveUserByKeyword(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam String keyword,
             @Parameter(description = "bonusPoint, minusPoint, createdDate 중 정렬 기준을 입력해주세요. 미입력 시 정렬은 생성일자 순으로 정렬됩니다.", required = true) @RequestParam(value = "sortBy", defaultValue = "createdDate") String sortBy,
             @Parameter(description = "오름차순/내림차순 기준을 입력해주세요. 미입력 시 기본 정렬은 내림차순으로 정렬됩니다.", required = true) @RequestParam(value = "isAscending", defaultValue = "false") Boolean isAscending,
             @Parameter(description = "회원을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
 
     ) {
-        return userManagementService.getSearchActiveUsers(customUserDetails, keyword, sortBy, isAscending, page - 1);
+        return userManagementService.getSearchActiveUsers(userDetailsImpl, keyword, sortBy, isAscending, page - 1);
     }
 
     // Description : 탈퇴 회원 관련 기능
@@ -81,10 +81,10 @@ public class UserManagementWebController {
     })
     @GetMapping("/delete")
     public ResponseEntity<?> getDeleteUsers(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "탈퇴 회원을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return userManagementService.getDeleteUserBySchool(customUserDetails, page - 1);
+        return userManagementService.getDeleteUserBySchool(userDetailsImpl, page - 1);
     }
 
     @Operation(summary = "탈퇴 회원 검색", description = "탈퇴 회원 관리 프로세스 중 탈퇴 회원을 학번 또는 이름으로 검색합니다.")
@@ -95,12 +95,12 @@ public class UserManagementWebController {
     })
     @GetMapping("/delete/search")
     public ResponseEntity<?> searchDeleteUserByKeyword(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam String keyword,
             @Parameter(description = "탈퇴 회원을 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
 
     ) {
-        return userManagementService.searchDeleteUsers(customUserDetails, keyword, page - 1);
+        return userManagementService.searchDeleteUsers(userDetailsImpl, keyword, page - 1);
     }
 
     // Description : 블랙리스트 관련 기능
@@ -113,10 +113,10 @@ public class UserManagementWebController {
     })
     @GetMapping("/blacklist")
     public ResponseEntity<?> getBlackListUsers(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "블랙리스트를 페이지별로 조회합니다. **Page는 1부터 시작합니다!**", required = true) @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
-        return blackListService.getBlackListUsers(customUserDetails, page - 1);
+        return blackListService.getBlackListUsers(userDetailsImpl, page - 1);
     }
 
     @Operation(summary = "블랙리스트 사유 작성", description = "블랙리스트 프로세스 중 블랙리스트 사유를 저장합니다.")
@@ -126,10 +126,10 @@ public class UserManagementWebController {
     })
     @PutMapping("/blacklist")
     public ResponseEntity<?> registerBlackListContent(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 BlackListContentReq을 참고해주세요.", required = true) @Valid @RequestBody List<BlackListContentReq> blackListContentReqList
             ) {
-        return blackListService.registerBlackListContent(customUserDetails, blackListContentReqList);
+        return blackListService.registerBlackListContent(userDetailsImpl, blackListContentReqList);
     }
 
     @Operation(summary = "블랙리스트 삭제", description = "블랙리스트 프로세스 중 블랙리스트를 삭제합니다.")
@@ -139,10 +139,10 @@ public class UserManagementWebController {
     })
     @DeleteMapping("/blacklist/{blackListId}")
     public ResponseEntity<?> deleteBlackList(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "블랙리스트 id를 입력해주세요.", required = true) @PathVariable Long blackListId
     ) {
-        return blackListService.deleteBlackList(customUserDetails, blackListId);
+        return blackListService.deleteBlackList(userDetailsImpl, blackListId);
     }
 
 }

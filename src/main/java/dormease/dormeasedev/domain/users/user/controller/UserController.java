@@ -5,8 +5,8 @@ import dormease.dormeasedev.domain.users.user.dto.response.FindLoginIdRes;
 import dormease.dormeasedev.domain.users.user.dto.response.FindMyInfoRes;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,10 +35,10 @@ public class UserController {
     })
     @GetMapping("/loginId")
     public ResponseEntity<?> findLoginId(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 FindLoginIdRequest를 참고해주세요.", required = true) @RequestBody FindLoginIdReq findLoginIdReq
     ) {
-        return userService.findLoginId(customUserDetails, findLoginIdReq);
+        return userService.findLoginId(userDetailsImpl, findLoginIdReq);
     }
 
     @Operation(summary = "비밀번호 재설정", description = "비밀번호를 재설정합니다.")
@@ -48,10 +48,10 @@ public class UserController {
     })
     @PatchMapping("/password")
     public ResponseEntity<?> modifyPassword(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 FindPasswordReq 참고해주세요.", required = true) @RequestBody FindPasswordReq findPasswordReq
     ) {
-        return userService.modifyPassword(customUserDetails, findPasswordReq);
+        return userService.modifyPassword(userDetailsImpl, findPasswordReq);
     }
 
     @Operation(summary = "내 정보 조회 ", description = "내 정보를 조회합니다.")
@@ -61,9 +61,9 @@ public class UserController {
     })
     @GetMapping
     public ResponseEntity<?> findMyInfo(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return userService.findMyInfo(customUserDetails);
+        return userService.findMyInfo(userDetailsImpl);
     }
 
     @Operation(summary = "내 정보 수정 - 학번(수험번호) 수정 ", description = "학번(수험번호)을 수정합니다.")
@@ -73,10 +73,10 @@ public class UserController {
     })
     @PatchMapping("/studentNumber")
     public ResponseEntity<?> modifyStudentNumber (
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 ModifyStudentNumberReq 참고해주세요.", required = true) @Valid @RequestBody ModifyStudentNumberReq modifyStudentNumberReq
     ) {
-        return userService.modifyStudentNumber(customUserDetails, modifyStudentNumberReq);
+        return userService.modifyStudentNumber(userDetailsImpl, modifyStudentNumberReq);
     }
 
     @Operation(summary = "내 정보 수정 - 비밀번호 재설정 ", description = "비밀번호를 재설정합니다.")
@@ -86,10 +86,10 @@ public class UserController {
     })
     @PatchMapping("/mypage/password")
     public ResponseEntity<?> resetPasswordInMyPage (
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 ResetPasswordReq 참고해주세요.", required = true) @Valid @RequestBody ResetPasswordReq resetPasswordReq
     ) {
-        return userService.resetPasswordInMyPage(customUserDetails, resetPasswordReq);
+        return userService.resetPasswordInMyPage(userDetailsImpl, resetPasswordReq);
     }
 
     @Operation(summary = "내 정보 수정 - 휴대전화 번호 재설정 ", description = "휴대전화 번호를 재설정합니다.")
@@ -99,10 +99,10 @@ public class UserController {
     })
     @PatchMapping("/phoneNumber")
     public ResponseEntity<?> modifyPhoneNumber (
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 ModifyPhoneNumberReq 참고해주세요.", required = true) @Valid @RequestBody ModifyPhoneNumberReq modifyPhoneNumberReq
     ) {
-        return userService.modifyPhoneNumber(customUserDetails, modifyPhoneNumberReq);
+        return userService.modifyPhoneNumber(userDetailsImpl, modifyPhoneNumberReq);
     }
 
     // Description : 대표 식당 변경
@@ -113,9 +113,9 @@ public class UserController {
     })
     @PutMapping("/restaurant/{restaurantId}")
     public ResponseEntity<?> modifyRepresentativeRestaurant (
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "대표 식당으로 지정할 식당 id를 입력해주세요.", required = true) @PathVariable Long restaurantId
     ) {
-        return userService.modifyRepresentativeRestaurant(customUserDetails, restaurantId);
+        return userService.modifyRepresentativeRestaurant(userDetailsImpl, restaurantId);
     }
 }

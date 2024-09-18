@@ -4,8 +4,8 @@ import dormease.dormeasedev.domain.roommates.roommate_temp_application.dto.respo
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.dto.response.RoommateTempApplicationMemberRes;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.service.RoommateTempApplicationService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -35,9 +35,9 @@ public class RoommateTempApplicationAppController {
     })
     @GetMapping("/existAndMaster")
     public ResponseEntity<?> existRoommateTempApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return roommateTempApplicationService.existRoommateTempApplication(customUserDetails);
+        return roommateTempApplicationService.existRoommateTempApplication(userDetailsImpl);
     }
 
     // Description : 그룹 생성 (코드 발급) (방장 o)
@@ -48,9 +48,9 @@ public class RoommateTempApplicationAppController {
     })
     @PostMapping
     public ResponseEntity<?> createRoommateTempApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return roommateTempApplicationService.createRoommateTempApplication(customUserDetails);
+        return roommateTempApplicationService.createRoommateTempApplication(userDetailsImpl);
     }
 
     // Description : 그룹 삭제 (방장 o)
@@ -61,9 +61,9 @@ public class RoommateTempApplicationAppController {
     })
     @DeleteMapping
     public ResponseEntity<?> deleteRoommateTempApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return roommateTempApplicationService.deleteRoommateTempApplication(customUserDetails);
+        return roommateTempApplicationService.deleteRoommateTempApplication(userDetailsImpl);
     }
 
     // ---------------- 팀원 ----------------
@@ -75,10 +75,10 @@ public class RoommateTempApplicationAppController {
     })
     @PatchMapping("/{code}")
     public ResponseEntity<?> joinRoommateTempApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "참가할 그룹의 코드를 입력해주세요.", required = true) @PathVariable(value = "code") String code
     ) {
-        return roommateTempApplicationService.joinRoommateTempApplication(customUserDetails, code);
+        return roommateTempApplicationService.joinRoommateTempApplication(userDetailsImpl, code);
     }
 
     // Description : 그룹 나가기 (방장 x)
@@ -89,9 +89,9 @@ public class RoommateTempApplicationAppController {
     })
     @PatchMapping("/out")
     public ResponseEntity<?> outOfRoommateTempApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return roommateTempApplicationService.outOfRoommateTempApplication(customUserDetails);
+        return roommateTempApplicationService.outOfRoommateTempApplication(userDetailsImpl);
     }
 
     // Description : 그룹원 조회
@@ -102,9 +102,9 @@ public class RoommateTempApplicationAppController {
     })
     @GetMapping("/members")
     public ResponseEntity<?> findRoommateTempApplicationMembers(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return roommateTempApplicationService.findRoommateTempApplicationMembers(customUserDetails);
+        return roommateTempApplicationService.findRoommateTempApplicationMembers(userDetailsImpl);
     }
 
 }

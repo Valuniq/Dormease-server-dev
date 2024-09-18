@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.domain.MealTicket;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -23,8 +24,8 @@ public class DormitoryApplication extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "student_id")
+    private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dormitory_application_setting_id")
@@ -104,8 +105,8 @@ public class DormitoryApplication extends BaseEntity {
     }
 
     @Builder
-    public DormitoryApplication(User user, DormitoryApplicationSetting dormitoryApplicationSetting, DormitoryTerm applicationDormitoryTerm, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
-        this.user = user;
+    public DormitoryApplication(Student student, DormitoryApplicationSetting dormitoryApplicationSetting, DormitoryTerm applicationDormitoryTerm, MealTicket mealTicket, String copy, String prioritySelectionCopy, Boolean isSmoking, String emergencyContact, String emergencyRelation, String bankName, String accountNumber, Boolean dormitoryPayment, DormitoryApplicationResult dormitoryApplicationResult, Integer totalPrice, ApplicationStatus applicationStatus) {
+        this.student = student;
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
         this.applicationDormitoryTerm = applicationDormitoryTerm;
         this.resultDormitoryTerm = null;

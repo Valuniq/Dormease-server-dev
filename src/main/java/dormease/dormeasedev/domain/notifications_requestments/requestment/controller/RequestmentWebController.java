@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.notifications_requestments.requestment.contr
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.ModifyProgressionReq;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.service.RequestmentWebService;
 import dormease.dormeasedev.global.common.ApiResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +20,12 @@ public class RequestmentWebController implements RequestmentWebApi {
     @Override
     @GetMapping
     public ResponseEntity<ApiResponse> findRequestments(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Positive @RequestParam(value = "page", defaultValue = "1") Integer page
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(requestmentWebService.findRequestments(customUserDetails, page - 1))
+                .information(requestmentWebService.findRequestments(userDetailsImpl, page - 1))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -33,12 +33,12 @@ public class RequestmentWebController implements RequestmentWebApi {
     @Override
     @GetMapping("/{requestmentId}")
     public ResponseEntity<ApiResponse> findRequestment(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable("requestmentId") Long requestmentId
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(requestmentWebService.findRequestment(customUserDetails, requestmentId))
+                .information(requestmentWebService.findRequestment(userDetailsImpl, requestmentId))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -46,21 +46,21 @@ public class RequestmentWebController implements RequestmentWebApi {
     @Override
     @PutMapping("/{requestmentId}")
     public ResponseEntity<?> modifyRequestmentProgression(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable("requestmentId") Long requestmentId,
             @RequestBody ModifyProgressionReq modifyProgressionReq
     ) {
-        requestmentWebService.modifyRequestmentProgression(customUserDetails, requestmentId, modifyProgressionReq);
+        requestmentWebService.modifyRequestmentProgression(userDetailsImpl, requestmentId, modifyProgressionReq);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @DeleteMapping("/{requestmentId}")
     public ResponseEntity<?> deleteRequestment(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable("requestmentId") Long requestmentId
     ) {
-        requestmentWebService.deleteRequestment(customUserDetails, requestmentId);
+        requestmentWebService.deleteRequestment(userDetailsImpl, requestmentId);
         return ResponseEntity.noContent().build();
     }
 }

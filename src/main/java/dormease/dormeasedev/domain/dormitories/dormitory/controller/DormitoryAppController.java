@@ -2,8 +2,8 @@ package dormease.dormeasedev.domain.dormitories.dormitory.controller;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.app_dormitory_application.FindDormitoryRes;
 import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -35,10 +35,10 @@ public class DormitoryAppController {
     })
     @GetMapping("/{termId}")
     public ResponseEntity<?> findDormitories(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "거주 기간을 입력해주세요.", required = true) @PathVariable Long termId
         ) {
-        return dormitoryService.findDormitories(customUserDetails, termId);
+        return dormitoryService.findDormitories(userDetailsImpl, termId);
     }
 
 }

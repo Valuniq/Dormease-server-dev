@@ -7,7 +7,7 @@ import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
-import dormease.dormeasedev.global.security.CustomUserDetails;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,9 +25,9 @@ public class RestaurantService {
 
     private final UserService userService;
 
-    public ResponseEntity<?> findRestaurantList(CustomUserDetails customUserDetails) {
+    public ResponseEntity<?> findRestaurantList(UserDetailsImpl userDetailsImpl) {
 
-        User user = userService.validateUserById(customUserDetails.getId());
+        User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
         List<Restaurant> restaurantList = restaurantRepository.findAllBySchool(school);

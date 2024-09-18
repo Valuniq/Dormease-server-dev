@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import org.springframework.data.domain.Page;
@@ -25,15 +26,17 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
     Page<Resident> findBySchool(School school, Pageable pageable);
 
     @Query("SELECT r FROM Resident r " +
-            "LEFT JOIN r.user u " +
+            "LEFT JOIN r.student s " +
             "WHERE r.school = :school " +
             "AND (" +
             "   r.name LIKE %:keyword% " +
-            "   OR (u.studentNumber LIKE %:keyword%)" +
+            "   OR (s.studentNumber LIKE %:keyword%)" +
             ")")
     Page<Resident> searchResidentsByKeyword(School school, String keyword, Pageable pageable);
 
-    Optional<Resident> findByUser(User user);
+    Optional<Resident> findByStudent(Student student);
+
+    boolean existsByStudent(Student student);
 
     List<Resident> findByRoommateTempApplication(RoommateTempApplication roommateTempApplication);
 
@@ -42,8 +45,17 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
 
     boolean existsByRoomAndBedNumber(Room room, int i);
 
-    @Query("SELECT r FROM Resident r WHERE r.user IN :users")
-    Page<Resident> findResidentsByUsers(@Param("users") List<User> users, Pageable pageable);
+//    List<Resident> findByDormitoryAndRoom(Dormitory dormitory, Room room);
+
+//    @Query("SELECT r FROM Resident r WHERE r.user IN :users")
+//    Page<Resident> findResidentsByUsers(@Param("users") List<User> users, Pageable pageable);
+    @Query("SELECT r FROM Resident r WHERE r.student IN :students")
+    Page<Resident> findResidentsByStudents(@Param("students") List<Student> students, Pageable pageable);
+
+    Optional<Resident> findByStudent_User(User user);
+
+//    @Query("SELECT r FROM Resident r WHERE r.user IN :users")
+//    Page<Resident> findResidentsByUsers(@Param("users") List<User> users, Pageable pageable);
 
 //    boolean existsByDormitory(Dormitory dormitory);
 

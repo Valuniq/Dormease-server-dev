@@ -2,8 +2,8 @@ package dormease.dormeasedev.domain.roommates.roommate_application.controller;
 
 import dormease.dormeasedev.domain.roommates.roommate_application.service.RoommateApplicationService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,8 +34,8 @@ public class RoommateApplicationAppController {
     })
     @PostMapping
     public ResponseEntity<?> applyRoommateTempApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return roommateApplicationService.applyRoommateTempApplication(customUserDetails);
+        return roommateApplicationService.applyRoommateTempApplication(userDetailsImpl);
     }
 }

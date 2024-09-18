@@ -5,8 +5,8 @@ import dormease.dormeasedev.domain.school_settings.calendar.dto.response.Calenda
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarRes;
 import dormease.dormeasedev.domain.school_settings.calendar.service.CalendarService;
 import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -37,10 +37,10 @@ public class CalendarWebController {
     })
     @PostMapping("")
     public ResponseEntity<?> registerCalendar(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 CalendarReq를 참고해주세요. 일정 등록 시 필요한 Request입니다.", required = true) @Valid @RequestBody CalendarReq calendarReq
     ) {
-        return calendarService.registerCalendar(customUserDetails, calendarReq);
+        return calendarService.registerCalendar(userDetailsImpl, calendarReq);
     }
 
     @Operation(summary = "일정 조회", description = "일정을 년도(Year)와 월(Month)로 조회합니다.")
@@ -50,11 +50,11 @@ public class CalendarWebController {
     })
     @GetMapping("")
     public ResponseEntity<?> getCalendarsByYearAndMonth(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "조회하고자 하는 일정의 년도입니다.", required = true) @Positive @RequestParam int year,
             @Parameter(description = "조회하고자 하는 일정의 월입니다.", required = true) @Positive @RequestParam int month
     ) {
-        return calendarService.getCalendarsBySchoolAndYearAndMonth(customUserDetails, year, month);
+        return calendarService.getCalendarsBySchoolAndYearAndMonth(userDetailsImpl, year, month);
     }
 
     @Operation(summary = "일정 상세 조회", description = "일정을 상세 조회합니다.")
@@ -64,10 +64,10 @@ public class CalendarWebController {
     })
     @GetMapping("/{calendarId}")
     public ResponseEntity<?> getCalendarDetail(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId
     ) {
-        return calendarService.getCalendarDetail(customUserDetails, calendarId);
+        return calendarService.getCalendarDetail(userDetailsImpl, calendarId);
     }
 
     @Operation(summary = "일정 수정", description = "일정을 수정합니다.")
@@ -77,11 +77,11 @@ public class CalendarWebController {
     })
     @PutMapping("/{calendarId}")
     public ResponseEntity<?> updateCalendarDetail(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId,
             @Parameter(description = "Schemas의 CalendarReq를 참고해주세요. 일정 수정 시 필요한 Request입니다.", required = true) @RequestBody CalendarReq calendarReq
     ) {
-        return calendarService.updateCalendar(customUserDetails, calendarId, calendarReq);
+        return calendarService.updateCalendar(userDetailsImpl, calendarId, calendarReq);
     }
 
     @Operation(summary = "일정 삭제", description = "일정을 삭제합니다.")
@@ -91,9 +91,9 @@ public class CalendarWebController {
     })
     @DeleteMapping("/{calendarId}")
     public ResponseEntity<?> deleteCalendarDetail(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId
     ) {
-        return calendarService.deleteCalendar(customUserDetails, calendarId);
+        return calendarService.deleteCalendar(userDetailsImpl, calendarId);
     }
 }

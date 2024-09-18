@@ -2,8 +2,8 @@ package dormease.dormeasedev.domain.restaurants.restaurant.controller;
 
 import dormease.dormeasedev.domain.restaurants.restaurant.dto.response.RestaurantNameRes;
 import dormease.dormeasedev.domain.restaurants.restaurant.service.RestaurantService;
-import dormease.dormeasedev.global.security.CustomUserDetails;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
+import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -35,8 +35,8 @@ public class RestaurantAppController {
     })
     @GetMapping
     public ResponseEntity<?> findRestaurantList(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
-        return restaurantService.findRestaurantList(customUserDetails);
+        return restaurantService.findRestaurantList(userDetailsImpl);
     }
 }
