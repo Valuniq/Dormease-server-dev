@@ -105,7 +105,11 @@ public class DormitoryManagementWebController {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId
     ) {
-        return dormitoryManagementService.getNotAssignedResidents(userDetailsImpl, roomId);
+        dormease.dormeasedev.global.common.ApiResponse apiResponse = dormease.dormeasedev.global.common.ApiResponse.builder()
+                .check(true)
+                .information(dormitoryManagementService.getNotAssignedResidents(userDetailsImpl, roomId))
+                .build();
+        return  ResponseEntity.ok(apiResponse);
     }
 
     @Operation(summary = "특정 호실에 배정된 사생 조회", description = "건물 관리 프로세스 중 특정 호실에 배정된 사생 목록을 조회합니다.")

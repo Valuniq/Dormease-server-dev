@@ -189,12 +189,11 @@ public class DormitoryManagementService {
 
 
     // 배정된 호실이 없는 사생 목록 조회
-    // TODO: 입사신청을 하지않은 호실 미배정 사생의 조회가 가능한지?
-    public ResponseEntity<?> getNotAssignedResidents(UserDetailsImpl userDetailsImpl, Long roomId) {    // roomId 받아야함
+    public List<NotOrAssignedResidentRes> getNotAssignedResidents(UserDetailsImpl userDetailsImpl, Long roomId) {    // roomId 받아야함
         Room room = validRoomById(roomId);
         Dormitory dormitory = validDormitoryById(room.getDormitory().getId());
 
-        Gender gender = room.getRoomType().getGender();
+        // Gender gender = room.getRoomType().getGender();
         // 호실의 성별, 인실, 기숙사가 일치해야함
         // dormitoryTerm 중에 dormitoryRoomType이 일치하는 것만 가져오기
         RoomType roomType = room.getRoomType();
@@ -204,7 +203,7 @@ public class DormitoryManagementService {
         // 반복문 add
         List<Resident> residentList = new ArrayList<>();
         for (DormitoryTerm dormitoryTerm : dormitoryTerms) {
-            List<Resident> residents = residentRepository.findByDormitoryTermAndRoomAndGender(dormitoryTerm, null, gender);
+            List<Resident> residents = residentRepository.findByDormitoryTermAndRoom(dormitoryTerm, null);
             residentList.addAll(residents);
         }
 
@@ -228,13 +227,7 @@ public class DormitoryManagementService {
                     .build();
             notAssignedResidentsResList.add(notOrAssignedResidentRes);
         }
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(notAssignedResidentsResList)
-                .build();
-
-        return  ResponseEntity.ok(apiResponse);
+        return notAssignedResidentsResList;
     }
 
     // 해당 호실에 거주하는 사생 조회
