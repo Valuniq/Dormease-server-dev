@@ -5,9 +5,13 @@ import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.Dormi
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.AssignedResidentToRoomReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryMemoReq;
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.*;
+import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
+import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomRepository;
 import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.student.domain.Student;
@@ -35,6 +39,8 @@ import java.util.stream.Collectors;
 public class DormitoryManagementService {
 
     private final DormitoryRepository dormitoryRepository;
+    private final DormitoryTermRepository dormitoryTermRepository;
+    private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
     private final ResidentRepository residentRepository;
@@ -189,8 +195,18 @@ public class DormitoryManagementService {
         Dormitory dormitory = validDormitoryById(room.getDormitory().getId());
 
         Gender gender = room.getRoomType().getGender();
-//        List<Resident> residentList = residentRepository.findByDormitoryAndRoomAndGender(dormitory, null, gender);
-        List<Resident> residentList = new ArrayList<>(); // TODO : 임시
+        // 호실의 성별, 인실, 기숙사가 일치해야함
+        // dormitoryTerm 중에 dormitoryRoomType이 일치하는 것만 가져오기
+        RoomType roomType = room.getRoomType();
+        DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findByDormitoryAndRoomType(dormitory, roomType);
+        // 호실 배정시 term은 고려하지 않아도 되는지?
+        List<DormitoryTerm> dormitoryTerms = dormitoryTermRepository.findByDormitoryRoomType(dormitoryRoomType);
+        // 반복문 add
+        List<Resident> residentList = new ArrayList<>();
+        for (DormitoryTerm dormitoryTerm : dormitoryTerms) {
+            List<Resident> residents = residentRepository.findByDormitoryTermAndRoomAndGender(dormitoryTerm, null, gender);
+            residentList.addAll(residents);
+        }
 
         List<NotOrAssignedResidentRes> notAssignedResidentsResList = new ArrayList<>();
         for (Resident resident : residentList) {
@@ -274,15 +290,13 @@ public class DormitoryManagementService {
             for (Long residentId : assignedResidentToRoomReq.getResidentIds()) {
                 // 인실 만큼 bedNumber 반복 room과 bedNumber로 사생 찾아서 없으면 해당 bedNumber에 배정
                 for (int i=1; i<=room.getRoomType().getRoomSize(); i++) {
-                    // 건물 설정 - 필터가 완료되어야 사생을 가질 수 있으므로, room.getRoomTYpe()이 null일 경우X
+                    // 건물 설정 - 필터가 완료되어야 사생을 가질 수 있으므로, room.getRoomTYpe()이 null일 경우 X
                    if(!residentRepository.existsByRoomAndBedNumber(room, i)) {
                        bedNumberCount = i;
                        break;
                    }
                 }
                 DefaultAssert.isTrue(bedNumberCount <= room.getRoomType().getRoomSize(), "배정 가능한 침대가 없습니다.");
-                // bedNumberCount += 1;
-                // DefaultAssert.isTrue(bedNumberCount <= room.getRoomSize(), "배정 가능한 인원을 초과했습니다.");
 
                 Optional<Resident> residentOpt = residentRepository.findById(residentId);
                 DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");

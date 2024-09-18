@@ -12,10 +12,10 @@ public class FloorAndRoomNumberRes {
     @Schema(type = "Integer", example = "1", description= "건물의 층수입니다.")
     private Integer floor;
 
-    @Schema(type = "Integer", example = "1~99", description= "호실의 시작 번호입니다.")
+    @Schema(type = "Integer", example = "101", description= "호실의 시작 번호입니다.")
     private Integer startRoomNumber;
 
-    @Schema(type = "Integer", example = "1~99", description= "호실의 끝 번호입니다.")
+    @Schema(type = "Integer", example = "199", description= "호실의 끝 번호입니다.")
     private Integer endRoomNumber;
 
     @Builder

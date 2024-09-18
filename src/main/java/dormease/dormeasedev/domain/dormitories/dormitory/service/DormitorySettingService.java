@@ -7,9 +7,9 @@ import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.UpdateDormi
 import dormease.dormeasedev.domain.dormitories.dormitory.dto.response.DormitorySettingListRes;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
-import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomRepository;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
@@ -38,7 +38,7 @@ public class DormitorySettingService {
     private final ResidentRepository residentRepository;
     private final RoomRepository roomRepository;
     private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
-    private final DormitorySettingTermRepository dormitorySettingTermRepository;
+    private final DormitoryTermRepository dormitoryTermRepository;
     private final UserService userService;
 
     private final S3Uploader s3Uploader;
@@ -92,12 +92,17 @@ public class DormitorySettingService {
         // 학교별 건물 조회
         List<Dormitory> dormitories = dormitoryRepository.findBySchoolOrderByCreatedDateAsc(user.getSchool());
         List<DormitorySettingListRes> dormitorySettingListRes = dormitories.stream()
-                .map(dormitory -> DormitorySettingListRes.builder()
-                        .id(dormitory.getId())
-                        .name(dormitory.getName())
-                        .imageUrl(dormitory.getImageUrl())
-                        .assignedResidents(hasRelatedResidents(dormitory))
-                        .build())
+                .map(dormitory -> {
+                    // DormitoryRoomType 및 관련된 DormitoryTerm 조회
+                    List<DormitoryRoomType> dormitoryRoomTypes = dormitoryRoomTypeRepository.findByDormitory(dormitory);
+                    List<DormitoryTerm> dormitoryTermList = dormitoryTermRepository.findByDormitoryRoomTypeIn(dormitoryRoomTypes);
+                    return DormitorySettingListRes.builder()
+                            .id(dormitory.getId())
+                            .name(dormitory.getName())
+                            .imageUrl(dormitory.getImageUrl())
+                            .assignedResidents(hasRelatedResidents(dormitoryTermList))
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -136,29 +141,31 @@ public class DormitorySettingService {
 
     }
 
-    // 건물 삭제(해당 건물에 배정된 사생이 있을 시 삭제 불가)
+    // 건물 삭제
+    // (해당 건물에 배정된 사생이 있을 시, 입사신청설정에 사용된 경우 삭제 불가)
     @Transactional
     public ResponseEntity<?> deleteDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
+
+        // DormitoryRoomType 및 관련된 DormitoryTerm 조회
+        List<DormitoryRoomType> dormitoryRoomTypes = dormitoryRoomTypeRepository.findByDormitory(dormitory);
+        List<DormitoryTerm> dormitoryTermList = dormitoryTermRepository.findByDormitoryRoomTypeIn(dormitoryRoomTypes);
+
         // 관련된 사생 데이터 확인
-        DefaultAssert.isTrue(!hasRelatedResidents(dormitory), "해당 건물에 배정된 사생이 있어 삭제할 수 없습니다.");
+        DefaultAssert.isTrue(!hasRelatedResidents(dormitoryTermList), "해당 건물에 배정된 사생이 있어 삭제할 수 없습니다.");
 
         // 호실 삭제
-        List<Room> rooms = roomRepository.findByDormitory(dormitory);
-        roomRepository.deleteAll(rooms);
+        roomRepository.deleteByDormitory(dormitory);
 
         // 입사신청설정에 사용된 적이 있는지 확인
-//        boolean isDeletable = !dormitorySettingTermRepository.existsByDormitory(dormitory);
-        boolean isDeletable = true; // TODO : 임시
+        boolean isDeletable = !dormitoryTermRepository.existsByDormitoryRoomTypeIn(dormitoryRoomTypes);
         if (isDeletable) {
             if (dormitory.getImageUrl() != null) {
                 s3Uploader.deleteFile(dormitory.getImageUrl());
             }
             // 기숙사와 연결된 DormitoryRoomType 삭제
-            List<DormitoryRoomType> dormitoryRoomTypes = dormitoryRoomTypeRepository.findByDormitory(dormitory);
             dormitoryRoomTypeRepository.deleteAll(dormitoryRoomTypes);
-
-            dormitoryRepository.delete(dormitory); // 기숙사 삭제 시도
+            dormitoryRepository.delete(dormitory); // 기숙사 삭제
         } else {
             // 소프트 삭제 처리
             dormitory.updateStatus(Status.DELETE);
@@ -172,25 +179,30 @@ public class DormitorySettingService {
 
     }
 
-    private boolean hasRelatedResidents(Dormitory dormitory) {
-//        return residentRepository.existsByDormitory(dormitory);
-        return true; // TODO : 임시
+    private boolean hasRelatedResidents(List<DormitoryTerm> dormitoryTerms) {
+        return residentRepository.existsByDormitoryTermIn(dormitoryTerms);
     }
 
     // 건물명 변경
     @Transactional
     public ResponseEntity<?> updateDormitoryName(UserDetailsImpl userDetailsImpl, Long dormitoryId, UpdateDormitoryNameReq updateDormitoryNameReq) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
-
         // 이미 존재하는 이름이면 변경 불가
-        DefaultAssert.isTrue(dormitoryRepository.findBySchoolAndName(dormitory.getSchool(), updateDormitoryNameReq.getName()).isEmpty(), "해당 이름의 건물이 이미 존재합니다.");
+        boolean availableName = !dormitoryRepository.existsBySchoolAndName(dormitory.getSchool(), updateDormitoryNameReq.getName());
 
-        // 기숙사 이름 변경
-        dormitory.updateName(updateDormitoryNameReq.getName());
+        String msg = "건물명이 변경되었습니다.";
+        boolean check = true;
+        if (availableName) {
+            // 기숙사 이름 변경
+            dormitory.updateName(updateDormitoryNameReq.getName());
+        } else {
+            msg = "중복된 건물명이 존재합니다.";
+            check = false;
+        }
 
         ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("건물명이 변경되었습니다.").build())  // 조회 메소드 호출
+                .check(check)
+                .information(Message.builder().message(msg).build())  // 조회 메소드 호출
                 .build();
 
         return ResponseEntity.ok(apiResponse);

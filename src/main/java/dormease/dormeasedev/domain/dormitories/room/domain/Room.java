@@ -43,8 +43,9 @@ public class Room extends BaseEntity {
     private Boolean isActivated;
 
     @Builder
-    public Room(Dormitory dormitory, RoomType roomType, Integer roomNumber, Integer floor, Boolean hasKey, Integer currentPeople) {
+    public Room(Dormitory dormitory, Boolean isActivated, RoomType roomType, Integer roomNumber, Integer floor, Boolean hasKey, Integer currentPeople) {
         this.dormitory = dormitory;
+        this.isActivated = isActivated;
         this.roomType = roomType;
         this.roomNumber = roomNumber;
         this.floor = floor;
@@ -60,4 +61,11 @@ public class Room extends BaseEntity {
         int count = room.getCurrentPeople() + num;
         updateCurrentPeople(Math.max(count, 0));
     }
+
+    public void updateRoomAttributes(RoomType roomType, Boolean hasKey, Boolean isActivated) {
+        this.roomType = roomType;
+        this.hasKey = hasKey;
+        this.isActivated = isActivated;
+    }
+
 }
