@@ -10,6 +10,7 @@ import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomReposi
 import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
@@ -196,11 +197,11 @@ public class DormitoryManagementService {
             String studentNumber = null;
             String phoneNumber= null;
 
-            User user = resident.getUser();
+            Student student = resident.getStudent();
             // 회원가입 여부 확인
-            if (user != null) {
-                studentNumber = user.getStudentNumber();
-                phoneNumber = user.getPhoneNumber();
+            if (student != null) {
+                studentNumber = student.getStudentNumber();
+                phoneNumber = student.getPhoneNumber();
             }
             NotOrAssignedResidentRes notOrAssignedResidentRes = NotOrAssignedResidentRes.builder()
                     .id(resident.getId()) // 사생 id
@@ -226,12 +227,13 @@ public class DormitoryManagementService {
         List<Resident> assignedResidents = residentRepository.findByRoom(room);
         List<NotOrAssignedResidentRes> assignedResidentRes = assignedResidents.stream()
                 .map(resident -> {
-                    User user = resident.getUser();
+                    Student student = resident.getStudent();
+                    User user = student.getUser();
                     return NotOrAssignedResidentRes.builder()
                             .id(resident.getId())
                             .name(user.getName())
-                            .studentNumber(user.getStudentNumber())
-                            .phoneNumber(user.getPhoneNumber())
+                            .studentNumber(student.getStudentNumber())
+                            .phoneNumber(student.getPhoneNumber())
                             .isAssigned(checkResidentAssignedToRoom(resident))
                             .build();
                 })

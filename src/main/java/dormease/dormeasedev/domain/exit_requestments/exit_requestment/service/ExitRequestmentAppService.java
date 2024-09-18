@@ -8,6 +8,7 @@ import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.reques
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ResidentInfoForExitRes;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.service.ResidentService;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
@@ -34,16 +35,17 @@ public class ExitRequestmentAppService {
 
         User user = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentByUser(user);
+        Student student = resident.getStudent();
         Room room = resident.getRoom();
         Dormitory dormitory = room.getDormitory();
 
         ResidentInfoForExitRes residentInfoForExitRes = ResidentInfoForExitRes.builder()
                 .residentId(resident.getId())
                 .residentName(user.getName())
-                .studentNumber(user.getStudentNumber())
-                .phoneNumber(user.getPhoneNumber())
-                .major(user.getMajor())
-                .schoolYear(user.getSchoolYear())
+                .studentNumber(student.getStudentNumber())
+                .phoneNumber(student.getPhoneNumber())
+                .major(student.getMajor())
+                .schoolYear(student.getSchoolYear())
                 .dormitoryName(dormitory.getName())
                 .roomSize(room.getRoomType().getRoomSize())    // 수정
                 .roomNumber(room.getRoomNumber())

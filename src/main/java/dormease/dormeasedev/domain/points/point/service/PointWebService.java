@@ -21,6 +21,8 @@ import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
+import dormease.dormeasedev.domain.users.user.exception.InvalidSchoolAuthorityException;
+import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageInfo;
@@ -53,6 +55,8 @@ public class PointWebService {
     private final UserPointRepository userPointRepository;
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final StudentRepository studentRepository;
+
+    private final UserService userService;
 
     // Description: 상벌점 리스트 내역 조회
     public ResponseEntity<?> getPointList(UserDetailsImpl userDetailsImpl) {
@@ -186,12 +190,11 @@ public class PointWebService {
     // 상벌점 부여
     @Transactional
     public ResponseEntity<?> addUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, List<AddPointToResidentReq> addPointToResidentReqs) {
-        User adminUser = validUserById(userDetailsImpl.getUserId());
         Resident resident = validResidentById(residentId);
-
-        User user = resident.getUser();
-        Student student = studentRepository.findById(user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
+        Student student = resident.getStudent();
+//        User user = resident.getUser();
+//        Student student = studentRepository.findById(user.getId())
+//                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 회원이 존재하지 않습니다."));
         int bonus = 0;
         int minus = 0;
 
@@ -271,10 +274,12 @@ public class PointWebService {
     // 상벌점 내역 삭제
     @Transactional
     public  ResponseEntity<?> deleteUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, List<DeleteUserPointReq> deleteUserPointReqs) {
-        User adminUser = validUserById(userDetailsImpl.getUserId());
+        User amdinUser = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = validResidentById(residentId);
+        if (!amdinUser.getSchool().equals(resident.getSchool()))
+            throw new InvalidSchoolAuthorityException();
 
-        User user = resident.getUser();
+//        User user = resident.getUser();
         List<UserPoint> userPoints = deleteUserPointReqs.stream()
                 .map(DeleteUserPointReq::getUserPointId)
                 .map(this::validUserPointById)
@@ -291,8 +296,7 @@ public class PointWebService {
         }
         userPointRepository.deleteAll(userPoints);
 
-        Student student = studentRepository.findByUser(user)
-                .orElseThrow(IllegalArgumentException::new);
+        Student student = resident.getStudent();
         Integer bonusPoint = student.getBonusPoint();
         DefaultAssert.isTrue(bonusPoint < bonus, "상점은 0점 미만이 될 수 없습니다.");
         Integer minusPoint = student.getMinusPoint();
@@ -327,12 +331,12 @@ public class PointWebService {
 
     // 상벌점 내역 조회
     public ResponseEntity<?> getUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, Integer page) {
-        User adminUser = validUserById(userDetailsImpl.getUserId());
+        User amdinUser = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = validResidentById(residentId);
+        if (!amdinUser.getSchool().equals(resident.getSchool()))
+            throw new InvalidSchoolAuthorityException();
 
-        User user = resident.getUser();
-        Student student = studentRepository.findByUser(user)
-                .orElseThrow(IllegalArgumentException::new);
+        Student student = resident.getStudent();
 
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdDate"));
         // 사생 목록 조회 (페이징 적용)
@@ -410,10 +414,12 @@ public class PointWebService {
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
 
+
         // userType이 RESIDENT인 user를 찾아서 사생 리스트 만들기
-        List<User> users = userRepository.findBySchoolAndUserType(adminUser.getSchool(), UserType.RESIDENT);
+//        List<User> users = userRepository.findBySchoolAndUserType(adminUser.getSchool(), UserType.RESIDENT);
+        List<Student> studentList = studentRepository.findByUser_School(adminUser.getSchool());
         // user를 가지고 있는 resident 찾기 (페이징 적용)
-        Page<Resident> residents = residentRepository.findResidentsByUsers(users, pageable);
+        Page<Resident> residents = residentRepository.findResidentsByStudents(studentList, pageable);
 
         // 사생 목록 조회 (페이징 적용)
         // Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
@@ -421,9 +427,9 @@ public class PointWebService {
         List<ResidentInfoRes> residentInfoResList = residents.getContent().stream()
                 .map(resident -> {
                     DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
-                    User user = resident.getUser();
-                    Student student = studentRepository.findByUser(user)
-                            .orElseThrow(IllegalArgumentException::new);
+                    Student student = resident.getStudent();
+                    User user = student.getUser();
+
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
                             .name(user.getName())
@@ -457,17 +463,17 @@ public class PointWebService {
         String sortField = "user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
 
+        List<Student> studentList = studentRepository.findBySchoolAndKeyword(adminUser.getSchool(), cleanedKeyword, cleanedKeyword);
         /// userType이 RESIDENT인 user를 keyword로 검색 사생 리스트 만들기
-        List<User> users = userRepository.searchUsersByKeyword(adminUser.getSchool(), cleanedKeyword, UserType.RESIDENT);
+//        List<User> users = userRepository.searchUsersByKeyword(adminUser.getSchool(), cleanedKeyword, UserType.RESIDENT);
         // user를 가지고 있는 resident 찾기 (페이징 적용)
-        Page<Resident> residents = residentRepository.findResidentsByUsers(users, pageable);
+        Page<Resident> residents = residentRepository.findResidentsByStudents(studentList, pageable);
 
         List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
                 .map(resident -> {
                     DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
-                    User user = resident.getUser();
-                    Student student = studentRepository.findByUser(user)
-                            .orElseThrow(IllegalArgumentException::new);
+                    Student student = resident.getStudent();
+                    User user = student.getUser();
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
                             .name(user.getName())

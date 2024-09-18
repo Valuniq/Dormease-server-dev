@@ -12,6 +12,7 @@ import dormease.dormeasedev.domain.roommates.roommate_temp_application.dto.respo
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.resident.service.ResidentService;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
@@ -146,7 +147,7 @@ public class RoommateTempApplicationService {
         // 방장
         Long roommateMasterId = roommateTempApplication.getRoommateMasterId();
         Resident roommateMasterResident = residentService.validateResidentById(roommateMasterId);
-        User roommateMasterUser = roommateMasterResident.getUser();
+        User roommateMasterUser = roommateMasterResident.getStudent().getUser();
         DormitoryApplication dormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(roommateMasterUser, ApplicationStatus.NOW);
         DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
 
@@ -196,11 +197,12 @@ public class RoommateTempApplicationService {
         List<Resident> residentList = residentRepository.findByRoommateTempApplication(roommateTempApplication);
         List<RoommateTempApplicationMemberRes> roommateTempApplicationMemberResList = new ArrayList<>();
         for (Resident member : residentList) {
-            User memberUser = member.getUser();
+            Student student = member.getStudent();
+            User memberUser = student.getUser();
             RoommateTempApplicationMemberRes roommateTempApplicationMemberRes = RoommateTempApplicationMemberRes.builder()
                     .residentId(member.getId())
                     .name(memberUser.getName())
-                    .studentNumber(memberUser.getStudentNumber())
+                    .studentNumber(student.getStudentNumber())
                     .isMaster(isMaster(roommateTempApplication, member))
                     .code(roommateTempApplication.getCode())
                     .isApplied(roommateTempApplication.getIsApplied())

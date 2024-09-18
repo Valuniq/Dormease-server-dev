@@ -189,8 +189,8 @@ public class UserService {
 
     // Description : 학번 수정 위함 - 학번 중복되면 안되므로
     public void validateUserByStudentNumber(School school, String studentNumber) {
-        Optional<User> findUser = userRepository.findBySchoolAndStudentNumber(school, studentNumber);
-        DefaultAssert.isTrue(findUser.isEmpty(), "이미 가입된 학번입니다."); // 동일 학교 검증 추가 필요
+        studentRepository.findByUser_SchoolAndStudentNumber(school, studentNumber)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 학번입니다."));
     }
 
 }
