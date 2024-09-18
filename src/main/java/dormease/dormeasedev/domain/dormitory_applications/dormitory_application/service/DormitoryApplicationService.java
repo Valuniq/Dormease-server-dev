@@ -1,7 +1,6 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
@@ -12,17 +11,14 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationSimpleRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.service.DormitoryTermService;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.domain.MealTicket;
-import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.domain.repository.MealTicketRepository;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.service.MealTicketService;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
-import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.users.student.domain.Student;
+import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
@@ -44,27 +40,22 @@ import java.util.Optional;
 public class DormitoryApplicationService {
 
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
-    private final DormitorySettingTermRepository dormitorySettingTermRepository;
-    private final MealTicketRepository mealTicketRepository;
-    private final DormitoryApplicationSettingRepository dormitoryapplicationsettingRepository;
     private final DormitoryTermRepository dormitoryTermRepository;
+    private final StudentRepository studentRepository;
 
     private final UserService userService;
-    private final DormitoryService dormitoryService;
-    private final TermService termService;
     private final MealTicketService mealTicketService;
-    private final DormitoryTermService dormitoryTermService;
 
     // Description : 입사 신청
     @Transactional
     public ResponseEntity<?> dormitoryApplication(UserDetailsImpl userDetailsImpl, DormitoryApplicationReq dormitoryApplicationReq) {
-
         User user = userService.validateUserById(userDetailsImpl.getUserId());
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다."));
         Optional<DormitoryTerm> findDormitoryTerm = dormitoryTermRepository.findById(dormitoryApplicationReq.getDormitoryTermId());
         DefaultAssert.isTrue(findDormitoryTerm.isPresent(), "잘못된 거주 기간과 기숙사입니다.");
         DormitoryTerm dormitoryTerm = findDormitoryTerm.get();
         Term term = dormitoryTerm.getTerm();
-        Dormitory dormitory = dormitoryTerm.getDormitoryRoomType().getDormitory();
         MealTicket mealTicket = mealTicketService.validateMealTicketById(dormitoryApplicationReq.getMealTicketId());
         DormitoryApplicationSetting dormitoryApplicationSetting = term.getDormitoryApplicationSetting();
 
@@ -74,7 +65,7 @@ public class DormitoryApplicationService {
         totalPrice += dormitoryApplicationSetting.getSecurityDeposit(); // + 입사신청설정에서 설정한 보증금
 
         DormitoryApplication dormitoryApplication = DormitoryApplication.builder()
-                .user(user)
+                .student(student)
                 .dormitoryApplicationSetting(dormitoryApplicationSetting)
                 .applicationDormitoryTerm(dormitoryTerm) // 신청 건물 및 인실 등의 정보
                 .mealTicket(mealTicket)
@@ -102,13 +93,14 @@ public class DormitoryApplicationService {
 
     // Description : 입사 신청 내역 조회 ( 현재 )
     public ResponseEntity<?> findMyDormitoryApplication(UserDetailsImpl userDetailsImpl) {
-
         // 회원, 학교
         User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다."));
 
         // 입사 신청
-        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatus(student, ApplicationStatus.NOW);
         DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "유저의 현재 입사 신청 내역이 존재하지 않습니다.");
         DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
 
@@ -166,7 +158,6 @@ public class DormitoryApplicationService {
 
     // Description : 이전 입사 신청 내역 목록 조회 (이번 입사 신청 내역 제외)
     public ResponseEntity<?> findMyDormitoryApplicationHistory(UserDetailsImpl userDetailsImpl) {
-
         User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
 
@@ -195,14 +186,14 @@ public class DormitoryApplicationService {
 
     // Description : 입사 신청 상세 조회
     public ResponseEntity<?> findDormitoryApplication(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationId) {
-
         User user = userService.validateUserById(userDetailsImpl.getUserId());
-        School school = user.getSchool();
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다."));
 
         Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findById(dormitoryApplicationId);
         DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "해당 id의 입사 신청이 존재하지 않습니다.");
         DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
-        DefaultAssert.isTrue(dormitoryApplication.getUser().equals(user), "본인의 입사 신청만 조회할 수 있습니다.");
+        DefaultAssert.isTrue(dormitoryApplication.getStudent().equals(student), "본인의 입사 신청만 조회할 수 있습니다.");
 
         // 거주 기간 + 건물(인실/성별)
         DormitoryTerm dormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
@@ -262,7 +253,10 @@ public class DormitoryApplicationService {
     public ResponseEntity<?> acceptMovePass(UserDetailsImpl userDetailsImpl) {
 
         User user = userService.validateUserById(userDetailsImpl.getUserId());
-        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다."));
+
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatus(student, ApplicationStatus.NOW);
         DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "현재 입사 신청 내역이 존재하지 않습니다.");
         DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
 
@@ -281,7 +275,9 @@ public class DormitoryApplicationService {
     public ResponseEntity<?> rejectMovePass(UserDetailsImpl userDetailsImpl) {
 
         User user = userService.validateUserById(userDetailsImpl.getUserId());
-        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다."));
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatus(student, ApplicationStatus.NOW);
         DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "현재 입사 신청 내역이 존재하지 않습니다.");
         DormitoryApplication dormitoryApplication = findDormitoryApplication.get();
 
@@ -299,7 +295,9 @@ public class DormitoryApplicationService {
 
     // Description : 유효성 검증 함수
     public DormitoryApplication validateDormitoryApplicationByUserAndApplicationStatus(User user, ApplicationStatus applicationStatus) {
-        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByUserAndApplicationStatus(user, applicationStatus);
+        Student student = studentRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다."));
+        Optional<DormitoryApplication> findDormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatus(student, applicationStatus);
         DefaultAssert.isTrue(findDormitoryApplication.isPresent(), "해당 회원의 현재 입사 신청이 존재하지 않습니다.");
         return findDormitoryApplication.get();
     }

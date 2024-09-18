@@ -39,7 +39,7 @@ public class RequestmentWebService {
         School school = admin.getSchool();
 
         Pageable pageable = PageRequest.of(page, 13, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByUser_School(school, pageable);
+        Page<Requestment> requestmentPage = requestmentRepository.findRequestmentsByStudent_User_School(school, pageable);
 
         List<Requestment> requestmentList = requestmentPage.getContent();
         List<RequestmentRes> requestmentResList = new ArrayList<>();

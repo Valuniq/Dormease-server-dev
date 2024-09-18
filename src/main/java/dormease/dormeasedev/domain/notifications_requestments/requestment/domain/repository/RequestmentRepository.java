@@ -16,13 +16,13 @@ public interface RequestmentRepository extends JpaRepository<Requestment, Long> 
     // APP
     Page<Requestment> findRequestmentsByStudent_User_SchoolAndVisibility(School school, Boolean visibility, Pageable pageable);
 
-    Optional<Requestment> findByIdAndUser_School(Long requestmentId, School school);
+    Optional<Requestment> findByIdAndStudent_User_School(Long requestmentId, School school);
 
     Optional<Requestment> findByIdAndStudent(Long requestmentId, Student student);
 
     Page<Requestment> findRequestmentsByStudent(Student student, Pageable pageable);
 
     // WEB
-    Page<Requestment> findRequestmentsByUser_School(School school, Pageable pageable);
+    Page<Requestment> findRequestmentsByStudent_User_School(School school, Pageable pageable);
 
 }

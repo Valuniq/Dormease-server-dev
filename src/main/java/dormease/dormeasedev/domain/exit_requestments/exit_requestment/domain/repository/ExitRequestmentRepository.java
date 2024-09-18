@@ -13,5 +13,5 @@ public interface ExitRequestmentRepository extends JpaRepository<ExitRequestment
 
     boolean existsByResident(Resident resident);
 
-    Page<ExitRequestment> findExitRequestmentsByResident_User_School(School school, Pageable pageable);
+    Page<ExitRequestment> findExitRequestmentsByResident_School(School school, Pageable pageable);
 }

@@ -197,7 +197,7 @@ public class RequestmentAppService {
 
     // Description : 유효성 검증 함수
     public Requestment validateRequestmentByIdAndSchool(Long requestmentId, School school) {
-        Optional<Requestment> findRequestment = requestmentRepository.findByIdAndUser_School(requestmentId, school);
+        Optional<Requestment> findRequestment = requestmentRepository.findByIdAndStudent_User_School(requestmentId, school);
         DefaultAssert.isTrue(findRequestment.isPresent(), "올바르지 않은 요청사항 ID입니다.");
         return findRequestment.get();
     }

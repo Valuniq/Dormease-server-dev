@@ -13,5 +13,5 @@ public interface BlackListRepository extends JpaRepository<BlackList, Long> {
 
     BlackList findByStudent(Student student);
 
-    Page<BlackList> findByStudent_School(School school, Pageable pageable);
+    Page<BlackList> findByStudent_User_School(School school, Pageable pageable);
 }

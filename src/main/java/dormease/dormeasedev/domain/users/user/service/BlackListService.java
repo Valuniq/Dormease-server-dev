@@ -46,7 +46,7 @@ public class BlackListService {
         School school = adminUser.getSchool();
 
         Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<BlackList> blackListPage = blackListRepository.findByStudent_School(school, pageable);
+        Page<BlackList> blackListPage = blackListRepository.findByStudent_User_School(school, pageable);
 
         // 목록 조회 및 페이징
 //        Pageable pageable = PageRequest.of(page, 25, Sort.by(Sort.Direction.DESC, "createdDate"));

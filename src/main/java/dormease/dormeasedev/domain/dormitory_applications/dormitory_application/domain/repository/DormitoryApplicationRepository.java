@@ -14,9 +14,9 @@ import java.util.Optional;
 @Repository
 public interface DormitoryApplicationRepository extends JpaRepository<DormitoryApplication, Long> {
 
-    Optional<DormitoryApplication> findByUserAndApplicationStatus(User user, ApplicationStatus applicationStatus);
+    Optional<DormitoryApplication> findByStudentAndApplicationStatus(Student student, ApplicationStatus applicationStatus);
 
-    boolean existsByUserAndApplicationStatus(User user, ApplicationStatus applicationStatus);
+    boolean existsByStudentAndApplicationStatus(Student student, ApplicationStatus applicationStatus);
 
     List<DormitoryApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
 

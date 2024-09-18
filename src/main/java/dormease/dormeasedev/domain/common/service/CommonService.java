@@ -11,6 +11,7 @@ import dormease.dormeasedev.domain.roommates.roommate_temp_application.service.R
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.service.ResidentService;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
@@ -40,9 +41,10 @@ public class CommonService {
         User user = userService.validateUserById(userDetailsImpl.getUserId());
         School school = user.getSchool();
         Resident resident = residentService.validateResidentByUser(user);
+        Student student = resident.getStudent();
 
         // 입사 신청 여부
-        boolean existDormitoryApplication = dormitoryApplicationRepository.existsByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        boolean existDormitoryApplication = dormitoryApplicationRepository.existsByStudentAndApplicationStatus(student, ApplicationStatus.NOW);
 
         // 룸메이트 임시 신청 여부
         RoommateTempApplication roommateTempApplication = resident.getRoommateTempApplication();
