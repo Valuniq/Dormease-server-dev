@@ -51,6 +51,10 @@ public class User extends BaseEntity {
         this.restaurant = restaurant;
     }
 
+    public void updateName(String name) {
+        this.name = name;
+    }
+
     @Builder
     public User(School school, Restaurant restaurant, String loginId, String password, String name) {
         this.school = school;
