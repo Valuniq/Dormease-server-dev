@@ -130,12 +130,14 @@ public class DormitoryManagementWebController {
             @ApiResponse(responseCode = "200", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
-    @PutMapping("/rooms/manual")
+    @PutMapping("/rooms/{roomId}/manual")
     public ResponseEntity<?> assignedResidentsToRooms(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "Schemas의 AssignedResidentToRoomReq을 참고해주세요.", required = true) @Valid @RequestBody List<AssignedResidentToRoomReq> assignedResidentToRoomReq
+            @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId,
+            @Parameter(description = "Schemas의 AssignedResidentToRoomReq을 참고해주세요.", required = true) @Valid @RequestBody AssignedResidentToRoomReq assignedResidentToRoomReq
             ) {
-        return dormitoryManagementService.assignedResidentsToRoom(userDetailsImpl, assignedResidentToRoomReq);
+        dormitoryManagementService.assignedResidentsToRoom(roomId, assignedResidentToRoomReq);
+        return ResponseEntity.noContent().build();
     }
 }
 

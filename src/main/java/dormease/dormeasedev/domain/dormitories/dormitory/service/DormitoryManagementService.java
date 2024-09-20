@@ -256,50 +256,45 @@ public class DormitoryManagementService {
     }
 
 
-    // 수기 방배정(배정 취소 및 배정 가능)
+    // 수기 방배정
     @Transactional
-    public ResponseEntity<?> assignedResidentsToRoom(UserDetailsImpl userDetailsImpl, List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
-        // 리스트 사이즈만큼 반복
-        for (AssignedResidentToRoomReq assignedResidentToRoomReq : assignedResidentToRoomReqList) {
-            Room room = validRoomById(assignedResidentToRoomReq.getRoomId());
+    public void assignedResidentsToRoom(Long roomId, AssignedResidentToRoomReq assignedResidentToRoomReq) {
+        Room room = validRoomById(roomId);
 
-            // room에 배정된 사생 가져와서 사생의 room null처리
-            List<Resident> residents = residentRepository.findByRoom(room);
-            if (!residents.isEmpty()) {
-                for (Resident resident : residents) {
-                    resident.updateRoom(null);
-                    resident.updateBedNumber(null);
-                }
+        // room에 배정된 사생 가져와서 사생의 room null처리
+        List<Resident> residents = residentRepository.findByRoom(room);
+        if (!residents.isEmpty()) {
+            for (Resident resident : residents) {
+                resident.updateRoom(null);
+                resident.updateBedNumber(null);
             }
-
-            int bedNumberCount = Integer.MAX_VALUE;
-            for (Long residentId : assignedResidentToRoomReq.getResidentIds()) {
-                // 인실 만큼 bedNumber 반복 room과 bedNumber로 사생 찾아서 없으면 해당 bedNumber에 배정
-                for (int i=1; i<=room.getRoomType().getRoomSize(); i++) {
-                    // 건물 설정 - 필터가 완료되어야 사생을 가질 수 있으므로, room.getRoomTYpe()이 null일 경우 X
-                   if(!residentRepository.existsByRoomAndBedNumber(room, i)) {
-                       bedNumberCount = i;
-                       break;
-                   }
-                }
-                DefaultAssert.isTrue(bedNumberCount <= room.getRoomType().getRoomSize(), "배정 가능한 침대가 없습니다.");
-
-                Optional<Resident> residentOpt = residentRepository.findById(residentId);
-                DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
-                Resident resident = residentOpt.get();
-
-                resident.updateRoom(room);
-                resident.updateBedNumber(bedNumberCount);
-            }
-            // currentPeople update
-            updateCurrentPeople(room);
         }
 
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("호실이 배정되었습니다.").build())
-                .build();
-        return ResponseEntity.ok(apiResponse);
+        for (Long residentId : assignedResidentToRoomReq.getResidentIds()) {
+            Optional<Resident> residentOpt = residentRepository.findById(residentId);
+            DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
+            Resident resident = residentOpt.get();
+
+            resident.updateRoom(room);
+            resident.updateBedNumber(assignedBedNumber(room));
+        }
+        // currentPeople update
+        updateCurrentPeople(room);
+    }
+
+
+    // 침대번호 지정 메소드
+    private int assignedBedNumber(Room room) {
+        int bedNumberCount = Integer.MAX_VALUE;
+        for (int i=1; i<=room.getRoomType().getRoomSize(); i++) {
+            // 건물 설정 - 필터가 완료되어야 사생을 가질 수 있으므로, room.getRoomTYpe()이 null일 경우 존재하지 않음
+            if(!residentRepository.existsByRoomAndBedNumber(room, i)) {
+                bedNumberCount = i;
+                break;
+            }
+        }
+        DefaultAssert.isTrue(bedNumberCount <= room.getRoomType().getRoomSize(), "배정 가능한 침대가 없습니다.");
+        return bedNumberCount;
     }
 
     // 건물별 메모 저장
