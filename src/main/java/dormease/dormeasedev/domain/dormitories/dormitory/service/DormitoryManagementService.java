@@ -189,7 +189,7 @@ public class DormitoryManagementService {
 
 
     // 배정된 호실이 없는 사생 목록 조회
-    public List<NotOrAssignedResidentRes> getNotAssignedResidents(UserDetailsImpl userDetailsImpl, Long roomId) {    // roomId 받아야함
+    public List<NotOrAssignedResidentRes> getNotAssignedResidents(Long roomId) {
         Room room = validRoomById(roomId);
         Dormitory dormitory = validDormitoryById(room.getDormitory().getId());
 
@@ -207,26 +207,19 @@ public class DormitoryManagementService {
             residentList.addAll(residents);
         }
 
-        List<NotOrAssignedResidentRes> notAssignedResidentsResList = new ArrayList<>();
-        for (Resident resident : residentList) {
-            String studentNumber = null;
-            String phoneNumber= null;
+        List<NotOrAssignedResidentRes> notAssignedResidentsResList = residentList.stream()
+                .map(resident -> {
+                    Student student = resident.getStudent();
+                    return NotOrAssignedResidentRes.builder()
+                            .id(resident.getId())
+                            .studentNumber(student != null ? student.getStudentNumber() : null)
+                            .name(resident.getName())
+                            .phoneNumber(student != null ? student.getPhoneNumber() : null)
+                            .isAssigned(checkResidentAssignedToRoom(resident)) // 호실 거주 여부 / 무조건 false여야 함
+                            .build();}
+                )
+                .collect(Collectors.toList());
 
-            Student student = resident.getStudent();
-            // 회원가입 여부 확인
-            if (student != null) {
-                studentNumber = student.getStudentNumber();
-                phoneNumber = student.getPhoneNumber();
-            }
-            NotOrAssignedResidentRes notOrAssignedResidentRes = NotOrAssignedResidentRes.builder()
-                    .id(resident.getId()) // 사생 id
-                    .studentNumber(studentNumber)
-                    .name(resident.getName())
-                    .phoneNumber(phoneNumber)
-                    .isAssigned(checkResidentAssignedToRoom(resident)) // 호실 거주 여부 / 무조건 false여야 함
-                    .build();
-            notAssignedResidentsResList.add(notOrAssignedResidentRes);
-        }
         return notAssignedResidentsResList;
     }
 

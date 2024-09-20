@@ -107,7 +107,7 @@ public class DormitoryManagementWebController {
     ) {
         dormease.dormeasedev.global.common.ApiResponse apiResponse = dormease.dormeasedev.global.common.ApiResponse.builder()
                 .check(true)
-                .information(dormitoryManagementService.getNotAssignedResidents(userDetailsImpl, roomId))
+                .information(dormitoryManagementService.getNotAssignedResidents(roomId))
                 .build();
         return  ResponseEntity.ok(apiResponse);
     }
