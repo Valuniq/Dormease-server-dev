@@ -55,7 +55,7 @@ public class StandardSettingService {
             List<String> regionNameList = distanceScoreReq.getRegionNameList();
 
             for (String regionName : regionNameList) {
-                Region region = regionRepository.findByName(regionName)
+                Region region = regionRepository.findByFullName(regionName)
                         .orElseThrow(InvalidParameterException::new);
 
                 RegionDistanceScore regionDistanceScore = RegionDistanceScore.builder()
@@ -99,7 +99,7 @@ public class StandardSettingService {
             List<String> regionNameList = new ArrayList<>();
             for (RegionDistanceScore regionDistanceScore : regionDistanceScoreList) {
                 Region region = regionDistanceScore.getRegion();
-                regionNameList.add(region.getName());
+                regionNameList.add(region.getFullName());
             }
             DistanceScoreRes distanceScoreRes = DistanceScoreRes.builder()
                     .distanceScore(distanceScore.getScore())
