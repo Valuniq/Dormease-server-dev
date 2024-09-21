@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
-@Tag(name = "Dormitory StandardSetting API", description = "건물 설정 관련 API입니다.")
+@Tag(name = "Dormitory Setting API", description = "건물 설정 관련 API입니다.")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/web/dormitory/setting")

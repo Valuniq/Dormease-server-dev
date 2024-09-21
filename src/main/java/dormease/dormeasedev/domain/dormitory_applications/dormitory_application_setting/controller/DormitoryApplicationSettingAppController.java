@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Dormitory Appliation StandardSetting API", description = "APP - 입사 신청 설정 관련 API입니다.")
+@Tag(name = "Dormitory Appliation Setting API", description = "APP - 입사 신청 설정 관련 API입니다.")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/app/dormitoryApplicationSetting")
