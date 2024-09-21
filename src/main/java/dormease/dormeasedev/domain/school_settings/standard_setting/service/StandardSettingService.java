@@ -51,9 +51,11 @@ public class StandardSettingService {
         for (DistanceScoreReq distanceScoreReq : distanceScoreReqList) {
             DistanceScore distanceScore = distanceScoreRepository.findById(distanceScoreReq.getDistanceScoreId())
                     .orElseThrow(InvalidParameterException::new);
-            List<Long> regionIdList = distanceScoreReq.getRegionIdList();
-            for (Long regionId : regionIdList) {
-                Region region = regionRepository.findById(regionId)
+//            List<Long> regionIdList = distanceScoreReq.getRegionIdList();
+            List<String> regionNameList = distanceScoreReq.getRegionNameList();
+
+            for (String regionName : regionNameList) {
+                Region region = regionRepository.findByName(regionName)
                         .orElseThrow(InvalidParameterException::new);
 
                 RegionDistanceScore regionDistanceScore = RegionDistanceScore.builder()
