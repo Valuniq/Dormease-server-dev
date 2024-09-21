@@ -64,4 +64,8 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
     List<Resident> findByDormitoryTermAndRoomAndGender(DormitoryTerm dormitoryTerm, Room room, Gender gender);
 
     boolean existsByDormitoryTermIn(List<DormitoryTerm> dormitoryTermList);
+
+    List<Resident> findByDormitoryTermAndRoom(DormitoryTerm dormitoryTerm, Room room);
+
+    boolean existsByRoom(Room room);
 }

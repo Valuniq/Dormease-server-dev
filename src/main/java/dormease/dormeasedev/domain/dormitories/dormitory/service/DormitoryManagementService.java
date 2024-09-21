@@ -47,7 +47,7 @@ public class DormitoryManagementService {
 
     // 건물, 층별 호실 목록 조회
     // Description: 호실 필터 미설정 시 gender는 EMPTY, roomSize는 null
-    public ResponseEntity<?> getRoomsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer floor) {
+    public List<RoomByDormitoryAndFloorRes> getRoomsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer floor) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
 
         List<Room> roomList = new ArrayList<>();
@@ -79,17 +79,12 @@ public class DormitoryManagementService {
                 .sorted(Comparator.comparingInt(RoomByDormitoryAndFloorRes::getRoomNumber))
                 .toList();
 
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(rooms)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
+        return rooms;
     }
 
     // 건물 정보 조회
     // TODO: 오류 안나게 null 처리(인실, 방 개수, 총 인원 등)
-    public ResponseEntity<?> getDormitoryInfo(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
+    public DormitoryManagementDetailRes getDormitoryInfo(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         // 건물명, 메모, 이미지는 dormitory에서 가져오기
         // DefaultAssert.isTrue(!sameNameDormitories.isEmpty(), "해당 건물명의 건물이 존재하지 않습니다.");
@@ -115,7 +110,7 @@ public class DormitoryManagementService {
             }
         }
 
-        DormitoryManagementDetailRes dormitoryManagementDetailRes = DormitoryManagementDetailRes.builder()
+        return DormitoryManagementDetailRes.builder()
                 .name(dormitory.getName())
                 .imageUrl(Optional.ofNullable(dormitory.getImageUrl()).orElse(""))
                 .fullRoomCount(fullRoomCount)
@@ -124,17 +119,10 @@ public class DormitoryManagementService {
                 .dormitorySize(dormitorySize)
                 .memo(Optional.ofNullable(dormitory.getMemo()).orElse(""))
                 .build();
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(dormitoryManagementDetailRes).build();
-
-        return ResponseEntity.ok(apiResponse);
-
     }
 
     // 학교별 건물 목록 조회(건물명)
-    public ResponseEntity<?> getDormitoriesByRoomSize(UserDetailsImpl userDetailsImpl) {
+    public List<DormitoryManagementListRes> getDormitoriesByRoomSize(UserDetailsImpl userDetailsImpl) {
         User user = validUserById(userDetailsImpl.getUserId());
 
         List<Dormitory> dormitories = dormitoryRepository.findBySchool(user.getSchool());
@@ -144,18 +132,13 @@ public class DormitoryManagementService {
                         .name(dormitory.getName())
                         .build())
                 .sorted(Comparator.comparing(DormitoryManagementListRes::getName))
-                .collect(Collectors.toList());
+                .toList();
 
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(dormitoryManagementListRes)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
+        return dormitoryManagementListRes;
     }
 
     // 건물별 층 수 목록 조회
-    public ResponseEntity<?> getFloorsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
+    public List<FloorByDormitoryRes> getFloorsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         // Set<Integer> uniqueFloorNumbers = new HashSet<>();
 
@@ -179,22 +162,16 @@ public class DormitoryManagementService {
                     .build());
         }
 
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(floorByDormitoryResList)
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
+        return floorByDormitoryResList;
     }
 
 
     // 배정된 호실이 없는 사생 목록 조회
-    // TODO: 입사신청을 하지않은 호실 미배정 사생의 조회가 가능한지?
-    public ResponseEntity<?> getNotAssignedResidents(UserDetailsImpl userDetailsImpl, Long roomId) {    // roomId 받아야함
+    public List<NotOrAssignedResidentRes> getNotAssignedResidents(Long roomId) {
         Room room = validRoomById(roomId);
         Dormitory dormitory = validDormitoryById(room.getDormitory().getId());
 
-        Gender gender = room.getRoomType().getGender();
+        // Gender gender = room.getRoomType().getGender();
         // 호실의 성별, 인실, 기숙사가 일치해야함
         // dormitoryTerm 중에 dormitoryRoomType이 일치하는 것만 가져오기
         RoomType roomType = room.getRoomType();
@@ -204,41 +181,28 @@ public class DormitoryManagementService {
         // 반복문 add
         List<Resident> residentList = new ArrayList<>();
         for (DormitoryTerm dormitoryTerm : dormitoryTerms) {
-            List<Resident> residents = residentRepository.findByDormitoryTermAndRoomAndGender(dormitoryTerm, null, gender);
+            List<Resident> residents = residentRepository.findByDormitoryTermAndRoom(dormitoryTerm, null);
             residentList.addAll(residents);
         }
 
-        List<NotOrAssignedResidentRes> notAssignedResidentsResList = new ArrayList<>();
-        for (Resident resident : residentList) {
-            String studentNumber = null;
-            String phoneNumber= null;
+        List<NotOrAssignedResidentRes> notAssignedResidentsResList = residentList.stream()
+                .map(resident -> {
+                    Student student = resident.getStudent();
+                    return NotOrAssignedResidentRes.builder()
+                            .id(resident.getId())
+                            .studentNumber(student != null ? student.getStudentNumber() : null)
+                            .name(resident.getName())
+                            .phoneNumber(student != null ? student.getPhoneNumber() : null)
+                            .isAssigned(checkResidentAssignedToRoom(resident)) // 호실 거주 여부 / 무조건 false여야 함
+                            .build();}
+                )
+                .collect(Collectors.toList());
 
-            Student student = resident.getStudent();
-            // 회원가입 여부 확인
-            if (student != null) {
-                studentNumber = student.getStudentNumber();
-                phoneNumber = student.getPhoneNumber();
-            }
-            NotOrAssignedResidentRes notOrAssignedResidentRes = NotOrAssignedResidentRes.builder()
-                    .id(resident.getId()) // 사생 id
-                    .studentNumber(studentNumber)
-                    .name(resident.getName())
-                    .phoneNumber(phoneNumber)
-                    .isAssigned(checkResidentAssignedToRoom(resident)) // 호실 거주 여부 / 무조건 false여야 함
-                    .build();
-            notAssignedResidentsResList.add(notOrAssignedResidentRes);
-        }
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(notAssignedResidentsResList)
-                .build();
-
-        return  ResponseEntity.ok(apiResponse);
+        return notAssignedResidentsResList;
     }
 
     // 해당 호실에 거주하는 사생 조회
-    public ResponseEntity<?> getAssignedResidents(UserDetailsImpl userDetailsImpl, Long roomId) {
+    public List<NotOrAssignedResidentRes> getAssignedResidents(UserDetailsImpl userDetailsImpl, Long roomId) {
         Room room = validRoomById(roomId);
         List<Resident> assignedResidents = residentRepository.findByRoom(room);
         List<NotOrAssignedResidentRes> assignedResidentRes = assignedResidents.stream()
@@ -255,12 +219,7 @@ public class DormitoryManagementService {
                 })
                 .collect(Collectors.toList());
 
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(assignedResidentRes).build();
-
-        return  ResponseEntity.ok(apiResponse);
+        return assignedResidentRes;
     }
 
     // 사생의 방 배정 여부 체크 메소드
@@ -270,63 +229,52 @@ public class DormitoryManagementService {
     }
 
 
-    // 수기 방배정(배정 취소 및 배정 가능)
+    // 수기 방배정
     @Transactional
-    public ResponseEntity<?> assignedResidentsToRoom(UserDetailsImpl userDetailsImpl, List<AssignedResidentToRoomReq> assignedResidentToRoomReqList) {
-        // 리스트 사이즈만큼 반복
-        for (AssignedResidentToRoomReq assignedResidentToRoomReq : assignedResidentToRoomReqList) {
-            Room room = validRoomById(assignedResidentToRoomReq.getRoomId());
+    public void assignedResidentsToRoom(Long roomId, AssignedResidentToRoomReq assignedResidentToRoomReq) {
+        Room room = validRoomById(roomId);
 
-            // room에 배정된 사생 가져와서 사생의 room null처리
-            List<Resident> residents = residentRepository.findByRoom(room);
-            if (!residents.isEmpty()) {
-                for (Resident resident : residents) {
-                    resident.updateRoom(null);
-                    resident.updateBedNumber(null);
-                }
+        // room에 배정된 사생 가져와서 사생의 room null처리
+        List<Resident> residents = residentRepository.findByRoom(room);
+        if (!residents.isEmpty()) {
+            for (Resident resident : residents) {
+                resident.updateRoom(null);
+                resident.updateBedNumber(null);
             }
-
-            int bedNumberCount = Integer.MAX_VALUE;
-            for (Long residentId : assignedResidentToRoomReq.getResidentIds()) {
-                // 인실 만큼 bedNumber 반복 room과 bedNumber로 사생 찾아서 없으면 해당 bedNumber에 배정
-                for (int i=1; i<=room.getRoomType().getRoomSize(); i++) {
-                    // 건물 설정 - 필터가 완료되어야 사생을 가질 수 있으므로, room.getRoomTYpe()이 null일 경우 X
-                   if(!residentRepository.existsByRoomAndBedNumber(room, i)) {
-                       bedNumberCount = i;
-                       break;
-                   }
-                }
-                DefaultAssert.isTrue(bedNumberCount <= room.getRoomType().getRoomSize(), "배정 가능한 침대가 없습니다.");
-
-                Optional<Resident> residentOpt = residentRepository.findById(residentId);
-                DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
-                Resident resident = residentOpt.get();
-
-                resident.updateRoom(room);
-                resident.updateBedNumber(bedNumberCount);
-            }
-            // currentPeople update
-            updateCurrentPeople(room);
         }
 
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("호실이 배정되었습니다.").build())
-                .build();
-        return ResponseEntity.ok(apiResponse);
+        for (Long residentId : assignedResidentToRoomReq.getResidentIds()) {
+            Optional<Resident> residentOpt = residentRepository.findById(residentId);
+            DefaultAssert.isTrue(residentOpt.isPresent(), "사생 정보가 올바르지 않습니다.");
+            Resident resident = residentOpt.get();
+
+            resident.updateRoom(room);
+            resident.updateBedNumber(assignedBedNumber(room));
+        }
+        // currentPeople update
+        updateCurrentPeople(room);
+    }
+
+
+    // 침대번호 지정 메소드
+    private int assignedBedNumber(Room room) {
+        int bedNumberCount = Integer.MAX_VALUE;
+        for (int i=1; i<=room.getRoomType().getRoomSize(); i++) {
+            // 건물 설정 - 필터가 완료되어야 사생을 가질 수 있으므로, room.getRoomTYpe()이 null일 경우 존재하지 않음
+            if(!residentRepository.existsByRoomAndBedNumber(room, i)) {
+                bedNumberCount = i;
+                break;
+            }
+        }
+        DefaultAssert.isTrue(bedNumberCount <= room.getRoomType().getRoomSize(), "배정 가능한 침대가 없습니다.");
+        return bedNumberCount;
     }
 
     // 건물별 메모 저장
     @Transactional
-    public ResponseEntity<?> registerDormitoryMemo(UserDetailsImpl userDetailsImpl, Long dormitoryId, DormitoryMemoReq dormitoryMemoReq) {
+    public void registerDormitoryMemo(Long dormitoryId, DormitoryMemoReq dormitoryMemoReq) {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         dormitory.updateMemo(dormitoryMemoReq.getMemo());
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("메모가 저장되었습니다.").build())
-                .build();
-        return ResponseEntity.ok(apiResponse);
     }
 
 

@@ -134,6 +134,7 @@ public class DormitorySettingDetailService {
                             .roomSize(roomSize)
                             .hasKey(room.getHasKey())
                             .isActivated(room.getIsActivated())
+                            .hasResident(hasRelatedResidentsByRoom(room))
                             .build();
                 })
                 .sorted(Comparator.comparing(RoomSettingRes::getRoomNumber))
@@ -147,10 +148,10 @@ public class DormitorySettingDetailService {
         Dormitory dormitory = validDormitoryById(dormitoryId);
         List<Room> deletedRooms = roomRepository.findByDormitoryAndFloor(dormitory, floor);
 
-        boolean hasRelatedResidentByFloor = hasRelatedResidents(dormitory, floor);
+        boolean hasRelatedResident = hasRelatedResidentsByFloor(dormitory, floor);
         boolean check = true;
         String msg = "호실이 삭제되었습니다.";
-        if (hasRelatedResidentByFloor) {
+        if (hasRelatedResident) {
             check = false;
             msg = "해당 층에 배정된 사생이 있습니다.";
         } else {
@@ -169,9 +170,13 @@ public class DormitorySettingDetailService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    private boolean hasRelatedResidents(Dormitory dormitory, Integer floor) {
+    private boolean hasRelatedResidentsByFloor(Dormitory dormitory, Integer floor) {
         List<Room> rooms = roomRepository.findByDormitoryAndFloor(dormitory, floor);
         return residentRepository.existsByRoomIn(rooms);
+    }
+
+    private boolean hasRelatedResidentsByRoom(Room room) {
+        return residentRepository.existsByRoom(room);
     }
 
     // 호실 생성
