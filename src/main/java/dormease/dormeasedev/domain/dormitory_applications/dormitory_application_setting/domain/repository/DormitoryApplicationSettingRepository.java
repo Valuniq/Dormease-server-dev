@@ -17,6 +17,9 @@ public interface DormitoryApplicationSettingRepository extends JpaRepository<Dor
 
     List<DormitoryApplicationSetting> findTop3BySchoolAndApplicationStatusOrderByCreatedDateDesc(School school, ApplicationStatus applicationStatus);
 
+    // 가장 최근 입사 신청 설정을 찾는 쿼리
+    Optional<DormitoryApplicationSetting> findTopBySchoolAndApplicationStatusOrderByStartDateDesc(School school, ApplicationStatus applicationStatus);
+
     // ApplicationStatus.NOW 전용!! / BEFORE 하면 여러 개 나오기에 안됨
     Optional<DormitoryApplicationSetting> findBySchoolAndApplicationStatus(School school, ApplicationStatus applicationStatus);
 
