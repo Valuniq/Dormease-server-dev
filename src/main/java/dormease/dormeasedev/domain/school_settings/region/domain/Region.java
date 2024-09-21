@@ -16,5 +16,9 @@ public class Region extends BaseEntity {
     @Column(name = "region_id")
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_region_id")
+    private Region parentRegion;
+
     private String name;
 }

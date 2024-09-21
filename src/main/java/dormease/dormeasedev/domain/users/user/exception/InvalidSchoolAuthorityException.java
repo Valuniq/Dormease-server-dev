@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.users.user.exception;
 
 import lombok.Getter;
 
-@Getter
+
 public class InvalidSchoolAuthorityException extends RuntimeException {
 
     public InvalidSchoolAuthorityException() {
