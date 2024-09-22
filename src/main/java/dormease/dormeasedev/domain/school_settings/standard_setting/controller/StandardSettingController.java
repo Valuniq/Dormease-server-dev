@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.school_settings.standard_setting.controller;
 
 import dormease.dormeasedev.domain.school_settings.standard_setting.domain.StandardSetting;
 import dormease.dormeasedev.domain.school_settings.standard_setting.dto.request.CreateStandardSettingReq;
-import dormease.dormeasedev.domain.school_settings.standard_setting.dto.response.StandardSettingRes;
+import dormease.dormeasedev.domain.school_settings.standard_setting.dto.request.ModifyStandardSettingReq;
 import dormease.dormeasedev.domain.school_settings.standard_setting.service.StandardSettingService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
@@ -42,5 +42,16 @@ public class StandardSettingController implements StandardSettingApi {
                 .information(standardSettingService.findStandardSetting(userDetailsImpl, standardSettingId))
                 .build();
         return ResponseEntity.ok(apiResponse);
+    }
+
+    @Override
+    @PatchMapping("/{standardSettingId}")
+    public ResponseEntity<Void> modifyStandardSetting(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable(value = "standardSettingId") Long standardSettingId,
+            @Valid @RequestBody ModifyStandardSettingReq modifyStandardSettingReq
+    ) {
+        standardSettingService.modifyStandardSetting(userDetailsImpl, standardSettingId, modifyStandardSettingReq);
+        return ResponseEntity.noContent().build();
     }
 }
