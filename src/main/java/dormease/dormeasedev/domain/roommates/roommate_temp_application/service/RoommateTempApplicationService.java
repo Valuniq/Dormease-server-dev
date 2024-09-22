@@ -1,7 +1,7 @@
 package dormease.dormeasedev.domain.roommates.roommate_temp_application.service;
 
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationService;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationAppService;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.roommates.roommate_application.domain.repository.RoommateApplicationRepository;
@@ -40,7 +40,7 @@ public class RoommateTempApplicationService {
 
     private final UserService userService;
     private final ResidentService residentService;
-    private final DormitoryApplicationService dormitoryApplicationService;
+    private final DormitoryApplicationAppService dormitoryApplicationAppService;
 
     // Description : 룸메이트 임시 신청 여부 + 방장 여부 조회
     public ResponseEntity<?> existRoommateTempApplication(UserDetailsImpl userDetailsImpl) {
@@ -138,7 +138,7 @@ public class RoommateTempApplicationService {
         DefaultAssert.isTrue(resident.getRoommateApplication() == null, "이미 소속된 그룹이 존재합니다.");
 
         // 나
-        DormitoryApplication myDormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+        DormitoryApplication myDormitoryApplication = dormitoryApplicationAppService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
         DormitoryTerm myResultDormitoryTerm = myDormitoryApplication.getResultDormitoryTerm();
 
         RoommateTempApplication roommateTempApplication = validateRoommateTempApplicationByCode(code);
@@ -148,7 +148,7 @@ public class RoommateTempApplicationService {
         Long roommateMasterId = roommateTempApplication.getRoommateMasterId();
         Resident roommateMasterResident = residentService.validateResidentById(roommateMasterId);
         User roommateMasterUser = roommateMasterResident.getStudent().getUser();
-        DormitoryApplication dormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(roommateMasterUser, ApplicationStatus.NOW);
+        DormitoryApplication dormitoryApplication = dormitoryApplicationAppService.validateDormitoryApplicationByUserAndApplicationStatus(roommateMasterUser, ApplicationStatus.NOW);
         DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
 
         DefaultAssert.isTrue(myResultDormitoryTerm.equals(resultDormitoryTerm), "신청한 기숙사 혹은 거주 기간이 해당 그룹의 방장이 신청한 기숙사 혹은 거주 기간과 일치하지 않습니다.");

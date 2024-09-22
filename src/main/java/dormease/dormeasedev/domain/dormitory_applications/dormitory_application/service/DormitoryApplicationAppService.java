@@ -37,7 +37,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class DormitoryApplicationService {
+public class DormitoryApplicationAppService {
 
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final DormitoryTermRepository dormitoryTermRepository;

@@ -53,8 +53,7 @@ public interface StandardSettingApi {
     })
     @GetMapping("/{standardSettingId}")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findStandardSetting(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "기준 설정 id를 입력해주세요.", required = true) @PathVariable(value = "standardSettingId") Long standardSettingId
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     );
 
     @Operation(summary = "기준 설정 수정 API", description = "기준 설정을 수정합니다.")

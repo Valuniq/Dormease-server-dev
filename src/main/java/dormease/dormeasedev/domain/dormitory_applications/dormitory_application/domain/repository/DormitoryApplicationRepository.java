@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.dormitory_applications.dormitory_application
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,11 +21,9 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
 
     List<DormitoryApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
 
-//    @Query("SELECT da FROM DormitoryApplication da WHERE da.user = :user AND da.dormitoryApplicationResult = :results ORDER BY da.createdDate DESC")
-//    Optional<DormitoryApplication> findTop1ByUserAndResultsOrderByCreatedDateDesc(User user, DormitoryApplicationResult results);
-
-//    Optional<DormitoryApplication> findByDormitoryAndApplicationStatus(Dormitory sameNameAndSameGenderDormitory, ApplicationStatus applicationStatus);
-
-//    DormitoryApplication findByUserAndApplicationStatusAndDormitoryApplicationResult(User user, ApplicationStatus applicationStatus, DormitoryApplicationResult dormitoryApplicationResult);
     DormitoryApplication findByStudentAndApplicationStatusAndDormitoryApplicationResult(Student student, ApplicationStatus applicationStatus, DormitoryApplicationResult dormitoryApplicationResult);
+
+    List<DormitoryApplication> findAllByDormitoryApplicationSettingAndStudent_StudentNumberContainingOrStudent_User_NameContaining(DormitoryApplicationSetting dormitoryApplicationSetting, String searchWord, String searchWord1);
+
+    List<DormitoryApplication> findAllByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting);
 }

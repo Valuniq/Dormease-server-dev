@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface StandardSettingRepository extends JpaRepository<StandardSetting, Long> {
 
     boolean existsBySchool(School school);
+
+    Optional<StandardSetting> findBySchool(School school);
 }

@@ -4,7 +4,7 @@ import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationService;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationAppService;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
@@ -48,7 +48,7 @@ public class RefundRequestmentWebService {
 
     private final UserService userService;
     private final ResidentService residentService;
-    private final DormitoryApplicationService dormitoryApplicationService;
+    private final DormitoryApplicationAppService dormitoryApplicationAppService;
 
     // Description : 환불 신청 사생 목록 조회
     public ResponseEntity<?> findResidents(UserDetailsImpl userDetailsImpl, Integer page) {
@@ -67,7 +67,7 @@ public class RefundRequestmentWebService {
             User user = student.getUser();
             Room room = resident.getRoom();
 
-            DormitoryApplication dormitoryApplication = dormitoryApplicationService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
+            DormitoryApplication dormitoryApplication = dormitoryApplicationAppService.validateDormitoryApplicationByUserAndApplicationStatus(user, ApplicationStatus.NOW);
             DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
             Term term = resultDormitoryTerm.getTerm();
             DormitoryRoomType dormitoryRoomType = resultDormitoryTerm.getDormitoryRoomType();

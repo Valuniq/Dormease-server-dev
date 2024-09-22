@@ -89,10 +89,10 @@ public class StandardSettingService {
         return standardSettingRepository.save(standardSetting);
     }
 
-    public StandardSettingRes findStandardSetting(UserDetailsImpl userDetailsImpl, Long standardSettingId) {
+    public StandardSettingRes findStandardSetting(UserDetailsImpl userDetailsImpl) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
-        StandardSetting standardSetting = standardSettingRepository.findById(standardSettingId)
+        StandardSetting standardSetting = standardSettingRepository.findBySchool(school)
                 .orElseThrow(StandardSettingNotFoundException::new);
         if (!standardSetting.getSchool().equals(school))
             throw new IllegalArgumentException();
