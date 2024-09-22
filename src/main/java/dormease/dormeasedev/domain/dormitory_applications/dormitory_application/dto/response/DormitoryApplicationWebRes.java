@@ -49,7 +49,7 @@ public class DormitoryApplicationWebRes {
     @Setter
     @Getter
     @Builder
-    public class DormitoryRoomTypeRes { // TODO : 제대로 되는지 고민
+    public static class DormitoryRoomTypeRes { // TODO : 제대로 되는지 고민
 
         @Schema(type = "String", example = "명덕관", description = "건물 (건물명)")
         private String dormitoryName;

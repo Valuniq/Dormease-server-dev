@@ -72,13 +72,13 @@ public class DormitoryApplicationSettingWebController {
 //        return dormitoryApplicationSettingService.modifyDormitoryApplicationSetting(userDetailsImpl, createDormitoryApplicationSettingReq, dormitoryApplicationSettingId);
 //    }
 
-    // Description : 이전 작성 내용 목록 조회
-    @Operation(summary = "이전 작성 내용 목록 조회", description = "이전 작성 내용 목록을 조회합니다.")
+    // Description : 이전 입사 신청 설정 목록 3개 조회
+    @Operation(summary = "이전 입사 신청 설정 목록 3개 조회", description = "이전 입사 신청 설정 목록을 최신 순 3개 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FindDormitoryApplicationSettingHistoryRes.class)))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
-    @GetMapping("/history")
+    @GetMapping("/topThree")
     public ResponseEntity<?> findDormitoryApplicationSettingHistory(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl // 관리자 id를 통해 학교를 알아내기 위함
     ) {

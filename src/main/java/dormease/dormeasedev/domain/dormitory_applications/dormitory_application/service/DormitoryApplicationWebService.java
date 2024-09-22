@@ -41,7 +41,7 @@ public class DormitoryApplicationWebService {
     public List<DormitoryApplicationWebRes> findDormitoryApplications(UserDetailsImpl userDetailsImpl) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
-        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW)
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatusNot(school, ApplicationStatus.BEFORE)
                 .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
 
         List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllByDormitoryApplicationSetting(dormitoryApplicationSetting);
@@ -85,7 +85,7 @@ public class DormitoryApplicationWebService {
                 .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
 
         List<DormitoryApplication> dormitoryApplicationList =
-                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndStudent_StudentNumberContainingOrStudent_Student_User_NameContaining(dormitoryApplicationSetting, searchWord, searchWord);
+                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndStudent_StudentNumberContainingOrStudent_User_NameContaining(dormitoryApplicationSetting, searchWord, searchWord);
 
         List<DormitoryApplicationWebRes> dormitoryApplicationWebResList = new ArrayList<>();
         for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
@@ -140,6 +140,9 @@ public class DormitoryApplicationWebService {
 
         DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId)
                 .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
+        if (dormitoryApplicationSetting.getApplicationStatus().equals(ApplicationStatus.READY) || dormitoryApplicationSetting.getApplicationStatus().equals(ApplicationStatus.NOW))
+            throw new IllegalArgumentException("종료된 입사 신청 설정만 조회할 수 있습니다.");
+
         if(!dormitoryApplicationSetting.getSchool().equals(school))
             throw new InvalidSchoolAuthorityException();
 
