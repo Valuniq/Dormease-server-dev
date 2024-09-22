@@ -32,14 +32,13 @@ public class StandardSettingController implements StandardSettingApi {
     }
 
     @Override
-    @GetMapping("/{standardSettingId}")
+    @GetMapping
     public ResponseEntity<ApiResponse> findStandardSetting(
-            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @PathVariable(value = "standardSettingId") Long standardSettingId
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(standardSettingService.findStandardSetting(userDetailsImpl, standardSettingId))
+                .information(standardSettingService.findStandardSetting(userDetailsImpl))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

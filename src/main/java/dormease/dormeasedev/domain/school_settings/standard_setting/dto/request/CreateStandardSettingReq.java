@@ -42,7 +42,7 @@ public class CreateStandardSettingReq {
     @Schema(type = "boolean", example = "true", description = "동일 기간 설정 활성화 여부")
     private boolean sameTerm;
 
-    @Schema(type = "boolean", example = "true", description = "입사 서약서")
+    @Schema(type = "String", example = "true", description = "입사 서약서")
     private String entrancePledge;
 
     @Schema(type = "List<DistanceScoreReq>", example = "distanceScoreReq", description = "거리 점수 리스트입니다.")
