@@ -41,9 +41,12 @@ dependencies {
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.1.0'
     testImplementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-api', version: '2.1.0'
 
-    // Lombok
+    // Lombok & Mapstruct
     compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
     // DB
     runtimeOnly 'com.h2database:h2'
@@ -53,6 +56,9 @@ dependencies {
 
     // AWS S3
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
+
+    // jackson
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.4'
 }
 
 tasks.named('test') {

@@ -50,11 +50,11 @@ public class AdminService {
         adminUser.updatePassword(passwordEncoder.encode(modifyAdminPasswordReq.getPassword()));
     }
 
-    public CheckSecurityCodeRes checkSecurityCode(UserDetailsImpl userDetailsImpl, CheckSecurityCodeReq checkSecurityCodeReq) {
+    public CheckSecurityCodeRes checkSecurityCode(UserDetailsImpl userDetailsImpl, String securityCode) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         Admin admin = adminRepository.findByUser(adminUser)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 관리자가 존재하지 않습니다."));
-        boolean valid = admin.getSecurityCode().equals(checkSecurityCodeReq.getSecurityCode());
+        boolean valid = admin.getSecurityCode().equals(securityCode);
 
         return CheckSecurityCodeRes.builder()
                 .checked(valid)

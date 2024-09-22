@@ -3,14 +3,12 @@ package dormease.dormeasedev.domain.school_settings.standard_setting.domain;
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.school.domain.School;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
+@Setter
 public class StandardSetting extends BaseEntity {
 
     @Id

@@ -11,10 +11,12 @@ import dormease.dormeasedev.domain.school_settings.standard_setting.domain.Stand
 import dormease.dormeasedev.domain.school_settings.standard_setting.domain.repository.StandardSettingRepository;
 import dormease.dormeasedev.domain.school_settings.standard_setting.dto.request.CreateStandardSettingReq;
 import dormease.dormeasedev.domain.school_settings.standard_setting.dto.request.DistanceScoreReq;
+import dormease.dormeasedev.domain.school_settings.standard_setting.dto.request.ModifyStandardSettingReq;
 import dormease.dormeasedev.domain.school_settings.standard_setting.dto.response.DistanceScoreRes;
 import dormease.dormeasedev.domain.school_settings.standard_setting.dto.response.StandardSettingRes;
 import dormease.dormeasedev.domain.school_settings.standard_setting.exception.StandardSettingExistException;
 import dormease.dormeasedev.domain.school_settings.standard_setting.exception.StandardSettingNotFoundException;
+import dormease.dormeasedev.domain.school_settings.standard_setting.mapper.StandardSettingMapper;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
@@ -35,6 +37,7 @@ public class StandardSettingService {
     private final DistanceScoreRepository distanceScoreRepository;
     private final RegionRepository regionRepository;
     private final RegionDistanceScoreRepository regionDistanceScoreRepository;
+    private final StandardSettingMapper standardSettingMapper;
 
     private final UserService userService;
 
@@ -68,7 +71,7 @@ public class StandardSettingService {
         }
         regionDistanceScoreRepository.saveAll(regionDistanceScoreList);
 
-        return StandardSetting.builder()
+        StandardSetting standardSetting = StandardSetting.builder()
                 .school(school)
                 .minScore(createStandardSettingReq.getMinScore())
                 .scoreRatio(createStandardSettingReq.getScoreRatio())
@@ -82,6 +85,8 @@ public class StandardSettingService {
                 .sameTerm(createStandardSettingReq.isSameTerm())
                 .entrancePledge(createStandardSettingReq.getEntrancePledge())
                 .build();
+
+        return standardSettingRepository.save(standardSetting);
     }
 
     public StandardSettingRes findStandardSetting(UserDetailsImpl userDetailsImpl, Long standardSettingId) {
@@ -122,5 +127,17 @@ public class StandardSettingService {
                 .entrancePledge(standardSetting.getEntrancePledge())
                 .distanceScoreResList(distanceScoreResList)
                 .build();
+    }
+
+    @Transactional
+    public void modifyStandardSetting(UserDetailsImpl userDetailsImpl, Long standardSettingId, ModifyStandardSettingReq modifyStandardSettingReq) {
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
+        StandardSetting standardSetting = standardSettingRepository.findById(standardSettingId)
+                .orElseThrow(StandardSettingNotFoundException::new);
+        if (!standardSetting.getSchool().equals(school))
+            throw new IllegalArgumentException();
+
+        standardSettingMapper.updateStandardSettingFromDto(modifyStandardSettingReq, standardSetting);
     }
 }

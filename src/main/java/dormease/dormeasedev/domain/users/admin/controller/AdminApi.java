@@ -20,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "[WEB] Admin Account API", description = "WEB에서 관리자 계정 관리 프로세스 API입니다.")
 public interface AdminApi {
@@ -88,6 +89,6 @@ public interface AdminApi {
     @GetMapping("/securityCode")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> checkSecurityCode(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "Schemas의 CheckSecurityCodeReq을 참고해주세요.", required = true) @Valid @RequestBody CheckSecurityCodeReq checkSecurityCodeReq
+            @Parameter(description = "보안 코드를 입력해주세요.", required = true) @RequestParam(value = "securityCode") String securityCode
     );
 }
