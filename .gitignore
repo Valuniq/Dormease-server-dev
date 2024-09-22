@@ -52,3 +52,6 @@ out/
 
 ### ddl, dml sql ###
 /src/main/resources/db/
+
+### Open API Code ###
+/src/main/java/dormease/dormeasedev/infrastructure/openApi

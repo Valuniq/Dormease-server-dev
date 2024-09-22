@@ -53,11 +53,11 @@ public class AdminController implements AdminApi {
     @GetMapping("/securityCode")
     public ResponseEntity<ApiResponse> checkSecurityCode(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Valid @RequestBody CheckSecurityCodeReq checkSecurityCodeReq
+            @RequestParam(value = "securityCode") String securityCode
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(adminService.checkSecurityCode(userDetailsImpl, checkSecurityCodeReq))
+                .information(adminService.checkSecurityCode(userDetailsImpl, securityCode))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

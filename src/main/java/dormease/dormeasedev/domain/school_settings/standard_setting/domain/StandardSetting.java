@@ -3,14 +3,12 @@ package dormease.dormeasedev.domain.school_settings.standard_setting.domain;
 import dormease.dormeasedev.domain.common.BaseEntity;
 import dormease.dormeasedev.domain.school.domain.School;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
+@Setter
 public class StandardSetting extends BaseEntity {
 
     @Id
@@ -18,12 +16,12 @@ public class StandardSetting extends BaseEntity {
     @Column(name = "stancard_settings_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
 
     // 최소 학점
-    private Integer minScore;
+    private double minScore;
 
     private int scoreRatio;
 
@@ -44,10 +42,11 @@ public class StandardSetting extends BaseEntity {
     private boolean sameTerm;
 
     // 입사 서약서
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String entrancePledge;
 
     @Builder
-    public StandardSetting(School school, Integer minScore, int scoreRatio, int distanceRatio, boolean pointReflection, TiePriority tiePriority, FreshmanStandard freshmanStandard, boolean prioritySelection, boolean movePassSelection, boolean sameSmoke, boolean sameTerm, String entrancePledge) {
+    public StandardSetting(School school, double minScore, int scoreRatio, int distanceRatio, boolean pointReflection, TiePriority tiePriority, FreshmanStandard freshmanStandard, boolean prioritySelection, boolean movePassSelection, boolean sameSmoke, boolean sameTerm, String entrancePledge) {
         this.school = school;
         this.minScore = minScore;
         this.scoreRatio = scoreRatio;
