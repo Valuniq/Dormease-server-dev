@@ -321,7 +321,6 @@ public class DormitoryApplicationSettingService {
                 .check(true)
                 .information(dormitoryApplicationSettingSimpleResList)
                 .build();
-
         return ResponseEntity.ok(apiResponse);
     }
 

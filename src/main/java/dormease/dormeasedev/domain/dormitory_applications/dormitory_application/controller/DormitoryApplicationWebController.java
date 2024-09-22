@@ -1,15 +1,15 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.controller;
 
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationWebRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationWebService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,14 +29,31 @@ public class DormitoryApplicationWebController implements DormitoryApplicationWe
     }
 
     @Override
-    @GetMapping("/search/{searchWord}")
+    @GetMapping("/search/{dormitoryApplicationSettingId}")
     public ResponseEntity<ApiResponse> searchDormitoryApplications(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @RequestParam(value = "searchWord") String searchWord
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(dormitoryApplicationWebService.searchDormitoryApplications(userDetailsImpl, searchWord))
+                .information(dormitoryApplicationWebService.searchDormitoryApplications(userDetailsImpl, dormitoryApplicationSettingId, searchWord))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @Override
+    @GetMapping("/{dormitoryApplicationSettingId}")
+    public ResponseEntity<ApiResponse> findDormitoryApplicationsById(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId
+    ) {
+        List<DormitoryApplicationWebRes> dormitoryApplicationWebResList =
+                dormitoryApplicationWebService.findDormitoryApplicationsById(userDetailsImpl, dormitoryApplicationSettingId);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryApplicationWebResList)
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

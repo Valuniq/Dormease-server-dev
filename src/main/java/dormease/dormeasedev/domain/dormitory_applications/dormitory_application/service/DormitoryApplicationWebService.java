@@ -16,6 +16,7 @@ import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
+import dormease.dormeasedev.domain.users.user.exception.InvalidSchoolAuthorityException;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -77,10 +78,10 @@ public class DormitoryApplicationWebService {
         return dormitoryApplicationWebResList;
     }
 
-    public List<DormitoryApplicationWebRes> searchDormitoryApplications(UserDetailsImpl userDetailsImpl, String searchWord) {
+    public List<DormitoryApplicationWebRes> searchDormitoryApplications(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId, String searchWord) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
-        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW)
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId)
                 .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
 
         List<DormitoryApplication> dormitoryApplicationList =
@@ -100,6 +101,20 @@ public class DormitoryApplicationWebService {
                     .roomSize(applicationRoomType.getRoomSize())
                     .build();
 
+            DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
+            DormitoryRoomType resultDormitoryRoomType = resultDormitoryTerm.getDormitoryRoomType();
+            Dormitory resultDormitory = resultDormitoryRoomType.getDormitory();
+            RoomType resultRoomType = resultDormitoryRoomType.getRoomType();
+            DormitoryApplicationWebRes.DormitoryRoomTypeRes resultDormitoryRoomTypeRes;
+            if (dormitoryApplication.getDormitoryApplicationResult().equals(DormitoryApplicationResult.NON_PASS) || dormitoryApplication.getDormitoryApplicationResult().equals(DormitoryApplicationResult.WAIT))
+                resultDormitoryRoomTypeRes = null;
+            else {
+                resultDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
+                        .dormitoryName(resultDormitory.getName())
+                        .roomSize(resultRoomType.getRoomSize())
+                        .build();
+            }
+
             DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
                     .dormitoryApplicationId(dormitoryApplication.getId())
                     .studentName(user.getName())
@@ -109,10 +124,66 @@ public class DormitoryApplicationWebService {
                     .address(student.getAddress())
                     .copy(dormitoryApplication.getCopy())
                     .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy())
-                    .resultDormitoryRoomTypeRes(null)
+                    .resultDormitoryRoomTypeRes(resultDormitoryRoomTypeRes)
                     .dormitoryApplicationResult(DormitoryApplicationResult.WAIT)
                     .build();
 
+            dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);
+        }
+
+        return dormitoryApplicationWebResList;
+    }
+
+    public List<DormitoryApplicationWebRes> findDormitoryApplicationsById(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId) {
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
+
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId)
+                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
+        if(!dormitoryApplicationSetting.getSchool().equals(school))
+            throw new InvalidSchoolAuthorityException();
+
+        List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllByDormitoryApplicationSetting(dormitoryApplicationSetting);
+        List<DormitoryApplicationWebRes> dormitoryApplicationWebResList = new ArrayList<>();
+        for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
+            Student student = dormitoryApplication.getStudent();
+            User user = student.getUser();
+
+            DormitoryTerm applicationDormitoryTerm = dormitoryApplication.getApplicationDormitoryTerm();
+            DormitoryRoomType applicationDormitoryRoomType = applicationDormitoryTerm.getDormitoryRoomType();
+            Dormitory applicationDormitory = applicationDormitoryRoomType.getDormitory();
+            RoomType applicationRoomType = applicationDormitoryRoomType.getRoomType();
+            DormitoryApplicationWebRes.DormitoryRoomTypeRes applicationDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
+                    .dormitoryName(applicationDormitory.getName())
+                    .roomSize(applicationRoomType.getRoomSize())
+                    .build();
+
+            DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
+            DormitoryRoomType resultDormitoryRoomType = resultDormitoryTerm.getDormitoryRoomType();
+            Dormitory resultDormitory = resultDormitoryRoomType.getDormitory();
+            RoomType resultRoomType = resultDormitoryRoomType.getRoomType();
+            DormitoryApplicationWebRes.DormitoryRoomTypeRes resultDormitoryRoomTypeRes;
+            if (dormitoryApplication.getDormitoryApplicationResult().equals(DormitoryApplicationResult.NON_PASS) || dormitoryApplication.getDormitoryApplicationResult().equals(DormitoryApplicationResult.WAIT))
+                resultDormitoryRoomTypeRes = null;
+            else {
+                resultDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
+                        .dormitoryName(resultDormitory.getName())
+                        .roomSize(resultRoomType.getRoomSize())
+                        .build();
+            }
+
+            DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
+                    .dormitoryApplicationId(dormitoryApplication.getId())
+                    .studentName(user.getName())
+                    .studentNumber(student.getStudentNumber())
+                    .gender(student.getGender())
+                    .applicationDormitoryRoomTypeRes(applicationDormitoryRoomTypeRes)
+                    .address(student.getAddress())
+                    .copy(dormitoryApplication.getCopy())
+                    .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy())
+                    .resultDormitoryRoomTypeRes(resultDormitoryRoomTypeRes)
+                    .dormitoryApplicationResult(DormitoryApplicationResult.WAIT)
+                    .build();
             dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);
         }
 
