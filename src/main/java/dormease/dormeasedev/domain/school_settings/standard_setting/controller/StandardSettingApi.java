@@ -57,7 +57,6 @@ public interface StandardSettingApi {
             @Parameter(description = "기준 설정 id를 입력해주세요.", required = true) @PathVariable(value = "standardSettingId") Long standardSettingId
     );
 
-    @Hidden
     @Operation(summary = "기준 설정 수정 API", description = "기준 설정을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(
