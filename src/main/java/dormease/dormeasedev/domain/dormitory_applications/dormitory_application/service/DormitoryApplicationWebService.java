@@ -40,10 +40,10 @@ public class DormitoryApplicationWebService {
     public List<DormitoryApplicationWebRes> findDormitoryApplications(UserDetailsImpl userDetailsImpl) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
-        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findTopBySchoolAndApplicationStatusOrderByStartDateDesc(school, ApplicationStatus.BEFORE)
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findTopBySchoolOrderByStartDateDesc(school)
                 .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
 
-        List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllByDormitoryApplicationSetting(dormitoryApplicationSetting);
+        List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDormitoryApplicationResult(dormitoryApplicationSetting, DormitoryApplicationResult.WAIT);
         List<DormitoryApplicationWebRes> dormitoryApplicationWebResList = new ArrayList<>();
         for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
             Student student = dormitoryApplication.getStudent();
@@ -58,18 +58,45 @@ public class DormitoryApplicationWebService {
                     .roomSize(applicationRoomType.getRoomSize())
                     .build();
 
-            DormitoryApplicationWebRes.DormitoryRoomTypeRes resultDormitoryRoomTypeRes;
-            DormitoryApplicationResult dormitoryApplicationResult = dormitoryApplication.getDormitoryApplicationResult();
-            if (dormitoryApplicationResult.equals(DormitoryApplicationResult.WAIT))
-                resultDormitoryRoomTypeRes = null;
+            DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
+                    .dormitoryApplicationId(dormitoryApplication.getId())
+                    .studentName(user.getName())
+                    .studentNumber(student.getStudentNumber())
+                    .gender(student.getGender())
+                    .applicationDormitoryRoomTypeRes(applicationDormitoryRoomTypeRes)
+                    .address(student.getAddress())
+                    .copy(dormitoryApplication.getCopy())
+                    .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy())
+                    .dormitoryApplicationResult(DormitoryApplicationResult.WAIT)
+                    .build();
 
-            DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
-            DormitoryRoomType resultDormitoryRoomType = resultDormitoryTerm.getDormitoryRoomType();
-            Dormitory resultDormitory = resultDormitoryRoomType.getDormitory();
-            RoomType resultRoomType = resultDormitoryRoomType.getRoomType();
-            resultDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
-                    .dormitoryName(resultDormitory.getName())
-                    .roomSize(resultRoomType.getRoomSize())
+            dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);
+        }
+
+        return dormitoryApplicationWebResList;
+    }
+
+    public List<DormitoryApplicationWebRes> searchDormitoryApplications(UserDetailsImpl userDetailsImpl, String searchWord) {
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findTopBySchoolOrderByStartDateDesc(school)
+                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
+
+        List<DormitoryApplication> dormitoryApplicationList =
+                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDormitoryApplicationResultAndStudent_StudentNumberContainingOrStudent_Student_User_NameContaining(dormitoryApplicationSetting, DormitoryApplicationResult.WAIT, searchWord, searchWord);
+
+        List<DormitoryApplicationWebRes> dormitoryApplicationWebResList = new ArrayList<>();
+        for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
+            Student student = dormitoryApplication.getStudent();
+            User user = student.getUser();
+
+            DormitoryTerm applicationDormitoryTerm = dormitoryApplication.getApplicationDormitoryTerm();
+            DormitoryRoomType applicationDormitoryRoomType = applicationDormitoryTerm.getDormitoryRoomType();
+            Dormitory applicationDormitory = applicationDormitoryRoomType.getDormitory();
+            RoomType applicationRoomType = applicationDormitoryRoomType.getRoomType();
+            DormitoryApplicationWebRes.DormitoryRoomTypeRes applicationDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
+                    .dormitoryName(applicationDormitory.getName())
+                    .roomSize(applicationRoomType.getRoomSize())
                     .build();
 
             DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
@@ -81,8 +108,7 @@ public class DormitoryApplicationWebService {
                     .address(student.getAddress())
                     .copy(dormitoryApplication.getCopy())
                     .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy())
-                    .resultDormitoryRoomTypeRes(resultDormitoryRoomTypeRes)
-                    .dormitoryApplicationResult(dormitoryApplication.getDormitoryApplicationResult())
+                    .dormitoryApplicationResult(DormitoryApplicationResult.WAIT)
                     .build();
 
             dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);

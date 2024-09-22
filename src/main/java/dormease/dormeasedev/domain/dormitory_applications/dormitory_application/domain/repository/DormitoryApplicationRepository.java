@@ -21,13 +21,12 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
 
     List<DormitoryApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
 
-//    @Query("SELECT da FROM DormitoryApplication da WHERE da.user = :user AND da.dormitoryApplicationResult = :results ORDER BY da.createdDate DESC")
-//    Optional<DormitoryApplication> findTop1ByUserAndResultsOrderByCreatedDateDesc(User user, DormitoryApplicationResult results);
-
-//    Optional<DormitoryApplication> findByDormitoryAndApplicationStatus(Dormitory sameNameAndSameGenderDormitory, ApplicationStatus applicationStatus);
-
-//    DormitoryApplication findByUserAndApplicationStatusAndDormitoryApplicationResult(User user, ApplicationStatus applicationStatus, DormitoryApplicationResult dormitoryApplicationResult);
     DormitoryApplication findByStudentAndApplicationStatusAndDormitoryApplicationResult(Student student, ApplicationStatus applicationStatus, DormitoryApplicationResult dormitoryApplicationResult);
+    List<DormitoryApplication> findAllByDormitoryApplicationSettingAndDormitoryApplicationResultAndStudent_StudentNumberContainingOrStudent_Student_User_NameContaining(DormitoryApplicationSetting dormitoryApplicationSetting, DormitoryApplicationResult dormitoryApplicationResult, String searchWord, String searchWord1);
 
-    List<DormitoryApplication> findAllByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting);
+    List<DormitoryApplication> findAllByDormitoryApplicationSettingAndDormitoryApplicationResult(DormitoryApplicationSetting dormitoryApplicationSetting, DormitoryApplicationResult dormitoryApplicationResult);
+
+
+
+
 }
