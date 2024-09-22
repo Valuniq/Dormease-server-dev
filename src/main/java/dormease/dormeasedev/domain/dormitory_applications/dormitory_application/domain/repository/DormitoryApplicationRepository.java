@@ -26,4 +26,6 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
     List<DormitoryApplication> findAllByDormitoryApplicationSettingAndStudent_StudentNumberContainingOrStudent_User_NameContaining(DormitoryApplicationSetting dormitoryApplicationSetting, String searchWord, String searchWord1);
 
     List<DormitoryApplication> findAllByDormitoryApplicationSetting(DormitoryApplicationSetting dormitoryApplicationSetting);
+
+    List<DormitoryApplication> findAllByDormitoryApplicationSettingAndDepositPaid(DormitoryApplicationSetting dormitoryApplicationSetting, boolean depositPaid);
 }

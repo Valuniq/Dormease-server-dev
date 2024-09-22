@@ -79,6 +79,9 @@ public class DormitoryApplication extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ApplicationStatus applicationStatus;
 
+    // 입금 여부
+    private boolean depoistPaid;
+
     public void updateDormitoryApplicationResult(DormitoryApplicationResult dormitoryApplicationResult) {
         this.dormitoryApplicationResult = dormitoryApplicationResult;
     }
@@ -122,5 +125,6 @@ public class DormitoryApplication extends BaseEntity {
         this.dormitoryApplicationResult = dormitoryApplicationResult;
         this.totalPrice = totalPrice;
         this.applicationStatus = applicationStatus;
+        this.depoistPaid = false;
     }
 }
