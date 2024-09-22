@@ -11,6 +11,7 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.request.CreateDormitoryApplicationSettingReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.DormitoryApplicationSettingSimpleRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.DormitoryRoomTypeRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingHistoryRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingRes;
@@ -295,6 +296,30 @@ public class DormitoryApplicationSettingService {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(dormitoryRoomTypeResList)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // Description : 이전 입사 신청 설정 목록 (신청자 명단 프로세스)
+    public ResponseEntity<?> findDormitoryApplicationSettings(UserDetailsImpl userDetailsImpl) {
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
+
+        List<DormitoryApplicationSetting> dormitoryApplicationSettingList = dormitoryApplicationSettingRepository.findAllBySchoolAndApplicationStatus(school, ApplicationStatus.BEFORE);
+        List<DormitoryApplicationSettingSimpleRes> dormitoryApplicationSettingSimpleResList = new ArrayList<>();
+        for (DormitoryApplicationSetting dormitoryApplicationSetting : dormitoryApplicationSettingList) {
+            DormitoryApplicationSettingSimpleRes dormitoryApplicationSettingSimpleRes = DormitoryApplicationSettingSimpleRes.builder()
+                    .dormitoryApplicationSettingId(dormitoryApplicationSetting.getId())
+                    .title(dormitoryApplicationSetting.getTitle())
+                    .createdDate(dormitoryApplicationSetting.getCreatedDate().toLocalDate())
+                    .build();
+            dormitoryApplicationSettingSimpleResList.add(dormitoryApplicationSettingSimpleRes);
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryApplicationSettingSimpleResList)
                 .build();
 
         return ResponseEntity.ok(apiResponse);
