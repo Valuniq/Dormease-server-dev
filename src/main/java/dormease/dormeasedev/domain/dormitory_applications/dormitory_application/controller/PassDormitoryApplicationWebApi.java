@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "[WEB] Pass Dormitory Application Web API", description = "WEB에서 사용할 합격자 명단 프로세스 API입니다.")
 public interface PassDormitoryApplicationWebApi {
@@ -32,5 +34,23 @@ public interface PassDormitoryApplicationWebApi {
     @GetMapping
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findPassDormitoryApplications(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    );
+
+    @Operation(summary = "합격자 목록 검색 API", description = "합격자 목록을 검색합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "합격자 목록 검색 성공",
+                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PassDormitoryApplicationRes.class)))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "합격자 목록 검색 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
+            )
+    })
+    @GetMapping("/search/{dormitoryApplicationSettingId}")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> searchPassDormitoryApplications(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+            @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam(value = "searchWord") String searchWord
     );
 }

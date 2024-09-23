@@ -6,9 +6,7 @@ import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,6 +21,20 @@ public class PassDormitoryApplicationWebController implements PassDormitoryAppli
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(passDormitoryApplicationWebService.findPassDormitoryApplications(userDetailsImpl))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @Override
+    @GetMapping("/search/{dormitoryApplicationSettingId}")
+    public ResponseEntity<ApiResponse> searchPassDormitoryApplications(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+            @RequestParam(value = "searchWord") String searchWord
+    ) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(passDormitoryApplicationWebService.searchPassDormitoryApplications(userDetailsImpl, dormitoryApplicationSettingId, searchWord))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
