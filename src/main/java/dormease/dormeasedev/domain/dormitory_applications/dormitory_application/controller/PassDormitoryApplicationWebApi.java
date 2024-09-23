@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.controller;
 
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationDormitoryRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.PassDormitoryApplicationRes;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
@@ -20,14 +21,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Tag(name = "[WEB] Pass Dormitory Application Web API", description = "WEB에서 사용할 합격자 명단 프로세스 API입니다.")
 public interface PassDormitoryApplicationWebApi {
 
-    @Operation(summary = "합격자 목록 조회 API", description = "합격자 목록을 조회합니다.")
+    @Operation(summary = "전체 합격자 목록 조회 API", description = "전체 합격자 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200", description = "합격자 목록 조회 성공",
+                    responseCode = "200", description = "전체 합격자 목록 조회 성공",
                     content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PassDormitoryApplicationRes.class)))}
             ),
             @ApiResponse(
-                    responseCode = "400", description = "합격자 목록 조회 실패",
+                    responseCode = "400", description = "전체 합격자 목록 조회 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
@@ -36,14 +37,14 @@ public interface PassDormitoryApplicationWebApi {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     );
 
-    @Operation(summary = "합격자 목록 검색 API", description = "합격자 목록을 검색합니다.")
+    @Operation(summary = "전체 합격자 목록 검색 API", description = "전체 합격자 목록을 검색합니다.")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200", description = "합격자 목록 검색 성공",
+                    responseCode = "200", description = "전체 합격자 목록 검색 성공",
                     content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PassDormitoryApplicationRes.class)))}
             ),
             @ApiResponse(
-                    responseCode = "400", description = "합격자 목록 검색 실패",
+                    responseCode = "400", description = "전체 합격자 목록 검색 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
@@ -52,5 +53,22 @@ public interface PassDormitoryApplicationWebApi {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam(value = "searchWord") String searchWord
+    );
+
+    @Operation(summary = "입사 신청 설정의 기숙사 목록 조회 API", description = "입사 신청 설정의 기숙사 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "입사 신청 설정의 기숙사 목록 조회 성공",
+                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryApplicationDormitoryRes.class)))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "입사 신청 설정의 기숙사 목록 조회 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
+            )
+    })
+    @GetMapping("/dormitories/{dormitoryApplicationSettingId}")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findDormitoriesByDormitoryApplicationSetting(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId
     );
 }
