@@ -17,6 +17,7 @@ public class CalendarReq {
     private LocalDate startDate;
 
     @Schema(type = "LocalDate", example = "2024-07-10", description= "일정의 종료일자입니다.")
+    @NotNull
     private LocalDate endDate;
 
     @Schema(type = "String", example = "수강신청", description= "일정의 제목입니다.")
@@ -25,7 +26,7 @@ public class CalendarReq {
     private String title;
 
     @Schema(type = "String", example = "9일: 인문대학, 10일: ICT융합대학/경영대학, 11일: 법과대학/사회과학대학", description= "일정의 내용입니다.")
-    @Size(max = 2000, message = "내용은 최대 2000자까지 가능합니다.")
+    @Size(max = 200, message = "내용은 최대 200자까지 가능합니다.")
     private String content;
 
     @Schema(type = "String", example = "GREY", description= "일정의 색깔입니다. GREY, RED, GREEN, YELLOW, BLUE만 입력 가능합니다.")
