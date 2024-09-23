@@ -3,17 +3,16 @@ package dormease.dormeasedev.domain.school_settings.calendar.service;
 import dormease.dormeasedev.domain.school_settings.calendar.domain.Calendar;
 import dormease.dormeasedev.domain.school_settings.calendar.domain.Color;
 import dormease.dormeasedev.domain.school_settings.calendar.domain.repository.CalendarRepository;
-import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CalendarReq;
+import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CreateCalendarReq;
+import dormease.dormeasedev.domain.school_settings.calendar.dto.request.UpdateCalendarReq;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarDetailRes;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarRes;
+import dormease.dormeasedev.domain.school_settings.calendar.mapper.CalendarMapper;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
-import dormease.dormeasedev.global.common.ApiResponse;
-import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,21 +26,22 @@ import java.util.Optional;
 public class CalendarService {
 
     private final CalendarRepository calendarRepository;
+    private final CalendarMapper calendarMapper;
     private final UserService userService;
 
     // 일정 등록
     // 컬러는 디폴트 값 회색
     @Transactional
-    public Long registerCalendar(UserDetailsImpl userDetailsImpl, CalendarReq calendarReq) {
+    public Long registerCalendar(UserDetailsImpl userDetailsImpl, CreateCalendarReq createCalendarReq) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
-        Color color = selectDefaultColor(calendarReq);
+        Color color = selectDefaultColor(createCalendarReq);
 
         Calendar calendar = Calendar.builder()
                 .school(admin.getSchool())
-                .startDate(calendarReq.getStartDate())
-                .endDate(calendarReq.getEndDate())
-                .title(calendarReq.getTitle())
-                .content(calendarReq.getContent())
+                .startDate(createCalendarReq.getStartDate())
+                .endDate(createCalendarReq.getEndDate())
+                .title(createCalendarReq.getTitle())
+                .content(createCalendarReq.getContent())
                 .color(color)
                 .build();
         calendarRepository.save(calendar);
@@ -83,26 +83,16 @@ public class CalendarService {
 
     // 일정 수정
     @Transactional
-    public void updateCalendar(UserDetailsImpl userDetailsImpl, Long calendarId, CalendarReq calendarReq) {
+    public void updateCalendar(UserDetailsImpl userDetailsImpl, Long calendarId, UpdateCalendarReq updateCalendarReq) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
-        Color color = selectDefaultColor(calendarReq);
-        LocalDate endDate = selectDefaultEndDate(calendarReq);
-
-        calendar.updateCalendar(calendarReq.getStartDate(), endDate, calendarReq.getTitle(), calendarReq.getContent(), color);
+        calendarMapper.updateCalender(updateCalendarReq, calendar);
     }
 
-    private Color selectDefaultColor(CalendarReq calendarReq) {
-        return calendarReq.getColor() == null ? Color.GREY : calendarReq.getColor();
-    }
-
-    private LocalDate selectDefaultEndDate(CalendarReq calendarReq) {
-        LocalDate endDate = calendarReq.getEndDate() == null ? calendarReq.getStartDate() : calendarReq.getEndDate();
-        DefaultAssert.isTrue(calendarReq.getStartDate().isBefore(endDate) || calendarReq.getStartDate().isEqual(endDate), "시작일자는 종료일자와 같거나 먼저여야 합니다.");
-
-        return endDate;
+    private Color selectDefaultColor(CreateCalendarReq createCalendarReq) {
+        return createCalendarReq.getColor() == null ? Color.GREY : createCalendarReq.getColor();
     }
 
     // 일정 삭제

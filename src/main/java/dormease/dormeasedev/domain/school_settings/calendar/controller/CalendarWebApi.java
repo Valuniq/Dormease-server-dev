@@ -1,9 +1,9 @@
 package dormease.dormeasedev.domain.school_settings.calendar.controller;
 
-import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CalendarReq;
+import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CreateCalendarReq;
+import dormease.dormeasedev.domain.school_settings.calendar.dto.request.UpdateCalendarReq;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarDetailRes;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarRes;
-import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,7 +35,7 @@ public interface CalendarWebApi {
     @PostMapping("")
     ResponseEntity<?> registerCalendar(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "Schemas의 CalendarReq를 참고해주세요. 일정 등록 시 필요한 Request입니다.", required = true) @Valid @RequestBody CalendarReq calendarReq
+            @Parameter(description = "Schemas의 CalendarReq를 참고해주세요. 일정 등록 시 필요한 Request입니다.", required = true) @Valid @RequestBody CreateCalendarReq createCalendarReq
     );
 
     @Operation(summary = "일정 조회", description = "일정을 년도(Year)와 월(Month)로 조회합니다.")
@@ -82,7 +82,7 @@ public interface CalendarWebApi {
     ResponseEntity<?> updateCalendarDetail(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId,
-            @Parameter(description = "Schemas의 CalendarReq를 참고해주세요. 일정 수정 시 필요한 Request입니다.", required = true) @RequestBody CalendarReq calendarReq
+            @Parameter(description = "Schemas의 CalendarReq를 참고해주세요. 일정 수정 시 필요한 Request입니다.", required = true) @Valid @RequestBody UpdateCalendarReq updateCalendarReq
     );
 
     @Operation(summary = "일정 삭제", description = "일정을 삭제합니다.")

@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.school_settings.calendar.controller;
 
-import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CalendarReq;
+import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CreateCalendarReq;
+import dormease.dormeasedev.domain.school_settings.calendar.dto.request.UpdateCalendarReq;
 import dormease.dormeasedev.domain.school_settings.calendar.service.CalendarService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
@@ -24,9 +25,9 @@ public class CalendarWebController implements CalendarWebApi {
     @PostMapping("")
     public ResponseEntity<?> registerCalendar(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Valid @RequestBody CalendarReq calendarReq
+            @Valid @RequestBody CreateCalendarReq createCalendarReq
     ) {
-        Long calendarId = calendarService.registerCalendar(userDetailsImpl, calendarReq);
+        Long calendarId = calendarService.registerCalendar(userDetailsImpl, createCalendarReq);
         return ResponseEntity.created(URI.create("/api/v1/web/calendar/" + calendarId)).build();
     }
 
@@ -62,9 +63,9 @@ public class CalendarWebController implements CalendarWebApi {
     public ResponseEntity<?> updateCalendarDetail(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long calendarId,
-            @RequestBody CalendarReq calendarReq
+            @Valid @RequestBody UpdateCalendarReq updateCalendarReq
     ) {
-        calendarService.updateCalendar(userDetailsImpl, calendarId, calendarReq);
+        calendarService.updateCalendar(userDetailsImpl, calendarId, updateCalendarReq);
         return ResponseEntity.noContent().build();
     }
 
