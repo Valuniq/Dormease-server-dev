@@ -118,4 +118,18 @@ public interface CalendarWebApi {
             @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId
     );
 
+    @Operation(summary = "[메인페이지] 오늘의 일정 조회", description = "오늘의 일정을 목록으로 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TodayCalendarRes.class))}),
+            @ApiResponse(
+                    responseCode = "400", description = "조회 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @GetMapping("/today")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getTodayCalendars(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    );
+
 }

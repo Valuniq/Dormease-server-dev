@@ -61,6 +61,19 @@ public class CalendarWebController implements CalendarWebApi {
     }
 
     @Override
+    @GetMapping("/today")
+    public ResponseEntity<ApiResponse> getTodayCalendars(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    ) {
+        LocalDate today = LocalDate.now();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(calendarService.getCalendarsBySchoolAndDate(userDetailsImpl, today))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @Override
     @GetMapping("/{calendarId}")
     public ResponseEntity<ApiResponse> getCalendarDetail(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
