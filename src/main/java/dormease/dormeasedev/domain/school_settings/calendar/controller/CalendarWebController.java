@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDate;
 
 @RequiredArgsConstructor
 @RestController
@@ -42,6 +43,19 @@ public class CalendarWebController implements CalendarWebApi {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(calendarService.getCalendarsBySchoolAndYearAndMonth(userDetailsImpl, year, month))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @Override
+    @GetMapping("/date/{date}")
+    public ResponseEntity<ApiResponse> getCalendarsByDate(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable LocalDate date
+    ) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(calendarService.getCalendarsBySchoolAndDate(userDetailsImpl, date))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

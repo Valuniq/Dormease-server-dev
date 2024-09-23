@@ -7,6 +7,7 @@ import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CreateCa
 import dormease.dormeasedev.domain.school_settings.calendar.dto.request.UpdateCalendarReq;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarDetailRes;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarRes;
+import dormease.dormeasedev.domain.school_settings.calendar.dto.response.TodayCalendarRes;
 import dormease.dormeasedev.domain.school_settings.calendar.mapper.CalendarMapper;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +65,20 @@ public class CalendarService {
                         .color(calendar.getColor())
                         .build()).
                 toList();
+    }
+
+    // 일별 일정 목록 조회
+    public List<TodayCalendarRes> getCalendarsBySchoolAndDate(UserDetailsImpl userDetailsImpl, LocalDate date) {
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        List<Calendar> calendars = calendarRepository.findCalendarsByDate(admin.getSchool(), date);
+
+        return calendars.stream()
+                .map(calendar -> TodayCalendarRes.builder()
+                        .calendarId(calendar.getId())
+                        .title(calendar.getTitle())
+                        .color(calendar.getColor())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     // 일정 상세 조회

@@ -4,6 +4,7 @@ import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CreateCa
 import dormease.dormeasedev.domain.school_settings.calendar.dto.request.UpdateCalendarReq;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarDetailRes;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarRes;
+import dormease.dormeasedev.domain.school_settings.calendar.dto.response.TodayCalendarRes;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,8 @@ import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @Tag(name = "Calendar API", description = "일정 관련 API입니다.")
 public interface CalendarWebApi {
@@ -38,7 +41,7 @@ public interface CalendarWebApi {
             @Parameter(description = "Schemas의 CalendarReq를 참고해주세요. 일정 등록 시 필요한 Request입니다.", required = true) @Valid @RequestBody CreateCalendarReq createCalendarReq
     );
 
-    @Operation(summary = "일정 조회", description = "일정을 년도(Year)와 월(Month)로 조회합니다.")
+    @Operation(summary = "연도, 월별 일정 목록 조회", description = "일정을 년도(Year)와 월(Month)로 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "조회 성공",
@@ -52,6 +55,21 @@ public interface CalendarWebApi {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "조회하고자 하는 일정의 년도입니다.", required = true) @Positive @RequestParam int year,
             @Parameter(description = "조회하고자 하는 일정의 월입니다.", required = true) @Positive @RequestParam int month
+    );
+
+    @Operation(summary = "일별 일정 목록 조회", description = "일정을 일별로 목록 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TodayCalendarRes.class))}),
+            @ApiResponse(
+                    responseCode = "400", description = "조회 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @GetMapping("/{date}")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getCalendarsByDate(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "조회하고자 하는 일정의 날짜입니다.", required = true) @PathVariable LocalDate date
     );
 
     @Operation(summary = "일정 상세 조회", description = "일정을 상세 조회합니다.")
