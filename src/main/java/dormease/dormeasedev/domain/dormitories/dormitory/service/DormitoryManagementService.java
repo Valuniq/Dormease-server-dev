@@ -18,12 +18,9 @@ import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
-import dormease.dormeasedev.global.common.ApiResponse;
-import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.exception.DefaultAssert;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -193,7 +190,7 @@ public class DormitoryManagementService {
                             .studentNumber(student != null ? student.getStudentNumber() : null)
                             .name(resident.getName())
                             .phoneNumber(student != null ? student.getPhoneNumber() : null)
-                            .isAssigned(checkResidentAssignedToRoom(resident)) // 호실 거주 여부 / 무조건 false여야 함
+                            .isAssigned(resident.getRoom() != null) // 호실 거주 여부 / 무조건 false여야 함
                             .build();}
                 )
                 .collect(Collectors.toList());
@@ -208,26 +205,18 @@ public class DormitoryManagementService {
         List<NotOrAssignedResidentRes> assignedResidentRes = assignedResidents.stream()
                 .map(resident -> {
                     Student student = resident.getStudent();
-                    User user = student.getUser();
                     return NotOrAssignedResidentRes.builder()
                             .id(resident.getId())
-                            .name(user.getName())
-                            .studentNumber(student.getStudentNumber())
-                            .phoneNumber(student.getPhoneNumber())
-                            .isAssigned(checkResidentAssignedToRoom(resident))
+                            .name(resident.getName())
+                            .studentNumber(student != null ? student.getStudentNumber() : null)
+                            .phoneNumber(student != null ? student.getPhoneNumber() : null)
+                            .isAssigned(resident.getRoom() != null)
                             .build();
                 })
                 .collect(Collectors.toList());
 
         return assignedResidentRes;
     }
-
-    // 사생의 방 배정 여부 체크 메소드
-    private boolean checkResidentAssignedToRoom(Resident resident) {
-        Room findRoom = resident.getRoom();
-        return findRoom != null;
-    }
-
 
     // 수기 방배정
     @Transactional
