@@ -61,12 +61,12 @@ public interface CalendarWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "조회 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TodayCalendarRes.class))}),
+                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = TodayCalendarRes.class)))}),
             @ApiResponse(
                     responseCode = "400", description = "조회 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
-    @GetMapping("/{date}")
+    @GetMapping("/date/{date}")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getCalendarsByDate(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "조회하고자 하는 일정의 날짜입니다.", required = true) @PathVariable LocalDate date
@@ -122,7 +122,7 @@ public interface CalendarWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "조회 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TodayCalendarRes.class))}),
+                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = TodayCalendarRes.class)))}),
             @ApiResponse(
                     responseCode = "400", description = "조회 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
