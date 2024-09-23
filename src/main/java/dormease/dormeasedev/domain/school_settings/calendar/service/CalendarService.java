@@ -30,29 +30,22 @@ public class CalendarService {
     private final UserService userService;
 
     // 일정 등록
-    // 종료일자 없으면 시작일자를 종료일자로 등록
     // 컬러는 디폴트 값 회색
     @Transactional
-    public ResponseEntity<?> registerCalendar(UserDetailsImpl userDetailsImpl, CalendarReq calendarReq) {
+    public Long registerCalendar(UserDetailsImpl userDetailsImpl, CalendarReq calendarReq) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Color color = selectDefaultColor(calendarReq);
-        LocalDate endDate = selectDefaultEndDate(calendarReq);
+
         Calendar calendar = Calendar.builder()
                 .school(admin.getSchool())
                 .startDate(calendarReq.getStartDate())
-                .endDate(endDate)
+                .endDate(calendarReq.getEndDate())
                 .title(calendarReq.getTitle())
                 .content(calendarReq.getContent())
                 .color(color)
                 .build();
         calendarRepository.save(calendar);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("일정이 등록되었습니다.").build())
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
+        return calendar.getId();
     }
 
     // 일정 조회(년도 및 월별)

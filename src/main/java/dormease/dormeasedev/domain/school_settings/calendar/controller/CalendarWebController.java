@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/web/calendar")
@@ -23,7 +25,8 @@ public class CalendarWebController implements CalendarWebApi {
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Valid @RequestBody CalendarReq calendarReq
     ) {
-        return calendarService.registerCalendar(userDetailsImpl, calendarReq);
+        Long calendarId = calendarService.registerCalendar(userDetailsImpl, calendarReq);
+        return ResponseEntity.created(URI.create("/api/v1/web/calendar/" + calendarId)).build();
     }
 
     @Override
