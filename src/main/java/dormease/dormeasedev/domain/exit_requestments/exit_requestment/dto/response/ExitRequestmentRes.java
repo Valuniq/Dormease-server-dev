@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.SecurityDepositReturnStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -55,6 +56,7 @@ public class ExitRequestmentRes {
     private String keyNumber;
 
     @Schema(type = "String", example = "2024-05-02", description = "퇴실 날짜")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate exitDate;
 
     @Schema(type = "String", example = "신한은행", description = "은행명")

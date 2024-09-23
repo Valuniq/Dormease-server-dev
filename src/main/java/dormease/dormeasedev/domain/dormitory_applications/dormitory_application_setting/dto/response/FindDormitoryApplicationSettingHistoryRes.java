@@ -19,11 +19,11 @@ public class FindDormitoryApplicationSettingHistoryRes {
     @Schema(type = "String", example = "2024-1학기 명지대학교 자연 생활관 재학생 2차 입사 신청", description= "입사 신청 설정의 제목입니다.")
     private String title;
 
-    @Schema(type = "StartDate", example = "2023-12-25", description = "시작일")
+    @Schema(type = "local date", example = "2023-12-25", description = "시작일")
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate startDate;
 
-    @Schema(type = "endDate", example = "2024-01-25", description = "마감일")
+    @Schema(type = "local date", example = "2024-01-25", description = "마감일")
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate endDate;
 

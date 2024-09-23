@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.school_settings.calendar.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dormease.dormeasedev.domain.school_settings.calendar.domain.Color;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -16,9 +17,11 @@ public class CalendarDetailRes {
     private Long calendarId;
 
     @Schema(type = "LocalDate", example = "2024-07-10", description= "일정의 시작일자입니다.")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate startDate;
 
     @Schema(type = "LocalDate", example = "2024-07-10", description= "일정의 종료일자입니다.")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate endDate;
 
     @Schema(type = "String", example = "수강신청", description= "일정의 제목입니다.")

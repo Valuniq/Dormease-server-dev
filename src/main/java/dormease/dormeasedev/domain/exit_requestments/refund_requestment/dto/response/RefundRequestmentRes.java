@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.exit_requestments.refund_requestment.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -36,10 +37,12 @@ public class RefundRequestmentRes {
 
     // 퇴실 날짜
     @Schema(type = "LocalDate", example = "2024-05-02", description = "퇴실 날짜")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate exitDate;
 
     // 신청 날짜
     @Schema(type = "LocalDate", example = "2024-05-01", description = "신청 날짜")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate createDate;
 
     @Schema(type = "String", example = "명덕관", description = "건물 (건물명)")
