@@ -49,12 +49,12 @@ public class CalendarService {
     }
 
     // 일정 조회(년도 및 월별)
-    public ResponseEntity<?> getCalendarsBySchoolAndYearAndMonth(UserDetailsImpl userDetailsImpl, int year, int month) {
+    public List<CalendarRes> getCalendarsBySchoolAndYearAndMonth(UserDetailsImpl userDetailsImpl, int year, int month) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         // 시작일로 정렬
         List<Calendar> calendars = calendarRepository.findBySchoolAndYearAndMonth(admin.getSchool(), year, month);
 
-        List<CalendarRes> calendarResList = calendars.stream()
+        return calendars.stream()
                 .map(calendar -> CalendarRes.builder()
                         .calendarId(calendar.getId())
                         .startDate(calendar.getStartDate())
@@ -63,21 +63,15 @@ public class CalendarService {
                         .color(calendar.getColor())
                         .build()).
                 toList();
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(calendarResList)
-                .build();
-        return ResponseEntity.ok(apiResponse);
     }
 
     // 일정 상세 조회
-    public ResponseEntity<?> getCalendarDetail(UserDetailsImpl userDetailsImpl, Long calendarId) {
+    public CalendarDetailRes getCalendarDetail(UserDetailsImpl userDetailsImpl, Long calendarId) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
-        CalendarDetailRes calendarDetailRes = CalendarDetailRes.builder()
+        return CalendarDetailRes.builder()
                 .calendarId(calendarId)
                 .startDate(calendar.getStartDate())
                 .endDate(calendar.getEndDate())
@@ -85,17 +79,11 @@ public class CalendarService {
                 .content(calendar.getContent())
                 .color(calendar.getColor())
                 .build();
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(calendarDetailRes)
-                .build();
-        return ResponseEntity.ok(apiResponse);
     }
 
     // 일정 수정
     @Transactional
-    public ResponseEntity<?> updateCalendar(UserDetailsImpl userDetailsImpl, Long calendarId, CalendarReq calendarReq) {
+    public void updateCalendar(UserDetailsImpl userDetailsImpl, Long calendarId, CalendarReq calendarReq) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
@@ -104,13 +92,6 @@ public class CalendarService {
         LocalDate endDate = selectDefaultEndDate(calendarReq);
 
         calendar.updateCalendar(calendarReq.getStartDate(), endDate, calendarReq.getTitle(), calendarReq.getContent(), color);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("일정이 등록되었습니다.").build())
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
     }
 
     private Color selectDefaultColor(CalendarReq calendarReq) {
@@ -126,19 +107,12 @@ public class CalendarService {
 
     // 일정 삭제
     @Transactional
-    public ResponseEntity<?> deleteCalendar(UserDetailsImpl userDetailsImpl, Long calendarId) {
+    public void deleteCalendar(UserDetailsImpl userDetailsImpl, Long calendarId) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
         calendarRepository.delete(calendar);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("일정이 삭제되었습니다.").build())
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
     }
 
     public Calendar validCalendarById(Long calendarId) {

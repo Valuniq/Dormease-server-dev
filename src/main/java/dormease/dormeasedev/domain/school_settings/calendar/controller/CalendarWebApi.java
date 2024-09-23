@@ -27,7 +27,7 @@ public interface CalendarWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201", description = "등록 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
             @ApiResponse(
                     responseCode = "400", description = "등록 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
@@ -48,7 +48,7 @@ public interface CalendarWebApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("")
-    ResponseEntity<?> getCalendarsByYearAndMonth(
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getCalendarsByYearAndMonth(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "조회하고자 하는 일정의 년도입니다.", required = true) @Positive @RequestParam int year,
             @Parameter(description = "조회하고자 하는 일정의 월입니다.", required = true) @Positive @RequestParam int month
@@ -64,7 +64,7 @@ public interface CalendarWebApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @GetMapping("/{calendarId}")
-    ResponseEntity<?> getCalendarDetail(
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getCalendarDetail(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId
     );
@@ -78,7 +78,7 @@ public interface CalendarWebApi {
                     responseCode = "400", description = "수정 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
-    @PutMapping("/{calendarId}")
+    @PatchMapping("/{calendarId}")
     ResponseEntity<?> updateCalendarDetail(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId,
@@ -88,8 +88,8 @@ public interface CalendarWebApi {
     @Operation(summary = "일정 삭제", description = "일정을 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "204", description = "삭제 성공", content = {@Content(mediaType = "application/json",
-                    schema = @Schema(implementation = Message.class))}),
+                    responseCode = "204", description = "삭제 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
             @ApiResponse(
                     responseCode = "400", description = "삭제 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),

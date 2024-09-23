@@ -2,6 +2,7 @@ package dormease.dormeasedev.domain.school_settings.calendar.controller;
 
 import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CalendarReq;
 import dormease.dormeasedev.domain.school_settings.calendar.service.CalendarService;
+import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -31,31 +32,40 @@ public class CalendarWebController implements CalendarWebApi {
 
     @Override
     @GetMapping("")
-    public ResponseEntity<?> getCalendarsByYearAndMonth(
+    public ResponseEntity<ApiResponse> getCalendarsByYearAndMonth(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Positive @RequestParam int year,
             @Positive @RequestParam int month
     ) {
-        return calendarService.getCalendarsBySchoolAndYearAndMonth(userDetailsImpl, year, month);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(calendarService.getCalendarsBySchoolAndYearAndMonth(userDetailsImpl, year, month))
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     @Override
     @GetMapping("/{calendarId}")
-    public ResponseEntity<?> getCalendarDetail(
+    public ResponseEntity<ApiResponse> getCalendarDetail(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long calendarId
     ) {
-        return calendarService.getCalendarDetail(userDetailsImpl, calendarId);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(calendarService.getCalendarDetail(userDetailsImpl, calendarId))
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     @Override
-    @PutMapping("/{calendarId}")
+    @PatchMapping("/{calendarId}")
     public ResponseEntity<?> updateCalendarDetail(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long calendarId,
             @RequestBody CalendarReq calendarReq
     ) {
-        return calendarService.updateCalendar(userDetailsImpl, calendarId, calendarReq);
+        calendarService.updateCalendar(userDetailsImpl, calendarId, calendarReq);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -64,6 +74,7 @@ public class CalendarWebController implements CalendarWebApi {
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long calendarId
     ) {
-        return calendarService.deleteCalendar(userDetailsImpl, calendarId);
+        calendarService.deleteCalendar(userDetailsImpl, calendarId);
+        return ResponseEntity.noContent().build();
     }
 }
