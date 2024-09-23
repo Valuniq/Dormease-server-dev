@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.school_settings.calendar.controller;
 
+import dormease.dormeasedev.domain.school_settings.calendar.domain.Calendar;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.request.CreateCalendarReq;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.request.UpdateCalendarReq;
 import dormease.dormeasedev.domain.school_settings.calendar.service.CalendarService;
@@ -27,8 +28,8 @@ public class CalendarWebController implements CalendarWebApi {
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Valid @RequestBody CreateCalendarReq createCalendarReq
     ) {
-        Long calendarId = calendarService.registerCalendar(userDetailsImpl, createCalendarReq);
-        return ResponseEntity.created(URI.create("/api/v1/web/calendar/" + calendarId)).build();
+        Calendar calendar = calendarService.registerCalendar(userDetailsImpl, createCalendarReq);
+        return ResponseEntity.created(URI.create("/api/v1/web/calendar/" + calendar.getId())).build();
     }
 
     @Override

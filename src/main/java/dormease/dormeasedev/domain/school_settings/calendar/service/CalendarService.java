@@ -32,9 +32,9 @@ public class CalendarService {
     // 일정 등록
     // 컬러는 디폴트 값 회색
     @Transactional
-    public Long registerCalendar(UserDetailsImpl userDetailsImpl, CreateCalendarReq createCalendarReq) {
+    public Calendar registerCalendar(UserDetailsImpl userDetailsImpl, CreateCalendarReq createCalendarReq) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
-        Color color = selectDefaultColor(createCalendarReq);
+        Color color = createCalendarReq.getColor() == null ? Color.GREY : createCalendarReq.getColor();
 
         Calendar calendar = Calendar.builder()
                 .school(admin.getSchool())
@@ -45,7 +45,7 @@ public class CalendarService {
                 .color(color)
                 .build();
         calendarRepository.save(calendar);
-        return calendar.getId();
+        return calendar;
     }
 
     // 일정 조회(년도 및 월별)
@@ -89,10 +89,6 @@ public class CalendarService {
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
         calendarMapper.updateCalender(updateCalendarReq, calendar);
-    }
-
-    private Color selectDefaultColor(CreateCalendarReq createCalendarReq) {
-        return createCalendarReq.getColor() == null ? Color.GREY : createCalendarReq.getColor();
     }
 
     // 일정 삭제
