@@ -132,7 +132,7 @@ public class PassDormitoryApplicationWebService {
             throw new InvalidSchoolAuthorityException();
 
         List<DormitoryApplication> dormitoryApplicationList =
-                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDepositPaidAndDormitoryTerm_DormitoryRoomType_Dormitory_id(dormitoryApplicationSetting, true, dormitoryId);
+                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDepositPaidAndResultDormitoryTerm_DormitoryRoomType_Dormitory_id(dormitoryApplicationSetting, true, dormitoryId);
 
         List<PassDormitoryApplicationRes> passDormitoryApplicationResList = new ArrayList<>();
         for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
@@ -161,7 +161,7 @@ public class PassDormitoryApplicationWebService {
             throw new InvalidSchoolAuthorityException();
 
         List<DormitoryApplication> dormitoryApplicationList =
-                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDepositPaidAndDormitoryTerm_DormitoryRoomType_Dormitory_idAndStudent_StudentNumberContainingOrStudent_User_NameContaining(dormitoryApplicationSetting, true, dormitoryId, searchWord, searchWord);
+                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDepositPaidAndResultDormitoryTerm_DormitoryRoomType_Dormitory_idAndStudent_StudentNumberContainingOrStudent_User_NameContaining(dormitoryApplicationSetting, true, dormitoryId, searchWord, searchWord);
         List<PassDormitoryApplicationRes> passDormitoryApplicationResList = new ArrayList<>();
         for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
             Student student = dormitoryApplication.getStudent();
