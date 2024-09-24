@@ -22,7 +22,7 @@ public class UserPointHistoryAppRes {
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate createdDate;
 
-    @Schema(type = "Integer", example = "1~99", description= "상벌점 내역의 점수입니다.")
+    @Schema(type = "Integer", example = "1", description= "상벌점 내역의 점수입니다.")
     private Integer score;
 
     @Builder

@@ -69,7 +69,7 @@ public class DormitoryManagementService {
                             .id(room.getId())
                             .roomNumber(room.getRoomNumber())
                             .roomSize(roomSize)
-                            .gender(gender.toString())
+                            .gender(gender)
                             .currentPeople(room.getCurrentPeople())
                             .build();
                 })

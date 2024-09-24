@@ -18,7 +18,7 @@ public class SignUpReq {
     @Schema(type = "String", example = "강승우", description= "사용자의 실제 이름입니다.")
     private String name;
 
-    @Schema(type = "Gender", example = "MALE", description = "성별입니다. MALE, FEMALE, EMPTY 中 1")
+    @Schema(type = "Gender", example = "MALE", description = "성별입니다. MALE, FEMALE 中 1")
     private Gender gender;
 
     @Schema(type = "String", example = "01012345678", description= "사용자의 전화번호입니다.")

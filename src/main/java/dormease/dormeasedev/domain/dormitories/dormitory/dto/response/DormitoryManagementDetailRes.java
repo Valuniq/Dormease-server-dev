@@ -19,17 +19,17 @@ public class DormitoryManagementDetailRes {
     private String imageUrl;
 
     // 꽉 찬 방 개수
-    @Schema(type = "Integer", description= "인원이 꽉 찬 호실의 수입니다.")
+    @Schema(type = "Integer", example = "40", description= "인원이 꽉 찬 호실의 수입니다.")
     private Integer fullRoomCount;
 
-    @Schema(type = "Integer", description= "활성화된 호실의 수입니다..")
+    @Schema(type = "Integer", example = "100", description= "활성화된 호실의 수입니다..")
     private Integer roomCount;
 
     // 현재 수용된 인원
-    @Schema(type = "Integer", description= "현재 수용인원 수입니다.")
+    @Schema(type = "Integer", example = "150", description= "현재 수용인원 수입니다.")
     private Integer currentPeopleCount;
 
-    @Schema(type = "Integer", description= "건물(+인실)의 수용 인원입니다.")
+    @Schema(type = "Integer", example = "250", description= "건물(+인실)의 수용 인원입니다.")
     private Integer dormitorySize;
 
     @Schema(type = "String", example = "101호 층간소음", description= "건물별 메모입니다.")

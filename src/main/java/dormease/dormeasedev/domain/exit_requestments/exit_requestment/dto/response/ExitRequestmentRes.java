@@ -37,16 +37,16 @@ public class ExitRequestmentRes {
     @Schema(type = "String", example = "명덕관", description = "건물 (건물명)")
     private String dormitoryName;
 
-    @Schema(type = "String", example = "4인실", description = "인실")
+    @Schema(type = "Integer", example = "4", description = "인실")
     private Integer roomSize;
 
     @Schema(type = "SecurityDepositReturnStatus", example = "UNPAID", description = "보증금 환급 여부. PAYMENT(지급), UNPAID(미지급), UNALBE(지급 불가) 中 1.")
     private SecurityDepositReturnStatus securityDepositReturnStatus;
 
-    @Schema(type = "String", example = "999호", description = "호실")
+    @Schema(type = "Integer", example = "999", description = "호실")
     private Integer roomNumber;
 
-    @Schema(type = "String", example = "1", description = "침대 번호")
+    @Schema(type = "Integer", example = "1", description = "침대 번호")
     private Integer bedNumber;
 
     @Schema(type = "Boolean", example = "true", description = "열쇠 수령 여부")
@@ -55,7 +55,7 @@ public class ExitRequestmentRes {
     @Schema(type = "String", example = "ABCDEFGHI", description = "열쇠 번호")
     private String keyNumber;
 
-    @Schema(type = "String", example = "2024-05-02", description = "퇴실 날짜")
+    @Schema(type = "LocalDate", example = "2024-05-02", description = "퇴실 날짜")
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate exitDate;
 

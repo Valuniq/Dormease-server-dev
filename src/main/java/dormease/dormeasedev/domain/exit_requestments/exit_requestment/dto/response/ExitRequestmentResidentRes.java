@@ -29,15 +29,15 @@ public class ExitRequestmentResidentRes {
     private String dormitoryName;
 
     // 인실
-    @Schema(type = "String", example = "4인실", description = "인실")
+    @Schema(type = "Integer", example = "4", description = "인실")
     private Integer roomSize;
 
     // 호실
-    @Schema(type = "String", example = "999호", description = "호실")
+    @Schema(type = "Integer", example = "999", description = "호실")
     private Integer roomNumber;
 
     // 퇴실 날짜
-    @Schema(type = "String", example = "2024-05-02", description = "퇴실 날짜")
+    @Schema(type = "LocalDate", example = "2024-05-02", description = "퇴실 날짜")
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate exitDate;
 
@@ -46,7 +46,7 @@ public class ExitRequestmentResidentRes {
     private Boolean hasKey;
 
     // 제출 날짜 (신청 날짜)
-    @Schema(type = "String", example = "2024-05-01", description = "제출 날짜 (신청 날짜)")
+    @Schema(type = "LocalDate", example = "2024-05-01", description = "제출 날짜 (신청 날짜)")
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate createDate;
     

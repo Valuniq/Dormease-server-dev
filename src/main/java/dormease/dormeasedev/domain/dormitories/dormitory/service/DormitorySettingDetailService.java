@@ -129,7 +129,7 @@ public class DormitorySettingDetailService {
                     return RoomSettingRes.builder()
                             .id(room.getId())
                             .floor(room.getFloor())
-                            .gender(gender.toString())
+                            .gender(gender)
                             .roomNumber(room.getRoomNumber())
                             .roomSize(roomSize)
                             .hasKey(room.getHasKey())

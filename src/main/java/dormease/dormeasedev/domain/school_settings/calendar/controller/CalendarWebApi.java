@@ -23,14 +23,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
-@Tag(name = "Calendar API", description = "일정 관련 API입니다.")
+@Tag(name = "[WEB] Calendar API", description = "일정 관련 API입니다.")
 public interface CalendarWebApi {
 
     @Operation(summary = "일정 등록", description = "일정을 등록합니다.")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201", description = "등록 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}),
             @ApiResponse(
                     responseCode = "400", description = "등록 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
@@ -91,7 +91,7 @@ public interface CalendarWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204", description = "수정 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}),
             @ApiResponse(
                     responseCode = "400", description = "수정 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
@@ -107,7 +107,7 @@ public interface CalendarWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204", description = "삭제 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}),
             @ApiResponse(
                     responseCode = "400", description = "삭제 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),

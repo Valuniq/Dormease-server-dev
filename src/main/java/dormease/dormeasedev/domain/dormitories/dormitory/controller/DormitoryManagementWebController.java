@@ -20,7 +20,7 @@ public class DormitoryManagementWebController implements DormitoryManagementWebA
 
     @Override
     @PutMapping("/{dormitoryId}/memo")
-    public ResponseEntity<?> registerDormitoryMemo(
+    public ResponseEntity<Void> registerDormitoryMemo(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long dormitoryId,
             @Valid @RequestBody DormitoryMemoReq dormitoryMemoReq
@@ -109,7 +109,7 @@ public class DormitoryManagementWebController implements DormitoryManagementWebA
 
     @Override
     @PutMapping("/rooms/{roomId}/manual")
-    public ResponseEntity<?> assignedResidentsToRooms(
+    public ResponseEntity<Void> assignedResidentsToRooms(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long roomId,
             @Valid @RequestBody AssignedResidentToRoomReq assignedResidentToRoomReq

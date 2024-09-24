@@ -49,11 +49,11 @@ public class RefundRequestmentRes {
     private String dormitoryName;
 
     // 인실
-    @Schema(type = "Integer", example = "4인실", description = "인실")
+    @Schema(type = "Integer", example = "4", description = "인실")
     private Integer roomSize;
 
     // 호실
-    @Schema(type = "Integer", example = "999호", description = "호실")
+    @Schema(type = "Integer", example = "999", description = "호실")
     private Integer roomNumber;
 
     // 침대 번호

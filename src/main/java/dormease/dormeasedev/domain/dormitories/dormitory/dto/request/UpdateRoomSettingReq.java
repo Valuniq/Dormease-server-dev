@@ -18,7 +18,7 @@ public class UpdateRoomSettingReq {
     @Schema(type = "Integer", example = "1", description = "인실입니다.")
     private Integer roomSize;
 
-    @Schema(type = "Boolean", example = "true/false", description = "열쇠 수령 여부입니다. true, false로 구성될 수 있음")
+    @Schema(type = "Boolean", example = "true", description = "열쇠 수령 여부입니다. true, false로 구성될 수 있음")
     private Boolean hasKey;
 
     @Schema(type = "Boolean", example = "true", description = "활성화 여부입니다. true, false로 구성될 수 있음")

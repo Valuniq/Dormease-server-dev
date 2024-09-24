@@ -25,7 +25,7 @@ public class CalendarWebController implements CalendarWebApi {
 
     @Override
     @PostMapping("")
-    public ResponseEntity<?> registerCalendar(
+    public ResponseEntity<Void> registerCalendar(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Valid @RequestBody CreateCalendarReq createCalendarReq
     ) {
@@ -88,7 +88,7 @@ public class CalendarWebController implements CalendarWebApi {
 
     @Override
     @PatchMapping("/{calendarId}")
-    public ResponseEntity<?> updateCalendarDetail(
+    public ResponseEntity<Void> updateCalendarDetail(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long calendarId,
             @Valid @RequestBody UpdateCalendarReq updateCalendarReq
@@ -99,7 +99,7 @@ public class CalendarWebController implements CalendarWebApi {
 
     @Override
     @DeleteMapping("/{calendarId}")
-    public ResponseEntity<?> deleteCalendarDetail(
+    public ResponseEntity<Void> deleteCalendarDetail(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long calendarId
     ) {
