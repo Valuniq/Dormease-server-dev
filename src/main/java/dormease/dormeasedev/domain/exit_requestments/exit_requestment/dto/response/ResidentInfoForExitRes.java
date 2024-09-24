@@ -38,13 +38,13 @@ public class ResidentInfoForExitRes {
     @Schema(type = "String", example = "명덕관", description = "건물 (건물명)")
     private String dormitoryName;
 
-    @Schema(type = "String", example = "4인실", description = "인실")
+    @Schema(type = "Integer", example = "4", description = "인실")
     private Integer roomSize;
 
-    @Schema(type = "String", example = "999호", description = "호실")
+    @Schema(type = "Integer", example = "999", description = "호실")
     private Integer roomNumber;
 
-    @Schema(type = "String", example = "1", description = "침대 번호")
+    @Schema(type = "Integer", example = "1", description = "침대 번호")
     private Integer bedNumber;
 
 }

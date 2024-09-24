@@ -118,7 +118,7 @@ public class DormitorySettingWebController {
 
     @Operation(summary = "호실 저장", description = "건물 설정 프로세스 중 특정 기숙사 특정 층의 호실을 저장합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+            @ApiResponse(responseCode = "201", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}),
             @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
 
@@ -134,7 +134,7 @@ public class DormitorySettingWebController {
 
     @Operation(summary = "호실 복제", description = "건물 설정 프로세스 중 특정 기숙사의 층에 속한 호실을 복제합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+            @ApiResponse(responseCode = "201", description = "추가 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}),
             @ApiResponse(responseCode = "400", description = "추가 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping("/{dormitoryId}/room/copy")
@@ -148,7 +148,7 @@ public class DormitorySettingWebController {
 
     @Operation(summary = "호실 정보 수정", description = "건물 세부 설정 프로세스 중 필터를 이용하여 호실 정보를 수정합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+            @ApiResponse(responseCode = "204", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}),
             @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PutMapping("/{dormitoryId}/{floor}/room")

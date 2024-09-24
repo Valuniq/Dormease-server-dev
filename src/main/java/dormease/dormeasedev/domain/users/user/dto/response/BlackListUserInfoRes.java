@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.users.user.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,6 +32,7 @@ public class BlackListUserInfoRes {
 
     // 생성 일자
     @Schema(type = "LocalDate", example = "2024-04-26", description = "블랙리스트 등록 일자입니다.")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate createdAt;
 
     @Builder

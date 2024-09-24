@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 public class RefundRequestmentReq {
 
-    @Schema(type = "String", example = "2024-05-02", description = "퇴실 날짜")
+    @Schema(type = "LocalDate", example = "2024-05-02", description = "퇴실 날짜")
     private LocalDate exitDate;
 
     @Schema(type = "String", example = "신한은행", description = "은행명")
