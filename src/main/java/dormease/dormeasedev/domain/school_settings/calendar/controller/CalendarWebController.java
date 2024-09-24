@@ -87,7 +87,7 @@ public class CalendarWebController implements CalendarWebApi {
     }
 
     @Override
-    @PatchMapping("/{calendarId}")
+    @PutMapping("/{calendarId}")
     public ResponseEntity<Void> updateCalendarDetail(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long calendarId,

@@ -8,7 +8,6 @@ import dormease.dormeasedev.domain.school_settings.calendar.dto.request.UpdateCa
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarDetailRes;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.CalendarRes;
 import dormease.dormeasedev.domain.school_settings.calendar.dto.response.TodayCalendarRes;
-import dormease.dormeasedev.domain.school_settings.calendar.mapper.CalendarMapper;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.exception.DefaultAssert;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 public class CalendarService {
 
     private final CalendarRepository calendarRepository;
-    private final CalendarMapper calendarMapper;
     private final UserService userService;
 
     // 일정 등록
@@ -104,7 +102,7 @@ public class CalendarService {
         Calendar calendar = validCalendarById(calendarId);
         DefaultAssert.isTrue(admin.getSchool() == calendar.getSchool(), "관리자의 학교에 소속된 일정이 아닙니다.");
 
-        calendarMapper.updateCalender(updateCalendarReq, calendar);
+        calendar.updateCalendar(updateCalendarReq.getStartDate(), updateCalendarReq.getEndDate(), updateCalendarReq.getTitle(), updateCalendarReq.getContent(), updateCalendarReq.getColor());
     }
 
     // 일정 삭제

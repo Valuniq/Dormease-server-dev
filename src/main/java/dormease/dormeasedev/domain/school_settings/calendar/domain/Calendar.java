@@ -10,7 +10,6 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-@Setter
 public class Calendar extends BaseEntity {
     
     @Id
@@ -36,6 +35,14 @@ public class Calendar extends BaseEntity {
     @Builder
     public Calendar(School school, LocalDate startDate, LocalDate endDate, String title, String content, Color color) {
         this.school = school;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.title = title;
+        this.content = content;
+        this.color = color;
+    }
+
+    public void updateCalendar(LocalDate startDate, LocalDate endDate, String title, String content, Color color) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.title = title;

@@ -96,7 +96,7 @@ public interface CalendarWebApi {
                     responseCode = "400", description = "수정 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
-    @PatchMapping("/{calendarId}")
+    @PutMapping("/{calendarId}")
     ResponseEntity<?> updateCalendarDetail(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "일정의 id를 입력해주세요.", required = true) @PathVariable Long calendarId,
