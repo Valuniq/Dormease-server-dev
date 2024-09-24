@@ -65,4 +65,20 @@ public class PassDormitoryApplicationWebController implements PassDormitoryAppli
                 .build();
          return ResponseEntity.ok(apiResponse);
     }
+
+    @Override
+    @GetMapping("/search/{dormitoryApplicationSettingId}/{dormitoryId}")
+    public ResponseEntity<ApiResponse> searchPassDormitoryApplicationsByDormitory(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+            @RequestParam(value = "searchWord") String searchWord,
+            @PathVariable(name = "dormitoryId")Long dormitoryId
+    ) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(passDormitoryApplicationWebService.searchPassDormitoryApplicationsByDormitory(userDetailsImpl, dormitoryApplicationSettingId, searchWord, dormitoryId))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+
+    }
 }

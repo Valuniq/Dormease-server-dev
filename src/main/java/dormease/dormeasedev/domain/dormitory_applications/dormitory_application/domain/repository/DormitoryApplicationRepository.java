@@ -33,4 +33,8 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
 
     // 합격자 명단 - 입사 신청 설정과 기숙사로 입사 신청 조회
     List<DormitoryApplication> findAllByDormitoryApplicationSettingAndDepositPaidAndDormitoryTerm_DormitoryRoomType_Dormitory_id(DormitoryApplicationSetting dormitoryApplicationSetting, boolean depositPaid, Long dormitoryId);
+
+    List<DormitoryApplication> findAllByDormitoryApplicationSettingAndDepositPaidAndDormitoryTerm_DormitoryRoomType_Dormitory_idAndStudent_StudentNumberContainingOrStudent_User_NameContaining(DormitoryApplicationSetting dormitoryApplicationSetting, boolean depositPaid, Long dormitoryId, String searchWord, String searchWord1);
+
+
 }
