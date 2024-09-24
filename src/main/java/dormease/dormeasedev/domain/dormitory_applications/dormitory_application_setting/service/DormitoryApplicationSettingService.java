@@ -306,7 +306,10 @@ public class DormitoryApplicationSettingService {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
 
-        List<DormitoryApplicationSetting> dormitoryApplicationSettingList = dormitoryApplicationSettingRepository.findAllBySchoolAndApplicationStatus(school, ApplicationStatus.BEFORE);
+        List<ApplicationStatus> applicationStatusList = new ArrayList<>();
+        applicationStatusList.add(ApplicationStatus.READY);
+        applicationStatusList.add(ApplicationStatus.NOW);
+        List<DormitoryApplicationSetting> dormitoryApplicationSettingList = dormitoryApplicationSettingRepository.findAllBySchoolAndApplicationStatusNotIn(school, applicationStatusList);
         List<DormitoryApplicationSettingSimpleRes> dormitoryApplicationSettingSimpleResList = new ArrayList<>();
         for (DormitoryApplicationSetting dormitoryApplicationSetting : dormitoryApplicationSettingList) {
             DormitoryApplicationSettingSimpleRes dormitoryApplicationSettingSimpleRes = DormitoryApplicationSettingSimpleRes.builder()

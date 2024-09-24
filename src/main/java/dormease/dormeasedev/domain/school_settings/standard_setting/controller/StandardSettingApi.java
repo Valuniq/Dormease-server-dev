@@ -51,7 +51,7 @@ public interface StandardSettingApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
-    @GetMapping("/{standardSettingId}")
+    @GetMapping
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findStandardSetting(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     );

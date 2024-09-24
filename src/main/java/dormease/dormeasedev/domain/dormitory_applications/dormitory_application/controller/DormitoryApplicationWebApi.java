@@ -50,7 +50,7 @@ public interface DormitoryApplicationWebApi {
     @GetMapping("/search/{dormitoryApplicationSettingId}")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> searchDormitoryApplications(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "입사신청설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam(value = "searchWord") String searchWord
     );
 

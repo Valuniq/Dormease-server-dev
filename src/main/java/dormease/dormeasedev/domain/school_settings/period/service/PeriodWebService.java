@@ -45,6 +45,7 @@ public class PeriodWebService {
         Optional<Period> findPeriod = periodRepository.findBySchoolAndPeriodType(school, periodReq.getPeriodType());
         if (findPeriod.isPresent()) {
             Period existPeriod = findPeriod.get();
+            DefaultAssert.isTrue(existPeriod.getStartDate().isAfter(LocalDate.now()), "시작일로 설정할 수 없습니다.");
             existPeriod.updateDate(startDate, endDate);
         } else {
             Period period = Period.builder()

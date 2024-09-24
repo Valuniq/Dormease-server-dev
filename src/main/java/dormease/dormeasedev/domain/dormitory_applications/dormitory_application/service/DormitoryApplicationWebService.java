@@ -41,7 +41,7 @@ public class DormitoryApplicationWebService {
     public List<DormitoryApplicationWebRes> findDormitoryApplications(UserDetailsImpl userDetailsImpl) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
-        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatusNot(school, ApplicationStatus.BEFORE)
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW)
                 .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
 
         List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllByDormitoryApplicationSetting(dormitoryApplicationSetting);
