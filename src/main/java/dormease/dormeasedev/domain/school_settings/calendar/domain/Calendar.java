@@ -34,8 +34,7 @@ public class Calendar extends BaseEntity {
     private Color color;
 
     @Builder
-    public Calendar(Long id, School school, LocalDate startDate, LocalDate endDate, String title, String content, Color color) {
-        this.id = id;
+    public Calendar(School school, LocalDate startDate, LocalDate endDate, String title, String content, Color color) {
         this.school = school;
         this.startDate = startDate;
         this.endDate = endDate;
