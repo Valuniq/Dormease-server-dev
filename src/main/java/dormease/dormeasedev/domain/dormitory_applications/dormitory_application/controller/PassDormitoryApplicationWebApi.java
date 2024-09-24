@@ -33,7 +33,7 @@ public interface PassDormitoryApplicationWebApi {
             )
     })
     @GetMapping
-    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findPassDormitoryApplications(
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findAllPassDormitoryApplications(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     );
 
@@ -49,7 +49,7 @@ public interface PassDormitoryApplicationWebApi {
             )
     })
     @GetMapping("/search/{dormitoryApplicationSettingId}")
-    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> searchPassDormitoryApplications(
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> searchAllPassDormitoryApplications(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam(value = "searchWord") String searchWord
@@ -71,4 +71,22 @@ public interface PassDormitoryApplicationWebApi {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId
     );
+
+    @Operation(summary = "기숙사 별 합격자 목록 조회 API", description = "기숙사 별 합격자 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "기숙사 별 합격자 목록 조회 성공",
+                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PassDormitoryApplicationRes.class)))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "기숙사 별 합격자 목록 조회 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
+            )
+    })
+    @GetMapping("{dormitoryId}")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findPassDormitoryApplicationsByDormitory(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "기숙사 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryId") Long dormitoryId
+    );
+
 }

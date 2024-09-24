@@ -120,5 +120,32 @@ public class PassDormitoryApplicationWebService {
         }
         return dormitoryApplicationDormitoryResList;
     }
+
+    public List<PassDormitoryApplicationRes> findPassDormitoryApplicationsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.PASS)
+                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
+
+        List<DormitoryApplication> dormitoryApplicationList =
+                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDepositPaidAndDormitoryTerm_DormitoryRoomType_Dormitory_id(dormitoryApplicationSetting, true, dormitoryId);
+
+        List<PassDormitoryApplicationRes> passDormitoryApplicationResList = new ArrayList<>();
+        for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
+            Student student = dormitoryApplication.getStudent();
+            User user = student.getUser();
+
+            PassDormitoryApplicationRes passDormitoryApplicationRes = PassDormitoryApplicationRes.builder()
+                    .dormitoryApplicationId(dormitoryApplication.getId())
+                    .studentName(user.getName())
+                    .studentNumber(student.getStudentNumber())
+                    .gender(student.getGender())
+                    .smoker(dormitoryApplication.getIsSmoking())
+                    .roommateCode(null) // TODO : 룸메이트 로직 수정 후 가능
+                    .build();
+            passDormitoryApplicationResList.add(passDormitoryApplicationRes);
+        }
+        return passDormitoryApplicationResList;
+    }
 }
 
