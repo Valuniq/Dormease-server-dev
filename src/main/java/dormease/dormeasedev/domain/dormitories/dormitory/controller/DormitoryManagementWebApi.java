@@ -28,13 +28,13 @@ public interface DormitoryManagementWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204", description = "저장 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}),
             @ApiResponse(
                     responseCode = "400", description = "저장 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PutMapping("/{dormitoryId}/memo")
-    ResponseEntity<?> registerDormitoryMemo(
+    ResponseEntity<Void> registerDormitoryMemo(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "dormitory id를 입력해주세요.", required = true) @PathVariable Long dormitoryId,
             @Parameter(description = "Schemas의 DormitoryMemoReq을 참고해주세요.", required = true) @Valid @RequestBody DormitoryMemoReq dormitoryMemoReq
@@ -134,13 +134,13 @@ public interface DormitoryManagementWebApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204", description = "배정 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = void.class))}),
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}),
             @ApiResponse(
                     responseCode = "400", description = "배정 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PutMapping("/rooms/{roomId}/manual")
-    ResponseEntity<?> assignedResidentsToRooms(
+    ResponseEntity<Void> assignedResidentsToRooms(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "room id를 입력해주세요.", required = true) @PathVariable Long roomId,
             @Parameter(description = "Schemas의 AssignedResidentToRoomReq을 참고해주세요.", required = true) @Valid @RequestBody AssignedResidentToRoomReq assignedResidentToRoomReq

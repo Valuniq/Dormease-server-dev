@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.SecurityDepositReturnStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -28,15 +29,16 @@ public class ExitRequestmentResidentRes {
     private String dormitoryName;
 
     // 인실
-    @Schema(type = "String", example = "4인실", description = "인실")
+    @Schema(type = "Integer", example = "4", description = "인실")
     private Integer roomSize;
 
     // 호실
-    @Schema(type = "String", example = "999호", description = "호실")
+    @Schema(type = "Integer", example = "999", description = "호실")
     private Integer roomNumber;
 
     // 퇴실 날짜
-    @Schema(type = "String", example = "2024-05-02", description = "퇴실 날짜")
+    @Schema(type = "LocalDate", example = "2024-05-02", description = "퇴실 날짜")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate exitDate;
 
     // 열쇠 수령 여부
@@ -44,7 +46,8 @@ public class ExitRequestmentResidentRes {
     private Boolean hasKey;
 
     // 제출 날짜 (신청 날짜)
-    @Schema(type = "String", example = "2024-05-01", description = "제출 날짜 (신청 날짜)")
+    @Schema(type = "LocalDate", example = "2024-05-01", description = "제출 날짜 (신청 날짜)")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate createDate;
     
     // 보증금 환급 여부

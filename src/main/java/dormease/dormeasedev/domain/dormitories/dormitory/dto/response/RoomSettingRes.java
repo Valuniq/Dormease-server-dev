@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.dormitories.dormitory.dto.response;
 
+import dormease.dormeasedev.domain.users.user.domain.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,8 +19,8 @@ public class RoomSettingRes {
     @Schema(type = "Integer", example = "1", description= "호실이 위치한 층수입니다.")
     private Integer floor;
 
-    @Schema(type = "String", example = "MALE", description= "성별입니다.")
-    private String gender;
+    @Schema(type = "String", example = "MALE", description= "성별입니다. MALE 또는 FEMALE만 입력 가능합니다.")
+    private Gender gender;
 
     @Schema(type = "Integer", example = "2", description= "인실입니다.")
     private Integer roomSize;
@@ -35,7 +36,7 @@ public class RoomSettingRes {
 
 
     @Builder
-    public RoomSettingRes(Long id, Integer floor, Integer roomNumber, String gender, Integer roomSize, Boolean hasKey, Boolean isActivated, Boolean hasResident) {
+    public RoomSettingRes(Long id, Integer floor, Integer roomNumber, Gender gender, Integer roomSize, Boolean hasKey, Boolean isActivated, Boolean hasResident) {
         this.id = id;
         this.floor = floor;
         this.roomNumber = roomNumber;

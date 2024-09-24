@@ -19,7 +19,7 @@ public class PointRes {
     @Schema(type = "Integer", example = "1~99", description= "상벌점 내역의 점수입니다.")
     private Integer score;
 
-    @Schema(type = "Integer", example = "BONUS/MINUS", description= "상벌점 내역의 점수입니다.")
+    @Schema(type = "String", example = "BONUS", description= "상벌점 내역의 점수입니다. BONUS/MINUS")
     private PointType pointType;
 
     @Builder

@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.Progression;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -30,6 +31,7 @@ public class RequestmentDetailUserRes {
     private String writer;
 
     @Schema(type = "LocalDate", example = "2024-05-02", description = "작성 날짜")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate createdDate;
 
     @Schema(type = "Boolean", example = "true", description = "부재 중 방문 동의 여부")
