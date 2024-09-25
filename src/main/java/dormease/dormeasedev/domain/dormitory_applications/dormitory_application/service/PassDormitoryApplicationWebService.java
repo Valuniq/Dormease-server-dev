@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.Dormit
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationDormitoryRes;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.PassAllDormitoryApplicationRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.PassDormitoryApplicationRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
@@ -38,7 +39,7 @@ public class PassDormitoryApplicationWebService {
 
     private final UserService userService;
 
-    public List<PassDormitoryApplicationRes> findPassDormitoryApplications(UserDetailsImpl userDetailsImpl) {
+    public PassAllDormitoryApplicationRes findPassDormitoryApplications(UserDetailsImpl userDetailsImpl) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
         DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.PASS)
@@ -63,7 +64,10 @@ public class PassDormitoryApplicationWebService {
                     .build();
             passDormitoryApplicationResList.add(passDormitoryApplicationRes);
         }
-        return passDormitoryApplicationResList;
+        return PassAllDormitoryApplicationRes.builder()
+                .dormitoryApplicationSettingId(dormitoryApplicationSetting.getId())
+                .passDormitoryApplicationResList(passDormitoryApplicationResList)
+                .build();
     }
 
     public List<PassDormitoryApplicationRes> searchPassDormitoryApplications(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId, String searchWord) {
@@ -123,10 +127,12 @@ public class PassDormitoryApplicationWebService {
         return dormitoryApplicationDormitoryResList;
     }
 
-    public List<PassDormitoryApplicationRes> findPassDormitoryApplicationsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
+    public List<PassDormitoryApplicationRes> findPassDormitoryApplicationsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId, Long dormitoryId) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
-        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.PASS)
+//        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.PASS)
+//                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId)
                 .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
         if (!dormitoryApplicationSetting.getSchool().equals(school))
             throw new InvalidSchoolAuthorityException();

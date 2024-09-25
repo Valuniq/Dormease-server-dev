@@ -54,14 +54,15 @@ public class PassDormitoryApplicationWebController implements PassDormitoryAppli
     }
 
     @Override
-    @GetMapping("/{dormitoryId}")
+    @GetMapping("/{dormitoryApplicationSettingId}/{dormitoryId}")
     public ResponseEntity<ApiResponse> findPassDormitoryApplicationsByDormitory(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @PathVariable(name = "dormitoryId") Long dormitoryId
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(passDormitoryApplicationWebService.findPassDormitoryApplicationsByDormitory(userDetailsImpl, dormitoryId))
+                .information(passDormitoryApplicationWebService.findPassDormitoryApplicationsByDormitory(userDetailsImpl, dormitoryApplicationSettingId, dormitoryId))
                 .build();
          return ResponseEntity.ok(apiResponse);
     }
