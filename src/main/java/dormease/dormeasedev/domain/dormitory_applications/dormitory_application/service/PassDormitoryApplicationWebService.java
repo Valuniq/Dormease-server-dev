@@ -127,10 +127,12 @@ public class PassDormitoryApplicationWebService {
         return dormitoryApplicationDormitoryResList;
     }
 
-    public List<PassDormitoryApplicationRes> findPassDormitoryApplicationsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryId) {
+    public List<PassDormitoryApplicationRes> findPassDormitoryApplicationsByDormitory(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId, Long dormitoryId) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
-        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.PASS)
+//        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.PASS)
+//                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId)
                 .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
         if (!dormitoryApplicationSetting.getSchool().equals(school))
             throw new InvalidSchoolAuthorityException();

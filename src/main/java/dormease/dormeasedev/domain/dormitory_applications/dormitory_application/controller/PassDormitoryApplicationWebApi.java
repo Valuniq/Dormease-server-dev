@@ -88,9 +88,10 @@ public interface PassDormitoryApplicationWebApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
-    @GetMapping("{dormitoryId}")
+    @GetMapping("/{dormitoryApplicationSettingId}/{dormitoryId}")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findPassDormitoryApplicationsByDormitory(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @Parameter(description = "기숙사 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryId") Long dormitoryId
     );
 
