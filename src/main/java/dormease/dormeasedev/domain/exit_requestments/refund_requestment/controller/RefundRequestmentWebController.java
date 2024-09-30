@@ -63,7 +63,7 @@ public class RefundRequestmentWebController {
             @ApiResponse(responseCode = "0", description = "메인 화면 - 환불 신청 사생 목록 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MainRefundRequestmentRes.class)))}),
             @ApiResponse(responseCode = "400", description = "메인 화면 - 환불 신청 사생 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
-    @GetMapping
+    @GetMapping("/main")
     public ResponseEntity<?> findMainRefund(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
