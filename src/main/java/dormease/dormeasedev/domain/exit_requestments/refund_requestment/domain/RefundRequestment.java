@@ -36,8 +36,7 @@ public class RefundRequestment extends BaseEntity {
     private String accountNumber;
 
     @Builder
-    public RefundRequestment(Long id, Resident resident, LocalDate exitDate, String bankName, String accountNumber) {
-        this.id = id;
+    public RefundRequestment(Resident resident, LocalDate exitDate, String bankName, String accountNumber) {
         this.resident = resident;
         this.exitDate = exitDate;
         this.bankName = bankName;

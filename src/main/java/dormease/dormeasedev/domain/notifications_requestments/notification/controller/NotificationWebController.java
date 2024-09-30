@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.notifications_requestments.notification.cont
 import dormease.dormeasedev.domain.notifications_requestments.notification.domain.NotificationType;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.request.ModifyNotificationReq;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.request.WriteNotificationReq;
+import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.MainNotificationRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationDetailWebRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationWebRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.service.NotificationWebService;
@@ -112,4 +113,16 @@ public class NotificationWebController {
         return notificationWebService.deleteNotification(userDetailsImpl, notificationId);
     }
 
+    // Description : 메인 화면 - 공지사항(FAQ) 목록 조회
+    @Operation(summary = "메인 화면 - 공지사항 목록 조회" , description = "메인 화면 - 공지사항 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "0", description = "메인 화면 - 공지사항 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MainNotificationRes.class)))}),
+            @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @GetMapping("/main")
+    public ResponseEntity<?> findNotifications(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    ) {
+        return notificationWebService.findMainNotifications(userDetailsImpl);
+    }
 }

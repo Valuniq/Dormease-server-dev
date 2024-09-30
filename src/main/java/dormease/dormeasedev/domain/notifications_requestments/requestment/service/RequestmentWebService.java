@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.notifications_requestments.requestment.servi
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.Requestment;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.repository.RequestmentRepository;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.ModifyProgressionReq;
+import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.MainRequestmentRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailAdminRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.domain.school.domain.School;
@@ -45,7 +46,6 @@ public class RequestmentWebService {
         List<RequestmentRes> requestmentResList = new ArrayList<>();
         for (Requestment requestment : requestmentList) {
             User user = requestment.getStudent().getUser();
-
             RequestmentRes requestmentRes = RequestmentRes.builder()
                     .requestmentId(requestment.getId())
                     .title(requestment.getTitle())
@@ -100,5 +100,24 @@ public class RequestmentWebService {
         Requestment requestment = requestmentAppService.validateRequestmentByIdAndSchool(requestmentId, school);
 
         requestmentRepository.delete(requestment);
+    }
+
+    public List<MainRequestmentRes> findMainRequestments(UserDetailsImpl userDetailsImpl) {
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = admin.getSchool();
+
+        List<Requestment> requestmentList = requestmentRepository.findTop15ByStudent_User_SchoolOrderByCreatedDateDesc(school);
+        List<MainRequestmentRes> mainRequestmentResList = new ArrayList<>();
+        for (Requestment requestment : requestmentList) {
+            User user = requestment.getStudent().getUser();
+            MainRequestmentRes mainRequestmentRes = MainRequestmentRes.builder()
+                    .requestmentId(requestment.getId())
+                    .title(requestment.getTitle())
+                    .writer(user.getName())
+                    .createdDate(requestment.getCreatedDate().toLocalDate())
+                    .build();
+            mainRequestmentResList.add(mainRequestmentRes);
+        }
+        return mainRequestmentResList;
     }
 }

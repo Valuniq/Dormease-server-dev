@@ -19,4 +19,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     Page<Notification> findNotificationsBySchoolAndNotificationType(School school, NotificationType notificationType, Pageable pageable);
 
     Optional<Notification> findTopBySchoolAndNotificationTypeAndPinnedOrderByCreatedDateDesc(School school, NotificationType notificationType, Boolean pinned);
+
+    List<Notification> findTop15BySchoolAndNotificationTypeOrderByCreatedDateDesc(School school, NotificationType notificationType);
 }

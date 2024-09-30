@@ -12,8 +12,11 @@ import dormease.dormeasedev.domain.notifications_requestments.notification.domai
 import dormease.dormeasedev.domain.notifications_requestments.notification.domain.repository.NotificationRepository;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.request.ModifyNotificationReq;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.request.WriteNotificationReq;
+import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.MainNotificationRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationDetailWebRes;
 import dormease.dormeasedev.domain.notifications_requestments.notification.dto.response.NotificationWebRes;
+import dormease.dormeasedev.domain.notifications_requestments.requestment.domain.Requestment;
+import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.MainRequestmentRes;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.admin.domain.repository.AdminRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
@@ -226,6 +229,28 @@ public class NotificationWebService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // Description : 메인 화면 - 공지사항 목록 조회
+    public ResponseEntity<?> findMainNotifications(UserDetailsImpl userDetailsImpl) {
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = admin.getSchool();
+
+        List<Notification> requestmentList = notificationRepository.findTop15BySchoolAndNotificationTypeOrderByCreatedDateDesc(school, NotificationType.ANNOUNCEMENT);
+        List<MainNotificationRes> mainNotificationResList = new ArrayList<>();
+        for (Notification notification : requestmentList) {
+            MainNotificationRes mainNotificationRes = MainNotificationRes.builder()
+                    .notificationId(notification.getId())
+                    .title(notification.getTitle())
+                    .createdDate(notification.getCreatedDate().toLocalDate())
+                    .build();
+            mainNotificationResList.add(mainNotificationRes);
+        }
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(mainNotificationResList)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
 
     // Description : 유효성 검증 함수
     public Notification validateById(Long notificationId) {
@@ -326,4 +351,5 @@ public class NotificationWebService {
             fileRepository.deleteAll(fileList);
         }
     }
+
 }

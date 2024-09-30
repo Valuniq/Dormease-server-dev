@@ -63,4 +63,14 @@ public class RequestmentWebController implements RequestmentWebApi {
         requestmentWebService.deleteRequestment(userDetailsImpl, requestmentId);
         return ResponseEntity.noContent().build();
     }
+
+    @Override
+    @GetMapping("/main")
+    public ResponseEntity<ApiResponse> findMainRequestments(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(requestmentWebService.findMainRequestments(userDetailsImpl))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
 }
