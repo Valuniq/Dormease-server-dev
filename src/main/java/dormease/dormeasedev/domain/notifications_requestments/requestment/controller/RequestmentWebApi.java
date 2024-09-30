@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.notifications_requestments.requestment.controller;
 
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.request.ModifyProgressionReq;
+import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.MainRequestmentRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentDetailAdminRes;
 import dormease.dormeasedev.domain.notifications_requestments.requestment.dto.response.RequestmentRes;
 import dormease.dormeasedev.global.common.PageResponse;
@@ -93,5 +94,21 @@ public interface RequestmentWebApi {
     ResponseEntity<?> deleteRequestment(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "요청사항의 id를 입력해주세요.", required = true) @PathVariable(value = "requestmentId") Long requestmentId
+    );
+
+    @Operation(summary = "메인화면 - 요청사항 목록 조회 API", description = "메인화면 - 요청사항 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "메인화면 - 요청사항 목록 조회 성공",
+                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MainRequestmentRes.class)))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "메인화면 - 요청사항 목록 조회 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
+            )
+    })
+    @GetMapping("/main")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findMainRequestments(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     );
 }
