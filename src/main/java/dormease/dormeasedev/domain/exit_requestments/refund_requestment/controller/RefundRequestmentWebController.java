@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.exit_requestments.refund_requestment.controller;
 
+import dormease.dormeasedev.domain.exit_requestments.refund_requestment.dto.response.MainRefundRequestmentRes;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.dto.response.RefundRequestmentRes;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.service.RefundRequestmentWebService;
 import dormease.dormeasedev.global.common.Message;
@@ -54,5 +55,18 @@ public class RefundRequestmentWebController {
             @Parameter(description = "처리(삭제)할 사생의 ID를 입력해주세요.", required = true) @PathVariable(value = "refundRequestmentId") Long refundRequestmentId
     ) {
         return refundRequestmentWebService.deleteRefundRequestment(userDetailsImpl, refundRequestmentId);
+    }
+
+    // Description : 메인 화면 - 환불 신청 사생 목록 조회
+    @Operation(summary = "메인 화면 - 환불 신청 사생 목록 조회", description = "메인 화면 - 환불 신청 사생 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "0", description = "메인 화면 - 환불 신청 사생 목록 조회 성공", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MainRefundRequestmentRes.class)))}),
+            @ApiResponse(responseCode = "400", description = "메인 화면 - 환불 신청 사생 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @GetMapping
+    public ResponseEntity<?> findMainRefund(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    ) {
+        return refundRequestmentWebService.findMainRefund(userDetailsImpl);
     }
 }

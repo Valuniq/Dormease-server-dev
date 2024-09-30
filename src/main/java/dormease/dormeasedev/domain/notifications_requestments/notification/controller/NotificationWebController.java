@@ -119,7 +119,7 @@ public class NotificationWebController {
             @ApiResponse(responseCode = "0", description = "메인 화면 - 공지사항 목록 조회 성공 - dataList 구성", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MainNotificationRes.class)))}),
             @ApiResponse(responseCode = "400", description = "공지사항(FAQ) 목록 조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
-    @GetMapping("/{notificationType}")
+    @GetMapping("/main")
     public ResponseEntity<?> findNotifications(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
