@@ -12,8 +12,8 @@ import java.util.List;
 @Builder
 public class PassAllDormitoryApplicationRes {
 
-    @Schema(type = "Long", example = "1", description = "입사 신청 설정 ID")
-    private Long dormitoryApplicationSettingId;
+//    @Schema(type = "Long", example = "1", description = "입사 신청 설정 ID")
+//    private Long dormitoryApplicationSettingId;
 
     @Schema(type = "PassDormitoryApplicationRes", description = "입금 완료 / 합격자 목록입니다.")
     List<PassDormitoryApplicationRes> passDormitoryApplicationResList;

@@ -53,10 +53,11 @@ public interface PassDormitoryApplicationWebApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
-    @GetMapping("/search/{dormitoryApplicationSettingId}")
+//    @GetMapping("/search/{dormitoryApplicationSettingId}")
+    @GetMapping("/search")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> searchAllPassDormitoryApplications(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+//            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam(value = "searchWord") String searchWord
     );
 
@@ -71,10 +72,11 @@ public interface PassDormitoryApplicationWebApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
-    @GetMapping("/dormitories/{dormitoryApplicationSettingId}")
+//    @GetMapping("/dormitories/{dormitoryApplicationSettingId}")
+    @GetMapping("/dormitories")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findDormitoriesByDormitoryApplicationSetting(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+//            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId
     );
 
     @Operation(summary = "기숙사 별 합격자 목록 조회 API", description = "기숙사 별 합격자 목록을 조회합니다.")
@@ -88,10 +90,11 @@ public interface PassDormitoryApplicationWebApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
-    @GetMapping("/{dormitoryApplicationSettingId}/{dormitoryId}")
+//    @GetMapping("/{dormitoryApplicationSettingId}/{dormitoryId}")
+    @GetMapping("/{dormitoryId}")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findPassDormitoryApplicationsByDormitory(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+//            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @Parameter(description = "기숙사 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryId") Long dormitoryId
     );
 
@@ -106,10 +109,11 @@ public interface PassDormitoryApplicationWebApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
-    @GetMapping("/search/{dormitoryApplicationSettingId}/{dormitoryId}")
+//    @GetMapping("/search/{dormitoryApplicationSettingId}/{dormitoryId}")
+    @GetMapping("/search/{dormitoryId}")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> searchPassDormitoryApplicationsByDormitory(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+//            @Parameter(description = "입사 신청 설정 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam(value = "searchWord") String searchWord,
             @Parameter(description = "기숙사 ID를 입력해주세요.", required = true) @PathVariable(name = "dormitoryId") Long dormitoryId
     );

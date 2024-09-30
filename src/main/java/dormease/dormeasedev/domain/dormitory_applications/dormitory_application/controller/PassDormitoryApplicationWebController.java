@@ -26,58 +26,65 @@ public class PassDormitoryApplicationWebController implements PassDormitoryAppli
     }
 
     @Override
-    @GetMapping("/search/{dormitoryApplicationSettingId}")
+//    @GetMapping("/search/{dormitoryApplicationSettingId}")
+    @GetMapping("/search")
     public ResponseEntity<ApiResponse> searchAllPassDormitoryApplications(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+//            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @RequestParam(value = "searchWord") String searchWord
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(passDormitoryApplicationWebService.searchPassDormitoryApplications(userDetailsImpl, dormitoryApplicationSettingId, searchWord))
+//                .information(passDormitoryApplicationWebService.searchPassDormitoryApplications(userDetailsImpl, dormitoryApplicationSettingId, searchWord))
+                .information(passDormitoryApplicationWebService.searchPassDormitoryApplications(userDetailsImpl, searchWord))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
 
     @Override
-    @GetMapping("/dormitories/{dormitoryApplicationSettingId}")
+//    @GetMapping("/dormitories/{dormitoryApplicationSettingId}")
+    @GetMapping("/dormitories")
     public ResponseEntity<ApiResponse> findDormitoriesByDormitoryApplicationSetting(
-            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+//            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(passDormitoryApplicationWebService.findDormitoriesByDormitoryApplicationSetting(userDetailsImpl, dormitoryApplicationSettingId))
+//                .information(passDormitoryApplicationWebService.findDormitoriesByDormitoryApplicationSetting(userDetailsImpl, dormitoryApplicationSettingId))
+                .information(passDormitoryApplicationWebService.findDormitoriesByDormitoryApplicationSetting(userDetailsImpl))
                 .build();
         return ResponseEntity.ok(apiResponse);
 
     }
 
     @Override
-    @GetMapping("/{dormitoryApplicationSettingId}/{dormitoryId}")
+//    @GetMapping("/{dormitoryApplicationSettingId}/{dormitoryId}")
+    @GetMapping("/{dormitoryId}")
     public ResponseEntity<ApiResponse> findPassDormitoryApplicationsByDormitory(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+//            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @PathVariable(name = "dormitoryId") Long dormitoryId
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(passDormitoryApplicationWebService.findPassDormitoryApplicationsByDormitory(userDetailsImpl, dormitoryApplicationSettingId, dormitoryId))
+//                .information(passDormitoryApplicationWebService.findPassDormitoryApplicationsByDormitory(userDetailsImpl, dormitoryApplicationSettingId, dormitoryId))
+                .information(passDormitoryApplicationWebService.findPassDormitoryApplicationsByDormitory(userDetailsImpl, dormitoryId))
                 .build();
          return ResponseEntity.ok(apiResponse);
     }
 
     @Override
-    @GetMapping("/search/{dormitoryApplicationSettingId}/{dormitoryId}")
+    @GetMapping("/search/{dormitoryId}")
     public ResponseEntity<ApiResponse> searchPassDormitoryApplicationsByDormitory(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+//            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
             @RequestParam(value = "searchWord") String searchWord,
             @PathVariable(name = "dormitoryId")Long dormitoryId
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(passDormitoryApplicationWebService.searchPassDormitoryApplicationsByDormitory(userDetailsImpl, dormitoryApplicationSettingId, searchWord, dormitoryId))
+//                .information(passDormitoryApplicationWebService.searchPassDormitoryApplicationsByDormitory(userDetailsImpl, dormitoryApplicationSettingId, searchWord, dormitoryId))
+                .information(passDormitoryApplicationWebService.searchPassDormitoryApplicationsByDormitory(userDetailsImpl, searchWord, dormitoryId))
                 .build();
         return ResponseEntity.ok(apiResponse);
 
