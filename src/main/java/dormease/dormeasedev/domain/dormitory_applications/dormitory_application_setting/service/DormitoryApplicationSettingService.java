@@ -119,13 +119,13 @@ public class DormitoryApplicationSettingService {
             termRepository.save(term);
 
             for (DormitoryTermReq dormitoryTermReq : termReq.getDormitoryTermReqList()) {
+                // 아래 if문 예외 처리는 ui 변경하여 입사신청 안받을 경우 0명 기입 대신 아예 칸을 없애는 방향으로 논의!
+                if (dormitoryTermReq.getPrice() == null)
+                    continue;
+
                 Optional<DormitoryRoomType> findDormitoryRoomType = dormitoryRoomTypeRepository.findById(dormitoryTermReq.getDormitoryRoomTypeId());
                 DefaultAssert.isTrue(findDormitoryRoomType.isPresent(), "올바르지 않은 DormitoryRoomTypeId 입니다.");
                 DormitoryRoomType dormitoryRoomType = findDormitoryRoomType.get();
-
-                // 아래 if문 예외 처리는 ui 변경하여 입사신청 안받을 경우 0명 기입 대신 아예 칸을 없애는 방향으로 논의!
-//                if (dormitoryTermReq.getPrice() == 0)
-//                    continue;
 
                 DormitoryTerm dormitoryTerm = DormitoryTerm.builder()
                         .term(term)
