@@ -7,6 +7,7 @@ import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryServic
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
@@ -15,6 +16,7 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.DormitoryRoomTypeRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingHistoryRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingRes;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.exception.DormitoryApplicationSettingNotFoundException;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.dto.DormitorySettingTermRes;
@@ -43,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,11 +63,95 @@ public class DormitoryApplicationSettingService {
     private final DormitoryRepository dormitoryRepository;
 
     private final UserService userService;
-    private final DormitoryService dormitoryService;
+
+    // Description : 현재 입사 신청 설정 조회
+    public ResponseEntity<?> findNowDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl) {
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findAllBySchoolAndApplicationStatusIn(
+                school,
+                Arrays.asList(ApplicationStatus.READY, ApplicationStatus.NOW)
+                ).orElseThrow(DormitoryApplicationSettingNotFoundException::new);
+
+        // 식권 조회
+        List<MealTicketRes> mealTicketResList = new ArrayList<>();
+        List<MealTicket> mealTicketList = mealTicketRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
+        for (MealTicket mealTicket : mealTicketList) {
+            MealTicketRes mealTicketRes = MealTicketRes.builder()
+                    .id(mealTicket.getId())
+                    .count(mealTicket.getCount())
+                    .price(mealTicket.getPrice())
+                    .build();
+            mealTicketResList.add(mealTicketRes);
+        }
+
+        // 기숙사_방타입 관련
+        List<DormitorySettingTerm> findDormitorySettingTermList = dormitorySettingTermRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
+        List<DormitorySettingTermRes> dormitorySettingTermResList = new ArrayList<>();
+        for (DormitorySettingTerm dormitorySettingTerm : findDormitorySettingTermList) {
+            DormitoryRoomType dormitoryRoomType = dormitorySettingTerm.getDormitoryRoomType();
+            Dormitory dormitory = dormitoryRoomType.getDormitory();
+            RoomType roomType = dormitoryRoomType.getRoomType();
+
+            DormitorySettingTermRes dormitorySettingTermRes = DormitorySettingTermRes.builder()
+                    .dormitoryRoomTypeId(dormitoryRoomType.getId())
+                    .dormitoryName(dormitory.getName())
+                    .roomSize(roomType.getRoomSize())
+                    .gender(roomType.getGender())
+                    .acceptLimit(dormitorySettingTerm.getAcceptLimit())
+                    .build();
+            dormitorySettingTermResList.add(dormitorySettingTermRes);
+        }
+
+        // 거주기간 관련
+        List<Term> termList = termRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
+        List<TermRes> termResList = new ArrayList<>();
+        for (Term term : termList) {
+            List<DormitoryTerm> dormitoryTermList = dormitoryTermRepository.findByTerm(term);
+            List<DormitoryTermRes> dormitoryTermResList = new ArrayList<>();
+            for (DormitoryTerm dormitoryTerm : dormitoryTermList) {
+                DormitoryTermRes dormitoryTermRes = DormitoryTermRes.builder()
+                        .dormitoryTermId(dormitoryTerm.getId())
+                        .dormitoryRoomTypeId(dormitoryTerm.getDormitoryRoomType().getId())
+                        .price(dormitoryTerm.getPrice())
+                        .build();
+                dormitoryTermResList.add(dormitoryTermRes);
+            }
+
+            TermRes termRes = TermRes.builder()
+                    .termId(term.getId())
+                    .termName(term.getTermName())
+                    .startDate(term.getStartDate())
+                    .endDate(term.getEndDate())
+                    .dormitoryTermResList(dormitoryTermResList)
+                    .build();
+            termResList.add(termRes);
+        }
+
+        // 입사 신청 설정 조회
+        FindDormitoryApplicationSettingRes findDormitoryApplicationSettingRes = FindDormitoryApplicationSettingRes.builder()
+                .dormitoryApplicationSettingId(dormitoryApplicationSetting.getId())
+                .title(dormitoryApplicationSetting.getTitle())
+                .startDate(dormitoryApplicationSetting.getStartDate())
+                .endDate(dormitoryApplicationSetting.getEndDate())
+                .depositStartDate(dormitoryApplicationSetting.getDepositStartDate())
+                .depositEndDate(dormitoryApplicationSetting.getDepositEndDate())
+                .securityDeposit(dormitoryApplicationSetting.getSecurityDeposit())
+                .applicationStatus(dormitoryApplicationSetting.getApplicationStatus())
+                .dormitorySettingTermResList(dormitorySettingTermResList)
+                .termResList(termResList)
+                .mealTicketResList(mealTicketResList)
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(findDormitoryApplicationSettingRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
 
     // Description : 입사 신청 설정 생성
-    //  - 입사 신청 설정으로 저장 필요
-    //      - 그 과정에서 Req 참고하여 알맞은 Entity에 저장하는 과정 필요
     @Transactional
     public ResponseEntity<?> createDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl, CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq) {
 
@@ -119,13 +206,13 @@ public class DormitoryApplicationSettingService {
             termRepository.save(term);
 
             for (DormitoryTermReq dormitoryTermReq : termReq.getDormitoryTermReqList()) {
+                // 아래 if문 예외 처리는 ui 변경하여 입사신청 안받을 경우 0명 기입 대신 아예 칸을 없애는 방향으로 논의!
+                if (dormitoryTermReq.getPrice() == null)
+                    continue;
+
                 Optional<DormitoryRoomType> findDormitoryRoomType = dormitoryRoomTypeRepository.findById(dormitoryTermReq.getDormitoryRoomTypeId());
                 DefaultAssert.isTrue(findDormitoryRoomType.isPresent(), "올바르지 않은 DormitoryRoomTypeId 입니다.");
                 DormitoryRoomType dormitoryRoomType = findDormitoryRoomType.get();
-
-                // 아래 if문 예외 처리는 ui 변경하여 입사신청 안받을 경우 0명 기입 대신 아예 칸을 없애는 방향으로 논의!
-//                if (dormitoryTermReq.getPrice() == 0)
-//                    continue;
 
                 DormitoryTerm dormitoryTerm = DormitoryTerm.builder()
                         .term(term)
@@ -335,5 +422,4 @@ public class DormitoryApplicationSettingService {
         DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "잘못된 입사 신청 설정 정보입니다.");
         return findDormitoryApplicationSetting.get();
     }
-
 }
