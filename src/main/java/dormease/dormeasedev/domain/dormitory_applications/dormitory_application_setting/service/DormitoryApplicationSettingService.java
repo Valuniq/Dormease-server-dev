@@ -95,9 +95,10 @@ public class DormitoryApplicationSettingService {
 
         // DormitoryRoomTypeReq - 기숙사 자체 설정 관련
         for (DormitoryRoomTypeReq dormitoryRoomTypeReq : createDormitoryApplicationSettingReq.getDormitoryRoomTypeReqList()) {
-            Optional<DormitoryRoomType> findDormitoryRoomType = dormitoryRoomTypeRepository.findById(dormitoryRoomTypeReq.getDormitoryRoomTypeId());
-            DefaultAssert.isTrue(findDormitoryRoomType.isPresent(), "올바르지 않은 DormitoryRoomTypeId 입니다.");
-            DormitoryRoomType dormitoryRoomType = findDormitoryRoomType.get();
+            if (dormitoryRoomTypeReq.getAcceptLimit().equals(0))
+                continue;
+            DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findById(dormitoryRoomTypeReq.getDormitoryRoomTypeId())
+                    .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 DormitoryRoomTypeId 입니다."));
 
             // DormitorySettingTerm save - 기숙사_방타입 : 입사 신청 설정 M:N 관계 중간 테이블
             DormitorySettingTerm dormitorySettingTerm = DormitorySettingTerm.builder()
@@ -272,14 +273,13 @@ public class DormitoryApplicationSettingService {
 
     // Description : 입사 신청 설정 프로세스 中 기숙사(인실/성별) 목록 조회
     public ResponseEntity<?> findDormitories(UserDetailsImpl userDetailsImpl) {
-
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         School school = admin.getSchool();
 
         List<Dormitory> findDormitoryList = dormitoryRepository.findBySchool(school);
         List<DormitoryRoomTypeRes> dormitoryRoomTypeResList = new ArrayList<>();
         for (Dormitory dormitory : findDormitoryList) {
-
+            Integer dormitorySize = dormitory.getDormitorySize();
             List<DormitoryRoomType> findDormitoryRoomTypeList = dormitoryRoomTypeRepository.findByDormitory(dormitory);
             for (DormitoryRoomType dormitoryRoomType : findDormitoryRoomTypeList) {
                 RoomType roomType = dormitoryRoomType.getRoomType();
@@ -288,6 +288,7 @@ public class DormitoryApplicationSettingService {
                         .dormitoryName(dormitory.getName())
                         .roomSize(roomType.getRoomSize())
                         .gender(roomType.getGender())
+                        .dormitorySize(dormitorySize)
                         .build();
                 dormitoryRoomTypeResList.add(dormitoryRoomTypeRes);
             }

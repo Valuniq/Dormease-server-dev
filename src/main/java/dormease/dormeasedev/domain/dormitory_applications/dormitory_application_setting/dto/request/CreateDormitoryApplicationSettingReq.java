@@ -17,9 +17,6 @@ import java.util.List;
 @Getter
 public class CreateDormitoryApplicationSettingReq {
 
-    @Schema(type = "Long", example = "1", description = "학교 ID")
-    private Long schoolId;
-
     @Schema(type = "String", example = "2024-1학기 명지대학교 자연 생활관 재학생 2차 입사 신청", description= "입사 신청 설정의 제목입니다.")
     private String title;
 

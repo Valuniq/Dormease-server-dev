@@ -22,4 +22,7 @@ public class DormitoryRoomTypeRes {
 
     @Schema(type = "Gender", example = "MALE", description = "성별입니다. MALE, FEMALE, EMPTY 中 1")
     private Gender gender;
+
+    @Schema(type = "Integer", example = "250", description= "수용 인원입니다.")
+    private Integer dormitorySize; // 수용 인원
 }
