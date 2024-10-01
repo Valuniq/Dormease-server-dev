@@ -44,8 +44,6 @@ public class PassDormitoryApplicationWebService {
 //        School school = adminUser.getSchool();
 //        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.PASS)
 //                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
-//        if (!dormitoryApplicationSetting.getSchool().equals(school))
-//            throw new InvalidSchoolAuthorityException();
 //
 //        List<DormitoryApplication> dormitoryApplicationList =
 //                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDepositPaid(dormitoryApplicationSetting, true);
@@ -75,8 +73,6 @@ public class PassDormitoryApplicationWebService {
 //        School school = adminUser.getSchool();
 //        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId)
 //                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
-//        if (!dormitoryApplicationSetting.getSchool().equals(school))
-//            throw new InvalidSchoolAuthorityException();
 //
 //        List<DormitoryApplication> dormitoryApplicationList =
 //                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDepositPaidAndStudent_StudentNumberContainingOrStudent_User_NameContaining(dormitoryApplicationSetting, true, searchWord, searchWord);
@@ -103,8 +99,6 @@ public class PassDormitoryApplicationWebService {
 //        School school = adminUser.getSchool();
 //        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId)
 //                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
-//        if (!dormitoryApplicationSetting.getSchool().equals(school))
-//            throw new InvalidSchoolAuthorityException();
 //
 //        List<DormitorySettingTerm> dormitorySettingTermList = dormitorySettingTermRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
 //        // Set을 사용하여 중복을 방지
@@ -134,8 +128,6 @@ public class PassDormitoryApplicationWebService {
 ////                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
 //        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId)
 //                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
-//        if (!dormitoryApplicationSetting.getSchool().equals(school))
-//            throw new InvalidSchoolAuthorityException();
 //
 //        List<DormitoryApplication> dormitoryApplicationList =
 //                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDepositPaidAndResultDormitoryTerm_DormitoryRoomType_Dormitory_id(dormitoryApplicationSetting, true, dormitoryId);
@@ -163,8 +155,6 @@ public class PassDormitoryApplicationWebService {
 //        School school = adminUser.getSchool();
 //        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId)
 //                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
-//        if (!dormitoryApplicationSetting.getSchool().equals(school))
-//            throw new InvalidSchoolAuthorityException();
 //
 //        List<DormitoryApplication> dormitoryApplicationList =
 //                dormitoryApplicationRepository.findAllByDormitoryApplicationSettingAndDepositPaidAndResultDormitoryTerm_DormitoryRoomType_Dormitory_idAndStudent_StudentNumberContainingOrStudent_User_NameContaining(dormitoryApplicationSetting, true, dormitoryId, searchWord, searchWord);
