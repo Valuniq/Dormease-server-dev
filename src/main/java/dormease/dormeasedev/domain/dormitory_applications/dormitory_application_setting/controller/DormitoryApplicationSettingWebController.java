@@ -38,7 +38,7 @@ public class DormitoryApplicationSettingWebController {
     })
     @PostMapping
     public ResponseEntity<?> createDormitoryApplicationSetting(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl, // 관리자 id를 통해 학교를 알아내기 위함
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "Schemas의 CreateDormitoryApplicationSettingReq를 참고해주세요.", required = true) @Valid @RequestBody CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq
             ) {
         return dormitoryApplicationSettingService.createDormitoryApplicationSetting(userDetailsImpl, createDormitoryApplicationSettingReq);

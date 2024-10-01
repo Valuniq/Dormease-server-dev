@@ -1,7 +1,6 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response;
 
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.DormitoryRoomTypeRes;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
