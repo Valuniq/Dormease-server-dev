@@ -31,6 +31,8 @@ public interface DormitoryApplicationSettingRepository extends JpaRepository<Dor
 
     List<DormitoryApplicationSetting> findAllBySchoolAndApplicationStatusNotIn(School school, List<ApplicationStatus> applicationStatuses);
 
+    Optional<DormitoryApplicationSetting> findAllBySchoolAndApplicationStatusIn(School school, List<ApplicationStatus> applicationStatuses);
+
 
     // 날짜로 입사신청설정 찾기 : 입사 신청 날짜로 입사 신청 설정 찾기 가능
 //    Optional<DormitoryApplicationSetting> findBySchoolAndStartDateLessThanEqualAndEndDateGreaterThanEqual(School school, LocalDate createdDate, LocalDate createdDate2);

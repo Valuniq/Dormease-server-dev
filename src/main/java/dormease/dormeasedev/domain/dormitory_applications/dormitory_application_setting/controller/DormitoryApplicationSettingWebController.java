@@ -31,6 +31,18 @@ public class DormitoryApplicationSettingWebController {
 
     private final DormitoryApplicationSettingService dormitoryApplicationSettingService;
 
+    @Operation(summary = "현재 입사 신청 설정 조회", description = "현재 입사 신청 설정을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "현재 입사 신청 설정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = FindDormitoryApplicationSettingRes.class))}),
+            @ApiResponse(responseCode = "400", description = "현재 입사 신청 설정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @GetMapping
+    public ResponseEntity<?> findNowDormitoryApplicationSetting(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    ) {
+        return dormitoryApplicationSettingService.findNowDormitoryApplicationSetting(userDetailsImpl);
+    }
+
     @Operation(summary = "입사 신청 설정 생성", description = "입사 신청 설정을 생성합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "설정(생성) 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
