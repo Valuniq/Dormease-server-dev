@@ -13,4 +13,6 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
     Optional<Region> findByFullName(String regionName);
 
     List<Region> findAllByParentRegion(Region region);
+
+    List<Region> findByParentRegionIsNull();
 }
