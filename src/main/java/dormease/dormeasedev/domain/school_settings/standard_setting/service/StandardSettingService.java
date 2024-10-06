@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.school_settings.distance_score.domain.Distanc
 import dormease.dormeasedev.domain.school_settings.distance_score.domain.repository.DistanceScoreRepository;
 import dormease.dormeasedev.domain.school_settings.region.domain.Region;
 import dormease.dormeasedev.domain.school_settings.region.domain.repository.RegionRepository;
+import dormease.dormeasedev.domain.school_settings.region.dto.RegionRes;
 import dormease.dormeasedev.domain.school_settings.region_distance_score.domain.RegionDistanceScore;
 import dormease.dormeasedev.domain.school_settings.region_distance_score.domain.repository.RegionDistanceScoreRepository;
 import dormease.dormeasedev.domain.school_settings.standard_setting.domain.StandardSetting;
@@ -83,35 +84,29 @@ public class StandardSettingService {
             throw new IllegalArgumentException();
 
         List<DistanceScore> distanceScoreList = distanceScoreRepository.findAll();
-        List<DistanceScoreRes> distanceScoreResList = new ArrayList<>();
-        for (DistanceScore distanceScore : distanceScoreList) {
-            List<RegionDistanceScore> regionDistanceScoreList = regionDistanceScoreRepository.findBySchoolAndDistanceScore(school, distanceScore);
-            List<String> regionNameList = new ArrayList<>();
-            for (RegionDistanceScore regionDistanceScore : regionDistanceScoreList) {
-                Region region = regionDistanceScore.getRegion();
-                regionNameList.add(region.getFullName());
-            }
-            DistanceScoreRes distanceScoreRes = DistanceScoreRes.builder()
-                    .distanceScore(distanceScore.getScore())
-                    .regionNameList(regionNameList)
-                    .build();
-            distanceScoreResList.add(distanceScoreRes);
-        }
+        List<DistanceScoreRes> distanceScoreResList = distanceScoreList.stream()
+                .map(distanceScore -> {
+                    List<RegionDistanceScore> regionDistanceScoreList = regionDistanceScoreRepository.findBySchoolAndDistanceScore(school, distanceScore);
 
-        return StandardSettingRes.builder()
-                .minScore(standardSetting.getMinScore())
-                .scoreRatio(standardSetting.getScoreRatio())
-                .distanceRatio(standardSetting.getDistanceRatio())
-                .pointReflection(standardSetting.isPointReflection())
-                .tiePriority(standardSetting.getTiePriority())
-                .freshmanStandard(standardSetting.getFreshmanStandard())
-                .prioritySelection(standardSetting.isPrioritySelection())
-                .movePassSelection(standardSetting.isMovePassSelection())
-                .sameSmoke(standardSetting.isSameSmoke())
-                .sameTerm(standardSetting.isSameTerm())
-                .entrancePledge(standardSetting.getEntrancePledge())
-                .distanceScoreResList(distanceScoreResList)
-                .build();
+                    List<RegionRes> regionResList = regionDistanceScoreList.stream()
+                            .map(regionDistanceScore -> {
+                                Region region = regionDistanceScore.getRegion();
+                                return RegionRes.builder()
+                                        .regionId(region.getId())
+                                        .regionName(region.getSingleName())
+                                        .build();
+                            })
+                            .collect(Collectors.toList());
+
+                    return DistanceScoreRes.builder()
+                            .distanceScoreId(distanceScore.getId())
+                            .distanceScore(distanceScore.getScore())
+                            .regionResList(regionResList)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return standardSettingMapper.toStandardSettingRes(standardSetting, distanceScoreResList);
     }
 
     @Transactional
