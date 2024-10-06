@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.school_settings.distance_score.domain.Distanc
 import dormease.dormeasedev.domain.school_settings.distance_score.domain.repository.DistanceScoreRepository;
 import dormease.dormeasedev.domain.school_settings.region.domain.Region;
 import dormease.dormeasedev.domain.school_settings.region.domain.repository.RegionRepository;
+import dormease.dormeasedev.domain.school_settings.region.dto.RegionRes;
 import dormease.dormeasedev.domain.school_settings.region_distance_score.domain.RegionDistanceScore;
 import dormease.dormeasedev.domain.school_settings.region_distance_score.domain.repository.RegionDistanceScoreRepository;
 import dormease.dormeasedev.domain.school_settings.standard_setting.domain.StandardSetting;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -49,43 +51,27 @@ public class StandardSettingService {
             throw new StandardSettingExistException();
 
         // 거리 기준 저장
-        List<RegionDistanceScore> regionDistanceScoreList = new ArrayList<>();
-        List<DistanceScoreReq> distanceScoreReqList = createStandardSettingReq.getDistanceScoreReqList();
-        for (DistanceScoreReq distanceScoreReq : distanceScoreReqList) {
-            DistanceScore distanceScore = distanceScoreRepository.findById(distanceScoreReq.getDistanceScoreId())
-                    .orElseThrow(InvalidParameterException::new);
-//            List<Long> regionIdList = distanceScoreReq.getRegionIdList();
-            List<String> regionNameList = distanceScoreReq.getRegionNameList();
+        List<RegionDistanceScore> regionDistanceScoreList = createStandardSettingReq.getDistanceScoreReqList().stream()
+                .map(distanceScoreReq -> {
+                    DistanceScore distanceScore = distanceScoreRepository.findById(distanceScoreReq.getDistanceScoreId())
+                            .orElseThrow(InvalidParameterException::new);
 
-            for (String regionName : regionNameList) {
-                Region region = regionRepository.findByFullName(regionName)
-                        .orElseThrow(InvalidParameterException::new);
+                    return distanceScoreReq.getRegionIdList().stream()
+                            .map(regionId -> regionRepository.findById(regionId)
+                                    .orElseThrow(InvalidParameterException::new))
+                            .map(region -> RegionDistanceScore.builder()
+                                    .school(school)
+                                    .distanceScore(distanceScore)
+                                    .region(region)
+                                    .build())
+                            .collect(Collectors.toList());
+                })
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
 
-                RegionDistanceScore regionDistanceScore = RegionDistanceScore.builder()
-                        .school(school)
-                        .distanceScore(distanceScore)
-                        .region(region)
-                        .build();
-                regionDistanceScoreList.add(regionDistanceScore);
-            }
-        }
         regionDistanceScoreRepository.saveAll(regionDistanceScoreList);
 
-        StandardSetting standardSetting = StandardSetting.builder()
-                .school(school)
-                .minScore(createStandardSettingReq.getMinScore())
-                .scoreRatio(createStandardSettingReq.getScoreRatio())
-                .distanceRatio(createStandardSettingReq.getDistanceRatio())
-                .pointReflection(createStandardSettingReq.isPointReflection())
-                .tiePriority(createStandardSettingReq.getTiePriority())
-                .freshmanStandard(createStandardSettingReq.getFreshmanStandard())
-                .prioritySelection(createStandardSettingReq.isPrioritySelection())
-                .movePassSelection(createStandardSettingReq.isMovePassSelection())
-                .sameSmoke(createStandardSettingReq.isSameSmoke())
-                .sameTerm(createStandardSettingReq.isSameTerm())
-                .entrancePledge(createStandardSettingReq.getEntrancePledge())
-                .build();
-
+        StandardSetting standardSetting = standardSettingMapper.createStandardSettingReqToStandardSetting(school, createStandardSettingReq);
         return standardSettingRepository.save(standardSetting);
     }
 
@@ -98,35 +84,29 @@ public class StandardSettingService {
             throw new IllegalArgumentException();
 
         List<DistanceScore> distanceScoreList = distanceScoreRepository.findAll();
-        List<DistanceScoreRes> distanceScoreResList = new ArrayList<>();
-        for (DistanceScore distanceScore : distanceScoreList) {
-            List<RegionDistanceScore> regionDistanceScoreList = regionDistanceScoreRepository.findBySchoolAndDistanceScore(school, distanceScore);
-            List<String> regionNameList = new ArrayList<>();
-            for (RegionDistanceScore regionDistanceScore : regionDistanceScoreList) {
-                Region region = regionDistanceScore.getRegion();
-                regionNameList.add(region.getFullName());
-            }
-            DistanceScoreRes distanceScoreRes = DistanceScoreRes.builder()
-                    .distanceScore(distanceScore.getScore())
-                    .regionNameList(regionNameList)
-                    .build();
-            distanceScoreResList.add(distanceScoreRes);
-        }
+        List<DistanceScoreRes> distanceScoreResList = distanceScoreList.stream()
+                .map(distanceScore -> {
+                    List<RegionDistanceScore> regionDistanceScoreList = regionDistanceScoreRepository.findBySchoolAndDistanceScore(school, distanceScore);
 
-        return StandardSettingRes.builder()
-                .minScore(standardSetting.getMinScore())
-                .scoreRatio(standardSetting.getScoreRatio())
-                .distanceRatio(standardSetting.getDistanceRatio())
-                .pointReflection(standardSetting.isPointReflection())
-                .tiePriority(standardSetting.getTiePriority())
-                .freshmanStandard(standardSetting.getFreshmanStandard())
-                .prioritySelection(standardSetting.isPrioritySelection())
-                .movePassSelection(standardSetting.isMovePassSelection())
-                .sameSmoke(standardSetting.isSameSmoke())
-                .sameTerm(standardSetting.isSameTerm())
-                .entrancePledge(standardSetting.getEntrancePledge())
-                .distanceScoreResList(distanceScoreResList)
-                .build();
+                    List<RegionRes> regionResList = regionDistanceScoreList.stream()
+                            .map(regionDistanceScore -> {
+                                Region region = regionDistanceScore.getRegion();
+                                return RegionRes.builder()
+                                        .regionId(region.getId())
+                                        .regionName(region.getSingleName())
+                                        .build();
+                            })
+                            .collect(Collectors.toList());
+
+                    return DistanceScoreRes.builder()
+                            .distanceScoreId(distanceScore.getId())
+                            .distanceScore(distanceScore.getScore())
+                            .regionResList(regionResList)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return standardSettingMapper.toStandardSettingRes(standardSetting, distanceScoreResList);
     }
 
     @Transactional
