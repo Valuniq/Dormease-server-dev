@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -49,43 +50,27 @@ public class StandardSettingService {
             throw new StandardSettingExistException();
 
         // 거리 기준 저장
-        List<RegionDistanceScore> regionDistanceScoreList = new ArrayList<>();
-        List<DistanceScoreReq> distanceScoreReqList = createStandardSettingReq.getDistanceScoreReqList();
-        for (DistanceScoreReq distanceScoreReq : distanceScoreReqList) {
-            DistanceScore distanceScore = distanceScoreRepository.findById(distanceScoreReq.getDistanceScoreId())
-                    .orElseThrow(InvalidParameterException::new);
-//            List<Long> regionIdList = distanceScoreReq.getRegionIdList();
-            List<String> regionNameList = distanceScoreReq.getRegionNameList();
+        List<RegionDistanceScore> regionDistanceScoreList = createStandardSettingReq.getDistanceScoreReqList().stream()
+                .map(distanceScoreReq -> {
+                    DistanceScore distanceScore = distanceScoreRepository.findById(distanceScoreReq.getDistanceScoreId())
+                            .orElseThrow(InvalidParameterException::new);
 
-            for (String regionName : regionNameList) {
-                Region region = regionRepository.findByFullName(regionName)
-                        .orElseThrow(InvalidParameterException::new);
+                    return distanceScoreReq.getRegionIdList().stream()
+                            .map(regionId -> regionRepository.findById(regionId)
+                                    .orElseThrow(InvalidParameterException::new))
+                            .map(region -> RegionDistanceScore.builder()
+                                    .school(school)
+                                    .distanceScore(distanceScore)
+                                    .region(region)
+                                    .build())
+                            .collect(Collectors.toList());
+                })
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
 
-                RegionDistanceScore regionDistanceScore = RegionDistanceScore.builder()
-                        .school(school)
-                        .distanceScore(distanceScore)
-                        .region(region)
-                        .build();
-                regionDistanceScoreList.add(regionDistanceScore);
-            }
-        }
         regionDistanceScoreRepository.saveAll(regionDistanceScoreList);
 
-        StandardSetting standardSetting = StandardSetting.builder()
-                .school(school)
-                .minScore(createStandardSettingReq.getMinScore())
-                .scoreRatio(createStandardSettingReq.getScoreRatio())
-                .distanceRatio(createStandardSettingReq.getDistanceRatio())
-                .pointReflection(createStandardSettingReq.isPointReflection())
-                .tiePriority(createStandardSettingReq.getTiePriority())
-                .freshmanStandard(createStandardSettingReq.getFreshmanStandard())
-                .prioritySelection(createStandardSettingReq.isPrioritySelection())
-                .movePassSelection(createStandardSettingReq.isMovePassSelection())
-                .sameSmoke(createStandardSettingReq.isSameSmoke())
-                .sameTerm(createStandardSettingReq.isSameTerm())
-                .entrancePledge(createStandardSettingReq.getEntrancePledge())
-                .build();
-
+        StandardSetting standardSetting = standardSettingMapper.createStandardSettingReqToStandardSetting(school, createStandardSettingReq);
         return standardSettingRepository.save(standardSetting);
     }
 
