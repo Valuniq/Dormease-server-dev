@@ -86,7 +86,6 @@ public class ResidentManagementService {
     // 사생 상세 조회 - 개인정보
     private ResidentPrivateInfoRes getResidentPrivateInfo(Resident resident) {
         Student student = resident.getStudent();
-//        User user = student.getUser();
         // 미회원 사생 고려
         if (student == null) {
             return ResidentPrivateInfoRes.builder()
@@ -95,7 +94,7 @@ public class ResidentManagementService {
                     .gender(resident.getGender())
                     .build();
         } else {
-            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatusAndDormitoryApplicationResult(student, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findLatestDormitoryApplicationByStudent(student, DormitoryApplicationResult.PASS);
             return ResidentPrivateInfoRes.builder()
                     .residentId(resident.getId())
                     .name(resident.getName())
@@ -147,7 +146,7 @@ public class ResidentManagementService {
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
         } else {
-            String[] roommateNames = getRoommateNames(resident);
+            List<String> roommateNames = getRoommateNames(resident);
             return ResidentDormitoryInfoRes.builder()
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
@@ -161,7 +160,7 @@ public class ResidentManagementService {
         }
     }
 
-    private String[] getRoommateNames(Resident resident) {
+    private List<String> getRoommateNames(Resident resident) {
         List<Resident> residents = residentRepository.findByRoom(resident.getRoom());
         List<String> roommatesList = new ArrayList<>();
         for (Resident r : residents) {
@@ -169,7 +168,7 @@ public class ResidentManagementService {
                 roommatesList.add(r.getName());
             }
         }
-        return roommatesList.toArray(new String[0]);
+        return roommatesList;
     }
 
     // 사생 목록 조회 및 정렬
@@ -181,7 +180,6 @@ public class ResidentManagementService {
         // 사생 목록 조회 (페이징 적용)
         Page<Resident> residents = residentRepository.findBySchool(adminUser.getSchool(), pageable);
 
-        // Description: 변경사항에 맞춰 로직 수정
         List<ResidentRes> residentResList = residents.getContent().stream()
                 .map(resident -> {
                     String dormitoryName = null;
@@ -193,7 +191,6 @@ public class ResidentManagementService {
                     SchoolStatus schoolStatus = null;
 
                     Student student = resident.getStudent();
-//                    User user = resident.getUser(); // 미배정 사생은 미회원 사생만 존재 가능
                     Room room = resident.getRoom();
 
                     // 미회원인지 아닌지 구분
@@ -202,22 +199,13 @@ public class ResidentManagementService {
                         bonusPoint = student.getBonusPoint();
                         minusPoint = student.getMinusPoint();
                         schoolStatus = student.getSchoolStatus();
+                    }
+
+                    if (room != null) {
                         DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                         dormitoryName = dormitoryRoomType.getDormitory().getName();
                         roomSize = dormitoryRoomType.getRoomType().getRoomSize();
                         roomNumber = room.getRoomNumber();
-
-                    } else {
-                        if (room != null) {
-                            DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
-                            dormitoryName = dormitoryRoomType.getDormitory().getName();
-                            roomSize = dormitoryRoomType.getRoomType().getRoomSize();
-                            roomNumber = room.getRoomNumber();
-                        }
-                        // TODO : 사생 직접 추가 시 건물도 필수로 할지 기획과 논의 후 결정
-//                        else if (dormitory != null) {
-//                            dormitoryName = dormitory.getName();
-//                        }
                     }
 
                     return ResidentRes.builder()
@@ -286,7 +274,6 @@ public class ResidentManagementService {
                     SchoolStatus schoolStatus = null;
 
                     Student student = resident.getStudent();
-//                    User user = resident.getUser(); // 미배정 사생은 미회원 사생만 존재 가능
                     Room room = resident.getRoom();
 
                     // 미회원인지 아닌지 구분
@@ -295,22 +282,14 @@ public class ResidentManagementService {
                         bonusPoint = student.getBonusPoint();
                         minusPoint = student.getMinusPoint();
                         schoolStatus = student.getSchoolStatus();
+
+                    }
+
+                    if (room != null) {
                         DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                         dormitoryName = dormitoryRoomType.getDormitory().getName();
                         roomSize = dormitoryRoomType.getRoomType().getRoomSize();
                         roomNumber = room.getRoomNumber();
-
-                    } else {
-                        if (room != null) {
-                            DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
-                            dormitoryName = dormitoryRoomType.getDormitory().getName();
-                            roomSize = dormitoryRoomType.getRoomType().getRoomSize();
-                            roomNumber = room.getRoomNumber();
-                        }
-                        // TODO : 사생 직접 추가 시 건물도 필수로 할지 기획과 논의 후 결정
-//                        else if (dormitory != null) {
-//                            dormitoryName = dormitory.getName();
-//                        }
                     }
 
                     return ResidentRes.builder()
@@ -388,8 +367,8 @@ public class ResidentManagementService {
         Boolean dormitoryPayment = residentPrivateInfoReq.getDormitoryPayment();
         // 미회원 사생 고려
         if (resident.getStudent() != null) {
-            // user가 있으면 입사신청을 했을 것이므로
-            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatusAndDormitoryApplicationResult(resident.getStudent(), ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+            // student가 있으면 입사신청을 했을 것이므로
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findLatestDormitoryApplicationByStudent(resident.getStudent(), DormitoryApplicationResult.PASS);
             if (copy.isPresent()) {
                 uploadCopyFile(dormitoryApplication, copy.get());
             } else if (prioritySelectionCopy.isPresent()) {
@@ -556,11 +535,11 @@ public class ResidentManagementService {
         residentRepository.delete(resident);
         if (student != null) {
 //            user.updateUserType(userType);
-            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatusAndDormitoryApplicationResult(student, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findLatestDormitoryApplicationByStudent(student, DormitoryApplicationResult.PASS);
             // 입사신청 상태 변경
-            if (dormitoryApplication != null) {
-                dormitoryApplication.updateApplicationStatus(ApplicationStatus.BEFORE);
-            }
+            // if (dormitoryApplication != null) {
+            //   dormitoryApplication.updateApplicationStatus(ApplicationStatus.BEFORE);
+            // }
         }
 
         ApiResponse apiResponse = ApiResponse.builder()
