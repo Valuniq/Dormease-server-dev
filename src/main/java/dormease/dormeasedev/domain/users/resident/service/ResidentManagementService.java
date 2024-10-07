@@ -367,8 +367,8 @@ public class ResidentManagementService {
         Boolean dormitoryPayment = residentPrivateInfoReq.getDormitoryPayment();
         // 미회원 사생 고려
         if (resident.getStudent() != null) {
-            // user가 있으면 입사신청을 했을 것이므로
-            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatusAndDormitoryApplicationResult(resident.getStudent(), ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+            // student가 있으면 입사신청을 했을 것이므로
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findLatestDormitoryApplicationByStudent(resident.getStudent(), DormitoryApplicationResult.PASS);
             if (copy.isPresent()) {
                 uploadCopyFile(dormitoryApplication, copy.get());
             } else if (prioritySelectionCopy.isPresent()) {
@@ -535,11 +535,11 @@ public class ResidentManagementService {
         residentRepository.delete(resident);
         if (student != null) {
 //            user.updateUserType(userType);
-            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findByStudentAndApplicationStatusAndDormitoryApplicationResult(student, ApplicationStatus.NOW, DormitoryApplicationResult.PASS);
+            DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findLatestDormitoryApplicationByStudent(student, DormitoryApplicationResult.PASS);
             // 입사신청 상태 변경
-            if (dormitoryApplication != null) {
-                dormitoryApplication.updateApplicationStatus(ApplicationStatus.BEFORE);
-            }
+            // if (dormitoryApplication != null) {
+            //   dormitoryApplication.updateApplicationStatus(ApplicationStatus.BEFORE);
+            // }
         }
 
         ApiResponse apiResponse = ApiResponse.builder()
