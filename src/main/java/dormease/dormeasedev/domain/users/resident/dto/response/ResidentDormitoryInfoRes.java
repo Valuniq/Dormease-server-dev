@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 public class ResidentDormitoryInfoRes {
@@ -31,11 +33,11 @@ public class ResidentDormitoryInfoRes {
     @Schema(type = "Boolean", example = "true", description= "사생의 룸메이트 신청 여부입니다.")
     private Boolean isApplyRoommate;
 
-    @Schema(type = "array", example = "[김사생, 이사생, 최사생]", description= "같은 호실에 거주하는 사생의 이름 배열입니다.")
-    private String[] roommateNames;
+    @Schema(type = "List", example = "김사생, 이사생, 최사생", description= "같은 호실에 거주하는 사생의 이름 리스트입니다.")
+    private List<String> roommateNames;
 
     @Builder
-    public ResidentDormitoryInfoRes(Long dormitoryId, String dormitoryName, Integer roomSize, Integer roomNumber, Integer bedNumber, String termName, Boolean isApplyRoommate, String[] roommateNames) {
+    public ResidentDormitoryInfoRes(Long dormitoryId, String dormitoryName, Integer roomSize, Integer roomNumber, Integer bedNumber, String termName, Boolean isApplyRoommate, List<String> roommateNames) {
         this.dormitoryId = dormitoryId;
         this.dormitoryName = dormitoryName;
         this.roomSize = roomSize;

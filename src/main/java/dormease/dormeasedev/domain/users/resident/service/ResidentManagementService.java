@@ -146,7 +146,7 @@ public class ResidentManagementService {
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
         } else {
-            String[] roommateNames = getRoommateNames(resident);
+            List<String> roommateNames = getRoommateNames(resident);
             return ResidentDormitoryInfoRes.builder()
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
@@ -160,7 +160,7 @@ public class ResidentManagementService {
         }
     }
 
-    private String[] getRoommateNames(Resident resident) {
+    private List<String> getRoommateNames(Resident resident) {
         List<Resident> residents = residentRepository.findByRoom(resident.getRoom());
         List<String> roommatesList = new ArrayList<>();
         for (Resident r : residents) {
@@ -168,7 +168,7 @@ public class ResidentManagementService {
                 roommatesList.add(r.getName());
             }
         }
-        return roommatesList.toArray(new String[0]);
+        return roommatesList;
     }
 
     // 사생 목록 조회 및 정렬
