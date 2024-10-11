@@ -15,6 +15,9 @@ import java.util.List;
 @Builder
 public class StandardSettingRes {
 
+    @Schema(type = "Long", example = "1", description = "기준 설정 id")
+    private Long standardSettingId;
+
     @Schema(type = "double", example = "2.5", description = "최소 학점")
     private double minScore;
 
