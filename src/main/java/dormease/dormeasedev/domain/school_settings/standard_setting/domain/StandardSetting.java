@@ -13,7 +13,7 @@ public class StandardSetting extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "stancard_settings_id")
+    @Column(name = "standard_setting_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
