@@ -6,12 +6,15 @@ import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.school.service.SchoolService;
 import dormease.dormeasedev.domain.users.auth.domain.RefreshToken;
 import dormease.dormeasedev.domain.users.auth.domain.repository.RefreshTokenRepository;
+import dormease.dormeasedev.domain.users.auth.dto.request.JoinReq;
+import dormease.dormeasedev.domain.users.auth.dto.request.ModifyReq;
 import dormease.dormeasedev.domain.users.auth.dto.request.SignInReq;
 import dormease.dormeasedev.domain.users.auth.dto.request.SignUpReq;
 import dormease.dormeasedev.domain.users.auth.dto.response.CheckLoginIdRes;
 import dormease.dormeasedev.domain.users.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
+import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.service.UserService;
@@ -46,6 +49,42 @@ public class AuthService {
 
     private final UserService userService;
     private final SchoolService schoolService;
+
+    @Transactional
+    public void join(JoinReq joinReq) {
+        String studentNumber = joinReq.getStudentNumber();
+        if (studentRepository.existsByStudentNumber(studentNumber))
+            throw new IllegalArgumentException("이미 동의한 학생입니다.");
+
+        User user = User.builder()
+                .name(joinReq.getName())
+                .build();
+        User saveUser = userRepository.save(user);
+
+        Student student = Student.builder()
+                .user(saveUser)
+                .phoneNumber(joinReq.getPhoneNumber())
+                .studentNumber(studentNumber)
+                .gender(Gender.EMPTY)
+                .schoolStatus(joinReq.getSchoolStatus())
+                .address(joinReq.getAddress()) // address 전처리
+                .major(joinReq.getMajor())
+                .schoolYear(joinReq.getSchoolYear())
+                .grade(joinReq.getGrade())
+                .build();
+        studentRepository.save(student);
+    }
+
+    @Transactional
+    public void modify(ModifyReq modifyReq) {
+        String studentNumber = modifyReq.getStudentNumber();
+        Student student = studentRepository.findByStudentNumber(studentNumber)
+                .orElseThrow(() -> new IllegalArgumentException("해당 학번의 학생이 존재하지 않습니다."));
+
+        User user = student.getUser();
+        user.updateName(modifyReq.getName());
+        student.update(modifyReq);
+    }
 
     @Transactional
     public void signUp(SignUpReq signUpReq) {
@@ -125,4 +164,6 @@ public class AuthService {
                 .isDuplicate(isDuplicate)
                 .build();
     }
+
+
 }

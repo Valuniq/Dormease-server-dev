@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.users.student.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
+import dormease.dormeasedev.domain.users.auth.dto.request.ModifyReq;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.SchoolStatus;
 import dormease.dormeasedev.domain.users.user.domain.User;
@@ -75,6 +76,16 @@ public class Student extends BaseEntity {
 
     public void updateMinusPoint(Integer minusPoint) {
         this.minusPoint = minusPoint;
+    }
+
+    public void update(ModifyReq modifyReq) {
+        this.phoneNumber = modifyReq.getPhoneNumber();
+        this.address = modifyReq.getAddress();
+        this.studentNumber = modifyReq.getStudentNumber();
+        this.schoolStatus = modifyReq.getSchoolStatus();
+        this.major = modifyReq.getMajor();
+        this.schoolYear = modifyReq.getSchoolYear();
+        this.grade = modifyReq.getGrade();
     }
 
     @Builder
