@@ -408,7 +408,7 @@ public class PointWebService {
     // Description: 기본 정렬 (sortBy: name, isAscending: true)
     public ResponseEntity<?> getResidents(UserDetailsImpl userDetailsImpl, String sortBy, Boolean isAscending, Integer page) {
         User adminUser = validUserById(userDetailsImpl.getUserId());
-        String sortField = "user." + sortBy;
+        String sortField = "student.user." + sortBy;
         Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
 
 
