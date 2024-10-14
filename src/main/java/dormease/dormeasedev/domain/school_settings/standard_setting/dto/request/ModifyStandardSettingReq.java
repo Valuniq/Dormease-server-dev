@@ -47,5 +47,5 @@ public class ModifyStandardSettingReq {
     private JsonNullable<String> entrancePledge;
 
     @Schema(type = "List<DistanceScoreReq>", example = "distanceScoreReq", description = "거리 점수 리스트입니다.")
-    private JsonNullable<List<DistanceScoreReq>> distanceScoreReqList;
+    private List<DistanceScoreReq> distanceScoreReqList;
 }
