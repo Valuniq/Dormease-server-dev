@@ -12,4 +12,6 @@ import java.util.List;
 public interface RegionDistanceScoreRepository extends JpaRepository<RegionDistanceScore, Long> {
 
     List<RegionDistanceScore> findBySchoolAndDistanceScore(School school, DistanceScore distanceScore);
+
+    List<RegionDistanceScore> findBySchool(School school);
 }
