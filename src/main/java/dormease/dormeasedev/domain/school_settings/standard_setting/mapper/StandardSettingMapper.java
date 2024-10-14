@@ -22,5 +22,6 @@ public interface StandardSettingMapper extends JsonNullableMapper {
 
     StandardSetting createStandardSettingReqToStandardSetting(School school, CreateStandardSettingReq createStandardSettingReq);
 
+    @Mapping(source = "standardSetting.id", target = "standardSettingId")
     StandardSettingRes toStandardSettingRes(StandardSetting standardSetting, List<DistanceScoreRes> distanceScoreResList);
 }
