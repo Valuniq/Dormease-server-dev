@@ -22,6 +22,7 @@ import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -117,6 +118,48 @@ public class StandardSettingService {
                 .orElseThrow(StandardSettingNotFoundException::new);
         if (!standardSetting.getSchool().equals(school))
             throw new IllegalArgumentException();
+
+        // 기존 RegionDistanceScore 목록 조회
+        List<RegionDistanceScore> existingRegionDistanceScores = regionDistanceScoreRepository.findBySchool(school);
+
+        // 새로 들어온 DistanceScoreReqList와 기존 데이터를 비교
+        List<RegionDistanceScore> updatedRegionDistanceScores = modifyStandardSettingReq.getDistanceScoreReqList().stream()
+                .map(distanceScoreReq -> {
+                    DistanceScore distanceScore = distanceScoreRepository.findById(distanceScoreReq.getDistanceScoreId())
+                            .orElseThrow(InvalidParameterException::new);
+
+                    return distanceScoreReq.getRegionIdList().stream()
+                            .map(regionId -> regionRepository.findById(regionId)
+                                    .orElseThrow(InvalidParameterException::new))
+                            .map(region -> {
+                                // 기존 데이터가 있으면 수정, 없으면 새로운 데이터 생성
+                                return existingRegionDistanceScores.stream()
+                                        .filter(existing -> existing.getDistanceScore().equals(distanceScore) &&
+                                                existing.getRegion().equals(region))
+                                        .findFirst()
+                                        .orElseGet(() -> RegionDistanceScore.builder()
+                                                .school(school)
+                                                .distanceScore(distanceScore)
+                                                .region(region)
+                                                .build());
+                            })
+                            .collect(Collectors.toList());
+                })
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        // 기존 데이터에서 삭제할 항목 제거
+        List<RegionDistanceScore> toRemove = existingRegionDistanceScores.stream()
+                .filter(existing -> updatedRegionDistanceScores.stream()
+                        .noneMatch(updated -> updated.getDistanceScore().equals(existing.getDistanceScore()) &&
+                                updated.getRegion().equals(existing.getRegion())))
+                .collect(Collectors.toList());
+
+        // 삭제할 항목 제거
+        regionDistanceScoreRepository.deleteAll(toRemove);
+
+        // 변경된 데이터 저장 (추가 및 수정)
+        regionDistanceScoreRepository.saveAll(updatedRegionDistanceScores);
 
         standardSettingMapper.updateStandardSettingFromDto(modifyStandardSettingReq, standardSetting);
     }
