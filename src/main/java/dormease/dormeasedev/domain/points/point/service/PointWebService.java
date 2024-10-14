@@ -50,7 +50,6 @@ public class PointWebService {
     private final ResidentRepository residentRepository;
     private final PointRepository pointRepository;
     private final UserPointRepository userPointRepository;
-    private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final StudentRepository studentRepository;
 
     private final UserService userService;
@@ -408,28 +407,26 @@ public class PointWebService {
     // Description: 기본 정렬 (sortBy: name, isAscending: true)
     public ResponseEntity<?> getResidents(UserDetailsImpl userDetailsImpl, String sortBy, Boolean isAscending, Integer page) {
         User adminUser = validUserById(userDetailsImpl.getUserId());
-        String sortField = "student.user." + sortBy;
-        Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        // 정렬 정보
+        Sort.Direction direction = isAscending ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = switch (sortBy) {
+            case "bonusPoint" -> Sort.by(direction, "student.bonusPoint");
+            case "minusPoint" -> Sort.by(direction, "student.minusPoint");
+            default -> Sort.by(direction, "name");  // 기본 정렬: 이름
+        };
+        Pageable pageable = PageRequest.of(page, 25, sort);
 
-
-        // userType이 RESIDENT인 user를 찾아서 사생 리스트 만들기
-//        List<User> users = userRepository.findBySchoolAndUserType(adminUser.getSchool(), UserType.RESIDENT);
         List<Student> studentList = studentRepository.findByUser_School(adminUser.getSchool());
         // user를 가지고 있는 resident 찾기 (페이징 적용)
         Page<Resident> residents = residentRepository.findResidentsByStudents(studentList, pageable);
-
-        // 사생 목록 조회 (페이징 적용)
-        // Page<Resident> residents = residentRepository.findByUserSchool(admin.getSchool(), pageable);
 
         List<ResidentInfoRes> residentInfoResList = residents.getContent().stream()
                 .map(resident -> {
                     DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                     Student student = resident.getStudent();
-                    User user = student.getUser();
-
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
-                            .name(user.getName())
+                            .name(resident.getName())
                             .studentNumber(student.getStudentNumber())
                             .phoneNumber(student.getPhoneNumber())
                             .bonusPoint(student.getBonusPoint())
@@ -457,12 +454,16 @@ public class PointWebService {
     public ResponseEntity<?> getSearchResidents(UserDetailsImpl userDetailsImpl, String keyword, String sortBy, Boolean isAscending, Integer page) {
         User adminUser = validUserById(userDetailsImpl.getUserId());
         String cleanedKeyword = keyword.trim().toLowerCase();;
-        String sortField = "user." + sortBy;
-        Pageable pageable = PageRequest.of(page, 25, isAscending ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+        // 정렬 정보
+        Sort.Direction direction = isAscending ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = switch (sortBy) {
+            case "bonusPoint" -> Sort.by(direction, "student.bonusPoint");
+            case "minusPoint" -> Sort.by(direction, "student.minusPoint");
+            default -> Sort.by(direction, "name");  // 기본 정렬: 이름
+        };
+        Pageable pageable = PageRequest.of(page, 25, sort);
 
         List<Student> studentList = studentRepository.findBySchoolAndKeyword(adminUser.getSchool(), cleanedKeyword, cleanedKeyword);
-        /// userType이 RESIDENT인 user를 keyword로 검색 사생 리스트 만들기
-//        List<User> users = userRepository.searchUsersByKeyword(adminUser.getSchool(), cleanedKeyword, UserType.RESIDENT);
         // user를 가지고 있는 resident 찾기 (페이징 적용)
         Page<Resident> residents = residentRepository.findResidentsByStudents(studentList, pageable);
 
@@ -470,10 +471,9 @@ public class PointWebService {
                 .map(resident -> {
                     DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                     Student student = resident.getStudent();
-                    User user = student.getUser();
                     return ResidentInfoRes.builder()
                             .id(resident.getId())
-                            .name(user.getName())
+                            .name(resident.getName())
                             .studentNumber(student.getStudentNumber())
                             .phoneNumber(student.getPhoneNumber())
                             .bonusPoint(student.getBonusPoint())
