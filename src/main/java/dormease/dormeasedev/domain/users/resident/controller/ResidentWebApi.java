@@ -1,10 +1,7 @@
 package dormease.dormeasedev.domain.users.resident.controller;
 
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
-import dormease.dormeasedev.domain.users.resident.dto.response.AvailableDormitoryApplicationSettingRes;
-import dormease.dormeasedev.domain.users.resident.dto.response.DormitoryResidentAssignmentRes;
-import dormease.dormeasedev.domain.users.resident.dto.response.ResidentDetailInfoRes;
-import dormease.dormeasedev.domain.users.resident.dto.response.ResidentRes;
+import dormease.dormeasedev.domain.users.resident.dto.response.*;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
@@ -102,9 +99,21 @@ public interface ResidentWebApi {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = AvailableDormitoryApplicationSettingRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
-    @GetMapping("/dormitorySettingApplication")
+    @GetMapping("/manual/dormitorySettingApplication")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getAvailableSettingAndTerm(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    );
+
+    @Operation(summary = "호실 배정 시 침대번호 및 룸메이트 정보 조회", description = "사생 직접 추가 - 호실 배정 시 침대번호와 룸메이트 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = AssignedRoomRes.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @GetMapping("/manual")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getAvailableRoomAndBedNumber(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "건물의 id를 입력해주세요.", required = true) @RequestParam Long dormitoryId,
+            @Parameter(description = "호실의 번호를 입력해주세요.", required = true) @RequestParam Integer roomNumber
     );
 
     @Operation(summary = "사생 퇴사 처리", description = "사생 관리 프로세스 중 특정 사생을 퇴사 처리합니다.")

@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.users.resident.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
+import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
@@ -53,6 +54,7 @@ public class ResidentManagementService {
     private final ResidentRepository residentRepository;
     private final RoomRepository roomRepository;
     private final TermRepository termRepository;
+    private final DormitoryRepository dormitoryRepository;
     private final DormitoryTermRepository dormitoryTermRepository;
     private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
@@ -173,6 +175,15 @@ public class ResidentManagementService {
             if (!r.getId().equals(resident.getId())) {
                 roommatesList.add(r.getName());
             }
+        }
+        return roommatesList;
+    }
+
+    private List<String> getRoommateNames(Room room) {
+        List<Resident> residents = residentRepository.findByRoom(room);
+        List<String> roommatesList = new ArrayList<>();
+        for (Resident r : residents) {
+            roommatesList.add(r.getName());
         }
         return roommatesList;
     }
@@ -492,8 +503,45 @@ public class ResidentManagementService {
                 .toList();
     }
 
+    // 호실 배치
+    public AssignedRoomRes assignedRoomAndBedNumber(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer roomNumber) {
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        // dormitory
+        Optional<Dormitory> dormitoryOptional = dormitoryRepository.findById(dormitoryId);
+        DefaultAssert.isTrue(dormitoryOptional.isPresent(), "해당 건물이 존재하지 않습니다.");
+        Dormitory dormitory = dormitoryOptional.get();
+        // room
+        Room room = roomRepository.findByDormitoryAndRoomNumber(dormitory, roomNumber);
+
+        DefaultAssert.isTrue(room.getDormitory().getSchool() == admin.getSchool(), "잘못된 접근입니다.");
+        // room의 인원 수 계산해서 배정 여부
+        boolean isPossible = residentRepository.countByRoom(room) < room.getRoomType().getRoomSize();
+        if (isPossible) {
+            return AssignedRoomRes.builder()
+                    .possible(isPossible)
+                    .bedNumber(assignedBedNumber(room))
+                    .roommateNames(getRoommateNames(room))
+                    .build();
+        } else {
+            return AssignedRoomRes.builder()
+                    .possible(isPossible)
+                    .build();
+        }
+    }
+
+    private int assignedBedNumber(Room room) {
+        int bedNumberCount = Integer.MAX_VALUE;
+        for (int i=1; i<=room.getRoomType().getRoomSize(); i++) {
+            if(!residentRepository.existsByRoomAndBedNumber(room, i)) {
+                bedNumberCount = i;
+                break;
+            }
+        }
+        DefaultAssert.isTrue(bedNumberCount <= room.getRoomType().getRoomSize(), "배정 가능한 침대가 없습니다.");
+        return bedNumberCount;
+    }
+
     // 사생 건물 재배치
-    // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 거주기간 -> 기숙사 순서(예정))
     // @Transactional
     // public ResponseEntity<?> reassignResidentToDormitory(UserDetailsImpl userDetailsImpl, Long residentId, Long dormitoryId) {
     //     User admin = userService.validateUserById(userDetailsImpl.getUserId());

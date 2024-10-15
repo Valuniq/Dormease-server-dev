@@ -32,4 +32,5 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     void deleteByDormitory(Dormitory dormitory);
 
+    Room findByDormitoryAndRoomNumber(Dormitory dormitory, Integer roomNumber);
 }

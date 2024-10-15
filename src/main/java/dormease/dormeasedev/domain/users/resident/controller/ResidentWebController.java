@@ -90,13 +90,27 @@ public class ResidentWebController implements ResidentWebApi {
     }
 
     @Override
-    @GetMapping("/dormitoryApplicationSetting")
+    @GetMapping("/manual/dormitoryApplicationSetting")
     public ResponseEntity<ApiResponse> getAvailableSettingAndTerm(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(residentManagementService.findAvailableDormitoryApplicationSettingAndTerm(userDetailsImpl))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @Override
+    @GetMapping("/manual")
+    public ResponseEntity<ApiResponse> getAvailableRoomAndBedNumber(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @RequestParam Long dormitoryId,
+            @RequestParam Integer roomNumber
+    ) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(residentManagementService.assignedRoomAndBedNumber(userDetailsImpl, dormitoryId, roomNumber))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
