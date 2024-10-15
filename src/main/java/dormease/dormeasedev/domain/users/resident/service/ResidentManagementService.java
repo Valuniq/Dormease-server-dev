@@ -487,7 +487,8 @@ public class ResidentManagementService {
             DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findLatestDormitoryApplicationByStudent(resident.getStudent(), DormitoryApplicationResult.PASS);
             if (copy.isPresent()) {
                 uploadCopyFile(dormitoryApplication, copy.get());
-            } else if (prioritySelectionCopy.isPresent()) {
+            }
+            if (prioritySelectionCopy.isPresent()) {
                 uploadPrioritySelectionCopyFile(dormitoryApplication, prioritySelectionCopy.get());
             }
             dormitoryApplication.updateResidentPrivateInfo(emergencyContact, emergencyRelation, bankName, accountNumber, dormitoryPayment);
