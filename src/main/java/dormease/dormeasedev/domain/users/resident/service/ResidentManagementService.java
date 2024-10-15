@@ -359,21 +359,22 @@ public class ResidentManagementService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // 현재 입사신청 목록 조회
-    // 입사신청에 맞는 거주기간 조회
-    // 사생 직접 추가
 
     // 사생 직접 추가 버튼 -> term 정보 보내줘야 함
 
     //
     // 이름 성별 입사신청, 거주기간, 건물 필수
     // @Transactional
-    // public ResponseEntity<?> addNewResident() {
+    // public void addNewResident(UserDetailsImpl userDetailsImpl) {
+    //    User admin = userService.validateUserById(userDetailsImpl.getUserId());
         // 필수: school, name, gender term
         // 선택: hasKey
         // 무조건 null: user, dormitory, room, roommateTempApplication, roommateApplication, bedNumber, isRoommateApplied
-
-    // }
+   //     residentRepository.save(Resident.builder()
+   //             .school(admin.getSchool())
+   //             .build()
+   //     );
+   // }
 
     // 사생 정보 수정
     // Description : emergencyContact, emergencyRelation, bankName, accountNumber, dormitoryPayment, hasKey는 정보 수정 시 모두 보내줘야 함(변경되지 않은 값이 있더라도)
@@ -582,41 +583,6 @@ public class ResidentManagementService {
         DefaultAssert.isTrue(bedNumberCount <= room.getRoomType().getRoomSize(), "배정 가능한 침대가 없습니다.");
         return bedNumberCount;
     }
-
-    // 사생 건물 재배치
-    // @Transactional
-    // public ResponseEntity<?> reassignResidentToDormitory(UserDetailsImpl userDetailsImpl, Long residentId, Long dormitoryId) {
-    //     User admin = userService.validateUserById(userDetailsImpl.getUserId());
-    //     Resident resident = residentService.validateResidentById(residentId);
-    //     DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
-
-        // 사생의 호실 및 침대번호 초기화
-    //     Room room = resident.getRoom();
-    //     if (room != null) {
-    //         resident.updateRoom(null);
-    //         resident.updateBedNumber(null);
-            // room의 현재 거주인원 변경
-    //         room.adjustRoomCurrentPeople(room, -1);
-    //     }
-
-        // 사생의 건물 업데이트
-    //     Dormitory dormitory = dormitoryService.validateDormitoryId(dormitoryId);
-    //     DefaultAssert.isTrue(dormitory.getGender() == resident.getGender(), "건물과 사생의 성별이 일치하지 않습니다.");
-    //     resident.updateDormitory(dormitory);
-
-    //     ApiResponse apiResponse = ApiResponse.builder()
-    //             .check(true)
-    //             .information(Message.builder().message("건물이 재배치되었습니다.").build()).build();
-
-    //     return ResponseEntity.ok(apiResponse);
-    // }
-
-    // 호실 배치시 인원 없으면 없다고 띄우기
-    // 배치 되면 인원 업데이트
-    // 맞춰서 기숙사 정보 업데이트(룸메이트)
-    // 호실 배치 누르면 배정 가능 여부/ 가능하면 침대번호, 인원 정보 돌려주기
-    // 저장 눌러야 업데이트
-    // dormitoryTerm 업데이트 할 것
 
     @Transactional
     public ResponseEntity<?> deleteResident(UserDetailsImpl userDetailsImpl, Long residentId) {
