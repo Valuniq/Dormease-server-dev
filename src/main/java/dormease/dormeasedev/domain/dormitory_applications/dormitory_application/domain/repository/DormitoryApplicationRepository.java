@@ -41,6 +41,8 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
             List<DormitoryApplicationResult> results
     );
 
-    @Query("SELECT d FROM DormitoryApplication d WHERE d.student = :student AND d.dormitoryApplicationResult = :dormitoryApplicationResult ORDER BY d.createdDate DESC")
+    @Query("SELECT d FROM DormitoryApplication d " +
+            "WHERE d.student = :student AND d.dormitoryApplicationResult = :dormitoryApplicationResult " +
+            "ORDER BY d.createdDate DESC")
     DormitoryApplication findLatestDormitoryApplicationByStudent(Student student, DormitoryApplicationResult dormitoryApplicationResult);
 }
