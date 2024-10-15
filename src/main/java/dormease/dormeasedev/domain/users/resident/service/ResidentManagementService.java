@@ -13,6 +13,7 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
@@ -22,6 +23,7 @@ import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.rep
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.users.resident.dto.request.CreateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentDormitoryInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.UpdateResidentInfoReq;
@@ -361,12 +363,8 @@ public class ResidentManagementService {
 
 
     // 사생 직접 추가 버튼 -> term 정보 보내줘야 함
-
-    //
     // 이름 성별 입사신청, 거주기간, 건물 필수
-    // @Transactional
-    // public void addNewResident(UserDetailsImpl userDetailsImpl) {
-    //    User admin = userService.validateUserById(userDetailsImpl.getUserId());
+
         // 필수: school, name, gender term
         // 선택: hasKey
         // 무조건 null: user, dormitory, room, roommateTempApplication, roommateApplication, bedNumber, isRoommateApplied
@@ -411,11 +409,17 @@ public class ResidentManagementService {
         DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findByDormitoryAndRoomType(dormitory, roomType);
         DormitoryTerm dormitoryTerm = dormitoryTermRepository.findByDormitoryRoomTypeAndTerm(dormitoryRoomType, term);
         resident.updateDormitoryTerm(dormitoryTerm);
-        // room
-        Room room = roomRepository.findByDormitoryAndRoomNumber(dormitory, residentDormitoryInfoReq.getRoomNumber());
+
+        Room room = null;
+        Integer bedNumber = null;
+        if (residentDormitoryInfoReq.getRoomNumber() != null) {
+            // room
+            room = roomRepository.findByDormitoryAndRoomNumber(dormitory, residentDormitoryInfoReq.getRoomNumber());
+            // bedNumber
+            bedNumber = residentDormitoryInfoReq.getBedNumber();
+        }
         resident.updateRoom(room);
-        // bedNumber
-        resident.updateBedNumber(residentDormitoryInfoReq.getBedNumber());
+        resident.updateBedNumber(bedNumber);
 
         // 방 배정인원 업데이트
         updateCurrentPeople(originalRoom, room);
@@ -426,9 +430,11 @@ public class ResidentManagementService {
             Integer originalRoomPeopleCount = residentRepository.findByRoom(originalRoom).size();
             originalRoom.updateCurrentPeople(originalRoomPeopleCount);
         }
-        Integer currentPeopleCount = residentRepository.findByRoom(room).size();
-        DefaultAssert.isTrue(currentPeopleCount <= room.getRoomType().getRoomSize(), "배정 가능한 인원을 초과했습니다.");
-        room.updateCurrentPeople(currentPeopleCount);
+        if (room != null) {
+            Integer currentPeopleCount = residentRepository.findByRoom(room).size();
+            DefaultAssert.isTrue(currentPeopleCount <= room.getRoomType().getRoomSize(), "배정 가능한 인원을 초과했습니다.");
+            room.updateCurrentPeople(currentPeopleCount);
+        }
     }
 
     private void updateResidentPrivateInfo(Resident resident, Optional<MultipartFile> copy, Optional<MultipartFile>  prioritySelectionCopy, ResidentPrivateInfoReq residentPrivateInfoReq) throws IOException {
