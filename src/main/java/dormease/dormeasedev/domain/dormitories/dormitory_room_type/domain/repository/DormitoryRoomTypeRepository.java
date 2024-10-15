@@ -13,9 +13,9 @@ import java.util.List;
 public interface DormitoryRoomTypeRepository extends JpaRepository<DormitoryRoomType, Long> {
     List<DormitoryRoomType> findByDormitory(Dormitory dormitory);
 
-    boolean existsByDormitoryAndRoomTypeGender(Dormitory dormitory, Gender gender);
-
     List<DormitoryRoomType> findByDormitoryAndRoomTypeGender(Dormitory dormitory, Gender gender);
 
     DormitoryRoomType findByDormitoryAndRoomType(Dormitory dormitory, RoomType roomType);
+
+    boolean existsByDormitoryAndRoomType_Gender(Dormitory dormitory, Gender gender);
 }

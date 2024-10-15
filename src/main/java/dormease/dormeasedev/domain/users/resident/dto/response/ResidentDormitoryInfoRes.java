@@ -27,6 +27,9 @@ public class ResidentDormitoryInfoRes {
     @Schema(type = "Integer", example = "1", description= "사생의 호실 침대번호 입니다.")
     private Integer bedNumber;
 
+    @Schema(type = "Long", example = "1", description = "거주기간 ID")
+    private Long termId;
+
     @Schema(type = "String", example = "학기", description= "사생의 거주기간입니다.")
     private String termName;
 
@@ -37,12 +40,13 @@ public class ResidentDormitoryInfoRes {
     private List<String> roommateNames;
 
     @Builder
-    public ResidentDormitoryInfoRes(Long dormitoryId, String dormitoryName, Integer roomSize, Integer roomNumber, Integer bedNumber, String termName, Boolean isApplyRoommate, List<String> roommateNames) {
+    public ResidentDormitoryInfoRes(Long dormitoryId, String dormitoryName, Integer roomSize, Integer roomNumber, Integer bedNumber, Long termId, String termName, Boolean isApplyRoommate, List<String> roommateNames) {
         this.dormitoryId = dormitoryId;
         this.dormitoryName = dormitoryName;
         this.roomSize = roomSize;
         this.roomNumber = roomNumber;
         this.bedNumber = bedNumber;
+        this.termId = termId;
         this.termName = termName;
         this.isApplyRoommate = isApplyRoommate;
         this.roommateNames = roommateNames;

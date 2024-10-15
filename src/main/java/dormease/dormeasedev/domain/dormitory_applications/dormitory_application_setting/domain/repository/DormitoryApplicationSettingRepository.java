@@ -40,4 +40,6 @@ public interface DormitoryApplicationSettingRepository extends JpaRepository<Dor
     Optional<DormitoryApplicationSetting> findBySchoolAndDateRange(@Param("school") School school, @Param("createdDate") LocalDate createdDate);
 
     boolean existsBySchoolAndApplicationStatus(School school, ApplicationStatus applicationStatus);
+
+    List<DormitoryApplicationSetting> findBySchoolOrderByCreatedDateDesc(School school);
 }
