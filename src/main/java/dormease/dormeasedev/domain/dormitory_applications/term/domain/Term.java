@@ -36,6 +36,12 @@ public class Term extends BaseEntity {
 
     // 이전 내역인지 구분하는 컬럼 : x => 기간에 따라 배치로 정리
 
+    public void updateTerm(String termName, LocalDate startDate, LocalDate endDate) {
+        this.termName = termName;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
     @Builder
     public Term(String termName, DormitoryApplicationSetting dormitoryApplicationSetting, LocalDate startDate, LocalDate endDate) {
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;

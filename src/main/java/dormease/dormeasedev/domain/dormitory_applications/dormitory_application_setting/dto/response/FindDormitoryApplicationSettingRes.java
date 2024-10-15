@@ -3,7 +3,7 @@ package dormease.dormeasedev.domain.dormitory_applications.dormitory_application
 import com.fasterxml.jackson.annotation.JsonFormat;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.dto.DormitorySettingTermRes;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto.TermRes;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto.response.TermRes;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.dto.response.MealTicketRes;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

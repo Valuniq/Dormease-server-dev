@@ -12,6 +12,9 @@ import lombok.*;
 public class DormitorySettingTermRes {
 
     @Schema(type = "Long", example = "1", description = "기숙사(인실/성별 구분) ID")
+    private Long dormitorySettingTermId;
+
+    @Schema(type = "Long", example = "1", description = "기숙사(인실/성별 구분) ID")
     private Long dormitoryRoomTypeId;
 
     @Schema(type = "String", example = "3동", description = "기숙사 이름")

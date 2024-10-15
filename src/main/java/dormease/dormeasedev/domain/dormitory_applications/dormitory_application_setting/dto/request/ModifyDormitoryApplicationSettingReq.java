@@ -1,21 +1,20 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import dormease.dormeasedev.domain.dormitories.dormitory_room_type.dto.request.DormitoryRoomTypeReq;
-import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.dto.request.MealTicketReq;
-import dormease.dormeasedev.domain.dormitory_applications.term.dto.request.TermReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.dto.request.ModifyDormitorySettingTermReq;
+import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.dto.request.ModifyMealTicketReq;
+import dormease.dormeasedev.domain.dormitory_applications.term.dto.request.ModifyTermReq;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
 @Getter
-public class CreateDormitoryApplicationSettingReq {
+public class ModifyDormitoryApplicationSettingReq {
 
     @Schema(type = "String", example = "2024-1학기 명지대학교 자연 생활관 재학생 2차 입사 신청", description= "입사 신청 설정의 제목입니다.")
     private String title;
@@ -46,13 +45,12 @@ public class CreateDormitoryApplicationSettingReq {
     @Schema(type = "Integer", example = "500000", description = "보증금입니다.")
     private Integer securityDeposit;
 
-    @Schema(type = "List<DormitoryRoomTypeReq>", example = "dormitoryRoomTypeReqList", description = "입사 신청 설정에 사용되는 기숙사 정보 리스트입니다.")
-    private List<DormitoryRoomTypeReq> dormitoryRoomTypeReqList;
+    @Schema(type = "List<ModifyDormitorySettingTermReq>", example = "modifyDormitorySettingTermReqList", description = "입사 신청 설정에 사용되는 기숙사 정보 + 수용 인원 리스트입니다.")
+    private List<ModifyDormitorySettingTermReq> modifyDormitorySettingTermReqList;
 
-    @Schema(type = "List<TermReq>", example = "termReqList", description = "거주 기간 리스트입니다.")
-    private List<TermReq> termReqList;
+    @Schema(type = "List<ModifyTermReq>", example = "modifyTermReqList", description = "거주 기간 리스트입니다.")
+    private List<ModifyTermReq> modifyTermReqList;
 
-    @Schema(type = "List<MealTicketReq>", example = "mealTicketReqList", description = "식권 리스트입니다.")
-    private List<MealTicketReq> mealTicketReqList;
-
+    @Schema(type = "List<ModifyMealTicketReq>", example = "modifyMealTicketReqList", description = "식권 리스트입니다.")
+    private List<ModifyMealTicketReq> modifyMealTicketReqList;
 }

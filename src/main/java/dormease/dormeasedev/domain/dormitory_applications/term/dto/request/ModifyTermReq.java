@@ -2,20 +2,22 @@ package dormease.dormeasedev.domain.dormitory_applications.term.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto.request.DormitoryTermReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto.request.ModifyDormitoryTermReq;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
 @Getter
-public class TermReq {
+public class ModifyTermReq {
 
-    // 거주 기간 - 학기, 6개월 등 ..
+    @Schema(type = "Long", example = "1", description = "거주 기간 ID입니다.")
+    private Long termId;
+    
     @Schema(type = "String", example = "학기", description= "거주 기간 이름입니다.")
     private String termName;
 
@@ -31,6 +33,6 @@ public class TermReq {
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate endDate;
 
-    @Schema(type = "List<DormitoryTermReq>", example = "dormitoryTermReqList", description= "기숙사와 거주기간 중간 테이블을 위한 리스트입니다. 거주기간과 연관된 기숙사 목록입니다.")
-    private List<DormitoryTermReq> dormitoryTermReqList = new ArrayList<>();
+    @Schema(type = "List<ModifyDormitoryTermReq>", example = "modifyDormitoryTermReqList", description= "기숙사와 거주기간 중간 테이블을 위한 리스트입니다. 거주기간과 연관된 기숙사 목록입니다.")
+    private List<ModifyDormitoryTermReq> modifyDormitoryTermReqList;
 }
