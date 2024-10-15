@@ -392,23 +392,24 @@ public class ResidentManagementService {
     }
 
     private void uploadCopyFile(DormitoryApplication dormitoryApplication, MultipartFile file) throws IOException {
-        String originalFile = dormitoryApplication.getCopy().split("amazonaws.com/")[1];
-        s3Uploader.deleteFile(originalFile);
-
+        if (dormitoryApplication.getCopy() != null) {
+            String originalFile = dormitoryApplication.getCopy().split("amazonaws.com/")[1];
+            s3Uploader.deleteFile(originalFile);
+        }
         String imageUrl = s3Uploader.uploadImage(file);
         dormitoryApplication.updateCopy(imageUrl);
     }
 
     private void uploadPrioritySelectionCopyFile(DormitoryApplication dormitoryApplication, MultipartFile file) throws IOException {
-        String originalFile = dormitoryApplication.getPrioritySelectionCopy().split("amazonaws.com/")[1];
-        s3Uploader.deleteFile(originalFile);
-
+        if (dormitoryApplication.getPrioritySelectionCopy() != null) {
+            String originalFile = dormitoryApplication.getPrioritySelectionCopy().split("amazonaws.com/")[1];
+            s3Uploader.deleteFile(originalFile);
+        }
         String imageUrl = s3Uploader.uploadImage(file);
         dormitoryApplication.updatePrioritySelectionCopy(imageUrl);
     }
 
-
-    // 기숙사 정보 수정
+        // 기숙사 정보 수정
     // 호실, 침대번호는 NULL값 허용
     // 호실 골랐는데 성별 안 맞으면 오류
     // 호실, 침대번호는 숫자만 입력 가능
