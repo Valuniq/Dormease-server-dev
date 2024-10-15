@@ -56,10 +56,11 @@ public class ResidentManagementService {
     private final RoomRepository roomRepository;
     private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
-    private final UserService userService;
-    private final ResidentService residentService;
     private final RefundRequestmentRepository refundRequestmentRepository;
     private final ExitRequestmentRepository exitRequestmentRepository;
+
+    private final UserService userService;
+    private final ResidentService residentService;
     private final S3Uploader s3Uploader;
 
     // 사생 상세 조회
@@ -134,11 +135,13 @@ public class ResidentManagementService {
         // 기숙사 정보
         if (dormitory == null) {
             return ResidentDormitoryInfoRes.builder()
+                    .termId(term.getId())
                     .termName(term.getTermName())
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
         } else if (resident.getRoom() == null) {
             return ResidentDormitoryInfoRes.builder()
+                    .termId(term.getId())
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
                     // .roomSize() 호실이 없으면 인실 가져올 수 없음
@@ -153,6 +156,7 @@ public class ResidentManagementService {
                     .roomSize(resident.getRoom().getRoomType().getRoomSize())
                     .roomNumber(resident.getRoom().getRoomNumber())
                     .bedNumber(resident.getBedNumber())
+                    .termId(term.getId())
                     .termName(term.getTermName())
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .roommateNames(roommateNames)
@@ -337,10 +341,14 @@ public class ResidentManagementService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // 현재 입사신청 목록 조회
+    // 입사신청에 맞는 거주기간 조회
+    // 사생 직접 추가
+
     // 사생 직접 추가 버튼 -> term 정보 보내줘야 함
 
     //
-    // 이름 성별 term 필수
+    // 이름 성별 입사신청, 거주기간, 건물 필수
     // @Transactional
     // public ResponseEntity<?> addNewResident() {
         // 필수: school, name, gender term
@@ -404,18 +412,21 @@ public class ResidentManagementService {
 
     // 기숙사 정보 수정
     // 호실, 침대번호는 NULL값 허용
-    // 호실 골랐는데 성별 안 맞으면 오류뱉어
+    // 호실 골랐는데 성별 안 맞으면 오류
     // 호실, 침대번호는 숫자만 입력 가능
     // 호실 수정 시 자동으로 비어있는 침대번호가 배정되도록 함
 
+    // 호실 배치 누르면 배정 가능 여부/ 가능하면 침대번호, 인원 정보 돌려주기
+    // 저장 눌러야 업데이트
+
     // 사생의 성별에 맞는 건물 조회
     // 빈 자리가 없는 건물은 드롭다운 메뉴에 뜨지 않음
-    public ResponseEntity<?> getDormitoriesByGender(UserDetailsImpl userDetailsImpl, Long residentId) {
+    // Description: 수정 필요
+    public ResponseEntity<?> getDormitoriesByGender(UserDetailsImpl userDetailsImpl, Long residentId) {  // 거주기간 id 받기
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
         // resident가 속한 학교의 기숙사 리스트
-        // 이미 배정된 건물 제외
         List<Dormitory> sameSchoolDormitories = dormitoryRepository.findBySchool(resident.getSchool());
 
         List<Dormitory> findDormitories = sameSchoolDormitories.stream()
@@ -470,6 +481,10 @@ public class ResidentManagementService {
     public Integer calculateDormitorySize(Dormitory dormitory) {
         return Optional.ofNullable(dormitory.getDormitorySize()).orElse(0);
     }
+
+    // 입사신청설정 목록
+    // 거주기간 목록 조회
+    // 입사신청설정, 거주기간에 맞는 기숙사 조회
 
     // 사생 건물 재배치
     // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 기숙사 -> 거주기간 순서(예정))
