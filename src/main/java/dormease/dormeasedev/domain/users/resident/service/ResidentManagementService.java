@@ -29,6 +29,7 @@ import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInf
 import dormease.dormeasedev.domain.users.resident.dto.request.UpdateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.response.*;
 import dormease.dormeasedev.domain.users.student.domain.Student;
+import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.SchoolStatus;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
@@ -400,18 +401,6 @@ public class ResidentManagementService {
         return resident;
     }
 
-    // 사생 직접 추가 버튼 -> term 정보 보내줘야 함
-    // 이름 성별 입사신청, 거주기간, 건물 필수
-
-        // 필수: school, name, gender term
-        // 선택: hasKey
-        // 무조건 null: user, dormitory, room, roommateTempApplication, roommateApplication, bedNumber, isRoommateApplied
-   //     residentRepository.save(Resident.builder()
-   //             .school(admin.getSchool())
-   //             .build()
-   //     );
-   // }
-
     // 사생 정보 수정
     // Description : emergencyContact, emergencyRelation, bankName, accountNumber, dormitoryPayment, hasKey는 정보 수정 시 모두 보내줘야 함(변경되지 않은 값이 있더라도)
     // null을 보내는 건지 변경을 안하는 건지 구분 못함
@@ -517,17 +506,17 @@ public class ResidentManagementService {
 
     // 사생의 성별에 맞는 건물 조회
     // 빈 자리가 없는 건물은 드롭다운 메뉴에 뜨지 않음
-    public ResponseEntity<?> getDormitoriesByGender(UserDetailsImpl userDetailsImpl, Long residentId, Long termId) {
-        User admin = userService.validateUserById(userDetailsImpl.getUserId());
-        Resident resident = residentService.validateResidentById(residentId);
-        DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
+    public ResponseEntity<?> getDormitoriesByGender(UserDetailsImpl userDetailsImpl, Gender gender, Long termId) {
+        // User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        // Resident resident = residentService.validateResidentById(residentId);
+        // DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
         Term term = termService.validateTermId(termId);
 
         Set<Dormitory> processedDormitories = new HashSet<>();
         List<DormitoryResidentAssignmentRes> dormitoryResidentAssignmentRes = dormitoryTermRepository.findByTerm(term).stream()
                 .map(dormitoryTerm -> dormitoryTerm.getDormitoryRoomType().getDormitory())
                 // 성별 체크
-                .filter(dormitory -> dormitoryRoomTypeRepository.existsByDormitoryAndRoomType_Gender(dormitory, resident.getGender()))
+                .filter(dormitory -> dormitoryRoomTypeRepository.existsByDormitoryAndRoomType_Gender(dormitory, gender))
                 // 수용인원 체크
                 .filter(dormitory -> {
                     Integer currentPeopleCount = calculateCurrentPeopleCount(dormitory);
@@ -536,7 +525,7 @@ public class ResidentManagementService {
                 })
                 // 이미 처리된 기숙사는 제외
                 .filter(dormitory -> processedDormitories.add(dormitory))  // Set에 없는 경우만 추가되며, 추가된 경우에만 true 반환
-                .flatMap(dormitory -> dormitoryRoomTypeRepository.findByDormitoryAndRoomTypeGender(dormitory, resident.getGender()).stream()
+                .flatMap(dormitory -> dormitoryRoomTypeRepository.findByDormitoryAndRoomTypeGender(dormitory, gender).stream()
                         .map(dormitoryRoomType -> DormitoryResidentAssignmentRes.builder()
                                 .dormitoryId(dormitory.getId())
                                 .dormitoryName(dormitory.getName())
