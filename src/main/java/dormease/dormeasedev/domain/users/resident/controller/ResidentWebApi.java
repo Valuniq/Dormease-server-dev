@@ -1,6 +1,6 @@
 package dormease.dormeasedev.domain.users.resident.controller;
 
-import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
+import dormease.dormeasedev.domain.users.resident.dto.request.UpdateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.response.*;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
@@ -68,19 +68,19 @@ public interface ResidentWebApi {
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
     );
 
-    @Operation(summary = "사생 정보 수정(개인정보)", description = "사생 관리 프로세스 중 특정 사생의 개인정보를 수정합니다.")
+    @Operation(summary = "사생 정보 수정", description = "사생 관리 프로세스 중 특정 사생의 개인정보 및 기숙사 정보를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
             @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PutMapping("/{residentId}")
-    ResponseEntity<?> updateResidentPrivateInfo(
+    ResponseEntity<?> updateResidentInfo(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
             @Parameter(description = "form-data 형식의 Multipart-file을 입력해주세요. 등본 파일입니다.") @RequestPart Optional<MultipartFile> copy,
             @Parameter(description = "form-data 형식의 Multipart-file을 입력해주세요. 우선선발증빙서류 파일입니다.") @RequestPart Optional<MultipartFile> prioritySelectionCopy,
-            @Parameter(description = "ResidentPrivateInfoReq Schema를 확인해주세요", required = true) @RequestPart ResidentPrivateInfoReq residentPrivateInfoReq
-    ) throws IOException;
+            @Parameter(description = "UpdateResidentInfoReq Schema를 확인해주세요", required = true) @RequestPart UpdateResidentInfoReq updateResidentInfoReq
+            ) throws IOException;
 
     @Operation(summary = "사생 성별에 맞는 기숙사 조회", description = "사생의 기숙사 정보 중 성별에 맞는 기숙사 정보를 조회합니다.")
     @ApiResponses(value = {

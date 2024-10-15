@@ -1,18 +1,9 @@
 package dormease.dormeasedev.domain.users.resident.controller;
 
-import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
+import dormease.dormeasedev.domain.users.resident.dto.request.UpdateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.service.ResidentManagementService;
 import dormease.dormeasedev.global.common.ApiResponse;
-import dormease.dormeasedev.global.common.Message;
-import dormease.dormeasedev.global.common.PageResponse;
-import dormease.dormeasedev.global.exception.ExceptionResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -69,14 +60,15 @@ public class ResidentWebController implements ResidentWebApi {
     // Description: 사생 정보 수정
     @Override
     @PutMapping("/{residentId}")
-    public ResponseEntity<?> updateResidentPrivateInfo(
+    public ResponseEntity<Void> updateResidentInfo(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable Long residentId,
             @RequestPart Optional<MultipartFile> copy,
             @RequestPart Optional<MultipartFile> prioritySelectionCopy,
-            @RequestPart ResidentPrivateInfoReq residentPrivateInfoReq
-    ) throws IOException {
-        return residentManagementService.updateResidentPrivateInfo(userDetailsImpl, residentId, copy, prioritySelectionCopy, residentPrivateInfoReq);
+            @RequestPart UpdateResidentInfoReq updateResidentInfoReq
+            ) throws IOException {
+        residentManagementService.updateResidentInfo(userDetailsImpl, residentId, copy, prioritySelectionCopy, updateResidentInfoReq);
+        return ResponseEntity.noContent().build();
     }
 
     @Override

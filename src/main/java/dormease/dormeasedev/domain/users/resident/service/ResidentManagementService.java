@@ -6,6 +6,8 @@ import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.Dormit
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
 import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomRepository;
+import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
+import dormease.dormeasedev.domain.dormitories.room_type.domain.repository.RoomTypeRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
@@ -20,7 +22,9 @@ import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.rep
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.users.resident.dto.request.ResidentDormitoryInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
+import dormease.dormeasedev.domain.users.resident.dto.request.UpdateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.response.*;
 import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.SchoolStatus;
@@ -52,6 +56,7 @@ import java.util.stream.Collectors;
 public class ResidentManagementService {
 
     private final ResidentRepository residentRepository;
+    private final RoomTypeRepository roomTypeRepository;
     private final RoomRepository roomRepository;
     private final TermRepository termRepository;
     private final DormitoryRepository dormitoryRepository;
@@ -375,12 +380,57 @@ public class ResidentManagementService {
     // null을 보내는 건지 변경을 안하는 건지 구분 못함
     // Description : copy, prioritySelectionCopy는 변경 없을 시 보내지 말 것
     @Transactional
-    public ResponseEntity<?> updateResidentPrivateInfo(UserDetailsImpl userDetailsImpl, Long residentId,
-                                                       Optional<MultipartFile> copy, Optional<MultipartFile>  prioritySelectionCopy, ResidentPrivateInfoReq residentPrivateInfoReq) throws IOException {
+    public void updateResidentInfo(UserDetailsImpl userDetailsImpl, Long residentId,
+                                   Optional<MultipartFile> copy, Optional<MultipartFile>  prioritySelectionCopy,
+                                   UpdateResidentInfoReq updateResidentInfoReq) throws IOException {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
 
+        ResidentPrivateInfoReq residentPrivateInfoReq = updateResidentInfoReq.getResidentPrivateInfoReq();
+        ResidentDormitoryInfoReq residentDormitoryInfoReq = updateResidentInfoReq.getResidentDormitoryInfoReq();
+        if (residentPrivateInfoReq != null || copy.isPresent() || prioritySelectionCopy.isPresent()) {
+            updateResidentPrivateInfo(resident, copy, prioritySelectionCopy, residentPrivateInfoReq);
+        }
+        if (residentDormitoryInfoReq != null ) {
+            updateResidentDormitoryInfo(resident, residentDormitoryInfoReq);
+        }
+    }
+
+    private void updateResidentDormitoryInfo(Resident resident, ResidentDormitoryInfoReq residentDormitoryInfoReq) {
+        Room originalRoom = resident.getRoom();
+
+        Optional<Dormitory> dormitoryOptional = dormitoryRepository.findById(residentDormitoryInfoReq.getDormitoryId());
+        Optional<Term> termOptional = termRepository.findById(residentDormitoryInfoReq.getTermId());
+
+        Dormitory dormitory = dormitoryOptional.get();
+        Term term = termOptional.get();
+        // dormitoryTerm
+        RoomType roomType = roomTypeRepository.findByRoomSizeAndGender(residentDormitoryInfoReq.getRoomSize(), resident.getGender());
+        DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findByDormitoryAndRoomType(dormitory, roomType);
+        DormitoryTerm dormitoryTerm = dormitoryTermRepository.findByDormitoryRoomTypeAndTerm(dormitoryRoomType, term);
+        resident.updateDormitoryTerm(dormitoryTerm);
+        // room
+        Room room = roomRepository.findByDormitoryAndRoomNumber(dormitory, residentDormitoryInfoReq.getRoomNumber());
+        resident.updateRoom(room);
+        // bedNumber
+        resident.updateBedNumber(residentDormitoryInfoReq.getBedNumber());
+
+        // 방 배정인원 업데이트
+        updateCurrentPeople(originalRoom, room);
+    }
+
+    private void updateCurrentPeople(Room originalRoom, Room room) {
+        if (originalRoom != null) {
+            Integer originalRoomPeopleCount = residentRepository.findByRoom(originalRoom).size();
+            originalRoom.updateCurrentPeople(originalRoomPeopleCount);
+        }
+        Integer currentPeopleCount = residentRepository.findByRoom(room).size();
+        DefaultAssert.isTrue(currentPeopleCount <= room.getRoomType().getRoomSize(), "배정 가능한 인원을 초과했습니다.");
+        room.updateCurrentPeople(currentPeopleCount);
+    }
+
+    private void updateResidentPrivateInfo(Resident resident, Optional<MultipartFile> copy, Optional<MultipartFile>  prioritySelectionCopy, ResidentPrivateInfoReq residentPrivateInfoReq) throws IOException {
         String emergencyContact = residentPrivateInfoReq.getEmergencyContact();
         String emergencyRelation = residentPrivateInfoReq.getEmergencyRelation();
         String bankName = residentPrivateInfoReq.getBankName();
@@ -398,12 +448,6 @@ public class ResidentManagementService {
             dormitoryApplication.updateResidentPrivateInfo(emergencyContact, emergencyRelation, bankName, accountNumber, dormitoryPayment);
         }
         resident.updateHasKey(residentPrivateInfoReq.getHasKey());
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("사생의 정보가 수정되었습니다.").build()).build();
-
-        return ResponseEntity.ok(apiResponse);
     }
 
     private void uploadCopyFile(DormitoryApplication dormitoryApplication, MultipartFile file) throws IOException {
@@ -424,11 +468,9 @@ public class ResidentManagementService {
         dormitoryApplication.updatePrioritySelectionCopy(imageUrl);
     }
 
-    // 기숙사 정보 수정
 
     // 사생의 성별에 맞는 건물 조회
     // 빈 자리가 없는 건물은 드롭다운 메뉴에 뜨지 않음
-    // Description: 수정 필요
     public ResponseEntity<?> getDormitoriesByGender(UserDetailsImpl userDetailsImpl, Long residentId, Long termId) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
