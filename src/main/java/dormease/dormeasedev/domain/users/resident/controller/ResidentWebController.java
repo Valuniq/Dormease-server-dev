@@ -103,11 +103,12 @@ public class ResidentWebController implements ResidentWebApi {
     public ResponseEntity<ApiResponse> getAvailableRoomAndBedNumber(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @RequestParam Long dormitoryId,
+            @RequestParam Integer roomSize,
             @RequestParam Integer roomNumber
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(residentManagementService.assignedRoomAndBedNumber(userDetailsImpl, dormitoryId, roomNumber))
+                .information(residentManagementService.assignedRoomAndBedNumber(userDetailsImpl, dormitoryId, roomSize, roomNumber))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

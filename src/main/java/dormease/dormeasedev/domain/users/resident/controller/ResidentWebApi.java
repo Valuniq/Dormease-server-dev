@@ -115,6 +115,7 @@ public interface ResidentWebApi {
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getAvailableRoomAndBedNumber(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "건물의 id를 입력해주세요.", required = true) @RequestParam Long dormitoryId,
+            @Parameter(description = "건물의 인실을 입력해주세요.", required = true) @RequestParam Integer roomSize,
             @Parameter(description = "호실의 번호를 입력해주세요.", required = true) @RequestParam Integer roomNumber
     );
 

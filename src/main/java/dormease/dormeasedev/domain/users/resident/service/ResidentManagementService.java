@@ -380,6 +380,7 @@ public class ResidentManagementService {
         RoomType roomType = roomTypeRepository.findByRoomSizeAndGender(residentDormitoryInfoReq.getRoomSize(), createResidentInfoReq.getGender());
         DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findByDormitoryAndRoomType(dormitory, roomType);
         DormitoryTerm dormitoryTerm = dormitoryTermRepository.findByDormitoryRoomTypeAndTerm(dormitoryRoomType, term);
+        DefaultAssert.isTrue(dormitoryTerm != null, "주어진 인실과 기숙사, 거주기간에 대한 dormitoryTerm을 찾을 수 없습니다.");
 
         Room room = null;
         Integer bedNumber = null;
@@ -396,6 +397,7 @@ public class ResidentManagementService {
                 .room(room)
                 .bedNumber(bedNumber)
                 .hasKey(createResidentInfoReq.getHasKey())
+                .isRoommateApplied(false)
                 .build();
         residentRepository.save(resident);
         return resident;
@@ -435,6 +437,7 @@ public class ResidentManagementService {
         RoomType roomType = roomTypeRepository.findByRoomSizeAndGender(residentDormitoryInfoReq.getRoomSize(), resident.getGender());
         DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findByDormitoryAndRoomType(dormitory, roomType);
         DormitoryTerm dormitoryTerm = dormitoryTermRepository.findByDormitoryRoomTypeAndTerm(dormitoryRoomType, term);
+        DefaultAssert.isTrue(dormitoryTerm != null, "주어진 인실과 기숙사, 거주기간에 대한 dormitoryTerm을 찾을 수 없습니다.");
         resident.updateDormitoryTerm(dormitoryTerm);
 
         Room room = null;
@@ -581,7 +584,7 @@ public class ResidentManagementService {
     }
 
     // 호실 배치
-    public AssignedRoomRes assignedRoomAndBedNumber(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer roomNumber) {
+    public AssignedRoomRes assignedRoomAndBedNumber(UserDetailsImpl userDetailsImpl, Long dormitoryId, Integer roomSize, Integer roomNumber) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         // dormitory
         Optional<Dormitory> dormitoryOptional = dormitoryRepository.findById(dormitoryId);
@@ -589,21 +592,26 @@ public class ResidentManagementService {
         Dormitory dormitory = dormitoryOptional.get();
         // room
         Room room = roomRepository.findByDormitoryAndRoomNumber(dormitory, roomNumber);
-
         DefaultAssert.isTrue(room.getDormitory().getSchool() == admin.getSchool(), "잘못된 접근입니다.");
-        // room의 인원 수 계산해서 배정 여부
-        boolean isPossible = residentRepository.countByRoom(room) < room.getRoomType().getRoomSize();
-        if (isPossible) {
-            return AssignedRoomRes.builder()
-                    .possible(isPossible)
-                    .bedNumber(assignedBedNumber(room))
-                    .roommateNames(getRoommateNames(room))
-                    .build();
-        } else {
-            return AssignedRoomRes.builder()
-                    .possible(isPossible)
-                    .build();
+
+        boolean isPossible = false;
+        Integer bedNumber = null;
+        List<String> roommates = null;
+        // roomSize와 호실의 인실이 다를 경우 배정 불가
+        if (roomSize.equals(room.getRoomType().getRoomSize())) {
+            // room의 인원 수 계산해서 배정 여부
+            isPossible = residentRepository.countByRoom(room) < room.getRoomType().getRoomSize();
+            if (isPossible) {
+                bedNumber = assignedBedNumber(room);
+                roommates = getRoommateNames(room);
+            }
         }
+        return AssignedRoomRes.builder()
+                .possible(isPossible)
+                .bedNumber(bedNumber)
+                .roommateNames(roommates)
+                .build();
+
     }
 
     private int assignedBedNumber(Room room) {
