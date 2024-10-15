@@ -2,16 +2,15 @@ package dormease.dormeasedev.domain.dormitory_applications.dormitory_application
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
-import dormease.dormeasedev.domain.dormitories.dormitory.dto.request.DormitoryRoomTypeReq;
-import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
+import dormease.dormeasedev.domain.dormitories.dormitory_room_type.dto.request.DormitoryRoomTypeReq;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.request.CreateDormitoryApplicationSettingReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.request.ModifyDormitoryApplicationSettingReq;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.DormitoryApplicationSettingSimpleRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.DormitoryRoomTypeRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.dto.response.FindDormitoryApplicationSettingHistoryRes;
@@ -20,20 +19,23 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.DormitorySettingTerm;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.dto.DormitorySettingTermRes;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.dto.request.ModifyDormitorySettingTermReq;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto.DormitoryTermReq;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto.TermRes;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto.request.DormitoryTermReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto.response.TermRes;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.domain.MealTicket;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.domain.repository.MealTicketRepository;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.dto.request.MealTicketReq;
 import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.dto.response.MealTicketRes;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.repository.TermRepository;
+import dormease.dormeasedev.domain.dormitory_applications.term.dto.request.ModifyTermReq;
 import dormease.dormeasedev.domain.dormitory_applications.term.dto.request.TermReq;
 import dormease.dormeasedev.domain.dormitory_applications.term.dto.response.DormitoryTermRes;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.user.domain.User;
+import dormease.dormeasedev.domain.users.user.exception.InvalidSchoolAuthorityException;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
@@ -44,10 +46,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -260,6 +261,7 @@ public class DormitoryApplicationSettingService {
             RoomType roomType = dormitoryRoomType.getRoomType();
 
             DormitorySettingTermRes dormitorySettingTermRes = DormitorySettingTermRes.builder()
+                    .dormitorySettingTermId(dormitorySettingTerm.getId())
                     .dormitoryRoomTypeId(dormitoryRoomType.getId())
                     .dormitoryName(dormitory.getName())
                     .roomSize(roomType.getRoomSize())
@@ -317,19 +319,185 @@ public class DormitoryApplicationSettingService {
         return ResponseEntity.ok(apiResponse);
     }
 
-//    // Description : 입사 신청 설정 수정 - 변경 사항만 req 받아서 변경 ?
-//    public ResponseEntity<?> modifyDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl, CreateDormitoryApplicationSettingReq createDormitoryApplicationSettingReq, Long dormitoryApplicationSettingId) {
-//
-//        DormitoryApplicationSetting dormitoryApplicationSetting = validateDormitoryApplicationSettingById(dormitoryApplicationSettingId);
-//        User user = userService.validateUserById(userDetailsImpl.getUserId());
-//        School school = user.getSchool();
-//
-//        // ------------------------------------------
-//        // TODO : JsonNullable을 이용하여 HTTP PATCH 구현
-//
-//
-//
-//    }
+    // Description : 입사 신청 설정 수정
+    @Transactional
+    public void modifyDormitoryApplicationSetting(UserDetailsImpl userDetailsImpl, ModifyDormitoryApplicationSettingReq modifyDormitoryApplicationSettingReq, Long dormitoryApplicationSettingId) {
+        DormitoryApplicationSetting dormitoryApplicationSetting = validateDormitoryApplicationSettingById(dormitoryApplicationSettingId);
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
+        School school = adminUser.getSchool();
+
+        if(!dormitoryApplicationSetting.getSchool().equals(school))
+            throw new InvalidSchoolAuthorityException();
+
+        // 입사 신청 설정 기본 정보 수정
+        dormitoryApplicationSetting.updateDormitoryApplicationSetting(
+                modifyDormitoryApplicationSettingReq.getTitle(),
+                modifyDormitoryApplicationSettingReq.getStartDate(),
+                modifyDormitoryApplicationSettingReq.getEndDate(),
+                modifyDormitoryApplicationSettingReq.getDepositStartDate(),
+                modifyDormitoryApplicationSettingReq.getDepositEndDate(),
+                modifyDormitoryApplicationSettingReq.getSecurityDeposit()
+        );
+
+        // 기존 MealTicket 목록 조회
+        List<MealTicket> findMealTicketList = mealTicketRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
+        // 요청받은 MealTicket 목록과 비교하여 업데이트 및 생성
+        List<MealTicket> updatedMealTickets = modifyDormitoryApplicationSettingReq.getModifyMealTicketReqList().stream()
+                .map(mealTicketReq -> {
+                    // 기존에 존재하는 MealTicket 찾기
+                    return findMealTicketList.stream()
+                            .filter(findMealTicket -> findMealTicket.getId().equals(mealTicketReq.getMealTicketId()))
+                            .findFirst()
+                            .map(findMealTicket -> {
+                                // 존재하면 업데이트
+                                findMealTicket.updateMealTicket(mealTicketReq.getCount(), mealTicketReq.getPrice());
+                                return findMealTicket;
+                            })
+                            .orElseGet(() -> {
+                                // 존재하지 않으면 새로운 MealTicket 생성
+                                return MealTicket.builder()
+                                        .dormitoryApplicationSetting(dormitoryApplicationSetting)
+                                        .count(mealTicketReq.getCount())
+                                        .price(mealTicketReq.getPrice())
+                                        .build();
+                            });
+                })
+                .collect(Collectors.toList());
+
+        // 삭제할 MealTicket 목록 추출
+        List<MealTicket> removeMealTicketList = findMealTicketList.stream()
+                .filter(findMealTicket -> updatedMealTickets.stream()
+                        .noneMatch(updatedMealTicket -> updatedMealTicket.getId().equals(findMealTicket.getId())))
+                .collect(Collectors.toList());
+
+        // 삭제할 MealTicket 삭제
+        mealTicketRepository.deleteAll(removeMealTicketList);
+        // 변경된 데이터 저장 (추가 및 수정)
+        mealTicketRepository.saveAll(updatedMealTickets);
+
+        List<DormitorySettingTerm> findDormitorySettingTermList = dormitorySettingTermRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
+
+        // 최적화
+        // 1. 요청에서 필요한 dormitoryRoomTypeId 목록 추출
+        List<Long> roomTypeIds = modifyDormitoryApplicationSettingReq.getModifyDormitorySettingTermReqList().stream()
+                .map(ModifyDormitorySettingTermReq::getDormitoryRoomTypeId)
+                .distinct() // 중복 제거
+                .collect(Collectors.toList());
+
+        // 2. 한 번의 DB 호출로 필요한 DormitoryRoomType 목록 조회
+        List<DormitoryRoomType> roomTypes = dormitoryRoomTypeRepository.findAllById(roomTypeIds);
+
+        // 3. 조회한 결과를 맵에 캐싱
+        Map<Long, DormitoryRoomType> roomTypeMap = roomTypes.stream()
+                .collect(Collectors.toMap(DormitoryRoomType::getId, Function.identity()));
+
+        List<DormitorySettingTerm> updatedDormitorySettingTermList = modifyDormitoryApplicationSettingReq.getModifyDormitorySettingTermReqList().stream()
+                .map(dormitorySettingTermReq -> {
+                    return findDormitorySettingTermList.stream()
+                            .filter(findDormitorySettingTerm -> findDormitorySettingTerm.getId().equals(dormitorySettingTermReq.getDormitorySettingTermId()))
+                            .findFirst()
+                            .map(findDormitorySettingTerm -> {
+                                // 존재하면 업데이트
+                                findDormitorySettingTerm.updateAcceptLimit(dormitorySettingTermReq.getAcceptLimit());
+                                return findDormitorySettingTerm;
+                            })
+                            .orElseGet(() -> {
+                                // 존재하지 않으면 새로운 DormitorySettingTerm 생성
+                                DormitoryRoomType dormitoryRoomType = roomTypeMap.get(dormitorySettingTermReq.getDormitoryRoomTypeId());
+                                if (dormitoryRoomType == null) {
+                                    throw new IllegalArgumentException("Invalid Dormitory Room Type ID: " + dormitorySettingTermReq.getDormitoryRoomTypeId());
+                                }
+                                return DormitorySettingTerm.builder()
+                                        .dormitoryApplicationSetting(dormitoryApplicationSetting)
+                                        .dormitoryRoomType(dormitoryRoomType)
+                                        .acceptLimit(dormitorySettingTermReq.getAcceptLimit())
+                                        .build();
+                            });
+                })
+                .collect(Collectors.toList());
+
+        List<DormitorySettingTerm> removeDormitorySettingTermList = findDormitorySettingTermList.stream()
+                .filter(findDormitorySettingTerm -> updatedDormitorySettingTermList.stream()
+                        .noneMatch(updatedDormitorySettingTerm -> updatedDormitorySettingTerm.getId().equals(findDormitorySettingTerm.getId())))
+                .collect(Collectors.toList());
+
+        dormitorySettingTermRepository.deleteAll(removeDormitorySettingTermList);
+        dormitorySettingTermRepository.saveAll(updatedDormitorySettingTermList);
+
+
+        //
+        List<ModifyTermReq> modifyTermReqList = modifyDormitoryApplicationSettingReq.getModifyTermReqList();
+        for (ModifyTermReq modifyTermReq : modifyTermReqList) {
+            Term term = termRepository.findById(modifyTermReq.getTermId())
+                    .orElseThrow(IllegalArgumentException::new);
+            List<DormitoryTerm> findDormitoryTermList = dormitoryTermRepository.findByTerm(term);
+            List<DormitoryTerm> updatedDormitoryTermList = modifyTermReq.getModifyDormitoryTermReqList().stream()
+                    .map(dormitoryTermReq -> {
+                        return findDormitoryTermList.stream()
+                                .filter(findDormitoryTerm -> findDormitoryTerm.getId().equals(dormitoryTermReq.getDormitoryTermId()))
+                                .findFirst()
+                                .map(findDormitoryTerm -> {
+                                    // 존재하면 업데이트
+                                    findDormitoryTerm.updatePrice(dormitoryTermReq.getPrice());
+                                    return findDormitoryTerm;
+                                })
+                                .orElseGet(() -> {
+                                    // 존재하지 않으면 새로운 DormitoryTerm 생성
+                                    DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findById(dormitoryTermReq.getDormitoryRoomTypeId())
+                                            .orElseThrow(IllegalArgumentException::new);
+                                    return DormitoryTerm.builder()
+                                            .term(term)
+                                            .dormitoryRoomType(dormitoryRoomType)
+                                            .price(dormitoryTermReq.getPrice())
+                                            .build();
+                                });
+                    })
+                    .collect(Collectors.toList());
+
+            // 삭제할 DormitoryTerm 목록 추출
+            List<DormitoryTerm> removeDormitoryTermList = findDormitoryTermList.stream()
+                    .filter(findDormitoryTerm -> updatedDormitoryTermList.stream()
+                            .noneMatch(updatedDormitoryTerm -> updatedDormitoryTerm.getId().equals(findDormitoryTerm.getId())))
+                    .collect(Collectors.toList());
+
+            dormitoryTermRepository.deleteAll(removeDormitoryTermList);
+            dormitoryTermRepository.saveAll(updatedDormitoryTermList);
+        }
+
+
+        //
+        List<Term> findTermList = termRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting);
+        List<Term> updatedTermList = modifyDormitoryApplicationSettingReq.getModifyTermReqList().stream()
+                .map(termReq -> {
+                    return findTermList.stream()
+                            .filter(findTerm -> findTerm.getId().equals(termReq.getTermId()))
+                            .findFirst()
+                            .map(findTerm -> {
+                                // 존재하면 업데이트
+                                findTerm.updateTerm(termReq.getTermName(), termReq.getStartDate(), termReq.getEndDate());
+                                return findTerm;
+                            })
+                            .orElseGet(() -> {
+                                // 존재하지 않으면 새로운 Term 생성
+                                return Term.builder()
+                                        .dormitoryApplicationSetting(dormitoryApplicationSetting)
+                                        .termName(termReq.getTermName())
+                                        .startDate(termReq.getStartDate())
+                                        .endDate(termReq.getEndDate())
+                                        .build();
+                            });
+                })
+                .collect(Collectors.toList());
+
+        // 삭제할 Term 목록 추출
+        List<Term> removeTermList = findTermList.stream()
+                .filter(findTerm -> updatedTermList.stream()
+                        .noneMatch(updatedTerm -> updatedTerm.getId().equals(findTerm.getId())))
+                .collect(Collectors.toList());
+
+        termRepository.deleteAll(removeTermList);
+        termRepository.saveAll(updatedTermList);
+    }
 
     // Description : 이전 작성 목록 조회
     public ResponseEntity<?> findDormitoryApplicationSettingHistory(UserDetailsImpl userDetailsImpl) {
@@ -417,7 +585,6 @@ public class DormitoryApplicationSettingService {
 
     // Description : 유효성 검증 함수
     public DormitoryApplicationSetting validateDormitoryApplicationSettingById(Long dormitoryApplicationSettingId) {
-
         Optional<DormitoryApplicationSetting> findDormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(dormitoryApplicationSettingId);
         DefaultAssert.isTrue(findDormitoryApplicationSetting.isPresent(), "잘못된 입사 신청 설정 정보입니다.");
         return findDormitoryApplicationSetting.get();

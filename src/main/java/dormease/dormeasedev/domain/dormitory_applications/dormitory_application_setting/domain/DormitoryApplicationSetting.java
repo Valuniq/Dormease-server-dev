@@ -44,6 +44,15 @@ public class DormitoryApplicationSetting extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ApplicationStatus applicationStatus;
 
+    public void updateDormitoryApplicationSetting(String title, LocalDate startDate, LocalDate endDate, LocalDate depositStartDate, LocalDate depositEndDate, Integer securityDeposit) {
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.depositStartDate = depositStartDate;
+        this.depositEndDate = depositEndDate;
+        this.securityDeposit = securityDeposit;
+    }
+
     @Builder
     public DormitoryApplicationSetting(School school, String title, LocalDate startDate, LocalDate endDate, LocalDate depositStartDate, LocalDate depositEndDate, Integer securityDeposit) {
         this.school = school;

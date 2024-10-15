@@ -1,4 +1,4 @@
-package dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto;
+package dormease.dormeasedev.domain.dormitory_applications.dormitory_term.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import dormease.dormeasedev.domain.dormitory_applications.term.dto.response.DormitoryTermRes;

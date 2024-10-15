@@ -30,6 +30,10 @@ public class DormitoryTerm extends BaseEntity {
 
     private Integer price;
 
+    public void updatePrice(Integer price) {
+        this.price = price;
+    }
+
     @Builder
     public DormitoryTerm(Term term, DormitoryRoomType dormitoryRoomType, Integer price) {
         this.term = term;
