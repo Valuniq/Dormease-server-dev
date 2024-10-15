@@ -1,7 +1,6 @@
 package dormease.dormeasedev.domain.users.resident.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
-import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
@@ -9,9 +8,12 @@ import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomReposi
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
+import dormease.dormeasedev.domain.dormitory_applications.term.domain.repository.TermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.repository.ExitRequestmentRepository;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
@@ -50,9 +52,11 @@ public class ResidentManagementService {
 
     private final ResidentRepository residentRepository;
     private final RoomRepository roomRepository;
+    private final TermRepository termRepository;
     private final DormitoryTermRepository dormitoryTermRepository;
     private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
+    private final DormitoryApplicationSettingRepository dormitoryApplicationSettingRepository;
     private final RefundRequestmentRepository refundRequestmentRepository;
     private final ExitRequestmentRepository exitRequestmentRepository;
 
@@ -409,14 +413,7 @@ public class ResidentManagementService {
         dormitoryApplication.updatePrioritySelectionCopy(imageUrl);
     }
 
-        // 기숙사 정보 수정
-    // 호실, 침대번호는 NULL값 허용
-    // 호실 골랐는데 성별 안 맞으면 오류
-    // 호실, 침대번호는 숫자만 입력 가능
-    // 호실 수정 시 자동으로 비어있는 침대번호가 배정되도록 함
-
-    // 호실 배치 누르면 배정 가능 여부/ 가능하면 침대번호, 인원 정보 돌려주기
-    // 저장 눌러야 업데이트
+    // 기숙사 정보 수정
 
     // 사생의 성별에 맞는 건물 조회
     // 빈 자리가 없는 건물은 드롭다운 메뉴에 뜨지 않음
@@ -473,16 +470,30 @@ public class ResidentManagementService {
         return Optional.ofNullable(dormitory.getDormitorySize()).orElse(0);
     }
 
-    // 입사신청설정 목록
-    // 거주기간 목록 조회
-    // 입사신청설정, 거주기간에 맞는 기숙사 조회
-
-    // dormitoryApplicationSetting 골라서
-    // dormitorySettingTerm -> 가져오기
-    // 일단 사생은 dormitoryTerm을 가져야 함
+    // 입사신청설정, 거주기간 목록 조회
+    public List<AvailableDormitoryApplicationSettingRes> findAvailableDormitoryApplicationSettingAndTerm(UserDetailsImpl userDetailsImpl) {
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        List<DormitoryApplicationSetting> dormitoryApplicationSettings = dormitoryApplicationSettingRepository.findBySchoolOrderByCreatedDateDesc((admin.getSchool()));
+        return dormitoryApplicationSettings.stream()
+                .limit(8)
+                .map(dormitoryApplicationSetting -> AvailableDormitoryApplicationSettingRes.builder()
+                        .dormitoryApplicationSettingId(dormitoryApplicationSetting.getId())
+                        .title(dormitoryApplicationSetting.getTitle())
+                        .availableTermRes(
+                                termRepository.findByDormitoryApplicationSetting(dormitoryApplicationSetting).stream()
+                                        .map(term -> AvailableTermRes.builder()
+                                                .termId(term.getId())
+                                                .termName(term.getTermName())
+                                                .build())
+                                        .toList()
+                        )
+                        .build()
+                )
+                .toList();
+    }
 
     // 사생 건물 재배치
-    // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 기숙사 -> 거주기간 순서(예정))
+    // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 거주기간 -> 기숙사 순서(예정))
     // @Transactional
     // public ResponseEntity<?> reassignResidentToDormitory(UserDetailsImpl userDetailsImpl, Long residentId, Long dormitoryId) {
     //     User admin = userService.validateUserById(userDetailsImpl.getUserId());
@@ -512,7 +523,10 @@ public class ResidentManagementService {
 
     // 호실 배치시 인원 없으면 없다고 띄우기
     // 배치 되면 인원 업데이트
-    //// 맞춰서 기숙사 정보 업데이트(룸메이트)
+    // 맞춰서 기숙사 정보 업데이트(룸메이트)
+    // 호실 배치 누르면 배정 가능 여부/ 가능하면 침대번호, 인원 정보 돌려주기
+    // 저장 눌러야 업데이트
+    // dormitoryTerm 업데이트 할 것
 
     @Transactional
     public ResponseEntity<?> deleteResident(UserDetailsImpl userDetailsImpl, Long residentId) {

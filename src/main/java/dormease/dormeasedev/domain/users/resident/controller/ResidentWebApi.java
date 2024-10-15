@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.users.resident.controller;
 
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
+import dormease.dormeasedev.domain.users.resident.dto.response.AvailableDormitoryApplicationSettingRes;
 import dormease.dormeasedev.domain.users.resident.dto.response.DormitoryResidentAssignmentRes;
 import dormease.dormeasedev.domain.users.resident.dto.response.ResidentDetailInfoRes;
 import dormease.dormeasedev.domain.users.resident.dto.response.ResidentRes;
@@ -94,6 +95,38 @@ public interface ResidentWebApi {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
             @Parameter(description = "거주기간의 id를 입력해주세요.", required = true) @PathVariable Long termId
+    );
+
+    @Operation(summary = "입사신청 및 거주기간 목록 조회", description = "사생 직접 추가 시 입사신청 및 거주기간 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = AvailableDormitoryApplicationSettingRes.class))}),
+            @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @GetMapping("/dormitorySettingApplication")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getAvailableSettingAndTerm(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    );
+
+    @Operation(summary = "사생 퇴사 처리", description = "사생 관리 프로세스 중 특정 사생을 퇴사 처리합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "처리 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "처리 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @DeleteMapping("/{residentId}")
+    ResponseEntity<?> deleteResident (
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
+    );
+
+    @Operation(summary = "사생 블랙리스트 처리", description = "사생 관리 프로세스 중 특정 사생을 블랙리스트 처리합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "처리 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
+            @ApiResponse(responseCode = "400", description = "처리 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @DeleteMapping("/{residentId}/blackList")
+    public ResponseEntity<?> addBlackList (
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
     );
 
 }

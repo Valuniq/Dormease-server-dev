@@ -1,10 +1,8 @@
 package dormease.dormeasedev.domain.users.resident.controller;
 
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
-import dormease.dormeasedev.domain.users.resident.dto.response.DormitoryResidentAssignmentRes;
-import dormease.dormeasedev.domain.users.resident.dto.response.ResidentDetailInfoRes;
-import dormease.dormeasedev.domain.users.resident.dto.response.ResidentRes;
 import dormease.dormeasedev.domain.users.resident.service.ResidentManagementService;
+import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
@@ -14,8 +12,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -93,6 +89,18 @@ public class ResidentWebController implements ResidentWebApi {
         return residentManagementService.getDormitoriesByGender(userDetailsImpl, residentId, termId);
     }
 
+    @Override
+    @GetMapping("/dormitoryApplicationSetting")
+    public ResponseEntity<ApiResponse> getAvailableSettingAndTerm(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
+    ) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(residentManagementService.findAvailableDormitoryApplicationSettingAndTerm(userDetailsImpl))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
     // @Operation(summary = "사생 건물 재배치", description = "사생 정보 수정 중 사생의 배정된 건물을 재배치합니다.")
     // @ApiResponses(value = {
     //         @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
@@ -107,28 +115,20 @@ public class ResidentWebController implements ResidentWebApi {
     //     return residentManagementService.reassignResidentToDormitory(userDetailsImpl, residentId, dormitoryId);
     // }
 
-    @Operation(summary = "사생 퇴사 처리", description = "사생 관리 프로세스 중 특정 사생을 퇴사 처리합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "처리 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "처리 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
-    })
+    @Override
     @DeleteMapping("/{residentId}")
     public ResponseEntity<?> deleteResident (
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable Long residentId
     ) {
         return residentManagementService.deleteResident(userDetailsImpl, residentId);
     }
 
-    @Operation(summary = "사생 블랙리스트 처리", description = "사생 관리 프로세스 중 특정 사생을 블랙리스트 처리합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "처리 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "처리 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
-    })
+    @Override
     @DeleteMapping("/{residentId}/blackList")
     public ResponseEntity<?> addBlackList (
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable Long residentId
     ) {
         return residentManagementService.addBlackList(userDetailsImpl, residentId);
     }
