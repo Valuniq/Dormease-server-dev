@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.users.resident.controller;
 
+import dormease.dormeasedev.domain.users.resident.dto.request.CreateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.UpdateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.response.*;
 import dormease.dormeasedev.global.common.Message;
@@ -114,6 +115,17 @@ public interface ResidentWebApi {
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "건물의 id를 입력해주세요.", required = true) @RequestParam Long dormitoryId,
             @Parameter(description = "호실의 번호를 입력해주세요.", required = true) @RequestParam Integer roomNumber
+    );
+
+    @Operation(summary = "사생 직접 추가", description = "사생을 직접 추가합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "저장 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))}),
+            @ApiResponse(responseCode = "400", description = "저장 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+    })
+    @PostMapping("/manual")
+    ResponseEntity<Void> createResident(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "CreateResidentInfoReq Schema를 확인해주세요", required = true) @RequestBody CreateResidentInfoReq createResidentInfoReq
     );
 
     @Operation(summary = "사생 퇴사 처리", description = "사생 관리 프로세스 중 특정 사생을 퇴사 처리합니다.")

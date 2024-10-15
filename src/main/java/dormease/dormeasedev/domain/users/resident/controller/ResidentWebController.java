@@ -1,5 +1,7 @@
 package dormease.dormeasedev.domain.users.resident.controller;
 
+import dormease.dormeasedev.domain.users.resident.domain.Resident;
+import dormease.dormeasedev.domain.users.resident.dto.request.CreateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.UpdateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.service.ResidentManagementService;
 import dormease.dormeasedev.global.common.ApiResponse;
@@ -10,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -107,19 +111,21 @@ public class ResidentWebController implements ResidentWebApi {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // @Operation(summary = "사생 건물 재배치", description = "사생 정보 수정 중 사생의 배정된 건물을 재배치합니다.")
-    // @ApiResponses(value = {
-    //         @ApiResponse(responseCode = "200", description = "수정 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-    //         @ApiResponse(responseCode = "400", description = "수정 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = .class))}),
-    // })
-    // @PatchMapping("/{residentId}/dormitory/{dormitoryId}")
-    // public ResponseEntity<?> reassignedResident(
-    //         @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-    //         @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
-    //         @Parameter(description = "기숙사의 id를 입력해주세요.", required = true) @PathVariable Long dormitoryId
-    // ) {
-    //     return residentManagementService.reassignResidentToDormitory(userDetailsImpl, residentId, dormitoryId);
-    // }
+    @Override
+    @PostMapping("/manual")
+    public ResponseEntity<Void> createResident(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @RequestBody CreateResidentInfoReq createResidentInfoReq
+    ) {
+        Resident resident = residentManagementService.addNewResident(userDetailsImpl, createResidentInfoReq);
+        URI location = UriComponentsBuilder
+                .fromPath("/api/v1/web/residents/{id}")
+                .buildAndExpand(resident.getId())
+                .toUri();
+        return ResponseEntity.created(location).build();
+    }
+
+
 
     @Override
     @DeleteMapping("/{residentId}")

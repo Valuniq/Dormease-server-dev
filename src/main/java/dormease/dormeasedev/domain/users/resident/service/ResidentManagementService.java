@@ -362,6 +362,44 @@ public class ResidentManagementService {
     }
 
 
+    @Transactional
+    public Resident addNewResident(UserDetailsImpl userDetailsImpl, CreateResidentInfoReq createResidentInfoReq) {
+        User admin = userService.validateUserById(userDetailsImpl.getUserId());
+        ResidentDormitoryInfoReq residentDormitoryInfoReq = createResidentInfoReq.getResidentDormitoryInfoReq();
+
+        Optional<Dormitory> dormitoryOptional = dormitoryRepository.findById(residentDormitoryInfoReq.getDormitoryId());
+        DefaultAssert.isTrue(dormitoryOptional.isPresent(), "해당 건물이 존재하지 않습니다.");
+        Dormitory dormitory = dormitoryOptional.get();
+
+        Optional<Term> termOptional = termRepository.findById(residentDormitoryInfoReq.getTermId());
+        DefaultAssert.isTrue(termOptional.isPresent(), "해당 거주기간이 존재하지 않습니다.");
+        Term term = termOptional.get();
+
+        // dormitoryTerm
+        RoomType roomType = roomTypeRepository.findByRoomSizeAndGender(residentDormitoryInfoReq.getRoomSize(), createResidentInfoReq.getGender());
+        DormitoryRoomType dormitoryRoomType = dormitoryRoomTypeRepository.findByDormitoryAndRoomType(dormitory, roomType);
+        DormitoryTerm dormitoryTerm = dormitoryTermRepository.findByDormitoryRoomTypeAndTerm(dormitoryRoomType, term);
+
+        Room room = null;
+        Integer bedNumber = null;
+        if (residentDormitoryInfoReq.getRoomNumber() != null) {
+            room = roomRepository.findByDormitoryAndRoomNumber(dormitory, residentDormitoryInfoReq.getRoomNumber());
+            bedNumber = residentDormitoryInfoReq.getBedNumber();
+        }
+
+        Resident resident = Resident.builder()
+                .school(admin.getSchool())
+                .name(createResidentInfoReq.getName())
+                .gender(createResidentInfoReq.getGender())
+                .dormitoryTerm(dormitoryTerm)
+                .room(room)
+                .bedNumber(bedNumber)
+                .hasKey(createResidentInfoReq.getHasKey())
+                .build();
+        residentRepository.save(resident);
+        return resident;
+    }
+
     // 사생 직접 추가 버튼 -> term 정보 보내줘야 함
     // 이름 성별 입사신청, 거주기간, 건물 필수
 
