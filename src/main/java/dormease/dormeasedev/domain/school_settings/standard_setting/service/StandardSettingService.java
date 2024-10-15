@@ -19,6 +19,7 @@ import dormease.dormeasedev.domain.school_settings.standard_setting.exception.St
 import dormease.dormeasedev.domain.school_settings.standard_setting.exception.StandardSettingNotFoundException;
 import dormease.dormeasedev.domain.school_settings.standard_setting.mapper.StandardSettingMapper;
 import dormease.dormeasedev.domain.users.user.domain.User;
+import dormease.dormeasedev.domain.users.user.exception.InvalidSchoolAuthorityException;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -117,7 +118,7 @@ public class StandardSettingService {
         StandardSetting standardSetting = standardSettingRepository.findById(standardSettingId)
                 .orElseThrow(StandardSettingNotFoundException::new);
         if (!standardSetting.getSchool().equals(school))
-            throw new IllegalArgumentException();
+            throw new InvalidSchoolAuthorityException();
 
         // 기존 RegionDistanceScore 목록 조회
         List<RegionDistanceScore> existingRegionDistanceScores = regionDistanceScoreRepository.findBySchool(school);

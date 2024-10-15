@@ -30,6 +30,10 @@ public class DormitorySettingTerm extends BaseEntity {
 
     private Integer acceptLimit;
 
+    public void updateAcceptLimit(Integer acceptLimit) {
+        this.acceptLimit = acceptLimit;
+    }
+
     @Builder
     public DormitorySettingTerm(DormitoryApplicationSetting dormitoryApplicationSetting, DormitoryRoomType dormitoryRoomType, Integer acceptLimit) {
         this.dormitoryApplicationSetting = dormitoryApplicationSetting;
