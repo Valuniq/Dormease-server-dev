@@ -2,7 +2,6 @@ package dormease.dormeasedev.domain.users.resident.service;
 
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.Dormitory;
 import dormease.dormeasedev.domain.dormitories.dormitory.domain.repository.DormitoryRepository;
-import dormease.dormeasedev.domain.dormitories.dormitory.service.DormitoryService;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.repository.DormitoryRoomTypeRepository;
 import dormease.dormeasedev.domain.dormitories.room.domain.Room;
@@ -10,9 +9,10 @@ import dormease.dormeasedev.domain.dormitories.room.domain.repository.RoomReposi
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.repository.DormitoryTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
+import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.repository.ExitRequestmentRepository;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
@@ -40,10 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,14 +49,15 @@ import java.util.stream.Collectors;
 public class ResidentManagementService {
 
     private final ResidentRepository residentRepository;
-    private final DormitoryRepository dormitoryRepository;
     private final RoomRepository roomRepository;
+    private final DormitoryTermRepository dormitoryTermRepository;
     private final DormitoryRoomTypeRepository dormitoryRoomTypeRepository;
     private final DormitoryApplicationRepository dormitoryApplicationRepository;
     private final RefundRequestmentRepository refundRequestmentRepository;
     private final ExitRequestmentRepository exitRequestmentRepository;
 
     private final UserService userService;
+    private final TermService termService;
     private final ResidentService residentService;
     private final S3Uploader s3Uploader;
 
@@ -422,43 +420,35 @@ public class ResidentManagementService {
     // 사생의 성별에 맞는 건물 조회
     // 빈 자리가 없는 건물은 드롭다운 메뉴에 뜨지 않음
     // Description: 수정 필요
-    public ResponseEntity<?> getDormitoriesByGender(UserDetailsImpl userDetailsImpl, Long residentId) {  // 거주기간 id 받기
+    public ResponseEntity<?> getDormitoriesByGender(UserDetailsImpl userDetailsImpl, Long residentId, Long termId) {
         User admin = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
-        // resident가 속한 학교의 기숙사 리스트
-        List<Dormitory> sameSchoolDormitories = dormitoryRepository.findBySchool(resident.getSchool());
+        Term term = termService.validateTermId(termId);
 
-        List<Dormitory> findDormitories = sameSchoolDormitories.stream()
-                // 성별 조건을 만족하는 기숙사 필터링
-                .filter(dormitory -> dormitoryRoomTypeRepository.existsByDormitoryAndRoomTypeGender(dormitory, resident.getGender()))
+        Set<Dormitory> processedDormitories = new HashSet<>();
+        List<DormitoryResidentAssignmentRes> dormitoryResidentAssignmentRes = dormitoryTermRepository.findByTerm(term).stream()
+                .map(dormitoryTerm -> dormitoryTerm.getDormitoryRoomType().getDormitory())
+                // 성별 체크
+                .filter(dormitory -> dormitoryRoomTypeRepository.existsByDormitoryAndRoomType_Gender(dormitory, resident.getGender()))
                 // 수용인원 체크
                 .filter(dormitory -> {
                     Integer currentPeopleCount = calculateCurrentPeopleCount(dormitory);
                     Integer dormitorySize = calculateDormitorySize(dormitory);
                     return currentPeopleCount < dormitorySize;
                 })
-                .toList();
-
-        List<DormitoryResidentAssignmentRes> dormitoryResidentAssignmentRes = new ArrayList<>();
-
-        for (Dormitory dormitory : findDormitories) {
-            List<DormitoryRoomType> dormitoryRoomTypes = dormitoryRoomTypeRepository.findByDormitoryAndRoomTypeGender(dormitory, resident.getGender());
-            // dormitoryRoomType별로 DormitoryResidentAssignmentRes 생성
-            for (DormitoryRoomType dormitoryRoomType : dormitoryRoomTypes) {
-                Integer roomSize = dormitoryRoomType.getRoomType().getRoomSize();
-                dormitoryResidentAssignmentRes.add(
-                        DormitoryResidentAssignmentRes.builder()
+                // 이미 처리된 기숙사는 제외
+                .filter(dormitory -> processedDormitories.add(dormitory))  // Set에 없는 경우만 추가되며, 추가된 경우에만 true 반환
+                .flatMap(dormitory -> dormitoryRoomTypeRepository.findByDormitoryAndRoomTypeGender(dormitory, resident.getGender()).stream()
+                        .map(dormitoryRoomType -> DormitoryResidentAssignmentRes.builder()
                                 .dormitoryId(dormitory.getId())
                                 .dormitoryName(dormitory.getName())
-                                .roomSize(roomSize)
-                                .build()
-                );
-            }
-        }
-        // 기숙사 이름, 인실로 정렬
-        dormitoryResidentAssignmentRes.sort(Comparator.comparing(DormitoryResidentAssignmentRes::getDormitoryName)
-                .thenComparing(DormitoryResidentAssignmentRes::getRoomSize));
+                                .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
+                                .build())
+                )
+                .sorted(Comparator.comparing(DormitoryResidentAssignmentRes::getDormitoryName)
+                        .thenComparing(DormitoryResidentAssignmentRes::getRoomSize))
+                .toList();
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -485,6 +475,10 @@ public class ResidentManagementService {
     // 입사신청설정 목록
     // 거주기간 목록 조회
     // 입사신청설정, 거주기간에 맞는 기숙사 조회
+
+    // dormitoryApplicationSetting 골라서
+    // dormitorySettingTerm -> 가져오기
+    // 일단 사생은 dormitoryTerm을 가져야 함
 
     // 사생 건물 재배치
     // TODO: 피그마 디자인보고 수정(거주기간 선택을 위해 입사신청설정 -> 기숙사 -> 거주기간 순서(예정))
