@@ -104,14 +104,14 @@ public class DormitoryApplicationWebService {
                     .roomSize(applicationRoomType.getRoomSize())
                     .build();
 
-            DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
-            DormitoryRoomType resultDormitoryRoomType = resultDormitoryTerm.getDormitoryRoomType();
-            Dormitory resultDormitory = resultDormitoryRoomType.getDormitory();
-            RoomType resultRoomType = resultDormitoryRoomType.getRoomType();
             DormitoryApplicationWebRes.DormitoryRoomTypeRes resultDormitoryRoomTypeRes;
             if (dormitoryApplication.getDormitoryApplicationResult().equals(DormitoryApplicationResult.NON_PASS) || dormitoryApplication.getDormitoryApplicationResult().equals(DormitoryApplicationResult.WAIT))
                 resultDormitoryRoomTypeRes = null;
             else {
+                DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
+                DormitoryRoomType resultDormitoryRoomType = resultDormitoryTerm.getDormitoryRoomType();
+                Dormitory resultDormitory = resultDormitoryRoomType.getDormitory();
+                RoomType resultRoomType = resultDormitoryRoomType.getRoomType();
                 resultDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
                         .dormitoryName(resultDormitory.getName())
                         .roomSize(resultRoomType.getRoomSize())
