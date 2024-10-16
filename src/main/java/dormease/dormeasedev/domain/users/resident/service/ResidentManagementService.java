@@ -401,6 +401,9 @@ public class ResidentManagementService {
                 .isRoommateApplied(false)
                 .build();
         residentRepository.save(resident);
+        // currentPeople update
+        updateCurrentPeople(null, room);
+
         return resident;
     }
 
