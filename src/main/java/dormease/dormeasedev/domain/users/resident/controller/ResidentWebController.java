@@ -4,6 +4,7 @@ import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.dto.request.CreateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.UpdateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.service.ResidentManagementService;
+import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.global.common.ApiResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import jakarta.validation.constraints.Positive;
@@ -76,13 +77,13 @@ public class ResidentWebController implements ResidentWebApi {
     }
 
     @Override
-    @GetMapping("/{residentId}/dormitory/{termId}")
+    @GetMapping("/dormitory")
     public ResponseEntity<?> getDormitoriesAssignResident(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @PathVariable Long residentId,
-            @PathVariable Long termId
+            @RequestParam Gender gender,
+            @RequestParam Long termId
     ) {
-        return residentManagementService.getDormitoriesByGender(userDetailsImpl, residentId, termId);
+        return residentManagementService.getDormitoriesByGender(userDetailsImpl, gender, termId);
     }
 
     @Override
@@ -102,11 +103,12 @@ public class ResidentWebController implements ResidentWebApi {
     public ResponseEntity<ApiResponse> getAvailableRoomAndBedNumber(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @RequestParam Long dormitoryId,
+            @RequestParam Integer roomSize,
             @RequestParam Integer roomNumber
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(residentManagementService.assignedRoomAndBedNumber(userDetailsImpl, dormitoryId, roomNumber))
+                .information(residentManagementService.assignedRoomAndBedNumber(userDetailsImpl, dormitoryId, roomSize, roomNumber))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

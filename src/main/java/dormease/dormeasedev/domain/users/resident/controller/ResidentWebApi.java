@@ -3,6 +3,7 @@ package dormease.dormeasedev.domain.users.resident.controller;
 import dormease.dormeasedev.domain.users.resident.dto.request.CreateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.UpdateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.response.*;
+import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.global.common.Message;
 import dormease.dormeasedev.global.common.PageResponse;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
@@ -88,11 +89,11 @@ public interface ResidentWebApi {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DormitoryResidentAssignmentRes.class))}),
             @ApiResponse(responseCode = "400", description = "조회 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
-    @GetMapping("/{residentId}/dormitory/{termId}")
+    @GetMapping("/dormitory")
     ResponseEntity<?> getDormitoriesAssignResident(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
-            @Parameter(description = "사생의 id를 입력해주세요.", required = true) @PathVariable Long residentId,
-            @Parameter(description = "거주기간의 id를 입력해주세요.", required = true) @PathVariable Long termId
+            @Parameter(description = "사생의 성별을 입력해주세요. 성별은 MALE 또는 FEMALE입니다.", required = true) @RequestParam Gender gender,
+            @Parameter(description = "거주기간의 id를 입력해주세요.", required = true) @RequestParam Long termId
     );
 
     @Operation(summary = "입사신청 및 거주기간 목록 조회", description = "사생 직접 추가 시 입사신청 및 거주기간 목록을 조회합니다.")
@@ -114,6 +115,7 @@ public interface ResidentWebApi {
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> getAvailableRoomAndBedNumber(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "건물의 id를 입력해주세요.", required = true) @RequestParam Long dormitoryId,
+            @Parameter(description = "건물의 인실을 입력해주세요.", required = true) @RequestParam Integer roomSize,
             @Parameter(description = "호실의 번호를 입력해주세요.", required = true) @RequestParam Integer roomNumber
     );
 
