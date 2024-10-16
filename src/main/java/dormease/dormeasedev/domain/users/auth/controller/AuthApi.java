@@ -5,6 +5,7 @@ import dormease.dormeasedev.domain.users.auth.dto.request.ModifyReq;
 import dormease.dormeasedev.domain.users.auth.dto.request.SignInReq;
 import dormease.dormeasedev.domain.users.auth.dto.request.SignUpReq;
 import dormease.dormeasedev.domain.users.auth.dto.response.CheckLoginIdRes;
+import dormease.dormeasedev.domain.users.auth.dto.response.ReissueRes;
 import dormease.dormeasedev.domain.users.auth.dto.response.SignInRes;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
@@ -103,7 +104,7 @@ public interface AuthApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
     })
     @PostMapping(value = "/sign-out")
-    ResponseEntity<?> signout(
+    ResponseEntity<?> signOut(
             @Parameter(description = "Accesstoken을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     );
 
@@ -121,5 +122,21 @@ public interface AuthApi {
     @GetMapping("/loginId/{loginId}")
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> checkLoginId(
             @Parameter(description = "검사할 아이디를 입력해주세요.", required = true) @PathVariable(value = "loginId") String loginId
+    );
+
+    @Operation(summary = "리토큰 재발급 API", description = "리프레시 토큰으로 액세스 토큰 재발급을 진행합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "토큰 재발급 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ReissueRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "토큰 재발급 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
+            ),
+    })
+    @GetMapping("/reissue")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> reissue(
+            @Parameter(description = "리프레시 토큰을 입력해주세요.", required = true) @RequestParam(value = "refreshToken") String refreshToken
     );
 }

@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.users.auth.service;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import dormease.dormeasedev.domain.restaurants.restaurant.domain.Restaurant;
 import dormease.dormeasedev.domain.restaurants.restaurant.domain.repository.RestaurantRepository;
 import dormease.dormeasedev.domain.school.domain.School;
@@ -11,7 +12,9 @@ import dormease.dormeasedev.domain.users.auth.dto.request.ModifyReq;
 import dormease.dormeasedev.domain.users.auth.dto.request.SignInReq;
 import dormease.dormeasedev.domain.users.auth.dto.request.SignUpReq;
 import dormease.dormeasedev.domain.users.auth.dto.response.CheckLoginIdRes;
+import dormease.dormeasedev.domain.users.auth.dto.response.ReissueRes;
 import dormease.dormeasedev.domain.users.auth.dto.response.SignInRes;
+import dormease.dormeasedev.domain.users.auth.exception.UserNotFoundException;
 import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
@@ -138,6 +141,12 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user.getId());
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
+        refreshTokenRepository.save(RefreshToken.builder()
+                .loginId(loginId)
+                .refreshToken(refreshToken)
+                .user(user)
+                .build());
+
         return SignInRes.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -147,7 +156,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void signout(UserDetailsImpl userDetailsImpl) {
+    public void signOut(UserDetailsImpl userDetailsImpl) {
         Optional<RefreshToken> findRefreshToken = refreshTokenRepository.findByLoginId(userDetailsImpl.getLoginId());
         DefaultAssert.isTrue(findRefreshToken.isPresent(), "이미 로그아웃 되었습니다");
 
@@ -165,5 +174,20 @@ public class AuthService {
                 .build();
     }
 
+    public ReissueRes reissue(String refreshToken) {
+        if (!jwtTokenProvider.isTokenValid(refreshToken))
+            throw new TokenExpiredException("유효하지 않은 리프레시 토큰입니다.");
 
+        RefreshToken findRefreshToken = refreshTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new IllegalArgumentException("리프레시 토큰을 찾을 수 없습니다."));
+
+        User user = findRefreshToken.getUser();
+        if (user == null)
+            throw new UserNotFoundException();
+        String accessToken = jwtTokenProvider.createAccessToken(user.getId());
+
+        return ReissueRes.builder()
+                .accessToken(accessToken)
+                .build();
+    }
 }
