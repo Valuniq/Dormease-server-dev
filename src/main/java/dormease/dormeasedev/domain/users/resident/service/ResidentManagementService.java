@@ -23,6 +23,7 @@ import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.rep
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
+import dormease.dormeasedev.domain.users.resident.dto.DormitoryAndRoomType;
 import dormease.dormeasedev.domain.users.resident.dto.request.CreateResidentInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentDormitoryInfoReq;
 import dormease.dormeasedev.domain.users.resident.dto.request.ResidentPrivateInfoReq;
@@ -515,26 +516,31 @@ public class ResidentManagementService {
         // DefaultAssert.isTrue(admin.getSchool() == resident.getSchool(), "관리자와 사생의 학교가 일치하지 않습니다.");
         Term term = termService.validateTermId(termId);
 
-        Set<Dormitory> processedDormitories = new HashSet<>();
+        Set<DormitoryAndRoomType> processedDormitories = new HashSet<>();
         List<DormitoryResidentAssignmentRes> dormitoryResidentAssignmentRes = dormitoryTermRepository.findByTerm(term).stream()
-                .map(dormitoryTerm -> dormitoryTerm.getDormitoryRoomType().getDormitory())
-                // 성별 체크
-                .filter(dormitory -> dormitoryRoomTypeRepository.existsByDormitoryAndRoomType_Gender(dormitory, gender))
+                .map(dormitoryTerm -> {
+                    Dormitory dormitory = dormitoryTerm.getDormitoryRoomType().getDormitory();
+                    RoomType roomType = dormitoryTerm.getDormitoryRoomType().getRoomType();
+                    // 성별 체크
+                    if (!roomType.getGender().equals(gender)) {
+                        return null;
+                    }
+                    return new DormitoryAndRoomType(dormitory, roomType);
+                })
+                .filter(Objects::nonNull)
                 // 수용인원 체크
-                .filter(dormitory -> {
-                    Integer currentPeopleCount = calculateCurrentPeopleCount(dormitory);
-                    Integer dormitorySize = calculateDormitorySize(dormitory);
+                .filter(dormitoryAndRoomType -> {
+                    Integer currentPeopleCount = calculateCurrentPeopleCount(dormitoryAndRoomType.getDormitory());
+                    Integer dormitorySize = calculateDormitorySize(dormitoryAndRoomType.getDormitory());
                     return currentPeopleCount < dormitorySize;
                 })
                 // 이미 처리된 기숙사는 제외
-                .filter(dormitory -> processedDormitories.add(dormitory))  // Set에 없는 경우만 추가되며, 추가된 경우에만 true 반환
-                .flatMap(dormitory -> dormitoryRoomTypeRepository.findByDormitoryAndRoomTypeGender(dormitory, gender).stream()
-                        .map(dormitoryRoomType -> DormitoryResidentAssignmentRes.builder()
-                                .dormitoryId(dormitory.getId())
-                                .dormitoryName(dormitory.getName())
-                                .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
+                .filter(processedDormitories::add)
+                .map(dormitoryAndRoomType -> DormitoryResidentAssignmentRes.builder()
+                                .dormitoryId(dormitoryAndRoomType.getDormitory().getId())
+                                .dormitoryName(dormitoryAndRoomType.getDormitory().getName())
+                                .roomSize(dormitoryAndRoomType.getRoomType().getRoomSize())
                                 .build())
-                )
                 .sorted(Comparator.comparing(DormitoryResidentAssignmentRes::getDormitoryName)
                         .thenComparing(DormitoryResidentAssignmentRes::getRoomSize))
                 .toList();

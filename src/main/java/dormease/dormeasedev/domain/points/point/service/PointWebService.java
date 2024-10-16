@@ -463,9 +463,7 @@ public class PointWebService {
         };
         Pageable pageable = PageRequest.of(page, 25, sort);
 
-        List<Student> studentList = studentRepository.findBySchoolAndKeyword(adminUser.getSchool(), cleanedKeyword, cleanedKeyword);
-        // user를 가지고 있는 resident 찾기 (페이징 적용)
-        Page<Resident> residents = residentRepository.findResidentsByStudents(studentList, pageable);
+        Page<Resident> residents = residentRepository.findBySchoolAndKeyword(adminUser.getSchool(), cleanedKeyword, pageable);
 
         List<ResidentInfoRes> userResidentInfoResList = residents.getContent().stream()
                 .map(resident -> {
