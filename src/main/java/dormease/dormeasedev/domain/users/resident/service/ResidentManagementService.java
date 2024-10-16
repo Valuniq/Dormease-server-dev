@@ -657,12 +657,12 @@ public class ResidentManagementService {
         Resident resident = residentService.validateResidentById(residentId);
         processResidentExit(userDetailsImpl, resident);
         Student student = resident.getStudent();
-        if (student != null) {
-            blackListRepository.save(BlackList.builder()
-                    .student(student)
-                    .content(null)
-                    .build());
-        }
+        DefaultAssert.isTrue(student != null, "해당 사생은 블랙리스트로 추가할 수 없습니다.");
+
+        blackListRepository.save(BlackList.builder()
+                .student(student)
+                .content(null)
+                .build());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
