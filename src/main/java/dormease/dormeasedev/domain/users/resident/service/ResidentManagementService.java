@@ -157,7 +157,7 @@ public class ResidentManagementService {
                     .termId(term.getId())
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
-                    // .roomSize() 호실이 없으면 인실 가져올 수 없음
+                    .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
                     .termName(term.getTermName())
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
@@ -166,7 +166,7 @@ public class ResidentManagementService {
             return ResidentDormitoryInfoRes.builder()
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
-                    .roomSize(resident.getRoom().getRoomType().getRoomSize())
+                    .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
                     .roomNumber(resident.getRoom().getRoomNumber())
                     .bedNumber(resident.getBedNumber())
                     .termId(term.getId())
