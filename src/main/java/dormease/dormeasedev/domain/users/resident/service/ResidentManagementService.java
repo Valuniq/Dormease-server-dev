@@ -226,11 +226,12 @@ public class ResidentManagementService {
                         minusPoint = student.getMinusPoint();
                         schoolStatus = student.getSchoolStatus();
                     }
-
-                    if (room != null) {
+                    if (resident.getDormitoryTerm() != null) {
                         DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                         dormitoryName = dormitoryRoomType.getDormitory().getName();
                         roomSize = dormitoryRoomType.getRoomType().getRoomSize();
+                    }
+                    if (room != null) {
                         roomNumber = room.getRoomNumber();
                     }
 
@@ -308,13 +309,13 @@ public class ResidentManagementService {
                         bonusPoint = student.getBonusPoint();
                         minusPoint = student.getMinusPoint();
                         schoolStatus = student.getSchoolStatus();
-
                     }
-
-                    if (room != null) {
+                    if (resident.getDormitoryTerm() != null) {
                         DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                         dormitoryName = dormitoryRoomType.getDormitory().getName();
                         roomSize = dormitoryRoomType.getRoomType().getRoomSize();
+                    }
+                    if (room != null) {
                         roomNumber = room.getRoomNumber();
                     }
 
