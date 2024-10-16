@@ -21,6 +21,8 @@ import dormease.dormeasedev.domain.dormitory_applications.term.domain.repository
 import dormease.dormeasedev.domain.dormitory_applications.term.service.TermService;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.domain.repository.ExitRequestmentRepository;
 import dormease.dormeasedev.domain.exit_requestments.refund_requestment.domain.respository.RefundRequestmentRepository;
+import dormease.dormeasedev.domain.users.blacklist.domain.BlackList;
+import dormease.dormeasedev.domain.users.blacklist.domain.repository.BlackListRepository;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.resident.dto.DormitoryAndRoomType;
@@ -60,6 +62,7 @@ import java.util.stream.Collectors;
 public class ResidentManagementService {
 
     private final ResidentRepository residentRepository;
+    private final BlackListRepository blackListRepository;
     private final RoomTypeRepository roomTypeRepository;
     private final RoomRepository roomRepository;
     private final TermRepository termRepository;
@@ -157,7 +160,7 @@ public class ResidentManagementService {
                     .termId(term.getId())
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
-                    // .roomSize() 호실이 없으면 인실 가져올 수 없음
+                    .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
                     .termName(term.getTermName())
                     .isApplyRoommate(resident.getIsRoommateApplied() != null ? resident.getIsRoommateApplied() : null)
                     .build();
@@ -166,7 +169,7 @@ public class ResidentManagementService {
             return ResidentDormitoryInfoRes.builder()
                     .dormitoryId(dormitory.getId())
                     .dormitoryName(dormitory.getName())
-                    .roomSize(resident.getRoom().getRoomType().getRoomSize())
+                    .roomSize(dormitoryRoomType.getRoomType().getRoomSize())
                     .roomNumber(resident.getRoom().getRoomNumber())
                     .bedNumber(resident.getBedNumber())
                     .termId(term.getId())
@@ -226,11 +229,12 @@ public class ResidentManagementService {
                         minusPoint = student.getMinusPoint();
                         schoolStatus = student.getSchoolStatus();
                     }
-
-                    if (room != null) {
+                    if (resident.getDormitoryTerm() != null) {
                         DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                         dormitoryName = dormitoryRoomType.getDormitory().getName();
                         roomSize = dormitoryRoomType.getRoomType().getRoomSize();
+                    }
+                    if (room != null) {
                         roomNumber = room.getRoomNumber();
                     }
 
@@ -308,13 +312,13 @@ public class ResidentManagementService {
                         bonusPoint = student.getBonusPoint();
                         minusPoint = student.getMinusPoint();
                         schoolStatus = student.getSchoolStatus();
-
                     }
-
-                    if (room != null) {
+                    if (resident.getDormitoryTerm() != null) {
                         DormitoryRoomType dormitoryRoomType = resident.getDormitoryTerm().getDormitoryRoomType();
                         dormitoryName = dormitoryRoomType.getDormitory().getName();
                         roomSize = dormitoryRoomType.getRoomType().getRoomSize();
+                    }
+                    if (room != null) {
                         roomNumber = room.getRoomNumber();
                     }
 
@@ -401,6 +405,9 @@ public class ResidentManagementService {
                 .isRoommateApplied(false)
                 .build();
         residentRepository.save(resident);
+        // currentPeople update
+        updateCurrentPeople(null, room);
+
         return resident;
     }
 
@@ -458,13 +465,15 @@ public class ResidentManagementService {
 
     private void updateCurrentPeople(Room originalRoom, Room room) {
         if (originalRoom != null) {
-            Integer originalRoomPeopleCount = residentRepository.findByRoom(originalRoom).size();
-            originalRoom.updateCurrentPeople(originalRoomPeopleCount);
+            originalRoom.adjustRoomCurrentPeople(room, -1);
+            //Integer originalRoomPeopleCount = residentRepository.findByRoom(originalRoom).size();
+            //originalRoom.updateCurrentPeople(originalRoomPeopleCount);
         }
         if (room != null) {
-            Integer currentPeopleCount = residentRepository.findByRoom(room).size();
-            DefaultAssert.isTrue(currentPeopleCount <= room.getRoomType().getRoomSize(), "배정 가능한 인원을 초과했습니다.");
-            room.updateCurrentPeople(currentPeopleCount);
+            room.adjustRoomCurrentPeople(room, 1);
+            //Integer currentPeopleCount = residentRepository.findByRoom(room).size();
+            DefaultAssert.isTrue(room.getCurrentPeople() <= room.getRoomType().getRoomSize(), "배정 가능한 인원을 초과했습니다.");
+            //room.updateCurrentPeople(currentPeopleCount);
         }
     }
 
@@ -634,17 +643,36 @@ public class ResidentManagementService {
 
     @Transactional
     public ResponseEntity<?> deleteResident(UserDetailsImpl userDetailsImpl, Long residentId) {
-        return processResidentExit(userDetailsImpl, residentId, "퇴사 처리되었습니다.");
+        Resident resident = residentService.validateResidentById(residentId);
+        processResidentExit(userDetailsImpl, resident);
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("퇴사 처리되었습니다.").build())
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     @Transactional
     public ResponseEntity<?> addBlackList(UserDetailsImpl userDetailsImpl, Long residentId) {
-        return processResidentExit(userDetailsImpl, residentId, "블랙리스트로 추가되었습니다.");
+        Resident resident = residentService.validateResidentById(residentId);
+        processResidentExit(userDetailsImpl, resident);
+        Student student = resident.getStudent();
+        DefaultAssert.isTrue(student != null, "해당 사생은 블랙리스트로 추가할 수 없습니다.");
+
+        blackListRepository.save(BlackList.builder()
+                .student(student)
+                .content(null)
+                .build());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("블랙리스트로 추가되었습니다.").build())
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 
-    private ResponseEntity<?> processResidentExit(UserDetailsImpl userDetailsImpl, Long residentId, String message) {
+    private void processResidentExit(UserDetailsImpl userDetailsImpl, Resident resident) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
-        Resident resident = residentService.validateResidentById(residentId);
         DefaultAssert.isTrue(adminUser.getSchool().equals(resident.getSchool()), "관리자와 사생의 학교가 일치하지 않습니다.");
         Student student = resident.getStudent();
 
@@ -669,11 +697,5 @@ public class ResidentManagementService {
             //   dormitoryApplication.updateApplicationStatus(ApplicationStatus.BEFORE);
             // }
         }
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message(message).build())
-                .build();
-        return ResponseEntity.ok(apiResponse);
     }
 }

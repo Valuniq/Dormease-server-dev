@@ -270,9 +270,9 @@ public class PointWebService {
     // 상벌점 내역 삭제
     @Transactional
     public  ResponseEntity<?> deleteUserPoints(UserDetailsImpl userDetailsImpl, Long residentId, List<DeleteUserPointReq> deleteUserPointReqs) {
-        User amdinUser = userService.validateUserById(userDetailsImpl.getUserId());
+        User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         Resident resident = validResidentById(residentId);
-        if (!amdinUser.getSchool().equals(resident.getSchool()))
+        if (!adminUser.getSchool().equals(resident.getSchool()))
             throw new InvalidSchoolAuthorityException();
 
 //        User user = resident.getUser();
@@ -294,9 +294,9 @@ public class PointWebService {
 
         Student student = resident.getStudent();
         Integer bonusPoint = student.getBonusPoint();
-        DefaultAssert.isTrue(bonusPoint < bonus, "상점은 0점 미만이 될 수 없습니다.");
+        DefaultAssert.isTrue(bonusPoint <= bonus, "상점은 0점 미만이 될 수 없습니다.");
         Integer minusPoint = student.getMinusPoint();
-        DefaultAssert.isTrue(minusPoint < minus, "벌점은 0점 미만이 될 수 없습니다.");
+        DefaultAssert.isTrue(minusPoint <= minus, "벌점은 0점 미만이 될 수 없습니다.");
         student.updateBonusPoint(bonusPoint - bonus);
         student.updateMinusPoint(minusPoint - minus);
 
