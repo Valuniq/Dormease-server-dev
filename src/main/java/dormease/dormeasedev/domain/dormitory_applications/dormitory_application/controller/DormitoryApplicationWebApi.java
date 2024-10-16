@@ -1,6 +1,8 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.controller;
 
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.ApplicantListRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationWebRes;
+import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ExitRequestmentResidentRes;
 import dormease.dormeasedev.global.exception.ExceptionResponse;
 import dormease.dormeasedev.global.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,8 +25,11 @@ public interface DormitoryApplicationWebApi {
     @Operation(summary = "현재 입사 신청 설정에 대한 입사 신청 목록 조회 API", description = "현재 입사 신청 설정(가장 최근 입사 신청 설정)에 대한 입사 신청 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(
+                    responseCode = "0", description = "현재 입사 신청 설정에 대한 입사 신청 목록 조회 성공 - dataList 구성",
+                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryApplicationWebRes.class)))}),
+            @ApiResponse(
                     responseCode = "200", description = "현재 입사 신청 설정에 대한 입사 신청 목록 조회 성공",
-                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryApplicationWebRes.class)))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ApplicantListRes.class))}
             ),
             @ApiResponse(
                     responseCode = "400", description = "현재 입사 신청 설정에 대한 입사 신청 목록 조회 실패",

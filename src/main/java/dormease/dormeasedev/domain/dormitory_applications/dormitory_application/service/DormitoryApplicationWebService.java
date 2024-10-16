@@ -6,6 +6,7 @@ import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.ApplicantListRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationWebRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
@@ -38,7 +39,7 @@ public class DormitoryApplicationWebService {
     private final UserService userService;
 
     // TODO : N+1 최적화
-    public List<DormitoryApplicationWebRes> findDormitoryApplications(UserDetailsImpl userDetailsImpl) {
+    public ApplicantListRes findDormitoryApplications(UserDetailsImpl userDetailsImpl) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
         DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findBySchoolAndApplicationStatus(school, ApplicationStatus.NOW)
@@ -74,8 +75,10 @@ public class DormitoryApplicationWebService {
 
             dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);
         }
-
-        return dormitoryApplicationWebResList;
+        return ApplicantListRes.builder()
+                .dormitoryApplicationSettingId(dormitoryApplicationSetting.getId())
+                .dormitoryApplicationWebResList(dormitoryApplicationWebResList)
+                .build();
     }
 
     public List<DormitoryApplicationWebRes> searchDormitoryApplications(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId, String searchWord) {
@@ -101,14 +104,14 @@ public class DormitoryApplicationWebService {
                     .roomSize(applicationRoomType.getRoomSize())
                     .build();
 
-            DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
-            DormitoryRoomType resultDormitoryRoomType = resultDormitoryTerm.getDormitoryRoomType();
-            Dormitory resultDormitory = resultDormitoryRoomType.getDormitory();
-            RoomType resultRoomType = resultDormitoryRoomType.getRoomType();
             DormitoryApplicationWebRes.DormitoryRoomTypeRes resultDormitoryRoomTypeRes;
             if (dormitoryApplication.getDormitoryApplicationResult().equals(DormitoryApplicationResult.NON_PASS) || dormitoryApplication.getDormitoryApplicationResult().equals(DormitoryApplicationResult.WAIT))
                 resultDormitoryRoomTypeRes = null;
             else {
+                DormitoryTerm resultDormitoryTerm = dormitoryApplication.getResultDormitoryTerm();
+                DormitoryRoomType resultDormitoryRoomType = resultDormitoryTerm.getDormitoryRoomType();
+                Dormitory resultDormitory = resultDormitoryRoomType.getDormitory();
+                RoomType resultRoomType = resultDormitoryRoomType.getRoomType();
                 resultDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
                         .dormitoryName(resultDormitory.getName())
                         .roomSize(resultRoomType.getRoomSize())
