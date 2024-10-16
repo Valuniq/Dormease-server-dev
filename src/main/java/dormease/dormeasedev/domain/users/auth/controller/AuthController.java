@@ -65,8 +65,8 @@ public class AuthController implements AuthApi {
 
     @Override
     @PostMapping(value = "/sign-out")
-    public ResponseEntity<?> signout(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {
-        authService.signout(userDetailsImpl);
+    public ResponseEntity<?> signOut(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {
+        authService.signOut(userDetailsImpl);
         return ResponseEntity.noContent().build();
     }
 
@@ -76,6 +76,15 @@ public class AuthController implements AuthApi {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(authService.checkLoginId(loginId))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> reissue(@RequestParam(value = "refreshToken") String refreshToken) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(authService.reissue(refreshToken))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
