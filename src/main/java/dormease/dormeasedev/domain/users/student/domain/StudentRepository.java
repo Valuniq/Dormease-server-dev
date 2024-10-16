@@ -31,13 +31,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
             Pageable pageable
     );
 
-    @Query("SELECT s FROM Student s WHERE s.user.school = :school AND (s.studentNumber LIKE %:studentNumberKeyword% OR s.user.name LIKE %:userNameKeyword%)")
-    List<Student> findBySchoolAndKeyword(
-            @Param("school") School school,
-            @Param("studentNumberKeyword") String studentNumberKeyword,
-            @Param("userNameKeyword") String userNameKeyword
-    );
-
     Optional<Student> findByUser_SchoolAndStudentNumber(School school, String studentNumber);
 
     boolean existsByStudentNumber(String studentNumber);

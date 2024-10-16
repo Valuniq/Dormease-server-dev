@@ -68,4 +68,15 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
     boolean existsByRoom(Room room);
 
     Integer countByRoom(Room room);
+
+    @Query("SELECT r FROM Resident r " +
+            "WHERE r.school = :school " +
+            "AND ((r.student IS NOT NULL AND LOWER(r.student.studentNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "OR (r.student IS NOT NULL AND LOWER(r.name) LIKE LOWER(CONCAT('%', :keyword, '%'))))")
+    Page<Resident> findBySchoolAndKeyword(
+            @Param("school") School school,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
 }
