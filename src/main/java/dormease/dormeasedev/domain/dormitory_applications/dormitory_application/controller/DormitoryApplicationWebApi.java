@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Tag(name = "[WEB] Dormitory Application API", description = "WEB에서 사용할 입사 신청자 명단 프로세스 API입니다.")
 public interface DormitoryApplicationWebApi {
 
@@ -59,14 +61,14 @@ public interface DormitoryApplicationWebApi {
             @Parameter(description = "검색어를 입력해주세요.", required = true) @RequestParam(value = "searchWord") String searchWord
     );
 
-    @Operation(summary = "현재 입사 신청 설정(ID)으로 입사 신청 목록 조회 API", description = "현재 입사 신청 설정(ID)으로 입사 신청 목록을 조회합니다.")
+    @Operation(summary = "입사 신청 설정(ID)으로 입사 신청 목록 조회 API", description = "입사 신청 설정(ID)으로 입사 신청 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "200", description = "현재 입사 신청 설정(ID)으로 입사 신청 목록 조회 성공",
+                    responseCode = "200", description = "입사 신청 설정(ID)으로 입사 신청 목록 조회 성공",
                     content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryApplicationWebRes.class)))}
             ),
             @ApiResponse(
-                    responseCode = "400", description = "현재 입사 신청 설정(ID)으로 입사 신청 목록 조회 실패",
+                    responseCode = "400", description = "입사 신청 설정(ID)으로 입사 신청 목록 조회 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             )
     })
@@ -74,5 +76,23 @@ public interface DormitoryApplicationWebApi {
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> findDormitoryApplicationsById(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "dormitoryApplicationSettingId(입사 신청 설정 id)를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId
+    );
+
+    @Operation(summary = "합격자 검사 API", description = "합격자 검사를 진행합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "합격자 검사 성공",
+                    content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DormitoryApplicationWebRes.class)))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "합격자 검사 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
+            )
+    })
+    @GetMapping("/inspection/{dormitoryApplicationSettingId}")
+    ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> inspectApplication(
+            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @Parameter(description = "dormitoryApplicationSettingId(입사 신청 설정 id)를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+            @Parameter(description = "신청자 명단에 포함된 입사 신청 id 목록을 입력해주세요.", required = true) @RequestParam(value = "applicationIds") List<Long> applicationIds
     );
 }

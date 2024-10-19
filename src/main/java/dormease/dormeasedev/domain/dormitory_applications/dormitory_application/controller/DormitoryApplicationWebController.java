@@ -57,4 +57,19 @@ public class DormitoryApplicationWebController implements DormitoryApplicationWe
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
+
+    @Override
+    @GetMapping("/inspection/{dormitoryApplicationSettingId}")
+    public ResponseEntity<ApiResponse> inspectApplication(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+            @RequestParam(value = "applicationIds") List<Long> applicationIds
+    ) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryApplicationWebService.inspectApplication(userDetailsImpl, dormitoryApplicationSettingId, applicationIds))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+
+    }
 }
