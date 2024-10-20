@@ -535,5 +535,8 @@ public class DormitoryApplicationWebService {
             List<Long> dormitoryApplicationIds = applicationResultIdsReq.getDormitoryApplicationIds();
             dormitoryApplicationRepository.updateDormitoryApplicationResults(dormitoryApplicationResult, dormitoryApplicationIds);
         }
+        DormitoryApplicationSetting dormitoryApplicationSetting = dormitoryApplicationSettingRepository.findById(ModifyApplicationResultIdsReq.getDormitoryApplicationSettingId())
+                .orElseThrow(DormitoryApplicationSettingNotFoundException::new);
+        dormitoryApplicationSetting.updateApplicationStatus(ApplicationStatus.DEPOSIT);
     }
 }
