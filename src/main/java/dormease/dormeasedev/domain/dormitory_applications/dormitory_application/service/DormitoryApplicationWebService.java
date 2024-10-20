@@ -7,6 +7,7 @@ import dormease.dormeasedev.domain.dormitories.room_type.domain.RoomType;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplication;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.request.ApplicationIdsReq;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.ApplicantListRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationWebRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
@@ -212,7 +213,7 @@ public class DormitoryApplicationWebService {
         return dormitoryApplicationWebResList;
     }
 
-    public List<DormitoryApplicationWebRes> inspectApplication(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId, List<Long> applicationIds) {
+    public List<DormitoryApplicationWebRes> inspectApplication(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId, ApplicationIdsReq applicationIdsReq) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
 
@@ -237,16 +238,17 @@ public class DormitoryApplicationWebService {
              3. 합/불/이동합격 선발
                - 각 List 별 수용 인원 고려하여 커트라인 산정 후 합격자 선발 (1) 인원 수 변경
                  - 동점자 고려 (커트라인 점수만)
-               - 이동 합격 활성화 시 다른 List 배정 -> 더 Develop 필요함 !!!
+               - 이동 합격 활성화 시 다른 List 배정
              4. 응답 형식 고민
-               - 다 줄 필요는 x인듯 !! -> 이름 등은 냅두고.. :: 리스트(입사 신청 id, 결과 건물, 결과만?) + (기숙사 + 방 타입) Dormitory Room Type (ID) 별 남은 인원
+               - 다 줄 필요는 x인듯 -> 이름 등은 냅두고.. :: 리스트(입사 신청 id, 결과 건물, 결과만?) + (기숙사 + 방 타입) Dormitory Room Type (ID) 별 남은 인원
                - 조회처럼 완전하게
                - Dormitory Application ID, 배정 건물, 배정 결과만
                + 공통) Dormitory Room Type 별 남은 인원
          */
         // 0. 데이터 세팅
         // 0-0) 요청으로 받은 입사 신청 id 전체 조회
-        List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllById(applicationIds);
+        List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllById(applicationIdsReq.getApplicationIds());
+        List<DormitoryApplication> removeDormitoryApplicationList = new ArrayList<>();
         // 0-1) 기준 설정
         StandardSetting standardSetting = standardSettingRepository.findBySchool(school)
                 .orElseThrow(StandardSettingNotFoundException::new);
@@ -255,11 +257,12 @@ public class DormitoryApplicationWebService {
         Map<Long, Double> regionDistanceScoreMap = new HashMap<>();
         for (Region region : regionList) {
             // 각 Region에 해당하는 RegionDistanceScore 목록을 가져옵니다.
-            RegionDistanceScore regionDistanceScore = regionDistanceScoreRepository.findBySchoolAndRegionWithDistanceScore(school, region)
-                    .orElseThrow(IllegalArgumentException::new);
+            Optional<RegionDistanceScore> findRegionDistanceScore = regionDistanceScoreRepository.findBySchoolAndRegionWithDistanceScore(school, region);
+            Double score = 4.5;
+            if (findRegionDistanceScore.isPresent())
+                score = findRegionDistanceScore.get().getDistanceScore().getScore();
             // 각 Region에 대해 거리 점수를 가져와 Map에 추가
-            DistanceScore distanceScore = regionDistanceScore.getDistanceScore();
-            regionDistanceScoreMap.put(region.getId(), distanceScore.getScore());
+            regionDistanceScoreMap.put(region.getId(), score);
         }
 
         // 0-2) 기숙사 + 인실/성별 (Dormitory Room Type) 별 선발 인원  /  Dormitory Room Type 별로 분류할 List 생성
@@ -280,10 +283,12 @@ public class DormitoryApplicationWebService {
         if (standardSetting.isPrioritySelection()) {
             for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
                 if (dormitoryApplication.getPrioritySelectionCopy() == null) continue;
-                pass(dormitoryApplication, acceptLimitMap, dormitoryApplicationList, dormitoryApplicationWebResList);
+//                pass(dormitoryApplication, acceptLimitMap, dormitoryApplicationList, dormitoryApplicationWebResList);
+                pass(dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
             }
         }
-
+        dormitoryApplicationList.removeAll(removeDormitoryApplicationList);
+        removeDormitoryApplicationList.clear();
 
         // 2. 신입생 / 재학생 분기 : 신입생 학번 -> 10자리 / 재학생 학번 -> 8자리
         FreshmanStandard freshmanStandard = standardSetting.getFreshmanStandard();
@@ -292,7 +297,7 @@ public class DormitoryApplicationWebService {
             if (student.getStudentNumber().length() != 8) {
                 // 신입생
                 if (FreshmanStandard.EVERYONE.equals(freshmanStandard))  // 신입생 전원 합격
-                    pass(dormitoryApplication, acceptLimitMap, dormitoryApplicationList, dormitoryApplicationWebResList);
+                    pass(dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
             } else {
                 // 재학생 + 신입생 장거리 우선 합격 : 상/벌점 점수 활성화 여부 확인 후 "[최종 점수 산정]"  ==>  Dormitory Room Type에 따라 각 List에 add
                 int bonusPoint = 0;
@@ -322,11 +327,10 @@ public class DormitoryApplicationWebService {
                 dormitoryApplicationMapList.add(dormitoryApplicationMap);
             }
         }
-
+        dormitoryApplicationList.removeAll(removeDormitoryApplicationList);
+        removeDormitoryApplicationList.clear();
 
         // 3. 합/불/이동합격 선발
-        Map<Long, Double> movePassMap = new HashMap<>(); // 입사 신청 ID, 환산 점수 Map : 합격자 모두 거르고 Dormitory Room Type에 관계 없이 정렬하기 위함 (이동 합격)
-
         for (Map.Entry<Long, List<Map<Long, Double>>> entry : applicationListMapByDormitoryRoomType.entrySet()) {
             // Entry에서 List<Map<Long, Double>>를 가져옴
             List<Map<Long, Double>> applicationList = entry.getValue();
@@ -340,16 +344,19 @@ public class DormitoryApplicationWebService {
             boolean needCut = acceptLimit < sortedApplications.size();
             if (!needCut) { // 수용 인원 >= 신청자  : 자리 남는 경우
                 for (Map.Entry<Long, Double> sortedApplication : sortedApplications)
-                    sortedPass(sortedApplication, acceptLimitMap, dormitoryApplicationList, dormitoryApplicationWebResList);
+                    sortedPass(sortedApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
 
             } else { // 수용 인원 < 신청자
                 for (int i = 0; i < acceptLimit; i++) {
                     Map.Entry<Long, Double> sortedApplication = sortedApplications.get(i);
-                    sortedPass(sortedApplication, acceptLimitMap, dormitoryApplicationList, dormitoryApplicationWebResList);
+                    sortedPass(sortedApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
                 }
             }
         }
+        dormitoryApplicationList.removeAll(removeDormitoryApplicationList);
+        removeDormitoryApplicationList.clear();
 
+        Map<Long, Double> movePassMap = new HashMap<>(); // 입사 신청 ID, 환산 점수 Map : 합격자 모두 거르고 Dormitory Room Type에 관계 없이 정렬하기 위함 (이동 합격)
         for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) { // 불합격 입사 신청 (이동 합격 전)
             Long dormitoryApplicationId = dormitoryApplication.getId();
             DormitoryRoomType applicationDormitoryRoomType = dormitoryApplication.getApplicationDormitoryTerm().getDormitoryRoomType();
@@ -370,20 +377,22 @@ public class DormitoryApplicationWebService {
                 .collect(Collectors.toList());
 
         // 수용 인원이 남아있는 Dormitory Room Type에 랜덤 배정
-        for (Map.Entry<Long, Integer> acceptLimitEntry : acceptLimitMap.entrySet()) {
-            Integer acceptLimit = acceptLimitEntry.getValue();
-            if (acceptLimit <= 0) continue;
-            // 자리 있는 Dormitory Room Type
-            while (acceptLimit > 0) {
+        if (movePassMap.size() != 0) { // movePassMap == 0 인 경우 들어가면 안 됨 / accept Limit만큼 다 돌아도 안 됨 (인원만큼 돌아야 함)
+            for (Map.Entry<Long, Integer> acceptLimitEntry : acceptLimitMap.entrySet()) {
+                Integer acceptLimit = acceptLimitEntry.getValue();
+                int num = Math.min(acceptLimit, movePassMap.size());
+                if (num <= 0) continue;
+                // 자리 있는 Dormitory Room Type
                 DormitoryRoomType resultDormitoryRoomType = dormitoryRoomTypeRepository.findById(acceptLimitEntry.getKey())
                         .orElseThrow();
-                for (Map.Entry<Long, Double> sortedEntry : sortedEntries) {
-                    DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findById(sortedEntry.getKey())
+                for (int i = num; i > 0; i--) {
+                    DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findById(sortedEntries.get(i).getKey())
                             .orElseThrow();
-                    movePass(resultDormitoryRoomType, dormitoryApplication, acceptLimitMap, dormitoryApplicationList, dormitoryApplicationWebResList);
-                    acceptLimit--;
+                    movePass(resultDormitoryRoomType, dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
                 }
             }
+            dormitoryApplicationList.removeAll(removeDormitoryApplicationList);
+            removeDormitoryApplicationList.clear();
         }
 
         // 불합격자 DTO
@@ -425,13 +434,13 @@ public class DormitoryApplicationWebService {
 
 
     // 이동 합격 배정
-    private void movePass(DormitoryRoomType resultDormitoryRoomType, DormitoryApplication dormitoryApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> dormitoryApplicationList, List<DormitoryApplicationWebRes> dormitoryApplicationWebResList) {
+    private void movePass(DormitoryRoomType resultDormitoryRoomType, DormitoryApplication dormitoryApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> removeDormitoryApplicationList, List<DormitoryApplicationWebRes> dormitoryApplicationWebResList) {
         Integer acceptLimit = acceptLimitMap.get(resultDormitoryRoomType.getId());
         acceptLimitMap.replace(resultDormitoryRoomType.getId(), acceptLimit - 1);
 
         DormitoryApplicationWebRes dormitoryApplicationWebRes = getMovePassDormitoryApplicationWebRes(dormitoryApplication, resultDormitoryRoomType);
 
-        dormitoryApplicationList.remove(dormitoryApplication);
+        removeDormitoryApplicationList.add(dormitoryApplication);
         dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);
     }
 
@@ -471,15 +480,15 @@ public class DormitoryApplicationWebService {
     }
 
     // 정렬된 입사 신청 합격 처리
-    private void sortedPass(Map.Entry<Long, Double> sortedApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> dormitoryApplicationList, List<DormitoryApplicationWebRes> dormitoryApplicationWebResList) {
+    private void sortedPass(Map.Entry<Long, Double> sortedApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> removeDormitoryApplicationList, List<DormitoryApplicationWebRes> dormitoryApplicationWebResList) {
         Long dormitoryApplicationId = sortedApplication.getKey();
         DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findById(dormitoryApplicationId)
                 .orElseThrow();
-        pass(dormitoryApplication, acceptLimitMap, dormitoryApplicationList, dormitoryApplicationWebResList);
+        pass(dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
     }
 
     // (전원) 합격의 경우 사용. (우선 선발 /신입생 전원 합격 포함)
-    private static void pass(DormitoryApplication dormitoryApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> dormitoryApplicationList, List<DormitoryApplicationWebRes> dormitoryApplicationWebResList) {
+    private static void pass(DormitoryApplication dormitoryApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> removeDormitoryApplicationList, List<DormitoryApplicationWebRes> dormitoryApplicationWebResList) {
         DormitoryTerm applicationDormitoryTerm = dormitoryApplication.getApplicationDormitoryTerm();
         DormitoryRoomType applicationDormitoryRoomType = applicationDormitoryTerm.getDormitoryRoomType();
         Integer acceptLimit = acceptLimitMap.get(applicationDormitoryRoomType.getId());
@@ -487,7 +496,7 @@ public class DormitoryApplicationWebService {
 
         DormitoryApplicationWebRes dormitoryApplicationWebRes = getPassDormitoryApplicationWebRes(dormitoryApplication, applicationDormitoryRoomType);
 
-        dormitoryApplicationList.remove(dormitoryApplication);
+        removeDormitoryApplicationList.add(dormitoryApplication);
         dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);
     }
 

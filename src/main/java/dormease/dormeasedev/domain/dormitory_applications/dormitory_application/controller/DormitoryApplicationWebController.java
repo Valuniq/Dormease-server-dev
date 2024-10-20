@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.controller;
 
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.request.ApplicationIdsReq;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationWebRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationWebService;
 import dormease.dormeasedev.global.common.ApiResponse;
@@ -59,15 +60,15 @@ public class DormitoryApplicationWebController implements DormitoryApplicationWe
     }
 
     @Override
-    @GetMapping("/inspection/{dormitoryApplicationSettingId}")
+    @PostMapping("/inspection/{dormitoryApplicationSettingId}")
     public ResponseEntity<ApiResponse> inspectApplication(
             @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
-            @RequestParam(value = "applicationIds") List<Long> applicationIds
+            @RequestBody ApplicationIdsReq applicationIdsReq
     ) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(dormitoryApplicationWebService.inspectApplication(userDetailsImpl, dormitoryApplicationSettingId, applicationIds))
+                .information(dormitoryApplicationWebService.inspectApplication(userDetailsImpl, dormitoryApplicationSettingId, applicationIdsReq))
                 .build();
         return ResponseEntity.ok(apiResponse);
 

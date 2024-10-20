@@ -1,5 +1,6 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.controller;
 
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.request.ApplicationIdsReq;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.ApplicantListRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationWebRes;
 import dormease.dormeasedev.domain.exit_requestments.exit_requestment.dto.response.ExitRequestmentResidentRes;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -93,6 +95,6 @@ public interface DormitoryApplicationWebApi {
     ResponseEntity<dormease.dormeasedev.global.common.ApiResponse> inspectApplication(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
             @Parameter(description = "dormitoryApplicationSettingId(입사 신청 설정 id)를 입력해주세요.", required = true) @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
-            @Parameter(description = "신청자 명단에 포함된 입사 신청 id 목록을 입력해주세요.", required = true) @RequestParam(value = "applicationIds") List<Long> applicationIds
+            @Parameter(description = "신청자 명단에 포함된 입사 신청 id 목록을 입력해주세요.", required = true) @RequestBody ApplicationIdsReq applicationIdsReq
     );
 }

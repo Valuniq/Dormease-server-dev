@@ -1,6 +1,7 @@
 package dormease.dormeasedev.domain.users.student.domain;
 
 import dormease.dormeasedev.domain.common.BaseEntity;
+import dormease.dormeasedev.domain.school_settings.region.domain.Region;
 import dormease.dormeasedev.domain.users.auth.dto.request.ModifyReq;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.SchoolStatus;
@@ -29,6 +30,10 @@ public class Student extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private Region region;
 
     // Student
     private String phoneNumber;
@@ -89,8 +94,9 @@ public class Student extends BaseEntity {
     }
 
     @Builder
-    public Student(User user, String phoneNumber, String studentNumber, Gender gender, SchoolStatus schoolStatus, String address, String major, Integer schoolYear, Double grade) {
+    public Student(User user, Region region, String phoneNumber, String studentNumber, Gender gender, SchoolStatus schoolStatus, String address, String major, Integer schoolYear, Double grade) {
         this.user = user;
+        this.region = region;
         this.phoneNumber = phoneNumber;
         this.studentNumber = studentNumber;
         this.gender = gender;
