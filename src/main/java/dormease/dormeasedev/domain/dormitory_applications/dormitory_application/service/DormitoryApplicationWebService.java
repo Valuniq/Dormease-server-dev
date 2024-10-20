@@ -8,6 +8,8 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.DormitoryApplicationResult;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.request.ApplicationIdsReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.request.ApplicationResultIdsReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.request.ModifyApplicationResultIdsReq;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.ApplicantListRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationWebRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
@@ -247,7 +249,7 @@ public class DormitoryApplicationWebService {
          */
         // 0. 데이터 세팅
         // 0-0) 요청으로 받은 입사 신청 id 전체 조회
-        List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllById(applicationIdsReq.getApplicationIds());
+        List<DormitoryApplication> dormitoryApplicationList = dormitoryApplicationRepository.findAllById(applicationIdsReq.getDormitoryApplicationIds());
         List<DormitoryApplication> removeDormitoryApplicationList = new ArrayList<>();
         // 0-1) 기준 설정
         StandardSetting standardSetting = standardSettingRepository.findBySchool(school)
@@ -522,5 +524,16 @@ public class DormitoryApplicationWebService {
                 .dormitoryApplicationResult(DormitoryApplicationResult.PASS)
                 .build();
         return dormitoryApplicationWebRes;
+    }
+
+    // Description : 합/불 저장 ( BULK UPDATE )
+    @Transactional
+    public void modifyApplicationResult(ModifyApplicationResultIdsReq ModifyApplicationResultIdsReq) {
+        List<ApplicationResultIdsReq> applicationResultIdsReqList = ModifyApplicationResultIdsReq.getApplicationResultIdsReqList();
+        for (ApplicationResultIdsReq applicationResultIdsReq : applicationResultIdsReqList) {
+            DormitoryApplicationResult dormitoryApplicationResult = applicationResultIdsReq.getDormitoryApplicationResult();
+            List<Long> dormitoryApplicationIds = applicationResultIdsReq.getDormitoryApplicationIds();
+            dormitoryApplicationRepository.updateDormitoryApplicationResults(dormitoryApplicationResult, dormitoryApplicationIds);
+        }
     }
 }
