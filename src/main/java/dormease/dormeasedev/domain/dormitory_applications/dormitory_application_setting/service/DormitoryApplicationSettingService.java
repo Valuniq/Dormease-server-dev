@@ -95,6 +95,7 @@ public class DormitoryApplicationSettingService {
             RoomType roomType = dormitoryRoomType.getRoomType();
 
             DormitorySettingTermRes dormitorySettingTermRes = DormitorySettingTermRes.builder()
+                    .dormitorySettingTermId(dormitorySettingTerm.getId())
                     .dormitoryRoomTypeId(dormitoryRoomType.getId())
                     .dormitoryName(dormitory.getName())
                     .roomSize(roomType.getRoomSize())
