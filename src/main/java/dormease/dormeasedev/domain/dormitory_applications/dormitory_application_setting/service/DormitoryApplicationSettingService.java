@@ -348,6 +348,7 @@ public class DormitoryApplicationSettingService {
                     // 기존에 존재하는 MealTicket 찾기
                     return findMealTicketList.stream()
                             .filter(findMealTicket -> findMealTicket.getId().equals(mealTicketReq.getMealTicketId()))
+//                            .filter(findMealTicket -> findMealTicket.getId() == mealTicketReq.getMealTicketId())
                             .findFirst()
                             .map(findMealTicket -> {
                                 // 존재하면 업데이트
@@ -368,7 +369,8 @@ public class DormitoryApplicationSettingService {
         // 삭제할 MealTicket 목록 추출
         List<MealTicket> removeMealTicketList = findMealTicketList.stream()
                 .filter(findMealTicket -> updatedMealTickets.stream()
-                        .noneMatch(updatedMealTicket -> updatedMealTicket.getId().equals(findMealTicket.getId())))
+//                        .noneMatch(updatedMealTicket -> updatedMealTicket.getId().equals(findMealTicket.getId())))
+                        .noneMatch(updatedMealTicket -> updatedMealTicket.getId() == findMealTicket.getId()))
                 .collect(Collectors.toList());
 
         // 삭제할 MealTicket 삭제
@@ -396,6 +398,7 @@ public class DormitoryApplicationSettingService {
                 .map(dormitorySettingTermReq -> {
                     return findDormitorySettingTermList.stream()
                             .filter(findDormitorySettingTerm -> findDormitorySettingTerm.getId().equals(dormitorySettingTermReq.getDormitorySettingTermId()))
+//                            .filter(findDormitorySettingTerm -> findDormitorySettingTerm.getId() == dormitorySettingTermReq.getDormitorySettingTermId()))
                             .findFirst()
                             .map(findDormitorySettingTerm -> {
                                 // 존재하면 업데이트
@@ -419,7 +422,8 @@ public class DormitoryApplicationSettingService {
 
         List<DormitorySettingTerm> removeDormitorySettingTermList = findDormitorySettingTermList.stream()
                 .filter(findDormitorySettingTerm -> updatedDormitorySettingTermList.stream()
-                        .noneMatch(updatedDormitorySettingTerm -> updatedDormitorySettingTerm.getId().equals(findDormitorySettingTerm.getId())))
+//                        .noneMatch(updatedDormitorySettingTerm -> updatedDormitorySettingTerm.getId().equals(findDormitorySettingTerm.getId())))
+                        .noneMatch(updatedDormitorySettingTerm -> updatedDormitorySettingTerm.getId() == findDormitorySettingTerm.getId()))
                 .collect(Collectors.toList());
 
         dormitorySettingTermRepository.deleteAll(removeDormitorySettingTermList);
@@ -458,7 +462,8 @@ public class DormitoryApplicationSettingService {
             // 삭제할 DormitoryTerm 목록 추출
             List<DormitoryTerm> removeDormitoryTermList = findDormitoryTermList.stream()
                     .filter(findDormitoryTerm -> updatedDormitoryTermList.stream()
-                            .noneMatch(updatedDormitoryTerm -> updatedDormitoryTerm.getId().equals(findDormitoryTerm.getId())))
+//                            .noneMatch(updatedDormitoryTerm -> updatedDormitoryTerm.getId().equals(findDormitoryTerm.getId())))
+                            .noneMatch(updatedDormitoryTerm -> updatedDormitoryTerm.getId() == findDormitoryTerm.getId()))
                     .collect(Collectors.toList());
 
             dormitoryTermRepository.deleteAll(removeDormitoryTermList);
@@ -493,7 +498,8 @@ public class DormitoryApplicationSettingService {
         // 삭제할 Term 목록 추출
         List<Term> removeTermList = findTermList.stream()
                 .filter(findTerm -> updatedTermList.stream()
-                        .noneMatch(updatedTerm -> updatedTerm.getId().equals(findTerm.getId())))
+//                        .noneMatch(updatedTerm -> updatedTerm.getId().equals(findTerm.getId())))
+                        .noneMatch(updatedTerm -> updatedTerm.getId() == findTerm.getId()))
                 .collect(Collectors.toList());
 
         termRepository.deleteAll(removeTermList);
