@@ -12,6 +12,7 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.request.ModifyApplicationResultIdsReq;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.ApplicantListRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationWebRes;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.InspectDormitoryApplicationRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.repository.DormitoryApplicationSettingRepository;
@@ -20,8 +21,6 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_setting_term.domain.repository.DormitorySettingTermRepository;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.school.domain.School;
-import dormease.dormeasedev.domain.school_settings.distance_score.domain.DistanceScore;
-import dormease.dormeasedev.domain.school_settings.distance_score.domain.repository.DistanceScoreRepository;
 import dormease.dormeasedev.domain.school_settings.region.domain.Region;
 import dormease.dormeasedev.domain.school_settings.region.domain.repository.RegionRepository;
 import dormease.dormeasedev.domain.school_settings.region_distance_score.domain.RegionDistanceScore;
@@ -215,11 +214,12 @@ public class DormitoryApplicationWebService {
         return dormitoryApplicationWebResList;
     }
 
-    public List<DormitoryApplicationWebRes> inspectApplication(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId, ApplicationIdsReq applicationIdsReq) {
+    public List<InspectDormitoryApplicationRes> inspectApplication(UserDetailsImpl userDetailsImpl, Long dormitoryApplicationSettingId, ApplicationIdsReq applicationIdsReq) {
         User adminUser = userService.validateUserById(userDetailsImpl.getUserId());
         School school = adminUser.getSchool();
 
-        List<DormitoryApplicationWebRes> dormitoryApplicationWebResList = new ArrayList<>(); // 응답 DTO List
+        List<InspectDormitoryApplicationRes> inspectDormitoryApplicationResList = new ArrayList<>(); // 응답 DTO List
+
         /*
             TODO
              0. 데이터 세팅
@@ -286,7 +286,7 @@ public class DormitoryApplicationWebService {
             for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
                 if (dormitoryApplication.getPrioritySelectionCopy() == null) continue;
 //                pass(dormitoryApplication, acceptLimitMap, dormitoryApplicationList, dormitoryApplicationWebResList);
-                pass(dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
+                pass(dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, inspectDormitoryApplicationResList);
             }
         }
         dormitoryApplicationList.removeAll(removeDormitoryApplicationList);
@@ -299,7 +299,7 @@ public class DormitoryApplicationWebService {
             if (student.getStudentNumber().length() != 8) {
                 // 신입생
                 if (FreshmanStandard.EVERYONE.equals(freshmanStandard))  // 신입생 전원 합격
-                    pass(dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
+                    pass(dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, inspectDormitoryApplicationResList);
             } else {
                 // 재학생 + 신입생 장거리 우선 합격 : 상/벌점 점수 활성화 여부 확인 후 "[최종 점수 산정]"  ==>  Dormitory Room Type에 따라 각 List에 add
                 int bonusPoint = 0;
@@ -346,12 +346,12 @@ public class DormitoryApplicationWebService {
             boolean needCut = acceptLimit < sortedApplications.size();
             if (!needCut) { // 수용 인원 >= 신청자  : 자리 남는 경우
                 for (Map.Entry<Long, Double> sortedApplication : sortedApplications)
-                    sortedPass(sortedApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
+                    sortedPass(sortedApplication, acceptLimitMap, removeDormitoryApplicationList, inspectDormitoryApplicationResList);
 
             } else { // 수용 인원 < 신청자
                 for (int i = 0; i < acceptLimit; i++) {
                     Map.Entry<Long, Double> sortedApplication = sortedApplications.get(i);
-                    sortedPass(sortedApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
+                    sortedPass(sortedApplication, acceptLimitMap, removeDormitoryApplicationList, inspectDormitoryApplicationResList);
                 }
             }
         }
@@ -390,7 +390,7 @@ public class DormitoryApplicationWebService {
                 for (int i = num; i > 0; i--) {
                     DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findById(sortedEntries.get(i).getKey())
                             .orElseThrow();
-                    movePass(resultDormitoryRoomType, dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
+                    movePass(resultDormitoryRoomType, dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, inspectDormitoryApplicationResList);
                 }
             }
             dormitoryApplicationList.removeAll(removeDormitoryApplicationList);
@@ -399,28 +399,34 @@ public class DormitoryApplicationWebService {
 
         // 불합격자 DTO
         for (DormitoryApplication dormitoryApplication : dormitoryApplicationList) {
-            DormitoryApplicationWebRes dormitoryApplicationWebRes = getNonPassDormitoryApplicationWebRes(dormitoryApplication);
-            dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);
+            InspectDormitoryApplicationRes inspectDormitoryApplicationRes = getNonPassDormitoryApplicationWebRes(dormitoryApplication);
+            inspectDormitoryApplicationResList.add(inspectDormitoryApplicationRes);
         }
 
-        return dormitoryApplicationWebResList;
+        return inspectDormitoryApplicationResList;
     }
 
-    private DormitoryApplicationWebRes getNonPassDormitoryApplicationWebRes(DormitoryApplication dormitoryApplication) {
-        Student student = dormitoryApplication.getStudent();
-        User user = student.getUser();
-        DormitoryTerm applicationDormitoryTerm = dormitoryApplication.getApplicationDormitoryTerm();
-        DormitoryRoomType applicationDormitoryRoomType = applicationDormitoryTerm.getDormitoryRoomType();
+    private InspectDormitoryApplicationRes getNonPassDormitoryApplicationWebRes(DormitoryApplication dormitoryApplication) {
+//        Student student = dormitoryApplication.getStudent();
+//        User user = student.getUser();
+//        DormitoryTerm applicationDormitoryTerm = dormitoryApplication.getApplicationDormitoryTerm();
+//        DormitoryRoomType applicationDormitoryRoomType = applicationDormitoryTerm.getDormitoryRoomType();
 
-        Dormitory applicationDormitory = applicationDormitoryRoomType.getDormitory();
-        RoomType applicationRoomType = applicationDormitoryRoomType.getRoomType();
-        DormitoryApplicationWebRes.DormitoryRoomTypeRes applicationDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
-                .dormitoryName(applicationDormitory.getName())
-                .roomSize(applicationRoomType.getRoomSize())
+//        Dormitory applicationDormitory = applicationDormitoryRoomType.getDormitory();
+//        RoomType applicationRoomType = applicationDormitoryRoomType.getRoomType();
+//        DormitoryApplicationWebRes.DormitoryRoomTypeRes applicationDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
+//                .dormitoryName(applicationDormitory.getName())
+//                .roomSize(applicationRoomType.getRoomSize())
+//                .build();
+
+        return InspectDormitoryApplicationRes.builder()
+                .dormitoryApplicationId(dormitoryApplication.getId())
+                .resultDormitoryRoomTypeRes(null)
+                .dormitoryApplicationResult(DormitoryApplicationResult.NON_PASS)
                 .build();
 
-        DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
-                .dormitoryApplicationId(dormitoryApplication.getId())
+//        DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
+//                .dormitoryApplicationId(dormitoryApplication.getId())
 //                .studentName(user.getName())
 //                .studentNumber(student.getStudentNumber())
 //                .gender(student.getGender())
@@ -428,36 +434,36 @@ public class DormitoryApplicationWebService {
 //                .address(student.getAddress())
 //                .copy(dormitoryApplication.getCopy())
 //                .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy())
-                .resultDormitoryRoomTypeRes(null)
-                .dormitoryApplicationResult(DormitoryApplicationResult.NON_PASS)
-                .build();
-        return dormitoryApplicationWebRes;
+//                .resultDormitoryRoomTypeRes(null)
+//                .dormitoryApplicationResult(DormitoryApplicationResult.NON_PASS)
+//                .build();
+//        return dormitoryApplicationWebRes;
     }
 
 
     // 이동 합격 배정
-    private void movePass(DormitoryRoomType resultDormitoryRoomType, DormitoryApplication dormitoryApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> removeDormitoryApplicationList, List<DormitoryApplicationWebRes> dormitoryApplicationWebResList) {
+    private void movePass(DormitoryRoomType resultDormitoryRoomType, DormitoryApplication dormitoryApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> removeDormitoryApplicationList, List<InspectDormitoryApplicationRes> inspectDormitoryApplicationResList) {
         Integer acceptLimit = acceptLimitMap.get(resultDormitoryRoomType.getId());
         acceptLimitMap.replace(resultDormitoryRoomType.getId(), acceptLimit - 1);
 
-        DormitoryApplicationWebRes dormitoryApplicationWebRes = getMovePassDormitoryApplicationWebRes(dormitoryApplication, resultDormitoryRoomType);
+        InspectDormitoryApplicationRes inspectDormitoryApplicationRes = getMovePassDormitoryApplicationWebRes(dormitoryApplication, resultDormitoryRoomType);
 
         removeDormitoryApplicationList.add(dormitoryApplication);
-        dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);
+        inspectDormitoryApplicationResList.add(inspectDormitoryApplicationRes);
     }
 
-    private static DormitoryApplicationWebRes getMovePassDormitoryApplicationWebRes(DormitoryApplication dormitoryApplication, DormitoryRoomType resultDormitoryRoomType) {
+    private static InspectDormitoryApplicationRes getMovePassDormitoryApplicationWebRes(DormitoryApplication dormitoryApplication, DormitoryRoomType resultDormitoryRoomType) {
         Student student = dormitoryApplication.getStudent();
         User user = student.getUser();
         DormitoryTerm applicationDormitoryTerm = dormitoryApplication.getApplicationDormitoryTerm();
         DormitoryRoomType applicationDormitoryRoomType = applicationDormitoryTerm.getDormitoryRoomType();
 
-        Dormitory applicationDormitory = applicationDormitoryRoomType.getDormitory();
-        RoomType applicationRoomType = applicationDormitoryRoomType.getRoomType();
-        DormitoryApplicationWebRes.DormitoryRoomTypeRes applicationDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
-                .dormitoryName(applicationDormitory.getName())
-                .roomSize(applicationRoomType.getRoomSize())
-                .build();
+//        Dormitory applicationDormitory = applicationDormitoryRoomType.getDormitory();
+//        RoomType applicationRoomType = applicationDormitoryRoomType.getRoomType();
+//        DormitoryApplicationWebRes.DormitoryRoomTypeRes applicationDormitoryRoomTypeRes = DormitoryApplicationWebRes.DormitoryRoomTypeRes.builder()
+//                .dormitoryName(applicationDormitory.getName())
+//                .roomSize(applicationRoomType.getRoomSize())
+//                .build();
 
         Dormitory resultDormitory = resultDormitoryRoomType.getDormitory();
         RoomType resultRoomType = resultDormitoryRoomType.getRoomType();
@@ -466,8 +472,14 @@ public class DormitoryApplicationWebService {
                 .roomSize(resultRoomType.getRoomSize())
                 .build();
 
-        DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
+        return InspectDormitoryApplicationRes.builder()
                 .dormitoryApplicationId(dormitoryApplication.getId())
+                .resultDormitoryRoomTypeRes(resultDormitoryRoomTypeRes)
+                .dormitoryApplicationResult(DormitoryApplicationResult.MOVE_PASS)
+                .build();
+
+//        DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
+//                .dormitoryApplicationId(dormitoryApplication.getId())
 //                .studentName(user.getName())
 //                .studentNumber(student.getStudentNumber())
 //                .gender(student.getGender())
@@ -475,34 +487,34 @@ public class DormitoryApplicationWebService {
 //                .address(student.getAddress())
 //                .copy(dormitoryApplication.getCopy())
 //                .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy())
-                .resultDormitoryRoomTypeRes(resultDormitoryRoomTypeRes)
-                .dormitoryApplicationResult(DormitoryApplicationResult.MOVE_PASS)
-                .build();
-        return dormitoryApplicationWebRes;
+//                .resultDormitoryRoomTypeRes(resultDormitoryRoomTypeRes)
+//                .dormitoryApplicationResult(DormitoryApplicationResult.MOVE_PASS)
+//                .build();
+//        return dormitoryApplicationWebRes;
     }
 
     // 정렬된 입사 신청 합격 처리
-    private void sortedPass(Map.Entry<Long, Double> sortedApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> removeDormitoryApplicationList, List<DormitoryApplicationWebRes> dormitoryApplicationWebResList) {
+    private void sortedPass(Map.Entry<Long, Double> sortedApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> removeDormitoryApplicationList, List<InspectDormitoryApplicationRes> inspectDormitoryApplicationResList) {
         Long dormitoryApplicationId = sortedApplication.getKey();
         DormitoryApplication dormitoryApplication = dormitoryApplicationRepository.findById(dormitoryApplicationId)
                 .orElseThrow();
-        pass(dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, dormitoryApplicationWebResList);
+        pass(dormitoryApplication, acceptLimitMap, removeDormitoryApplicationList, inspectDormitoryApplicationResList);
     }
 
     // (전원) 합격의 경우 사용. (우선 선발 /신입생 전원 합격 포함)
-    private static void pass(DormitoryApplication dormitoryApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> removeDormitoryApplicationList, List<DormitoryApplicationWebRes> dormitoryApplicationWebResList) {
+    private static void pass(DormitoryApplication dormitoryApplication, Map<Long, Integer> acceptLimitMap, List<DormitoryApplication> removeDormitoryApplicationList, List<InspectDormitoryApplicationRes> inspectDormitoryApplicationResList) {
         DormitoryTerm applicationDormitoryTerm = dormitoryApplication.getApplicationDormitoryTerm();
         DormitoryRoomType applicationDormitoryRoomType = applicationDormitoryTerm.getDormitoryRoomType();
         Integer acceptLimit = acceptLimitMap.get(applicationDormitoryRoomType.getId());
         acceptLimitMap.replace(applicationDormitoryRoomType.getId(), acceptLimit - 1);
 
-        DormitoryApplicationWebRes dormitoryApplicationWebRes = getPassDormitoryApplicationWebRes(dormitoryApplication, applicationDormitoryRoomType);
+        InspectDormitoryApplicationRes inspectDormitoryApplicationRes = getPassDormitoryApplicationWebRes(dormitoryApplication, applicationDormitoryRoomType);
 
         removeDormitoryApplicationList.add(dormitoryApplication);
-        dormitoryApplicationWebResList.add(dormitoryApplicationWebRes);
+        inspectDormitoryApplicationResList.add(inspectDormitoryApplicationRes);
     }
 
-    private static DormitoryApplicationWebRes getPassDormitoryApplicationWebRes(DormitoryApplication dormitoryApplication, DormitoryRoomType applicationDormitoryRoomType) {
+    private static InspectDormitoryApplicationRes getPassDormitoryApplicationWebRes(DormitoryApplication dormitoryApplication, DormitoryRoomType applicationDormitoryRoomType) {
         Student student = dormitoryApplication.getStudent();
         User user = student.getUser();
         Dormitory applicationDormitory = applicationDormitoryRoomType.getDormitory();
@@ -511,8 +523,15 @@ public class DormitoryApplicationWebService {
                 .dormitoryName(applicationDormitory.getName())
                 .roomSize(applicationRoomType.getRoomSize())
                 .build();
-        DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
+
+        return InspectDormitoryApplicationRes.builder()
                 .dormitoryApplicationId(dormitoryApplication.getId())
+                .resultDormitoryRoomTypeRes(dormitoryRoomTypeRes)
+                .dormitoryApplicationResult(DormitoryApplicationResult.PASS)
+                .build();
+
+//        DormitoryApplicationWebRes dormitoryApplicationWebRes = DormitoryApplicationWebRes.builder()
+//                .dormitoryApplicationId(dormitoryApplication.getId())
 //                .studentName(user.getName())
 //                .studentNumber(student.getStudentNumber())
 //                .gender(student.getGender())
@@ -520,10 +539,10 @@ public class DormitoryApplicationWebService {
 //                .address(student.getAddress())
 //                .copy(dormitoryApplication.getCopy())
 //                .prioritySelectionCopy(dormitoryApplication.getPrioritySelectionCopy())
-                .resultDormitoryRoomTypeRes(dormitoryRoomTypeRes)
-                .dormitoryApplicationResult(DormitoryApplicationResult.PASS)
-                .build();
-        return dormitoryApplicationWebRes;
+//                .resultDormitoryRoomTypeRes(dormitoryRoomTypeRes)
+//                .dormitoryApplicationResult(DormitoryApplicationResult.PASS)
+//                .build();
+//        return dormitoryApplicationWebRes;
     }
 
     // Description : 합/불 저장 ( BULK UPDATE )
