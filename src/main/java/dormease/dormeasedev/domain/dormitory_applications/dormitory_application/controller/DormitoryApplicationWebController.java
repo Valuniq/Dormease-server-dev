@@ -1,5 +1,7 @@
 package dormease.dormeasedev.domain.dormitory_applications.dormitory_application.controller;
 
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.request.ApplicationIdsReq;
+import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.request.ModifyApplicationResultIdsReq;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.dto.response.DormitoryApplicationWebRes;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.service.DormitoryApplicationWebService;
 import dormease.dormeasedev.global.common.ApiResponse;
@@ -56,5 +58,27 @@ public class DormitoryApplicationWebController implements DormitoryApplicationWe
                 .information(dormitoryApplicationWebResList)
                 .build();
         return ResponseEntity.ok(apiResponse);
+    }
+
+    @Override
+    @PostMapping("/inspection/{dormitoryApplicationSettingId}")
+    public ResponseEntity<ApiResponse> inspectApplication(
+            @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+            @PathVariable(name = "dormitoryApplicationSettingId") Long dormitoryApplicationSettingId,
+            @RequestBody ApplicationIdsReq applicationIdsReq
+    ) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(dormitoryApplicationWebService.inspectApplication(userDetailsImpl, dormitoryApplicationSettingId, applicationIdsReq))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+
+    }
+
+    @Override
+    @PatchMapping("/result")
+    public ResponseEntity<Void> modifyApplicationResult(@RequestBody ModifyApplicationResultIdsReq modifyApplicationResultIdsReq) {
+        dormitoryApplicationWebService.modifyApplicationResult(modifyApplicationResultIdsReq);
+        return ResponseEntity.noContent().build();
     }
 }

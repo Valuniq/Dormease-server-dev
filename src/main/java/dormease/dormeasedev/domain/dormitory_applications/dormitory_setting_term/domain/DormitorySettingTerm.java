@@ -28,6 +28,7 @@ public class DormitorySettingTerm extends BaseEntity {
     @JoinColumn(name = "dormitory_room_type_id")
     private DormitoryRoomType dormitoryRoomType;
 
+    // int로 바꿀 것
     private Integer acceptLimit;
 
     public void updateAcceptLimit(Integer acceptLimit) {

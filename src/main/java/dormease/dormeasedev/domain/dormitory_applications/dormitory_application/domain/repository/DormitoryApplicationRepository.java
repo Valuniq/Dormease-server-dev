@@ -6,7 +6,9 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.DormitoryApplicationSetting;
 import dormease.dormeasedev.domain.users.student.domain.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -45,4 +47,8 @@ public interface DormitoryApplicationRepository extends JpaRepository<DormitoryA
             "WHERE d.student = :student AND d.dormitoryApplicationResult = :dormitoryApplicationResult " +
             "ORDER BY d.createdDate DESC")
     DormitoryApplication findLatestDormitoryApplicationByStudent(Student student, DormitoryApplicationResult dormitoryApplicationResult);
+
+    @Modifying
+    @Query("UPDATE DormitoryApplication da SET da.dormitoryApplicationResult = :result WHERE da.id IN :ids")
+    void updateDormitoryApplicationResults(@Param("result") DormitoryApplicationResult result, @Param("ids") List<Long> ids);
 }
