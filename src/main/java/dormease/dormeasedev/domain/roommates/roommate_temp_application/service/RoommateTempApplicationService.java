@@ -5,7 +5,6 @@ import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_application_setting.domain.ApplicationStatus;
 import dormease.dormeasedev.domain.dormitory_applications.dormitory_term.domain.DormitoryTerm;
 import dormease.dormeasedev.domain.roommates.roommate_application.domain.repository.RoommateApplicationRepository;
-import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.RoommateTempApplication;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.repository.RoommateTempApplicationRepository;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.dto.response.ExistRoommateTempApplicationRes;
 import dormease.dormeasedev.domain.roommates.roommate_temp_application.dto.response.RoommateTempApplicationMemberRes;

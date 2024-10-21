@@ -6,7 +6,7 @@ import dormease.dormeasedev.domain.points.point.dto.response.UserPointHistoryApp
 import dormease.dormeasedev.domain.points.user_point.domain.UserPoint;
 import dormease.dormeasedev.domain.points.user_point.domain.repository.UserPointRepository;
 import dormease.dormeasedev.domain.users.student.domain.Student;
-import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
+import dormease.dormeasedev.domain.users.student.domain.repository.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.service.UserService;

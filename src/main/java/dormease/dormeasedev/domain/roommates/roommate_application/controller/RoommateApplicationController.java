@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,20 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/app/roommateApplication")
-public class RoommateApplicationAppController {
+public class RoommateApplicationController implements RoommateApplicationApi {
 
     private final RoommateApplicationService roommateApplicationService;
 
-    // Description : 룸메이트 신청 (방장 o)
-    @Operation(summary = "룸메이트 신청", description = "룸메이트 신청을 진행합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "룸메이트 신청 성공", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}),
-            @ApiResponse(responseCode = "400", description = "룸메이트 신청 실패", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
-    })
-    @PostMapping
-    public ResponseEntity<?> applyRoommateTempApplication(
-            @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
-    ) {
-        return roommateApplicationService.applyRoommateTempApplication(userDetailsImpl);
+    @Override
+    @PatchMapping
+    public ResponseEntity<Void> applyRoommate(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {
+        roommateApplicationService.applyRoommate(userDetailsImpl);
+        return ResponseEntity.noContent().build();
     }
 }

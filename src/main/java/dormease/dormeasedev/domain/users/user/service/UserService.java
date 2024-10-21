@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.restaurants.restaurant.domain.repository.Rest
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.auth.domain.repository.RefreshTokenRepository;
 import dormease.dormeasedev.domain.users.student.domain.Student;
-import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
+import dormease.dormeasedev.domain.users.student.domain.repository.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.dto.request.*;

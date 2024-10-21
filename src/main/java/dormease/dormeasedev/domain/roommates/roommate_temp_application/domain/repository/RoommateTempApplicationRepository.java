@@ -1,6 +1,5 @@
 package dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.repository;
 
-import dormease.dormeasedev.domain.roommates.roommate_temp_application.domain.RoommateTempApplication;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
