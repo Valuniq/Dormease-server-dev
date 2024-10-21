@@ -36,8 +36,6 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
 
     boolean existsByStudent(Student student);
 
-    List<Resident> findByRoommateTempApplication(RoommateTempApplication roommateTempApplication);
-
 //    @Query("SELECT r FROM Resident r JOIN r.room rm JOIN rm.dormitory d WHERE d IN :dormitories")
 //    List<Resident> findByDormitories(List<Dormitory> dormitories);
 

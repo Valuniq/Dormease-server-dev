@@ -11,8 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @Tag(name = "[APP] Roommate Application API", description = "룸메이트 신청 관련 API입니다.")
 public interface RoommateApplicationApi {
@@ -27,7 +26,7 @@ public interface RoommateApplicationApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}
             ),
     })
-    @PatchMapping
+    @PutMapping
     ResponseEntity<?> applyRoommate(
             @Parameter(description = "Access Token을 입력해주세요.", required = true) @AuthenticationPrincipal UserDetailsImpl userDetailsImpl
     );
