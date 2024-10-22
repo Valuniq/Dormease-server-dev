@@ -18,7 +18,7 @@ import dormease.dormeasedev.domain.dormitory_applications.meal_ticket.service.Me
 import dormease.dormeasedev.domain.dormitory_applications.term.domain.Term;
 import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.student.domain.Student;
-import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
+import dormease.dormeasedev.domain.users.student.domain.repository.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.service.UserService;
 import dormease.dormeasedev.global.common.ApiResponse;

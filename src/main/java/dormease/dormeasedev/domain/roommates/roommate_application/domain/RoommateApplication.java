@@ -17,12 +17,22 @@ public class RoommateApplication extends BaseEntity {
     @Column(name = "roommate_application_id")
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private RoommateApplicationResult roommateApplicationResult;
+    private String code;
+
+    // 룸메이트 신청 여부 - 방장이 버튼 클릭 시 true
+    private boolean isApplied;
+
+    // 방장 id (방장의 resident id)
+    private Long roommateMasterId;
+
+    public void updateApplied(boolean applied) {
+        this.isApplied = applied;
+    }
 
     @Builder
-    public RoommateApplication(Long id, RoommateApplicationResult roommateApplicationResult) {
-        this.id = id;
-        this.roommateApplicationResult = roommateApplicationResult;
+    public RoommateApplication(String code, Long roommateMasterId) {
+        this.code = code;
+        this.isApplied = false;
+        this.roommateMasterId = roommateMasterId;
     }
 }

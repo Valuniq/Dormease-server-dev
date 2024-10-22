@@ -5,7 +5,7 @@ import dormease.dormeasedev.domain.users.blacklist.domain.BlackList;
 import dormease.dormeasedev.domain.users.blacklist.domain.repository.BlackListRepository;
 import dormease.dormeasedev.domain.users.blacklist.dto.request.BlackListContentReq;
 import dormease.dormeasedev.domain.users.student.domain.Student;
-import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
+import dormease.dormeasedev.domain.users.student.domain.repository.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.dto.response.BlackListUserInfoRes;

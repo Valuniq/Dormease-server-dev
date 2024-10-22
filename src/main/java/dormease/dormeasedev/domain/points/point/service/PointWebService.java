@@ -2,7 +2,6 @@ package dormease.dormeasedev.domain.points.point.service;
 
 import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.dormitories.dormitory_room_type.domain.DormitoryRoomType;
-import dormease.dormeasedev.domain.dormitory_applications.dormitory_application.domain.repository.DormitoryApplicationRepository;
 import dormease.dormeasedev.domain.points.point.domain.Point;
 import dormease.dormeasedev.domain.points.point.domain.PointType;
 import dormease.dormeasedev.domain.points.point.domain.repository.PointRepository;
@@ -17,9 +16,8 @@ import dormease.dormeasedev.domain.school.domain.School;
 import dormease.dormeasedev.domain.users.resident.domain.Resident;
 import dormease.dormeasedev.domain.users.resident.domain.repository.ResidentRepository;
 import dormease.dormeasedev.domain.users.student.domain.Student;
-import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
+import dormease.dormeasedev.domain.users.student.domain.repository.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
-import dormease.dormeasedev.domain.users.user.domain.UserType;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.exception.InvalidSchoolAuthorityException;
 import dormease.dormeasedev.domain.users.user.service.UserService;

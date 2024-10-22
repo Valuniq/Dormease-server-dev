@@ -1,7 +1,9 @@
-package dormease.dormeasedev.domain.users.student.domain;
+package dormease.dormeasedev.domain.users.student.domain.repository;
 
 import dormease.dormeasedev.domain.common.Status;
+import dormease.dormeasedev.domain.roommates.roommate_application.domain.RoommateApplication;
 import dormease.dormeasedev.domain.school.domain.School;
+import dormease.dormeasedev.domain.users.student.domain.Student;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,4 +38,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     boolean existsByStudentNumber(String studentNumber);
 
     Optional<Student> findByStudentNumber(String studentNumber);
+
+    List<Student> findByRoommateApplication(RoommateApplication roommateApplication);
 }

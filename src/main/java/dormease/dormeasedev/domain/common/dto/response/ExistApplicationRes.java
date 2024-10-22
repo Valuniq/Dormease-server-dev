@@ -17,9 +17,6 @@ public class ExistApplicationRes {
     @Schema(type = "UserType", example = "BLACKLIST", description = "유저 타입입니다. USER / ADMIN / BLACKLIST / RESIDENT 中 1")
     private UserType userType;
 
-    @Schema(type = "Boolean", example = "true", description = "룸메이트 그룹 참여 여부입니다. true : 이미 참여한 상태")
-    private Boolean existRoommateTempApplication;
-
     @Schema(type = "Boolean", example = "true", description = "룸메이트 그룹의 방장 여부입니다. 그룹 생성(참여) 후  방장 여부 확인을 위한 컬럼입니다. true : 그룹의 방장")
     private Boolean isMaster;
 

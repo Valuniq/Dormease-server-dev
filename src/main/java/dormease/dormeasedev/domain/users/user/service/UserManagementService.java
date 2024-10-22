@@ -2,7 +2,7 @@ package dormease.dormeasedev.domain.users.user.service;
 
 import dormease.dormeasedev.domain.common.Status;
 import dormease.dormeasedev.domain.users.student.domain.Student;
-import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
+import dormease.dormeasedev.domain.users.student.domain.repository.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
 import dormease.dormeasedev.domain.users.user.dto.response.ActiveUserInfoRes;

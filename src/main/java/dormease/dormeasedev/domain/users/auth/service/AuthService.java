@@ -16,7 +16,7 @@ import dormease.dormeasedev.domain.users.auth.dto.response.ReissueRes;
 import dormease.dormeasedev.domain.users.auth.dto.response.SignInRes;
 import dormease.dormeasedev.domain.users.auth.exception.UserNotFoundException;
 import dormease.dormeasedev.domain.users.student.domain.Student;
-import dormease.dormeasedev.domain.users.student.domain.StudentRepository;
+import dormease.dormeasedev.domain.users.student.domain.repository.StudentRepository;
 import dormease.dormeasedev.domain.users.user.domain.Gender;
 import dormease.dormeasedev.domain.users.user.domain.User;
 import dormease.dormeasedev.domain.users.user.domain.repository.UserRepository;
